@@ -42,7 +42,9 @@ impl Default for Theme {
         Theme {
             violet: "#B86A3C".into(),
             indigo: "#7A3E1D".into(),
-            teal: "#008454".into(),
+            // Links are also small text: use a readable emerald, reserving the
+            // darker emerald for the decorative loading gradient.
+            teal: "#50C58B".into(),
             navy: "#0B2410".into(),
             panel: "#12301B".into(),
             bar: "#0B2410".into(),
@@ -52,8 +54,12 @@ impl Default for Theme {
             violet_pale: "#FDE3CF".into(),
             ink: "#F6E7BF".into(),
             muted: "#C5BBA5".into(),
-            muted_dim: "#948B77".into(),
-            amber: "#EAB08A".into(),
+            // Also the offline-status color: retain its distinct slate hue so
+            // it cannot be mistaken for error/away in color-blind modes.
+            muted_dim: "#6F7BA0".into(),
+            // Warning/status amber is semantic, not a copper brand accent.
+            // Keep it distinct from errors in color-blind modes.
+            amber: "#FCD34D".into(),
             rose: "#D48A5A".into(),
             danger: "#F87171".into(),
             success: "#4ADE80".into(),

@@ -212,7 +212,7 @@ fn texts_stay_readable_on_any_background() {
 }
 
 /// Whatever the accent, it shows against the panel (3:1) and the text on
-/// it reads at least as well as the skin's white on its violet, 4.5:1 as
+/// it reads at least as well as the skin's text on its accent, 4.5:1 as
 /// soon as the skin's pair reaches it.
 #[test]
 fn any_accent_keeps_its_text_and_shows_on_the_panel() {
@@ -228,10 +228,10 @@ fn any_accent_keeps_its_text_and_shows_on_the_panel() {
         );
         assert!(contrast(p.violet, p.panel) >= UI, "{accent:?} → {:?}", p.violet);
         assert!(contrast(p.on_accent, p.violet) >= need, "on {:?}: {:?}", p.violet, p.on_accent);
-        assert!([s.on_accent, s.navy].contains(&p.on_accent));
+        assert!([s.on_accent, s.navy, Color32::WHITE, Color32::BLACK].contains(&p.on_accent));
         assert_eq!(adjusted.accent, contrast(accent, s.panel) < UI, "{accent:?}");
     }
-    // the skin's violet keeps its white text, a bright yellow takes navy
+    // The skin's own accent keeps its text; a bright yellow needs dark text.
     assert_eq!(
         derive(
             s,
@@ -244,18 +244,34 @@ fn any_accent_keeps_its_text_and_shows_on_the_panel() {
         .on_accent,
         s.on_accent
     );
-    assert_eq!(
-        derive(
-            s,
-            &InterfaceColors {
-                accent: rgba("#FACC15"),
-                ..Default::default()
-            }
-        )
-        .0
-        .on_accent,
-        s.navy
-    );
+    let yellow = derive(
+        s,
+        &InterfaceColors {
+            accent: rgba("#FACC15"),
+            ..Default::default()
+        },
+    )
+    .0;
+    assert!(contrast(yellow.on_accent, yellow.violet) >= need);
+    assert!(luminance(yellow.on_accent) < luminance(yellow.violet));
+}
+
+#[test]
+fn copper_skin_links_and_dark_accent_text_remain_readable() {
+    let s = skin();
+    assert!(contrast(s.teal, s.panel) >= TEXT);
+    let gray = derive(
+        s,
+        &InterfaceColors {
+            accent: rgba("#737373"),
+            ..Default::default()
+        },
+    )
+    .0;
+    assert!(contrast(gray.on_accent, gray.violet) >= TEXT);
+    // The old fallback picked between two dark colors, neither of which met
+    // the contrast requirement on this mid-gray accent.
+    assert_eq!(gray.on_accent, Color32::WHITE);
 }
 
 #[test]
