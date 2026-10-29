@@ -54,6 +54,8 @@ jobs:
   windows:
     runs-on: windows-2025
     timeout-minutes: 90
+    env:
+      CARGO_BUILD_JOBS: "2"
     defaults:
       run:
         shell: pwsh
@@ -83,6 +85,9 @@ jobs:
           Compress-Archive -LiteralPath $folder -DestinationPath $zip -Force
           $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           [IO.File]::WriteAllText("$zip.sha256", "$hash  $name.zip`n", [Text.UTF8Encoding]::new($false))
+          ./scripts/verify-windows-package.ps1 -Zip $zip -Evidence ../generated-artifacts/windows-package-verification.json
+          node ../scripts/verify-viewer-preservation.mjs ../generated-artifacts/windows-package-verification.json
+          Copy-Item docs/amante/feature-parity.csv ../generated-artifacts/windows-feature-parity.csv
       - name: Downloadable Windows build, not a published release
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -90,5 +95,40 @@ jobs:
           path: |
             generated-artifacts/*.zip
             generated-artifacts/*.sha256
+            generated-artifacts/windows-package-verification.json
+            generated-artifacts/windows-feature-parity.csv
+            generated-artifacts/source-preservation.json
           if-no-files-found: error
+          retention-days: 14
+
+  windows-tests:
+    # Public-repository Windows runners provide more memory than this Replit.
+    # Record actual capacity; a build or compile-check is not a test result.
+    runs-on: windows-2025
+    timeout-minutes: 90
+    env:
+      CARGO_BUILD_JOBS: "2"
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: amante-viewer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Full offline native unit and integration harness
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal
+          if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed.' }
+          rustup override set 1.99.1
+          if ($LASTEXITCODE -ne 0) { throw 'Rust selection failed.' }
+          ./scripts/test-windows-offline.ps1 -Out ../generated-artifacts/windows-tests
+      - name: Preserve actual harness results, including failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Amante-Windows-offline-test-evidence
+          path: generated-artifacts/windows-tests/
+          if-no-files-found: warn
           retention-days: 14

@@ -18,8 +18,19 @@ const records = inventory.files.map((file) => {
   return { path: file.path, status: blob === file.blob ? "unchanged" : "modified", baselineBlob: file.blob, currentBlob: blob };
 });
 const byPath = new Map(records.map((r) => [r.path, r.status]));
-const rows = [["kind", "baseline source", "declaration", "source status", "desktop status"]];
-const row = (kind, path, declaration) => rows.push([kind, path, declaration, byPath.get(path.replace(/:\d+$/, "")), "not runtime-tested"]);
+// Optional evidence is emitted only after checking the extracted Windows ZIP.
+// Whole-target compilation and distribution checks are NOT per-feature tests.
+const evidence = process.argv[2] ? JSON.parse(readFileSync(process.argv[2], "utf8")) : null;
+if (evidence && (evidence.schema !== 1 || evidence.nativeBuild !== "passed" || evidence.packageVerification !== "passed" || !/^[a-f0-9]{64}$/.test(evidence.sha256))) {
+  throw new Error("Expected successful Windows package verification evidence");
+}
+const rows = [["kind", "baseline source", "declaration", "source status", "Windows build status", "Windows package status", "desktop status", "build revision", "package SHA-256"]];
+const row = (kind, path, declaration) => rows.push([
+  kind, path, declaration, byPath.get(path.replace(/:\d+$/, "")),
+  evidence ? "complete native target built; not a per-item test" : "not Windows-verified",
+  evidence ? "distribution verified; not a per-item test" : "not Windows-verified",
+  "not runtime-tested", evidence?.revision ?? "", evidence?.sha256 ?? "",
+]);
 for (const file of inventory.uiModules) row("UI module", file.path, "");
 for (const entry of inventory.menuRegistrations) row("menu registration call site", entry.id, entry.context);
 for (const entry of inventory.settingFields) row("setting declaration", entry.id, `${entry.name}: ${entry.type}`);
