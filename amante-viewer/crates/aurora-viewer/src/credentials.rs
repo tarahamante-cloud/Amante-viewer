@@ -198,6 +198,15 @@ pub fn forget(grid: &str, username: &str) {
 mod tests {
     use super::*;
 
+    #[test]
+    fn amante_security_credential_namespaces_never_reuse_auroras() {
+        // Deliberately do not construct an Entry or touch the system store.
+        assert_eq!(SERVICE, "Amante Viewer");
+        assert_eq!(MFA_SERVICE, "Amante Viewer MFA");
+        assert_ne!(SERVICE, "Aurora Viewer");
+        assert_ne!(MFA_SERVICE, "Aurora Viewer MFA");
+    }
+
     #[derive(Default)]
     struct MemoryStore(std::cell::RefCell<std::collections::HashMap<String, String>>);
 

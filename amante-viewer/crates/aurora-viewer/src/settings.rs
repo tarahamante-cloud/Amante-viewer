@@ -1936,11 +1936,13 @@ pub fn config_dir() -> PathBuf {
     if let Some(test) = aurora_updater::test_environment() {
         return test.root.join("profile");
     }
-    for_mode(
-        directories::ProjectDirs::from("org", "Amante", "AmanteViewer")
-            .map(|d| d.config_dir().to_path_buf())
-            .unwrap_or_else(|| PathBuf::from("amante-viewer")),
-    )
+    for_mode(default_config_root())
+}
+
+fn default_config_root() -> PathBuf {
+    directories::ProjectDirs::from("org", "Amante", "AmanteViewer")
+        .map(|d| d.config_dir().to_path_buf())
+        .unwrap_or_else(|| PathBuf::from("amante-viewer"))
 }
 
 /// Files of one account (LL_PATH_PER_SL_ACCOUNT): contact sets, pinned
@@ -1993,6 +1995,10 @@ pub fn media_plugins_dir() -> PathBuf {
     if let Some(test) = aurora_updater::test_environment() {
         return test.root.join("media-plugins");
     }
+    default_media_plugins_root()
+}
+
+fn default_media_plugins_root() -> PathBuf {
     directories::ProjectDirs::from("org", "Amante", "AmanteViewer")
         .map(|d| d.data_local_dir().join("media-plugins"))
         .unwrap_or_else(|| PathBuf::from("amante-media-plugins"))
@@ -2740,6 +2746,47 @@ impl WaterEffectsSettings {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn amante_security_default_profile_cache_media_and_logs_are_not_auroras() {
+        // Exercise the production calculations, not the test-root override.
+        // ProjectDirs computes names only; this test performs no profile I/O.
+        let amante = directories::ProjectDirs::from("org", "Amante", "AmanteViewer").expect("profile directories");
+        let aurora = directories::ProjectDirs::from("org", "Aurora", "AuroraViewer").expect("upstream directories");
+        for (actual, expected, foreign) in [
+            (
+                super::default_config_root(),
+                amante.config_dir().to_path_buf(),
+                aurora.config_dir().to_path_buf(),
+            ),
+            (
+                super::default_cache_root(),
+                amante.cache_dir().to_path_buf(),
+                aurora.cache_dir().to_path_buf(),
+            ),
+            (
+                super::default_media_plugins_root(),
+                amante.data_local_dir().join("media-plugins"),
+                aurora.data_local_dir().join("media-plugins"),
+            ),
+            (
+                crate::logging::logs_dir(),
+                amante.data_local_dir().join("logs"),
+                aurora.data_local_dir().join("logs"),
+            ),
+        ] {
+            assert_eq!(actual, expected);
+            assert!(!actual.starts_with(&foreign), "Amante must not use an Aurora directory");
+        }
+    }
+
+    #[test]
+    fn amante_security_unit_tests_use_only_the_worktree_profile() {
+        let root = super::unit_test_root().expect("isolated test root");
+        assert_eq!(super::config_dir(), root.join("config"));
+        assert_eq!(super::cache_dir(), root.join("cache"));
+        assert_eq!(super::media_plugins_dir(), root.join("media-plugins"));
+    }
+
     /// The early read of `allow_overlays` agrees with the full settings and
     /// keeps the overlays out on any doubt.
     #[test]
