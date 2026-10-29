@@ -15,14 +15,18 @@ $buildLog = Join-Path $Out 'compile.jsonl'
 cargo test --profile ci --workspace --locked --no-run --message-format=json 1> $buildLog
 if ($LASTEXITCODE -ne 0) { throw 'Full native test harness did not compile. See compile.jsonl and Actions stderr.' }
 $summary.compile = 'passed'
-$binaries = @(
+$targets = @(
     Get-Content -LiteralPath $buildLog | ForEach-Object {
         $message = $_ | ConvertFrom-Json
         if ($message.reason -eq 'compiler-artifact' -and $message.profile.test -and $message.executable) {
-            $message.executable
+            [pscustomobject]@{
+                binary = $message.executable
+                directory = Split-Path $message.manifest_path -Parent
+            }
         }
-    } | Sort-Object -Unique
+    } | Sort-Object -Property binary -Unique
 )
+$binaries = @($targets | ForEach-Object { $_.binary })
 if ($binaries.Count -eq 0 -or !($binaries | Where-Object { [IO.Path]::GetFileName($_) -like 'aurora_viewer-*' })) {
     throw 'Complete viewer test executable was not emitted.'
 }
@@ -41,11 +45,16 @@ try {
     }
     if (Get-NetFirewallProfile | Where-Object { !$_.Enabled }) { throw 'Windows firewall profiles must be enabled.' }
     $failed = $false
-    foreach ($binary in $binaries) {
+    foreach ($target in $targets) {
+        $binary = $target.binary
         $name = [IO.Path]::GetFileNameWithoutExtension($binary)
         $log = Join-Path $Out "$name.txt"
-        & $binary --test-threads=2 2>&1 | Tee-Object -FilePath $log
-        $code = $LASTEXITCODE
+        # Cargo normally launches a test from its package root, not the workspace.
+        Push-Location -LiteralPath $target.directory
+        try {
+            & $binary --test-threads=2 2>&1 | Tee-Object -FilePath $log
+            $code = $LASTEXITCODE
+        } finally { Pop-Location }
         $summary.tests += [ordered]@{ binary = [IO.Path]::GetFileName($binary); exitCode = $code; status = $(if ($code -eq 0) { 'passed' } else { 'failed' }); log = "$name.txt" }
         $summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
         if ($code -ne 0) { $failed = $true }
