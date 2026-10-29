@@ -1,0 +1,61 @@
+name: Investigate an Amante Windows download
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful Amante build run ID from its Actions URL
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  scan:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify the selected run belongs to this repository's build workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:SOURCE_RUN_ID -notmatch '^[1-9][0-9]{0,19}$') { throw 'Enter the numeric build run ID.' }
+          $json = gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$env:SOURCE_RUN_ID"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect the selected build run.' }
+          $run = $json | ConvertFrom-Json
+          if ($run.path -ne '.github/workflows/amante-build.yml' -or $run.conclusion -ne 'success') {
+            throw 'Select a successful run of the Amante build workflow.'
+          }
+          "Scanning the existing package from $($run.html_url)"
+      - name: Download the original Windows artifact without running its contents
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: Amante-Viewer-windows-x64
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+          path: generated-artifacts/download-scan/input
+      - name: Verify the package checksum and scan its archive with Microsoft Defender
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          ./scripts/scan-amante-download.ps1 `
+            -InputDirectory generated-artifacts/download-scan/input `
+            -ReportDirectory generated-artifacts/download-scan/report
+      - name: Preserve scan evidence even when scanning fails
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Amante-download-scan-evidence
+          path: generated-artifacts/download-scan/report/
+          if-no-files-found: warn
+          retention-days: 14
