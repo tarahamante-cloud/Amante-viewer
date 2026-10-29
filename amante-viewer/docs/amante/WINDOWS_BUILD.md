@@ -2,8 +2,10 @@
 
 ## GitHub Actions
 
-Push the **whole workspace root**, including root `.github/workflows`, to an
-owner-controlled repository. Run **Amante native checks and Windows download**
+Keep the repository-root layout: `amante-viewer/`, root `.github/workflows/`,
+and the source-inventory scripts under root `scripts/`. Unrelated Replit starter
+apps, local data and build outputs are not required. Run
+**Amante native checks and Windows download**
 from its Actions page. Download `Amante-Viewer-windows-x64` from the successful
 run's artifacts, then extract the versioned ZIP inside it.
 
@@ -14,7 +16,20 @@ The workflow:
 - compiles the real Rust/native viewer with the locked dependency graph;
 - packages `amante-viewer.exe`, retained required assets and third-party licenses;
 - writes a SHA-256 checksum next to the ZIP;
+- extracts the ZIP into a fresh temporary directory, checks the x64 PE and
+  Windows product resources, runs the extracted `--version`, and compares
+  packaged licenses and documentation with their source files;
+- runs the complete workspace unit/integration executables in a separate
+  Windows job, with outbound non-loopback test traffic blocked;
 - never signs in, contacts a live grid, publishes a release or enables updates.
+
+The Windows test job records actual runner memory, compilation output, each
+test binary's exit code and test log in `Amante-Windows-offline-test-evidence`.
+Ignored tests remain ignored: graphics, audio devices, real credential-store
+round trips and other explicitly manual fixtures are not silently certified.
+The ZIP artifact also includes its package-verification report, source blob
+comparison and a per-declaration feature CSV. A whole-target build/package
+result is not evidence that any particular UI action was exercised.
 
 Windows uses `windows-2025` and Rust 1.99.1. Linux checks retain the native
 Linux prerequisites. Original platform/configuration files remain in the tree.
@@ -23,8 +38,9 @@ reference files, **not this workspace's active Actions workflows**.
 Do not export them as active top-level release automation without auditing and
 replacing upstream ownership, endpoints, permissions and action references.
 
-**No Windows run/download is claimed to exist yet.** This Linux workspace has
-not validated the MSVC/Windows SDK build or exercised the ZIP.
+See [Windows validation record](WINDOWS_VALIDATION.md) for actual runs and
+evidence. This Linux workspace cannot itself validate interactive Windows
+rendering, devices, native dialogs, or the graphical updater fixture.
 
 ## Local Windows build
 

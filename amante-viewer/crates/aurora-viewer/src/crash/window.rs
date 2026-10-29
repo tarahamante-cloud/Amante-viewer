@@ -497,14 +497,13 @@ impl Recovery {
                         .inner
                         .on_disabled_hover_text(aurora_i18n::tr!("bug-github-config"))
                         .clicked()
+                    && let Some((url, with_body)) = super::github::browser_url(&self.summary.title, &body)
                 {
-                    if let Some((url, with_body)) = super::github::browser_url(&self.summary.title, &body) {
-                        if !with_body {
-                            ui.ctx().copy_text(body.clone());
-                        }
-                        self.sending.body_copied = !with_body;
-                        ui.ctx().open_url(egui::OpenUrl::new_tab(url));
+                    if !with_body {
+                        ui.ctx().copy_text(body.clone());
                     }
+                    self.sending.body_copied = !with_body;
+                    ui.ctx().open_url(egui::OpenUrl::new_tab(url));
                 }
             });
         });
