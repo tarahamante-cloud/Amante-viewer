@@ -285,6 +285,19 @@ fn banner(
     let high = Rect::from_min_max(screen.min, Pos2::new(screen.right(), screen.top() + screen.height() * 0.2));
     gradient_rect(painter, high, navy(0.45), navy(0.0), false);
 
+    // Large, centered crest on both initial loading and teleport purgatory.
+    // Keep it above the destination/progress region and fade with the overlay.
+    if let Some(l) = logo {
+        let size = (screen.height() * 0.42).min(screen.width() * 0.52).min(420.0);
+        let crest = Rect::from_center_size(screen.center(), Vec2::splat(size));
+        painter.image(
+            l.id(),
+            crest,
+            Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)),
+            Color32::WHITE.gamma_multiply(a),
+        );
+    }
+
     // brand, top left
     let brand = Pos2::new(screen.left() + margin, screen.top() + margin * 0.85);
     let mut brand_text = brand.x;

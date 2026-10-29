@@ -453,11 +453,12 @@ const FILLED: &[(&str, &[u8])] = svg_list!(
     "zoom-scan",
 );
 
-/// Brand SVGs (white wolf silhouette from Branding/), drawn untinted or tinted.
-const BRAND_SVGS: &[(&str, &[u8])] = &[("wolf", include_bytes!("../../assets/icons/wolf.svg"))];
-
 /// Raster images kept as PNG (brand logo).
-const PNGS: &[(&str, &[u8])] = &[("phoenix_18", include_bytes!("../../assets/icons/phoenix_18.png"))];
+const PNGS: &[(&str, &[u8])] = &[
+    // Keep the legacy key for existing layouts and skin overrides.
+    ("wolf", include_bytes!("../../assets/amante-crest-icon.png")),
+    ("phoenix_18", include_bytes!("../../assets/icons/phoenix_18.png")),
+];
 
 /// Firestorm icon names used by skins / layouts -> Tabler icon.
 const ALIASES: &[(&str, &str)] = &[
@@ -601,13 +602,9 @@ impl Icons {
                 None => log::warn!("icon {name}: invalid SVG"),
             }
         }
-        for (name, bytes) in BRAND_SVGS {
-            if let Some(ci) = rasterize_svg(bytes, 128).map(center_on_content) {
-                map.insert((*name).to_owned(), ctx.load_texture(*name, ci, opts));
-            }
-        }
         for (name, bytes) in PNGS {
             if let Some(ci) = decode_png(bytes) {
+                let ci = if *name == "wolf" { center_on_content(ci) } else { ci };
                 map.insert((*name).to_owned(), ctx.load_texture(*name, ci, opts));
             }
         }

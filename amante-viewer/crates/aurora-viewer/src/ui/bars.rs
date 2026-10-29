@@ -1680,9 +1680,9 @@ pub fn top_bars(
                 ui.set_min_width(ui.available_width());
                 ui.spacing_mut().item_spacing.x = 4.0;
                 ui.style_mut().visuals.button_frame = false;
-                // Aurora menu (white wolf): Me, Communicate, World, Build, Contents, Advanced, Help
+                // Amante crest menu: preserve all existing menu actions.
                 if let Some(t) = icons.get("wolf") {
-                    let img = egui::Image::new(t).fit_to_exact_size(Vec2::new(18.0, 18.0)).tint(p.ink);
+                    let img = egui::Image::new(t).fit_to_exact_size(Vec2::new(24.0, 24.0));
                     menu::button(ui, p, egui::Button::image(img), |ui| {
                         main_menus(ui, p, panels, st, &mut action, true);
                     })

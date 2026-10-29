@@ -217,8 +217,8 @@ const FLY_TIME: f32 = 0.5;
 /// (an eased FOV zoom creeps toward its target for ever).
 const FOV_SEND_EPSILON: f32 = 1e-3;
 
-/// The wolf logo (window icon, loading screen, system notifications).
-pub(crate) const LOGO_PNG: &[u8] = include_bytes!("../assets/logo-loup-couleur-4096.png");
+/// The transparent Amante family crest (login, loading, window and notifications).
+pub(crate) const LOGO_PNG: &[u8] = include_bytes!("../assets/amante-crest.png");
 
 struct LogoData {
     ui: egui::ColorImage,
@@ -1026,11 +1026,11 @@ impl App {
         }
         let system_fonts_pending = !ui::fonts::apply(&egui_ctx, &ui_font(&settings));
 
-        // Decode the 4096px logo off the main thread.
+        // Decode the crest off the main thread.
         let (tx, rx) = crossbeam_channel::bounded(1);
         std::thread::spawn(move || match image::load_from_memory(LOGO_PNG) {
             Ok(img) => {
-                let ui_img = img.resize(384, 384, image::imageops::FilterType::Triangle).to_rgba8();
+                let ui_img = img.resize(640, 640, image::imageops::FilterType::Lanczos3).to_rgba8();
                 let icon = img.resize(64, 64, image::imageops::FilterType::Triangle).to_rgba8();
                 let ci = egui::ColorImage::from_rgba_unmultiplied([ui_img.width() as usize, ui_img.height() as usize], ui_img.as_raw());
                 let (w, h) = icon.dimensions();
