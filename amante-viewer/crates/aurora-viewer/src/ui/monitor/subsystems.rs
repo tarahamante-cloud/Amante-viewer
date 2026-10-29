@@ -285,7 +285,7 @@ pub(super) fn show(ui: &mut egui::Ui, p: &Palette, m: &mut Monitor, s: &Snapshot
         .collect();
 
     let titles: Vec<&str> = Column::ALL.iter().map(|c| column_title(*c, m.per_core)).collect();
-    let mut cols = vec![Col::new(tr!("monitor-col-subsystem"), 0.0, false).total("Aurora".into())];
+    let mut cols = vec![Col::new(tr!("monitor-col-subsystem"), 0.0, false).total("Amante".into())];
     for (c, title) in Column::ALL.iter().zip(&titles) {
         let total = s.attribution.total(*c).map_or("–".into(), |v| format(*c, scale(*c, v)));
         cols.push(Col::new(title, 96.0, true).sort(m.sort == *c).total(total));

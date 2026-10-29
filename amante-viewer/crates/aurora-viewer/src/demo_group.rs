@@ -94,7 +94,7 @@ fn group_experience() -> ExperienceDetails {
         maturity: aurora_net::search::SIM_ACCESS_PG,
         owner: DEMO_LOUP,
         group: DEMO_GROUP1,
-        slurl: "secondlife://Aurora%20D%C3%A9mo/64/200/24".into(),
+        slurl: "secondlife://Amante%20D%C3%A9mo/64/200/24".into(),
     }
 }
 
@@ -649,7 +649,7 @@ fn group_account(r: &AccountRequest) -> Vec<NetEvent> {
 /// The charter of "Aurora Builders", with a place link.
 fn charter() -> String {
     format!(
-        "{}\n{} http://maps.secondlife.com/secondlife/Aurora%20D%C3%A9mo/64/200/24",
+        "{}\n{} http://maps.secondlife.com/secondlife/Amante%20D%C3%A9mo/64/200/24",
         aurora_i18n::tr!("demo-resident-in-aurora-viewer-s-offline-demo"),
         aurora_i18n::tr!("demo-group-charter")
     )
@@ -714,7 +714,7 @@ pub fn login_benefits() -> Option<Vec<(&'static str, aurora_llsd::Llsd)>> {
 /// The name the scenarios type: a new one, or a demo group's (`refused`).
 pub fn create_name(scenario: CreateScenario) -> &'static str {
     match scenario {
-        CreateScenario::Refused => "Aurora Builders",
+        CreateScenario::Refused => "Amante Builders",
         _ => "Lagoon Painters",
     }
 }
@@ -732,7 +732,7 @@ fn created(group: &Uuid) -> Option<aurora_net::search::GroupProfile> {
 pub fn create(name: &str, info: &aurora_net::groups::GroupInfo, balance: i32, fee: i32, can_join: bool) -> Vec<NetEvent> {
     let taken = super::search::group_named(name)
         || [
-            "Aurora Builders",
+            "Amante Builders",
             aurora_i18n::tr!("demo-northern-wolves"),
             aurora_i18n::tr!("common-plaza-market"),
         ]
@@ -917,7 +917,7 @@ pub fn reply(cmd: &NetCommand) -> Option<Vec<NetEvent>> {
             log::info!("demo group: notice sent ({} bytes attached)", bucket.len().saturating_sub(1));
             vec![NetEvent::InstantMessage(aurora_net::InstantMessage {
                 from_agent_id: DEMO_GROUP1,
-                from_name: "Aurora Demo".into(),
+                from_name: "Amante Demo".into(),
                 to_agent_id: DEMO_AGENT,
                 dialog: 32,
                 session_id: Uuid::new_v4(),

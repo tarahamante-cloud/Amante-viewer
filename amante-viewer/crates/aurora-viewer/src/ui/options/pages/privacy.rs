@@ -275,7 +275,14 @@ pub(super) fn page(cx: &mut Cx) {
             &Nothing,
             |ui, _| {
                 let read = tr!("ui-options-privacy-policy-open");
-                if widgets::action_button(ui, &p, "external-link", read, widgets::ActionKind::Flat, egui::Vec2::new(0.0, 24.0)).clicked() {
+                let configured = !crate::links::PRIVACY_POLICY.is_empty();
+                let response = ui.add_enabled_ui(configured, |ui| {
+                    widgets::action_button(ui, &p, "external-link", read, widgets::ActionKind::Flat, egui::Vec2::new(0.0, 24.0))
+                });
+                if !configured {
+                    response.response.on_hover_text("Amante privacy policy is not configured yet.");
+                }
+                if configured && response.inner.clicked() {
                     ui.ctx().open_url(egui::OpenUrl::new_tab(crate::links::PRIVACY_POLICY));
                 }
                 false

@@ -6,6 +6,6 @@ pub fn peer() -> ObjectUpdate {
     object.full_id = PEER;
     object.local_id = 9727;
     object.position += Vec3::new(1.5, 0.5, 0.0);
-    object.name_values = "FirstName STRING RW SV Nova\nLastName STRING RW SV Aurora".into();
+    object.name_values = "FirstName STRING RW SV Nova\nLastName STRING RW SV Amante".into();
     object
 }

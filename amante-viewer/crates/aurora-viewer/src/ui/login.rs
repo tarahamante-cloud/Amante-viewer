@@ -549,7 +549,7 @@ pub fn show(
                     super::aurora_bg::radial_glow(&painter, r.center(), 150.0, p.violet, 0.42);
                 }
                 ui.add_space(2.0);
-                ui.label(RichText::new("Aurora Viewer").size(34.0).strong().color(p.ink));
+                ui.label(RichText::new(aurora_version::APP_NAME).size(34.0).strong().color(p.ink));
                 ui.label(
                     RichText::new(aurora_i18n::tr!("ui-login-second-life-client-rust-vulkan"))
                         .size(13.0)

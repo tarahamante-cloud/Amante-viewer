@@ -91,7 +91,7 @@ pub(super) fn show(ui: &mut egui::Ui, p: &Palette, s: &Snapshot) {
             draw::card(ui, p, |ui| {
                 draw::card_title(ui, p, tr!("monitor-processes-title"), tr!("monitor-processes-units"));
                 let own = f64::from(cpu.process) * cpu.cores as f64;
-                process_row(ui, p, "Aurora", own, s.memory.map(|mem| mem.working_set as f64));
+                process_row(ui, p, "Amante", own, s.memory.map(|mem| mem.working_set as f64));
                 for (proc_, usage) in &s.attribution.media {
                     let one_core = usage.get(Column::Cpu).map_or(0.0, |v| v * cpu.cores as f64);
                     process_row(ui, p, &format!("SLPlugin · {}", proc_.label), one_core, usage.get(Column::Ram));

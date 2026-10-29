@@ -64,7 +64,7 @@ fn main() {
         count,
         commit.as_deref(),
     )
-    .unwrap_or_else(|error| panic!("Cannot determine Aurora's version: {error}"));
+    .unwrap_or_else(|error| panic!("Cannot determine Amante's version: {error}"));
     println!(
         "cargo:rustc-env=AURORA_UPDATE_TEST_BUILD={}",
         if fixture.is_some() { "1" } else { "0" }

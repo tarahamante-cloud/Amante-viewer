@@ -288,13 +288,13 @@ fn details(id: Uuid) -> ExperienceDetails {
         (
             aurora_i18n::tr!("demo-experience-name"),
             aurora_i18n::tr!("demo-experience-description"),
-            "secondlife:///app/region/Aurora%20Demo/150/140/60",
+            "secondlife:///app/region/Amante%20Demo/150/140/60",
         )
     } else if id == GREETER_EXPERIENCE {
         (
             aurora_i18n::tr!("demo-experience-greeter-name"),
             aurora_i18n::tr!("demo-experience-greeter-description"),
-            "secondlife:///app/region/Aurora%20Demo/128/128/30",
+            "secondlife:///app/region/Amante%20Demo/128/128/30",
         )
     } else {
         return ExperienceDetails::unknown(id);

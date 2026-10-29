@@ -5,9 +5,9 @@ use aurora_assets::anim::Animation;
 use glam::Quat;
 
 pub const WATER_CLIPS: [(&str, &str); 3] = [
-    ("surface-idle.bvh", "Aurora Swim Surface Idle"),
-    ("underwater-idle.bvh", "Aurora Swim Underwater Idle"),
-    ("dive.bvh", "Aurora Swim Dive"),
+    ("surface-idle.bvh", "Amante Swim Surface Idle"),
+    ("underwater-idle.bvh", "Amante Swim Underwater Idle"),
+    ("dive.bvh", "Amante Swim Dive"),
 ];
 
 /// QAvimator BVH reference poses and translations are converted by the same

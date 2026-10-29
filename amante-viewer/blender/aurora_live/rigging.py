@@ -268,7 +268,7 @@ def _align_pole(context, rig, key, reposition=True, preserve_pose=True):
 def reposition_poles(context, rig):
     editable(rig)
     if not ready(rig):
-        raise ValueError("Create Aurora IK controls first")
+        raise ValueError("Create Amante IK controls first")
     if rig.data.pose_position != "POSE" or rig.mode == "EDIT":
         raise ValueError("Use Pose Position and leave Edit Mode to switch IK")
     context.view_layer.update()
@@ -280,7 +280,7 @@ def reposition_poles(context, rig):
 def correct_knees(context, rig):
     editable(rig)
     if not ready(rig):
-        raise ValueError("Create Aurora IK controls first")
+        raise ValueError("Create Amante IK controls first")
     if rig.data.pose_position != "POSE" or rig.mode == "EDIT":
         raise ValueError("Use Pose Position and leave Edit Mode to switch IK")
     keys = [key for key in ("FOOT_L", "FOOT_R") if constraint(rig, key).influence > 0.5 and not constraint(rig, key).mute]
@@ -302,7 +302,7 @@ def setup(context, rig):
     for key, names in chains.items():
         for name in names:
             if any(not c.name.startswith("Aurora IK ") for c in rig.pose.bones[name].constraints):
-                raise ValueError("The limb already has constraints; use a simple SL rig for Aurora IK")
+                raise ValueError("The limb already has constraints; use a simple SL rig for Amante IK")
         for pole in (False, True):
             bone = rig.data.bones.get(control_name(key, pole))
             if bone and not bone.get("aurora_control", False):
@@ -387,7 +387,7 @@ def setup(context, rig):
 def set_ik(context, rig, key, enabled):
     editable(rig)
     if not ready(rig):
-        raise ValueError("Create Aurora IK controls first")
+        raise ValueError("Create Amante IK controls first")
     if rig.data.pose_position != "POSE" or rig.mode == "EDIT":
         raise ValueError("Use Pose Position and leave Edit Mode to switch IK")
     context.view_layer.update()
@@ -413,7 +413,7 @@ def set_ik(context, rig, key, enabled):
 
 def select_control(context, rig, key, pole=False):
     if not ready(rig):
-        raise ValueError("Create Aurora IK controls first")
+        raise ValueError("Create Amante IK controls first")
     select_named_control(context, rig, control_name(key, pole), "IK")
 
 

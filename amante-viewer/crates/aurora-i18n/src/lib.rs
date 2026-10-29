@@ -9,6 +9,7 @@ use std::sync::OnceLock;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 pub use fluent_bundle::FluentValue;
+pub mod branding;
 include!(concat!(env!("OUT_DIR"), "/locales.rs"));
 
 struct Catalog {
@@ -54,7 +55,7 @@ fn catalogs() -> &'static [Catalog] {
             .iter()
             .map(|&(code, source)| {
                 let locale = code.parse().expect("bundled locale filename is a language identifier");
-                let resource = FluentResource::try_new(source.to_owned()).expect("bundled Fluent syntax is checked by tests");
+                let resource = FluentResource::try_new(branding::builtin(source)).expect("bundled Fluent syntax is checked by tests");
                 let keys: Vec<_> = resource
                     .entries()
                     .filter_map(|entry| match entry {

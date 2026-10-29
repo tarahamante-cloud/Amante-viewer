@@ -219,7 +219,7 @@ def _tshirt(collection, rig, definitions, basis):
             group.add([index], weight, "REPLACE")
     modifier = mesh.modifiers.new("SL Avatar Rig", "ARMATURE")
     modifier.object = rig
-    material = bpy.data.materials.new("Aurora Test Fabric")
+    material = bpy.data.materials.new("Amante Test Fabric")
     data.materials.append(material)
     material.diffuse_color = (0.34, 0.12, 0.72, 1)
     material.use_nodes = True

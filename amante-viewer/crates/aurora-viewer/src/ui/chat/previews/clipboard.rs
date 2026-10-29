@@ -108,7 +108,7 @@ mod native {
         let mut hash = std::collections::hash_map::DefaultHasher::new();
         image.size.hash(&mut hash);
         rgba.hash(&mut hash);
-        let path = root.join(format!("Aurora-image-{:016x}.png", hash.finish()));
+        let path = root.join(format!("Amante-image-{:016x}.png", hash.finish()));
         std::fs::create_dir_all(root).map_err(|error| error.to_string())?;
         let mut bytes = Vec::new();
         let mut encoder = png::Encoder::new(&mut bytes, image.width() as u32, image.height() as u32);

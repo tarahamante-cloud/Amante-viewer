@@ -77,7 +77,7 @@ class AURORA_OT_ik_handles(bpy.types.Operator):
             if rig.mode == "EDIT":
                 raise ValueError("Leave Edit Mode before creating IK controls")
             if not rigging.ready(rig):
-                raise ValueError("Create Aurora IK controls first")
+                raise ValueError("Create Amante IK controls first")
             handles.apply(rig, replace=True)
         except (ValueError, RuntimeError) as error:
             self.report({"ERROR"}, tr(str(error)))
@@ -339,7 +339,7 @@ def draw_ik(layout, context):
             row.operator("aurora.select_pose_control", text="Target").kind = key
             row.operator("aurora.center_look_at", text="", icon="LOOP_BACK").kind = key
     layout.label(text="Control poses stay in Blender.", icon="INFO")
-    layout.label(text="Aurora animates the rest mesh.")
+    layout.label(text="Amante animates the rest mesh.")
 
 
 def draw_automatic(layout, context):

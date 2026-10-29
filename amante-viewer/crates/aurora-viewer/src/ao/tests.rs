@@ -566,7 +566,7 @@ fn inventory_round_trip_preserves_firestorm_options_and_originals() {
 fn import_aliases_groups_and_invalid_lines_without_losing_valid_entries() {
     let (inv, _) = fixture();
     let note =
-        "# comment\n[Stand.1]Aurora Stand A, Aurora Type|Aurora Stand B\n[Walk.N]Aurora Walk\n[Bad]Nope\n[Running]Missing|Aurora Run\n";
+        "# comment\n[Stand.1]Amante Stand A, Amante Type|Amante Stand B\n[Walk.N]Amante Walk\n[Bad]Nope\n[Running]Missing|Amante Run\n";
     let (set, warnings) = inventory::import(&inv, demo::NOTECARD, note).expect("import");
     assert_eq!(warnings.len(), 2);
     assert!(set.states[&State::Standing].steps[0].group);

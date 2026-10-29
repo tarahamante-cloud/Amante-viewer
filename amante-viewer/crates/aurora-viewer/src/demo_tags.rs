@@ -157,9 +157,9 @@ fn residents() -> [Resident; 9] {
     };
     [
         r(NOVA, 6.5, 7.3, "Nova", "Nova ♪", wolves, Some(3)),
-        r(TESS, 6.5, 4.9, "Tess", "Tess ✨", "Aurora Builders", None),
+        r(TESS, 6.5, 4.9, "Tess", "Tess ✨", "Amante Builders", None),
         r(ORION, 6.5, 2.4, "Orion", aurora_i18n::tr!("demo-orion-the-great"), wolves, Some(1)),
-        r(LUNE, 6.5, -2.3, "Lune", "", "Aurora Builders", Some(2)),
+        r(LUNE, 6.5, -2.3, "Lune", "", "Amante Builders", Some(2)),
         r(BRUME, 6.5, -4.7, "Brume", "La Brume", "", Some(0)),
         // the far ones to the right of the plaza's torus, which would hide
         // them and their names
@@ -439,7 +439,7 @@ pub fn chat_events(time: f64, last: &mut f64) -> Vec<NetEvent> {
                     continue;
                 }
                 let name = if *who == super::DEMO_AGENT {
-                    "Aurora Demo".to_owned()
+                    "Amante Demo".to_owned()
                 } else {
                     residents()
                         .iter()

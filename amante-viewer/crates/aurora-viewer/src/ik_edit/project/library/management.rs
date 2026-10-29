@@ -25,7 +25,7 @@ pub(super) fn execute(
         Management::File => {
             return export_file(source, || {
                 rfd::FileDialog::new()
-                    .add_filter("Aurora IK", &["json"])
+                    .add_filter("Amante IK", &["json"])
                     .set_file_name("project.aurora-ik.json")
                     .save_file()
             });

@@ -23,7 +23,7 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 /// The viewer's folder at the root (ROOT_FIRESTORM_FOLDER).
-const FOLDER: &str = "#Aurora";
+const FOLDER: &str = "#Amante";
 /// FT_LSL_TEXT: the Scripts system folder, when ours cannot be made.
 const FT_LSL_TEXT: i32 = 10;
 /// AT_LSL_TEXT.

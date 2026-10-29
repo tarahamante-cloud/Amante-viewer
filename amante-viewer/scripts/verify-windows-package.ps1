@@ -42,7 +42,8 @@ try {
     } finally { Pop-Location }
     $files = @('LICENSE', 'NOTICE.md', 'README.md', 'AMANTE.md', 'assets/emoji/LICENSE-OFL.txt')
     foreach ($relative in $files) {
-        $original = Join-Path $source $relative
+        $sourceRelative = if ($relative -eq 'README.md') { 'docs/amante/README.md' } else { $relative }
+        $original = Join-Path $source $sourceRelative
         $packaged = Join-Path $root $relative
         if (!(Test-Path -LiteralPath $packaged -PathType Leaf) -or
             (Get-FileHash -LiteralPath $original).Hash -cne (Get-FileHash -LiteralPath $packaged).Hash) {

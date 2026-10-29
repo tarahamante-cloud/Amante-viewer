@@ -56,7 +56,7 @@ fn ram_card(ui: &mut egui::Ui, p: &Palette, s: &Snapshot) {
         let ws = s.memory.map(|m| m.working_set as f64);
         big(ui, p, &ws.map_or("–".into(), fmt::bytes), tr!("monitor-working-set"));
         let colors = draw::part_colors(p);
-        let mut parts: Vec<(Color32, String, f64)> = vec![(colors[0], "Aurora".to_owned(), ws.unwrap_or(0.0))];
+        let mut parts: Vec<(Color32, String, f64)> = vec![(colors[0], "Amante".to_owned(), ws.unwrap_or(0.0))];
         for (i, (proc_, usage)) in s.attribution.media.iter().enumerate() {
             parts.push((colors[1 + i % 5], format!("SLPlugin · {}", proc_.label), usage.or_zero(Column::Ram)));
         }

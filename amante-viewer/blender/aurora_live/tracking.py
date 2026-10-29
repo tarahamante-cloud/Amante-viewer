@@ -239,7 +239,7 @@ class AURORA_PG_sync_object(bpy.types.PropertyGroup):
     marked: BoolProperty(default=False, options={"HIDDEN", "SKIP_SAVE"})
     name: StringProperty(get=lambda self: self.object.name if self.object else "")
     enabled: BoolProperty(name="Synchronize", default=True, update=changed,
-                          description="Include this object in Aurora's live preview")
+                          description="Include this object in Amante's live preview")
 
 
 class AURORA_OT_selection(bpy.types.Operator):
@@ -333,7 +333,7 @@ class AURORA_OT_root(bpy.types.Operator):
 class AURORA_OT_remove(bpy.types.Operator):
     bl_idname = "aurora.live_remove"
     bl_label = "Remove from synchronization"
-    bl_description = "Remove this entry from Aurora's preview list; keep the Blender object"
+    bl_description = "Remove this entry from Amante's preview list; keep the Blender object"
     bl_options = {"REGISTER", "UNDO"}
     index: IntProperty(default=0, min=0)
 

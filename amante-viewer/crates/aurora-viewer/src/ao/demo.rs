@@ -10,7 +10,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 pub const NOTECARD: Uuid = Uuid::from_u128(0xd0d0_a000_0000_0000_0000_0000_0000_0010);
-pub const NOTECARD_TEXT: &str = "# Aurora AO\n[ Standing ]Aurora Stand A|Aurora Stand B\n[ Walking ]Aurora Walk\n[ Running ]Aurora Run\n[ Sitting ]Aurora Sit\n[ Hovering ]Aurora Fly\n[ Typing ]Aurora Type\n";
+pub const NOTECARD_TEXT: &str = "# Amante AO\n[ Standing ]Amante Stand A|Amante Stand B\n[ Walking ]Amante Walk\n[ Running ]Amante Run\n[ Sitting ]Amante Sit\n[ Hovering ]Amante Fly\n[ Typing ]Amante Type\n";
 const ASSETS: [Uuid; 7] = [
     Uuid::from_u128(0xd0d0_a000_0000_0000_0000_0000_0000_0001),
     Uuid::from_u128(0xd0d0_a000_0000_0000_0000_0000_0000_0002),
@@ -50,7 +50,7 @@ pub fn seed(inv: &mut Inventory, owner: Uuid) -> Uuid {
 
 pub fn seed_firestorm(inv: &mut Inventory, owner: Uuid) -> Uuid {
     let selected = seed(inv, owner);
-    let Some(brand) = inventory::child(inv, inv.root, "#Aurora") else {
+    let Some(brand) = inventory::child(inv, inv.root, "#Amante") else {
         return selected;
     };
     let Some(root) = inventory::child(inv, brand, inventory::FOLDER) else {
@@ -106,7 +106,7 @@ pub fn seed_migration(inv: &mut Inventory, owner: Uuid) -> Uuid {
     if let Ok((change, _)) = inventory::create(inv, &source, &set) {
         let _ = crate::world::inventory::actions::demo_mutate(inv, owner, change);
     }
-    set.name = "Aurora AO".into();
+    set.name = "Amante AO".into();
     set.default = true;
     let mut native = inventory::Catalog::default();
     native.refresh(inv);
@@ -168,7 +168,7 @@ pub fn seed_movement_design(inv: &mut Inventory, owner: Uuid) -> Uuid {
 /// An existing native AO and bridge directory under their previous names.
 pub fn seed_folder_names(inv: &mut Inventory, owner: Uuid) -> Uuid {
     let selected = seed_movement_design(inv, owner);
-    if let Some(brand) = inventory::child(inv, inv.root, "#Aurora") {
+    if let Some(brand) = inventory::child(inv, inv.root, "#Amante") {
         if let Some(root) = inventory::child(inv, brand, inventory::FOLDER)
             && let Some(root) = inv.folders.get_mut(&root)
         {
@@ -200,13 +200,13 @@ pub fn seed_interface(inv: &mut Inventory, owner: Uuid, mode: &str) -> Uuid {
     let original = inv
         .items
         .values()
-        .find(|a| a.name == "Aurora Stand A" && a.asset_type == 20)
+        .find(|a| a.name == "Amante Stand A" && a.asset_type == 20)
         .cloned();
     if let Some(original) = original {
         for (index, letter) in ['C', 'D', 'E', 'F'].into_iter().enumerate() {
             let mut item = original.clone();
             item.id = Uuid::new_v4();
-            item.name = format!("Aurora Stand {letter}");
+            item.name = format!("Amante Stand {letter}");
             item.asset_id = ASSETS[index % 2];
             let item_id = item.id;
             inv.add_items(vec![item]);
@@ -269,13 +269,13 @@ fn seed_options(inv: &mut Inventory, owner: Uuid, swimming: bool) -> Uuid {
     folder(inv, root, originals, aurora_i18n::tr!("ao-demo-folder"), -1);
     let mut animations = Vec::new();
     let mut names: Vec<String> = [
-        "Aurora Stand A",
-        "Aurora Stand B",
-        "Aurora Walk",
-        "Aurora Run",
-        "Aurora Sit",
-        "Aurora Fly",
-        "Aurora Type",
+        "Amante Stand A",
+        "Amante Stand B",
+        "Amante Walk",
+        "Amante Run",
+        "Amante Sit",
+        "Amante Fly",
+        "Amante Type",
     ]
     .into_iter()
     .map(str::to_owned)
@@ -308,7 +308,7 @@ fn seed_options(inv: &mut Inventory, owner: Uuid, swimming: bool) -> Uuid {
     inv.add_items(vec![InvItem {
         id: NOTECARD,
         parent: originals,
-        name: "Aurora AO import".into(),
+        name: "Amante AO import".into(),
         asset_type: 7,
         inv_type: 7,
         owner,
@@ -316,7 +316,7 @@ fn seed_options(inv: &mut Inventory, owner: Uuid, swimming: bool) -> Uuid {
         owner_mask: 0x7fff_ffff,
         ..Default::default()
     }]);
-    let mut set = Set::new("Aurora AO".into());
+    let mut set = Set::new("Amante AO".into());
     set.sits = true;
     set.smart = true;
     set.default = true;

@@ -53,7 +53,7 @@ impl ScriptsUi {
         match mode {
             "scripts-descending" => self.parcel_table.sort.descending = true,
             "scripts-name" => self.parcel_table.filter = aurora_i18n::tr!("demo-fountain").into(),
-            "scripts-owner" => self.parcel_table.filter = "Aurora".into(),
+            "scripts-owner" => self.parcel_table.filter = "Amante".into(),
             "scripts-empty" => self.parcel_table.filter = aurora_i18n::tr!("common-no-results").into(),
             "scripts-attachments" => self.tab = 1,
             _ => {}

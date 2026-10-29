@@ -874,7 +874,7 @@ mod tests {
     fn each_role_gets_its_rights() {
         let member = |powers: u64| GroupMembership {
             id: DEMO_GROUP1,
-            name: "Aurora Builders".into(),
+            name: "Amante Builders".into(),
             insignia: Uuid::nil(),
             powers: (1 << 16) | powers,
             accept_notices: true,

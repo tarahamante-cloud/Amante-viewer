@@ -109,7 +109,7 @@ mod platform {
     /// the `system-ending` marker keeps that from being reported.
     fn wait_for_exit(dir: &Path, process: &Process) -> bool {
         let _ = ENDING.set(dir.to_owned());
-        let class: Vec<u16> = "AuroraCrashWatch\0".encode_utf16().collect();
+        let class: Vec<u16> = "AmanteCrashWatch\0".encode_utf16().collect();
         // SAFETY: the class name lives until the end of this function, the
         // window procedure only touches static storage, and every message
         // structure is a local the calls fill.

@@ -120,7 +120,7 @@ pub fn release_notes(version: &str) -> Option<String> {
 /// its English labels).
 pub fn copy_text(sections: &[Section]) -> String {
     let version = aurora_version::version();
-    let mut out = format!("Aurora Viewer {version}\n");
+    let mut out = format!("Amante Viewer {version}\n");
     if let Some(url) = release_notes(version) {
         out.push_str(&format!("Release notes: {url}\n"));
     }
@@ -259,7 +259,7 @@ fn hero(ui: &mut egui::Ui, p: &Palette, logo: Option<&egui::TextureHandle>) {
         }
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing.y = 4.0;
-            ui.label(sheet::semibold(ui, "Aurora Viewer", 22.0, p.ink));
+            ui.label(sheet::semibold(ui, aurora_version::APP_NAME, 22.0, p.ink));
             ui.label(
                 RichText::new(aurora_i18n::tr!("ui-login-second-life-client-rust-vulkan"))
                     .size(12.0)
@@ -431,7 +431,7 @@ mod tests {
     fn release_notes_only_for_a_published_version() {
         assert_eq!(
             release_notes("0.7.0").as_deref(),
-            Some("https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.7.0")
+            Some("https://github.com/tarahamante-cloud/Amante-viewer/releases/tag/v0.7.0")
         );
         assert_eq!(release_notes("0.7.0+3.gabcdef123"), None);
         assert_eq!(release_notes("0.0.0"), None);
@@ -453,7 +453,7 @@ mod tests {
         ];
         let text = copy_text(&sections);
         let blocks: Vec<&str> = text.split("\n\n").collect();
-        assert!(blocks[0].starts_with(&format!("Aurora Viewer {}", aurora_version::version())));
+        assert!(blocks[0].starts_with(&format!("Amante Viewer {}", aurora_version::version())));
         assert_eq!(
             blocks[1],
             format!(

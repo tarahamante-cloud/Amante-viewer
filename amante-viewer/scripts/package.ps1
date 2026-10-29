@@ -38,8 +38,9 @@ Get-ChildItem -LiteralPath $dictionaries -Directory -ErrorAction Stop | ForEach-
         Copy-Item -LiteralPath $license -Destination (Join-Path $dictionariesOut "$($_.Name)-LICENSE.txt") -ErrorAction Stop
     }
 }
-$docs = 'LICENSE', 'NOTICE.md', 'README.md', 'AMANTE.md' | ForEach-Object { Join-Path $Source $_ }
+$docs = 'LICENSE', 'NOTICE.md', 'AMANTE.md' | ForEach-Object { Join-Path $Source $_ }
 Copy-Item -LiteralPath $docs -Destination $Out -ErrorAction Stop
+Copy-Item -LiteralPath (Join-Path $Source 'docs/amante/README.md') -Destination (Join-Path $Out 'README.md') -ErrorAction Stop
 New-Item -ItemType Directory -Force -Path (Join-Path $Out 'docs') -ErrorAction Stop | Out-Null
 Copy-Item -LiteralPath (Join-Path $Source 'docs/amante') -Destination (Join-Path $Out 'docs') -Recurse -ErrorAction Stop
 $taskExePath = (Resolve-Path -LiteralPath $Exe).Path

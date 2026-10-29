@@ -40,7 +40,7 @@ impl LslBridge {
             if self.bridge != Some(c.source_id) {
                 // never the message itself: it holds the capability URL and key
                 log::info!(
-                    "Firestorm LSL bridge: handshake from object {} hidden (Aurora uses its own bridge)",
+                    "Firestorm LSL bridge: handshake from object {} hidden (Amante uses its own bridge)",
                     c.source_id
                 );
                 self.bridge = Some(c.source_id);

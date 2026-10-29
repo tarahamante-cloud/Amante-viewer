@@ -155,13 +155,13 @@ impl Backup {
             }
         };
         if backup.format != FORMAT {
-            log::warn!("settings backup: not a backup of Aurora's settings");
+            log::warn!("settings backup: not a backup of Amante's settings");
             return None;
         }
         if backup.version > VERSION {
             // read what this build knows of it, as the settings themselves
             log::info!(
-                "settings backup: written by a newer Aurora ({}), read as version {VERSION}",
+                "settings backup: written by a newer Amante ({}), read as version {VERSION}",
                 backup.viewer
             );
         }

@@ -91,7 +91,7 @@ pub fn events(frame: u64, agent: Uuid) -> Vec<NetEvent> {
             17,
             DEMO_GROUP1,
             aurora_i18n::tr!("demo-keywords-group"),
-            b"Aurora Builders\0",
+            b"Amante Builders\0",
         ),
         880 => {
             let location = format!("{}/128/128/25\0", aurora_i18n::tr!("common-aurora-demo"));

@@ -99,7 +99,7 @@ pub fn events(frame: u64, agent: Uuid) -> Vec<NetEvent> {
                 } else {
                     friend()
                 },
-                "Aurora gift box",
+                "Amante gift box",
                 crate::world::notifications::im::TASK_INVENTORY_OFFERED,
                 Uuid::from_u128(0x6170_0000_0000_0000_0000_0000_0000_2000),
                 aurora_i18n::tr!("demo-notifs-lantern"),

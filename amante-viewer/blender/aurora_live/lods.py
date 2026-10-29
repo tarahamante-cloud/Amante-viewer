@@ -195,7 +195,7 @@ def draw(layout, context):
             row = box.row(align=True)
             row.prop(spec, "budget", text="")
             row.prop(spec, "ratio" if spec.budget == "RATIO" else "triangles")
-    layout.label(text="Sources stay unchanged; inspect each LOD in Aurora.", icon="INFO")
+    layout.label(text="Sources stay unchanged; inspect each LOD in Amante.", icon="INFO")
 
 
 CLASSES = (AURORA_PG_lod,)

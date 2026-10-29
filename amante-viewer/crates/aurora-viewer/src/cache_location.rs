@@ -14,7 +14,7 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 /// The viewer's folder inside the chosen one.
-pub const ROOT_NAME: &str = "AuroraViewerCache";
+pub const ROOT_NAME: &str = "AmanteViewerCache";
 /// The cache used by the last run (in the settings folder).
 const MARKER: &str = "cache_location.txt";
 

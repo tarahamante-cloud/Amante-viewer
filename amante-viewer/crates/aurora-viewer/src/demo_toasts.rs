@@ -75,7 +75,7 @@ pub fn events(frame: u64, agent: Uuid) -> Vec<NetEvent> {
             17,
             DEMO_GROUP1,
             aurora_i18n::tr!("demo-toast-group-message"),
-            b"Aurora Builders\0",
+            b"Amante Builders\0",
         )],
         _ => Vec::new(),
     }

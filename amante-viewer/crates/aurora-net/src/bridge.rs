@@ -293,7 +293,7 @@ fn transport_failure(error: reqwest::Error) -> String {
     // A reqwest error can contain the private URL. Only classify its flags;
     // never format it, its source chain or the HTTP response body.
     let kind = if error.is_timeout() { "timeout" } else { "connection" };
-    log::warn!("Aurora bridge: HTTP {kind} failure");
+    log::warn!("Amante bridge: HTTP {kind} failure");
     if error.is_timeout() {
         aurora_i18n::tr!("bridge-request-timeout").into()
     } else {
@@ -311,7 +311,7 @@ pub fn unreachable(error: &str) -> bool {
 /// "unavailable": any other 404 is the simulator's, for an HTTP-in URL that
 /// no longer exists (the worn bridge left the region, or the region restarted).
 fn gone_failure() -> String {
-    log::info!("Aurora bridge: HTTP-in URL gone (HTTP 404)");
+    log::info!("Amante bridge: HTTP-in URL gone (HTTP 404)");
     aurora_i18n::tr!("bridge-request-gone").into()
 }
 
@@ -384,7 +384,7 @@ pub async fn send(command: Command) -> Result<Ack, String> {
         if status == 404 {
             return Err(gone_failure());
         }
-        log::warn!("Aurora bridge: HTTP status {status}");
+        log::warn!("Amante bridge: HTTP status {status}");
         return Err(aurora_i18n::tr!("bridge-request-http", status = status.to_string()));
     }
     let mut bytes = Vec::new();

@@ -12,10 +12,10 @@ use std::collections::HashSet;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
-pub const FOLDER: &str = "#Aurora";
-pub const SUBFOLDER: &str = "Aurora Bridge";
+pub const FOLDER: &str = "#Amante";
+pub const SUBFOLDER: &str = "Amante Bridge";
 const OLD_SUBFOLDER: &str = "Bridge";
-pub const NAME: &str = "#Aurora Bridge v1.0";
+pub const NAME: &str = "#Amante Bridge v1.0";
 // Stable inventory/script names let upgrades replace the existing controller
 // instead of wearing two bridges with competing physics.
 const VERSION: &str = "1.39";
@@ -25,7 +25,7 @@ const ROCK: &str = "Rock - medium, round";
 const SOURCE: &str = include_str!("bridge/bridge.lsl");
 // Read-only services (radar heights, script and object information) run in a
 // second script: Mono gives each script 64 KB, and the controller has little left.
-pub const QUERY_NAME: &str = "#Aurora Bridge Query";
+pub const QUERY_NAME: &str = "#Amante Bridge Query";
 const QUERY_SOURCE: &str = include_str!("bridge/query.lsl");
 pub(crate) mod ik;
 
@@ -300,7 +300,7 @@ impl Bridge {
         if let Some(since) = self.watch.silent_since
             && now.duration_since(since) >= SILENCE_LIMIT
         {
-            log::warn!("Aurora bridge: no reply for {} s", now.duration_since(since).as_secs());
+            log::warn!("Amante bridge: no reply for {} s", now.duration_since(since).as_secs());
             self.reinstall(world, true, now);
             return true;
         }
@@ -330,7 +330,7 @@ impl Bridge {
             }
             return;
         }
-        log::warn!("Aurora bridge: reinstalling a bridge that stopped responding");
+        log::warn!("Amante bridge: reinstalling a bridge that stopped responding");
         self.reinstalls.push(now);
         world.system_message(aurora_i18n::tr!("bridge-reinstalling"));
         self.retry(now);
@@ -362,7 +362,7 @@ impl Bridge {
         if let Some(free) = ack.free_memory
             && self.memory_low.is_none_or(|low| free + 1024 <= low)
         {
-            log::info!("Aurora bridge: script memory low mark {free} bytes free");
+            log::info!("Amante bridge: script memory low mark {free} bytes free");
             self.memory_low = Some(free);
         }
         self.ack = ack;
@@ -403,7 +403,7 @@ impl Bridge {
             && self.capture_sent.is_some_and(|at| now.duration_since(at) < Duration::from_secs(1))
     }
     fn enter(&mut self, phase: Phase, now: Instant) {
-        log::info!("Aurora bridge: {:?} -> {:?}", self.phase, phase);
+        log::info!("Amante bridge: {:?} -> {:?}", self.phase, phase);
         self.phase = phase;
         self.since = Some(now);
         self.poll = None;
@@ -429,7 +429,7 @@ impl Bridge {
     }
     fn fail(&mut self, reason: String) {
         // Never log protocol messages, endpoints, source or identities.
-        log::warn!("Aurora bridge: timeout or failure in {:?}", self.phase);
+        log::warn!("Amante bridge: timeout or failure in {:?}", self.phase);
         self.phase = Phase::Failed;
         self.error = Some(reason);
         self.ack.locked = false;
@@ -630,7 +630,7 @@ impl Bridge {
             && folder == self.folder
         {
             if self.query.as_ref().is_none_or(|current| current.token != endpoint.token) {
-                log::info!("Aurora bridge: query service ready");
+                log::info!("Amante bridge: query service ready");
             }
             self.query = Some(endpoint);
             self.query_watch = Watch::default();
@@ -836,7 +836,7 @@ impl Bridge {
             return;
         }
         if self.relocated && self.since.is_some_and(|since| now.duration_since(since) > RELOCATION_TIMEOUT) {
-            log::warn!("Aurora bridge: no hello since its URL changed");
+            log::warn!("Amante bridge: no hello since its URL changed");
             self.reinstall(world, true, now);
             return;
         }
@@ -1115,7 +1115,7 @@ impl Bridge {
             }
             Phase::Store if world.worn_attachment(&self.item).is_none() => {
                 let detached = *self.detached.get_or_insert_with(|| {
-                    log::info!("Aurora bridge: detachment observed; waiting for simulator save delay");
+                    log::info!("Amante bridge: detachment observed; waiting for simulator save delay");
                     now
                 });
                 if now.duration_since(detached) >= STORE_DELAY {
@@ -1232,7 +1232,7 @@ impl Bridge {
                             Err(rejection) if chat.source_id == self.object && self.rejection != Some(rejection) => {
                                 // A rejected URL is not a stopped script. Only
                                 // record the reason, never the private reply.
-                                log::warn!("Aurora bridge: rejected response ({rejection:?})");
+                                log::warn!("Amante bridge: rejected response ({rejection:?})");
                                 self.rejection = Some(rejection);
                             }
                             Err(_) => {}
@@ -1270,7 +1270,7 @@ impl Bridge {
                                 .is_some_and(|object| object.full_id == chat.source_id && Some(object.key.region) == world.main_region)
                         {
                             if self.boot != Some(boot) {
-                                log::info!("Aurora bridge: script status permissions={} url={}", boot.0, boot.1);
+                                log::info!("Amante bridge: script status permissions={} url={}", boot.0, boot.1);
                             }
                             self.boot = Some(boot);
                         }
@@ -1380,7 +1380,7 @@ impl Bridge {
                                     asset_type: 10,
                                     inv_type: 10,
                                     name: name.into(),
-                                    description: "Aurora's private bridge".into(),
+                                    description: "Amante's private bridge".into(),
                                     ..Default::default()
                                 }),
                             }));

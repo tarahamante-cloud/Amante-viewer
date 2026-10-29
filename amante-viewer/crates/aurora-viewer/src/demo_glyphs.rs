@@ -29,7 +29,7 @@ pub struct Sample {
 pub const SAMPLES: &[Sample] = &[
     // the characters of the report (#127): a title wrapped in Georgian "hearts"
     Sample {
-        title: "ღAurora Friendღ",
+        title: "ღAmante Friendღ",
         display_name: "ნინო ღ Նարե",
         chat: "Georgian ქართული ღ · Armenian Հայերեն",
     },
@@ -90,7 +90,7 @@ pub const RTL_SAMPLES: &[Sample] = &[
         chat: "I love this place, شكرا جزيلا for the party!",
     },
     Sample {
-        title: "Aurora Viewer",
+        title: "Amante Viewer",
         display_name: "ليلى",
         chat: "الحفلة الساعة 8:30 مساءً في المنطقة رقم 42 (الطابق الثاني)",
     },
@@ -102,7 +102,7 @@ pub const RTL_SAMPLES: &[Sample] = &[
     Sample {
         title: "דניאל",
         display_name: "Dani דני",
-        chat: "ברוכים הבאים ל-Aurora Viewer, תהנו!",
+        chat: "ברוכים הבאים ל-Amante Viewer, תהנו!",
     },
     Sample {
         title: "رسالة طويلة",

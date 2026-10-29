@@ -90,11 +90,11 @@ fn member_drag_order_survives_reload_and_ungrouping() {
     apply(&mut inv, owner, change);
     let set = reload(&mut inv, set.id);
     let group = &set.states[&State::Standing].steps[0];
-    assert_eq!(group.members[0].name, "Aurora Stand B");
+    assert_eq!(group.members[0].name, "Amante Stand B");
     let change = dissolve(&inv, &set, State::Standing, group.id).expect("dissolve");
     apply(&mut inv, owner, change);
     let set = reload(&mut inv, set.id);
-    assert_eq!(set.states[&State::Standing].steps[0].name, "Aurora Stand B");
+    assert_eq!(set.states[&State::Standing].steps[0].name, "Amante Stand B");
 }
 
 #[test]

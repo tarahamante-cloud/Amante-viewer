@@ -238,7 +238,7 @@ fn animation_picker_links_into_selected_state_and_import_blocks_edits() {
     assert_eq!(f.state.picker, Some(false));
     f.state.filter = "Type".into();
     f.settle();
-    let out = f.click("Aurora Type");
+    let out = f.click("Amante Type");
     assert!(matches!(&out[..], [Action::Edit(change, None)] if change.operations.iter().any(|op|
         matches!(op, Operation::Links { parent, links } if *parent == folder && links.len() == 1))));
     assert!(f.state.picker.is_none());
@@ -411,7 +411,7 @@ fn native_animation_rows_choose_on_single_click_and_drag_through_inventory_ack()
     let mut f = Fixture::new();
     let c = &f.catalog.selected(f.account.selected).expect("set").states[&State::Standing];
     let (folder, second) = (c.folder, c.steps[1].id);
-    assert!(f.click("Aurora Stand B").is_empty());
+    assert!(f.click("Amante Stand B").is_empty());
     assert_eq!(f.runtime.index(State::Standing, folder), 1);
     fn locate(shape: &egui::Shape, name: &str) -> Option<egui::Pos2> {
         match shape {
@@ -421,8 +421,8 @@ fn native_animation_rows_choose_on_single_click_and_drag_through_inventory_ack()
         }
     }
     let shapes = f.draw(Vec::new()).1;
-    let from = shapes.iter().find_map(|s| locate(&s.shape, "Aurora Stand B")).expect("source");
-    let to = shapes.iter().find_map(|s| locate(&s.shape, "Aurora Stand A")).expect("destination");
+    let from = shapes.iter().find_map(|s| locate(&s.shape, "Amante Stand B")).expect("source");
+    let to = shapes.iter().find_map(|s| locate(&s.shape, "Amante Stand A")).expect("destination");
     let press = |pos, pressed| egui::Event::PointerButton {
         pos,
         button: egui::PointerButton::Primary,

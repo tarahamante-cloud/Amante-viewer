@@ -449,7 +449,7 @@ impl Editor {
             let work = || -> Result<Output, String> {
                 match action {
                     Some(Action::Open) => {
-                        let Some(path) = rfd::FileDialog::new().add_filter("Aurora IK", &["json"]).pick_file() else {
+                        let Some(path) = rfd::FileDialog::new().add_filter("Amante IK", &["json"]).pick_file() else {
                             return Ok(Output::Cancelled);
                         };
                         Ok(Output::Loaded(read(&path)?))
@@ -482,7 +482,7 @@ impl Editor {
                 self.project.out.push(NetCommand::CreateNotecardItem {
                     request,
                     parent,
-                    name: format!("Aurora IK - {title}"),
+                    name: format!("Amante IK - {title}"),
                     data,
                     permissions: None,
                 });

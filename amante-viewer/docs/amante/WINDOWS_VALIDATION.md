@@ -1,5 +1,18 @@
 # Windows validation record
 
+## Branding revision pending a new Windows build
+
+The user requested Amante across every product-owned landing screen, menu and
+other visible surface after confirming the direct download worked. Source now
+includes that expanded branding, branded bundled news, project links and
+distribution README. Existing content, compatibility identifiers and required
+upstream legal notices are not rewritten.
+
+The earlier successful ZIP below does **not** contain this new source. Its
+checksum and test results remain evidence for its exact revision only. The
+current feature CSV is reset to source-only status until a new package passes.
+Do not describe the branding changes as Windows-tested before that run.
+
 ## Successful automated run — 2026-10-29 UTC
 
 Root workflow: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40806913429>.

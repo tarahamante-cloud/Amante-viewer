@@ -177,7 +177,7 @@ pub fn reply(method: CallMethod, session: Uuid) -> Vec<NetEvent> {
 
 fn invite(group: bool) -> VoiceInvite {
     let (session, from, from_name, session_name) = if group {
-        (DEMO_GROUP1, DEMO_TESS, "Nova Example", "Aurora Builders")
+        (DEMO_GROUP1, DEMO_TESS, "Nova Example", "Amante Builders")
     } else {
         // (the demo's names call DEMO_NOVA "Tess" and DEMO_TESS "Nova")
         (

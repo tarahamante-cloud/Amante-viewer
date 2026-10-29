@@ -21,9 +21,7 @@ const TRUSTED: &[&str] = &[
     // viewers
     "firestormviewer.org",
     "phoenixviewer.com",
-    // the project's official domain; the former auroraviewer.com is no
-    // longer trusted (once released, anyone could own it)
-    "aurora-viewer.org",
+    // No separately verified Amante website domain is configured.
     // OpenSimulator
     "opensimulator.org",
     "osgrid.org",
@@ -302,9 +300,7 @@ mod tests {
             "http://community.secondlife.com/forums",
             "https://marketplace.secondlife.com:443/p/x",
             "https://WWW.LindenLab.com",
-            "https://aurora-viewer.org",
-            "https://www.aurora-viewer.org/downloads",
-            "https://github.com/Aurora-Viewer/Aurora-Viewer/pulls",
+            "https://github.com/tarahamante-cloud/Amante-viewer",
             "https://gist.github.com/x",
             "https://secondlife.com./x",
             "https://www.youtube.com/watch?v=x",

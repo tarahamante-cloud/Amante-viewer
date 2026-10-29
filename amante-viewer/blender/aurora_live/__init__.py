@@ -1,10 +1,10 @@
 """Blender editing to Aurora's animated avatar, without uploading assets."""
 
 bl_info = {
-    "name": "Aurora LiveMesh", "author": "Aurora Viewer contributors",
+    "name": "Amante LiveMesh", "author": "Aurora Viewer contributors; Amante Viewer contributors",
     "version": (0, 14, 1), "blender": (2, 93, 0),
-    "location": "View3D > Sidebar > Aurora", "category": "3D View",
-    "description": "Preview rigged and static mesh edits live in Aurora Viewer",
+    "location": "View3D > Sidebar > Amante", "category": "3D View",
+    "description": "Preview rigged and static mesh edits live in Amante Viewer",
 }
 
 _reloading = "bpy" in globals()
@@ -236,7 +236,7 @@ class AURORA_PG_live(bpy.types.PropertyGroup):
     ], default="BODY")
     starter_tshirt: BoolProperty(name="Add rigged test T-shirt", default=True,
                                 description="Create a weighted, editable T-shirt on the new SL skeleton")
-    port: IntProperty(name="Aurora port", default=17655, min=1024, max=65535)
+    port: IntProperty(name="Amante port", default=17655, min=1024, max=65535)
     auto_update: BoolProperty(name="Automatic updates", default=True,
                               description="Send changed objects and materials at the chosen interval; disable for manual updates")
     interval: FloatProperty(name="Interval (seconds)", default=0.2, min=0.1, max=3600.0, soft_max=60.0, precision=2,
@@ -275,7 +275,7 @@ class AURORA_OT_starter(bpy.types.Operator):
 
 class AURORA_OT_connect(bpy.types.Operator):
     bl_idname = "aurora.live_connect"
-    bl_label = "Connect to Aurora"
+    bl_label = "Connect to Amante"
 
     def execute(self, context):
         global _client, _force_capture
@@ -343,11 +343,11 @@ class AURORA_OT_refresh(bpy.types.Operator):
 
 
 class AURORA_PT_live(bpy.types.Panel):
-    bl_label = "Aurora"
+    bl_label = "Amante"
     bl_idname = "AURORA_PT_live"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Aurora"
+    bl_category = "Amante"
 
     def draw(self, context):
         layout = self.layout
@@ -414,7 +414,7 @@ def _draw_live(layout, context):
         box = layout.box()
         box.alert = True
         box.label(text=_error, icon="ERROR", translate=False)
-    layout.label(text="Enable LiveMesh in Aurora first.")
+    layout.label(text="Enable LiveMesh in Amante first.")
     layout.label(text="Local preview · no asset upload")
 
 
@@ -664,9 +664,16 @@ _translations = {"fr_FR": {(context, key): value for context in ("*", "Operator"
 
 
 def register():
+    # Only our built-in translation keys/copy change. Blender identifiers,
+    # saved blend data, protocol markers and contributors' credits stay intact.
+    translations = {
+        locale: {(context, key.replace("Aurora", "Amante")): value.replace("Aurora", "Amante")
+                 for (context, key), value in messages.items()}
+        for locale, messages in _translations.items()
+    }
     tracking.on_change = _request_capture
     tools_ui.on_weights_changed = _weights_changed
-    bpy.app.translations.register(__name__, _translations)
+    bpy.app.translations.register(__name__, translations)
     for cls in _classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.aurora_live = PointerProperty(type=AURORA_PG_live)

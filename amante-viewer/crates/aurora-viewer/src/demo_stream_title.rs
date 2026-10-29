@@ -36,7 +36,7 @@ const TITLES: &[&str] = &[
     "The Quiet Harbour - Paper Boats",
     "Maple & Pine - Slow Morning",
     "Kite Season - Open Skies",
-    "Aurora Ensemble feat. The Midnight Choir of the Northern Fjords - A Very Long Song Title That Has To Scroll (Extended Radio Edit)",
+    "Amante Ensemble feat. The Midnight Choir of the Northern Fjords - A Very Long Song Title That Has To Scroll (Extended Radio Edit)",
     "Low Tide - Lanterns",
     "Velvet Static - Night Drive",
 ];

@@ -302,7 +302,7 @@ impl App {
                 self.world.inventory.add_items(vec![include]);
                 self.demo_script_sources.insert(
                     target,
-                    "#pragma once\ngreet(integer channel) { llSay(channel, \"Bonjour, Aurora !\"); }".into(),
+                    "#pragma once\ngreet(integer channel) { llSay(channel, \"Bonjour, Amante !\"); }".into(),
                 );
             }
         }
@@ -376,7 +376,7 @@ impl App {
             let source = if mode == "error" {
                 DEFAULT_SOURCE.replace("llSay(0, \"Hello, Avatar!\");", "AURORA_DEMO_SYNTAX_ERROR")
             } else {
-                DEFAULT_SOURCE.replace("Hello, Avatar!", "Bonjour, Aurora !")
+                DEFAULT_SOURCE.replace("Hello, Avatar!", "Bonjour, Amante !")
             };
             if let Some(action) = self.script_editors.demo_edit(target, source, true) {
                 self.apply_script_action(action);

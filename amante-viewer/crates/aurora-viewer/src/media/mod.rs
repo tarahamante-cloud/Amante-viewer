@@ -516,7 +516,7 @@ impl Default for MediaManager {
 /// The user agent of the viewer's web requests (getCurrentUserAgent): the
 /// browsers' and the web profile's.
 pub fn user_agent() -> String {
-    format!("SecondLife (Aurora Viewer {})", aurora_version::version())
+    format!("SecondLife (Amante Viewer {})", aurora_version::version())
 }
 
 /// Settings of our CEF browsers (newSourceFromMediaType): cache, log,
@@ -563,7 +563,7 @@ impl MediaManager {
             self.paths_for = Some(settings.plugin_dir.clone());
             match &self.paths {
                 Some(p) => log::info!("media: plugins in {} (launcher {})", p.plugin_dir.display(), p.launcher.display()),
-                None => log::warn!("media: no media plugins yet: web and video media wait for Aurora's pack"),
+                None => log::warn!("media: Amante has no configured media pack; select a local licensed plugin folder"),
             }
         }
         self.paths.as_ref()

@@ -184,7 +184,7 @@ pub(super) fn build(c: &mut Catalog, inv: &Inventory, id: Uuid, st: &InventoryUi
     if inv
         .folders
         .get(&id)
-        .is_some_and(|folder| matches!(folder.info.name.as_str(), "Aurora AO" | "#AO"))
+        .is_some_and(|folder| matches!(folder.info.name.as_str(), "Amante AO" | "#AO"))
         || all
     {
         c.add(

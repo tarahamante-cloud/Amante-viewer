@@ -34,12 +34,12 @@ pub const KNOWN: &[Hook] = &[
     Hook {
         file: "DiscordHook64.dll",
         program: "Discord (in-game overlay or Go Live capture)",
-        advice: "if the window turns white while the world's sound plays, turn off Discord's in-game overlay for Aurora (Discord › User Settings › Game Overlay, or the game's entry in Registered Games)",
+        advice: "if the window turns white while the world's sound plays, turn off Discord's in-game overlay for Amante (Discord › User Settings › Game Overlay, or the game's entry in Registered Games)",
     },
     Hook {
         file: "GameOverlayRenderer64.dll",
         program: "Steam overlay",
-        advice: "if the image is lost, turn off the Steam overlay for Aurora",
+        advice: "if the image is lost, turn off the Steam overlay for Amante",
     },
     Hook {
         file: "RTSSHooks64.dll",

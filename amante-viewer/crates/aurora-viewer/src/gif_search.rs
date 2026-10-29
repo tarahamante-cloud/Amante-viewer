@@ -558,7 +558,7 @@ pub fn client() -> Option<reqwest::Client> {
         }
     });
     reqwest::Client::builder()
-        .user_agent(concat!("AuroraViewer/", env!("CARGO_PKG_VERSION"), " (GIF search)"))
+        .user_agent(concat!("AmanteViewer/", env!("CARGO_PKG_VERSION"), " (GIF search)"))
         .connect_timeout(Duration::from_secs(10))
         .timeout(Duration::from_secs(20))
         .retry(reqwest::retry::never())
@@ -734,7 +734,7 @@ pub mod demo {
                 Gif {
                     provider,
                     id,
-                    title: format!("Aurora demo {}", n % 100),
+                    title: format!("Amante demo {}", n % 100),
                     thumb: media(provider, n, "small"),
                     thumb_size: [100, 75 + (n % 3) * 15],
                     send: media(provider, n, "send"),

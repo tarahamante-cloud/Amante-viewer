@@ -87,7 +87,7 @@ def _preflight(rig, names, driven):
     if any(name in rig.data.bones for name in names):
         raise ValueError("Pose control names are already used; keep the existing rig unchanged")
     if any(rig.pose.bones[name].constraints for name in driven):
-        raise ValueError("These joints already have constraints; use a simple SL rig for Aurora pose controls")
+        raise ValueError("These joints already have constraints; use a simple SL rig for Amante pose controls")
 
 
 def _bone(rig, name, head, size, kind, parent=None):
@@ -100,7 +100,7 @@ def _bone(rig, name, head, size, kind, parent=None):
 
 
 def _group(rig, names, kind):
-    label = "Aurora Root" if kind == "ROOT" else "Aurora Look"
+    label = "Amante Root" if kind == "ROOT" else "Amante Look"
     if hasattr(rig.data, "collections"):
         group = rig.data.collections.get(label) or rig.data.collections.new(label)
         group.is_visible = True

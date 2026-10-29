@@ -1,7 +1,7 @@
 //! Provisioning and authenticated owner-chat ingress for the separate IK relay.
 use super::*;
 
-pub(super) const NAME: &str = "#Aurora Bridge IK";
+pub(super) const NAME: &str = "#Amante Bridge IK";
 pub(super) const SOURCE: &str = include_str!("ik.lsl");
 pub(crate) const CONTROL: i32 = -190018106;
 

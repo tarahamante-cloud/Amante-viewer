@@ -159,7 +159,7 @@ fn build_at(record: &super::Record, dir: &Path, boot_unix: Option<u64>) -> Summa
     }
 
     let mut body = format!(
-        "{MARKER}\nSent from the crash window of Aurora Viewer. Raw addresses, messages, paths and the log stay on the tester's PC.\n\n| Field | Value |\n|---|---|\n"
+        "{MARKER}\nSent from the crash window of Amante Viewer. Raw addresses, messages, paths and the log stay on the tester's PC.\n\n| Field | Value |\n|---|---|\n"
     );
     for (field, value) in rows {
         body.push_str(&format!("| {field} | {value} |\n"));

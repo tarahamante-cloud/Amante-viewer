@@ -110,7 +110,7 @@ fn change_at(path: &Path, update: impl FnOnce(&mut Vec<Account>)) -> std::io::Re
         // Rewriting would drop what a newer build saved there (as an
         // unreadable catalogue always was): shown, never overwritten.
         return Err(std::io::Error::other(
-            "account catalogue holds entries from a newer Aurora, not rewritten",
+            "account catalogue holds entries from a newer Amante, not rewritten",
         ));
     }
     update(&mut accounts);

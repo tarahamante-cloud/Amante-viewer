@@ -298,7 +298,7 @@ mod tests {
         for (id, parent, name, kind) in [
             (1, 0, "Inventory", 8),
             (2, 1, "Inbox", 50),
-            (3, 1, "#Aurora", -1),
+            (3, 1, "#Amante", -1),
             (4, 3, "Received items", -1),
             (5, 4, "Example Resident", -1),
             (6, 5, "Gift folder", -1),

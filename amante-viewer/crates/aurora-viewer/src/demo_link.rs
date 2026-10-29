@@ -562,7 +562,7 @@ fn seated_agent(parent: u32, position: Vec3) -> ObjectUpdate {
     o.pcode = LL_PCODE_LEGACY_AVATAR;
     o.full_id = super::DEMO_AGENT;
     o.parent_id = parent;
-    o.name_values = "FirstName STRING RW SV Aurora\nLastName STRING RW SV Demo\nTitle STRING RW SV Aurora".into();
+    o.name_values = "FirstName STRING RW SV Amante\nLastName STRING RW SV Demo\nTitle STRING RW SV Amante".into();
     o
 }
 

@@ -688,7 +688,7 @@ pub fn client(trusted_only: bool) -> Option<reqwest::Client> {
         }
     });
     reqwest::Client::builder()
-        .user_agent(concat!("AuroraViewer/", env!("CARGO_PKG_VERSION"), " (link preview)"))
+        .user_agent(concat!("AmanteViewer/", env!("CARGO_PKG_VERSION"), " (link preview)"))
         .connect_timeout(Duration::from_secs(10))
         .timeout(Duration::from_secs(20))
         .retry(reqwest::retry::never())
@@ -1061,8 +1061,8 @@ pub fn demo(target: &Target, url: &str) -> Result<Content, Failure> {
     match target {
         // a short is upright; the zoo clip is 4:3, as on YouTube
         Target::Video(_) if url.contains("/shorts/") => Ok(Content::Video(VideoInfo {
-            title: "Aurora short".into(),
-            channel: "Aurora".into(),
+            title: "Amante short".into(),
+            channel: "Amante".into(),
             thumbnail: Some(demo_still(480, 360, 1)),
             aspect: Some(9.0 / 16.0),
         })),

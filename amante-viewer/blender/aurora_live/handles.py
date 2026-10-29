@@ -130,7 +130,7 @@ def apply(rig, replace=False):
                 bone.color.palette = "CUSTOM"
                 colors = bone.color.custom
             else:
-                label = "Aurora IK " + ("Left" if side == "L" else "Right")
+                label = "Amante IK " + ("Left" if side == "L" else "Right")
                 group = rig.pose.bone_groups.get(label) or rig.pose.bone_groups.new(name=label)
                 group.color_set = "CUSTOM"
                 bone.bone_group = group

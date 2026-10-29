@@ -110,7 +110,7 @@ def apply(context, payload):
     selected, active = list(context.selected_objects), context.view_layer.objects.active
     previous_rig = context.scene.aurora_live.rig
     rig, _unused = starter.create(context, with_tshirt=False, definitions=definitions,
-                                 collection_name="Aurora Shape · " + payload["name"])
+                                 collection_name="Amante Shape · " + payload["name"])
     collection = rig.users_collection[0]
     try:
         rig.name = "Shape · " + payload["name"]

@@ -6,7 +6,7 @@ use aurora_net::inventory::InvItem;
 use std::collections::BTreeSet;
 use uuid::Uuid;
 
-pub const VERSION_NEW: &str = "RestrainedLove viewer v3.4.3 (RLVa 2.4.2; Aurora)";
+pub const VERSION_NEW: &str = "RestrainedLove viewer v3.4.3 (RLVa 2.4.2; Amante)";
 
 #[derive(Default)]
 pub struct Version {
@@ -66,7 +66,7 @@ impl Version {
         let compatible = self.compatible.contains(&source);
         match command.behaviour.as_str() {
             "version" | "versionnew" => Some(format!(
-                "{} viewer v{} (RLVa 2.4.2; Aurora)",
+                "{} viewer v{} (RLVa 2.4.2; Amante)",
                 if command.behaviour == "version" {
                     "RestrainedLife"
                 } else {
