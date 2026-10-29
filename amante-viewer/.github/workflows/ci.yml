@@ -1,0 +1,200 @@
+name: CI
+
+# Two stages. A pull request gets the quick checks (formatting, clippy,
+# secrets) while its author reviews it. The full run (tests too) happens in
+# the merge queue, on the PR combined with the latest main: what lands on
+# main is exactly what was tested, and nobody has to update a branch.
+#
+# A push to main is the commit the queue has just tested: its jobs neither
+# lint nor test it again. They only rebuild the Rust cache when its key
+# changed (Cargo.lock, toolchain), because the caches are written from main
+# alone (see rust-cache below) and a queue run cannot share its own.
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    # Every job always reports (main requires them); their Rust steps are
+    # skipped when only documentation or assets changed.
+    name: fmt, clippy (Windows)
+    runs-on: windows-latest
+    steps:
+      # the whole history (the version is read from the last tag, and the
+      # changed files from the base), without the files of other commits:
+      # the captures branch alone weighs hundreds of MB
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Code changed?
+        id: changes
+        uses: ./.github/actions/code-changed
+      # the runner's toolchain carries two more targets (gnu, i686) that
+      # every update would download again for nothing
+      - name: Rust stable
+        if: steps.changes.outputs.code == 'true'
+        run: |
+          ./.github/drop-extra-targets.ps1
+          rustup update stable --no-self-update
+          rustup component add rustfmt clippy
+      # caches are written from main only, and read by every PR and queue
+      # run: PR caches would otherwise evict main's from the 10 GB quota
+      - uses: Swatinem/rust-cache@v2
+        id: cache
+        if: steps.changes.outputs.code == 'true'
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      # Windows PowerShell 5.1, the one the Aurora tools run with
+      - name: PowerShell scripts parse
+        if: steps.changes.outputs.code == 'true' && github.event_name != 'push'
+        shell: powershell
+        run: ./scripts/check-scripts.ps1
+      - name: Formatting
+        if: steps.changes.outputs.code == 'true' && github.event_name != 'push'
+        run: cargo fmt --all -- --check
+      # profile "ci" (Cargo.toml): unoptimized, no debug info, built fast;
+      # on main, only when the cache has to be written again (see the top)
+      - name: Clippy (warnings are errors)
+        if: steps.changes.outputs.code == 'true' && (github.event_name != 'push' || steps.cache.outputs.cache-hit != 'true')
+        run: cargo clippy --profile ci --workspace --all-targets --locked -- -D warnings
+
+  lint-linux:
+    # The Linux code paths (media plugins' shared memory and keyboard, the
+    # Unix permissions of the packs…) are never built on Windows: clippy on
+    # Linux keeps them compiling, and the tests of the two crates whose
+    # Linux paths differ run there. No agent can run them locally.
+    name: clippy (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Code changed?
+        id: changes
+        uses: ./.github/actions/code-changed
+      # ALSA for the sound, the rest for winit's X11 / Wayland back ends
+      - name: System libraries
+        if: steps.changes.outputs.code == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev
+      - name: Rust stable
+        if: steps.changes.outputs.code == 'true'
+        run: |
+          rustup update stable --no-self-update
+          rustup component add clippy
+      - uses: Swatinem/rust-cache@v2
+        id: cache
+        if: steps.changes.outputs.code == 'true'
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      # dead code is the Windows job's: Windows-only helpers (system probes,
+      # toasts…) build here without their callers
+      - name: Clippy (warnings are errors)
+        if: steps.changes.outputs.code == 'true' && (github.event_name != 'push' || steps.cache.outputs.cache-hit != 'true')
+        run: cargo clippy --profile ci --workspace --all-targets --locked -- -D warnings -A dead-code
+      - name: Tests of the media host and the updater
+        if: steps.changes.outputs.code == 'true' && github.event_name != 'push'
+        run: cargo test --profile ci --locked -p aurora-media -p aurora-updater
+
+  tests:
+    # Not on pull requests: the agent ran them locally (check.ps1) and the
+    # merge queue runs them on the combined code before anything lands.
+    #
+    # The run is split in two halves on two runners, each building the
+    # tests itself (the build is the same, the cache too): the interface
+    # tests of the viewer (`ui::`, about half of the time) and everything
+    # else. A libtest filter and its `--skip` are exact complements, so
+    # every test of every binary runs in one half and only one, whatever
+    # modules are added later; a new module only moves the balance.
+    name: tests (Windows, ${{ matrix.half }})
+    if: github.event_name != 'pull_request'
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - half: interface
+            filter: "ui::"
+          - half: rest
+            filter: "--skip ui::"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Code changed?
+        id: changes
+        uses: ./.github/actions/code-changed
+      - name: Rust stable
+        if: steps.changes.outputs.code == 'true' && (github.event_name != 'push' || matrix.half == 'interface')
+        run: |
+          ./.github/drop-extra-targets.ps1
+          rustup update stable --no-self-update
+      # both halves share the job's cache key (the matrix is not part of it)
+      - uses: Swatinem/rust-cache@v2
+        id: cache
+        if: steps.changes.outputs.code == 'true' && (github.event_name != 'push' || matrix.half == 'interface')
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' && matrix.half == 'interface' }}
+      - name: Tests (${{ matrix.half }})
+        if: steps.changes.outputs.code == 'true' && github.event_name != 'push'
+        run: cargo test --profile ci --workspace --locked -- ${{ matrix.filter }}
+      # main: build the tests without running them, for the cache only
+      # (one half writes it, the other has nothing to do)
+      - name: Build the tests (cache)
+        if: steps.changes.outputs.code == 'true' && github.event_name == 'push' && matrix.half == 'interface' && steps.cache.outputs.cache-hit != 'true'
+        run: cargo test --profile ci --workspace --locked --no-run
+
+  tests-result:
+    # The check that main requires: green when both halves passed (or were
+    # skipped, on a pull request), red otherwise.
+    name: tests (Windows)
+    if: always()
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Both halves
+        run: |
+          echo "halves: ${{ needs.tests.result }}"
+          case "${{ needs.tests.result }}" in success|skipped) ;; *) exit 1 ;; esac
+
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # The gitleaks CLI, not gitleaks-action: the action needs a paid
+      # licence for repositories owned by an organization.
+      - name: Gitleaks
+        env:
+          VERSION: 8.30.1
+          SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          case "${{ github.event_name }}" in
+            pull_request) range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}" ;;
+            merge_group)  range="${{ github.event.merge_group.base_sha }}..${{ github.event.merge_group.head_sha }}" ;;
+            *)            range="${{ github.event.before }}..${{ github.sha }}" ;;
+          esac
+          # a new branch has no "before": scan its whole history
+          case "$range" in 0000000000000000000000000000000000000000..*) range="${{ github.sha }}" ;; esac
+          curl -sSfL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v$VERSION/gitleaks_${VERSION}_linux_x64.tar.gz"
+          echo "$SHA256  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks git --log-opts="$range" --redact --verbose --exit-code 1 .

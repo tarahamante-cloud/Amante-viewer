@@ -1,0 +1,94 @@
+name: Amante native checks and Windows download
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ["amante-viewer/**", ".github/workflows/amante-build.yml", "scripts/amante-*"]
+  push:
+    branches: [main]
+    paths: ["amante-viewer/**", ".github/workflows/amante-build.yml", "scripts/amante-*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: amante-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: amante-viewer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install native Linux prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev
+          rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
+          rustup override set 1.99.1
+      - name: Formatting and offline security regression tests
+        env:
+          CARGO_BUILD_JOBS: "2"
+        run: |
+          cargo fmt --all --check
+          cargo check --profile ci --workspace --all-targets --locked
+          cargo clippy --profile ci --workspace --all-targets --locked -- -D warnings -A dead_code
+          # The complete viewer test executable exceeds small runners' memory.
+          # Compile-check it above; retain/run network + updater fixtures here.
+          cargo test --profile ci --workspace --exclude aurora-viewer --locked amante_security
+          cargo test --profile ci --workspace --locked --test updates
+      - name: Build native Linux viewer without signing in
+        env:
+          CARGO_BUILD_JOBS: "2"
+        run: |
+          cargo build --profile ci --locked -p aurora-viewer
+          ./target/ci/aurora-viewer --version
+
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: amante-viewer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Build complete native Windows x64 viewer
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal
+          rustup override set 1.99.1
+          cargo build --release --locked -p aurora-viewer
+          if ($LASTEXITCODE -ne 0) { throw 'Native Windows build failed.' }
+      - name: Package executable, assets, licenses and checksum
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = 'target/release/aurora-viewer.exe'
+          $version = (& $exe --version | Out-String).Trim() -replace '^Amante Viewer ', ''
+          if ($LASTEXITCODE -ne 0 -or $version -notmatch '^\d+\.\d+\.\d+([+-][0-9A-Za-z.+-]+)?$') { throw 'Invalid Amante build version.' }
+          $name = "Amante-Viewer-v$version-windows-x64"
+          $folder = Join-Path '../generated-artifacts' $name
+          ./scripts/package.ps1 -Exe $exe -Out $folder
+          if (!(Test-Path (Join-Path $folder 'amante-viewer.exe'))) { throw 'Amante executable missing.' }
+          $zip = "$folder.zip"
+          Compress-Archive -LiteralPath $folder -DestinationPath $zip -Force
+          $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          [IO.File]::WriteAllText("$zip.sha256", "$hash  $name.zip`n", [Text.UTF8Encoding]::new($false))
+      - name: Downloadable Windows build, not a published release
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Amante-Viewer-windows-x64
+          path: |
+            generated-artifacts/*.zip
+            generated-artifacts/*.sha256
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,137 @@
+[package]
+name = "aurora-viewer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+aurora-updater = { version = "0.1.0", path = "../aurora-updater" }
+aurora-i18n = { version = "0.1.0", path = "../aurora-i18n" }
+anyhow = "1.0.104"
+# Embedded Blender image pixels; maintained MIT/Apache-2.0 codec.
+base64 = "0.23.1"
+# The computer's UTC offset for the bars' clock (ui/bars/clock.rs); already
+# built for aurora-llsd, MIT/Apache-2.0.
+chrono = "0.4.45"
+# The bars' clock: the computer's tz database zone (Windows' zones mapped to
+# IANA names; already in the tree through chrono) and its abbreviation now
+# (CET / CEST), from the embedded tz database (about 1.3 MB of the release
+# exe, every zone: the computer's is only known at run time). MIT/Apache-2.0.
+iana-time-zone = "0.1.65"
+chrono-tz = "0.10.4"
+aurora-assets = { version = "0.1.0", path = "../aurora-assets" }
+aurora-audio = { version = "0.1.0", path = "../aurora-audio" }
+aurora-llsd = { version = "0.1.0", path = "../aurora-llsd" }
+aurora-media = { version = "0.1.0", path = "../aurora-media" }
+aurora-net = { version = "0.1.0", path = "../aurora-net" }
+aurora-prim = { version = "0.1.0", path = "../aurora-prim" }
+aurora-render = { version = "0.1.0", path = "../aurora-render" }
+aurora-voice = { version = "0.1.0", path = "../aurora-voice" }
+aurora-version = { version = "0.1.0", path = "../aurora-version" }
+crossbeam-channel = "0.5.17"
+directories = "6.0.0"
+# experimental: only makes egui::theme public (the text fields' size, theme.rs)
+egui = { version = "0.37.0", features = ["experimental", "monochrome_emoji_fonts", "persistence"] }
+egui-wgpu = "0.37.0"
+egui-winit = "0.37.0"
+emojis = "0.9.0"
+# imported Hunspell dictionaries in their own SET encoding (spelling.rs);
+# MIT / Apache-2.0
+encoding_rs = "0.8.42"
+env_logger = "0.11.11"
+glam = "0.34.1"
+# Native raw joystick axes (including unmapped flight sticks), MIT / Apache-2.0.
+gilrs-core = "0.6.8"
+# SpaceMouse HID reports, independently of gamepad mappings; MIT wrapper,
+# bundled HIDAPI under BSD-3-Clause.
+hidapi = "2.6.7"
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "bmp", "tga", "gif", "webp"] }
+log = "0.4.34"
+# photos written row by row with their progress (the PNG encoder of image,
+# already in the tree)
+png = "0.18.1"
+md5 = "0.8.1"
+memmap2 = "0.9.11"
+parking_lot = "0.12.5"
+pollster = "1.0.1"
+# CommonMark parsing for notecard previews; MIT licensed, no HTML runtime.
+pulldown-cmark = { version = "0.13.4", default-features = false }
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls"] }
+rayon = "1.12.0"
+resvg = "0.48"
+# native file dialogs (About Land: export / import of access lists)
+rfd = "0.17.2"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+softbuffer = "0.4.8"
+sha2 = "0.11.0"
+# spell checking of the text fields with Hunspell dictionaries (spelling.rs);
+# pure Rust, MPL-2.0
+spellbook = "0.4.2"
+ttf-parser = "0.25.1"
+# Right-to-left text in reading order (ui/bidi.rs): the Unicode Bidirectional
+# Algorithm (unicode-rs, already in the tree through url) and its mirrored
+# brackets (RazrFalcon, of rustybuzz), MIT/Apache-2.0.
+unicode-bidi = "0.3.18"
+unicode-bidi-mirroring = "0.4.0"
+uuid = { version = "1.27.0", features = ["v4"] }
+wgpu = "30.0.1"
+winit = "0.30"
+ron = "0.12.2"
+flate2 = "1.1.10"
+zip = { version = "9.0.1", default-features = false, features = ["deflate-flate2"] }
+tokio = { version = "1", default-features = false, features = ["rt"] }
+sysinfo = { version = "0.39.6", default-features = false, features = ["system"] }
+serde_path_to_error = "0.1.20"
+# MikkTSpace tangents of the meshes' normal maps (scene/tangents.rs): safe
+# Rust, no dependency, byte-identical to the reference C code; MIT /
+# Apache-2.0 with the reference's zlib notice
+bevy_mikktspace = "1.0.0"
+fancy-regex = "0.19.2"
+# Hashing of the maps the frame walks (fast_hash.rs); zlib licence, already
+# in the tree through hashbrown
+foldhash = "0.2.0"
+# global allocator (allocator.rs): one heap per thread, so the main thread
+# no longer queues behind the background jobs on the system heap's lock; MIT.
+# mimalloc 2 (`v2`): with 3, the render thread lost 20 to 43 ms now and then
+# during arrivals (no such frame in 8 runs with 2, 4 in 8 runs with 3).
+# Held at these two versions: libmimalloc-sys 0.1.48 and later compile
+# mimalloc through a `.cc` file that cc passes to cl as `-Tp <file>`, which
+# sccache 0.18 (the shared build cache, AGENTS.md section 3) breaks
+# ("c1xx: cannot open source file '/WX-'"). Fixed in sccache by
+# mozilla/sccache#2904, after 0.18: bump both at the first sccache release
+# that has it (also in .github/dependabot.yml).
+mimalloc = { version = "=0.1.50", features = ["v2"] }
+libmimalloc-sys = "=0.1.47"
+
+# remembered login password and the GitHub authorization of crash reports
+# (Windows Credential Manager, macOS Keychain, Secret Service on Linux)
+[dependencies.keyring]
+version = "4"
+
+[target.'cfg(windows)'.dependencies]
+# Already used by egui-winit (MIT/Apache-2.0); add a file offer alongside
+# the bitmap so Explorer can paste a copied conversation image as a PNG.
+arboard = { version = "3.6.1", default-features = false, features = ["image-data"] }
+windows-sys = { version = "0.61.2", features = ["Win32_UI_Input_KeyboardAndMouse", "Win32_System_Threading", "Win32_System_Diagnostics_Debug", "Win32_System_Kernel", "Win32_System_SystemInformation", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_Globalization", "Win32_Foundation", "Win32_System_Diagnostics_ToolHelp", "Win32_System_ProcessStatus", "Win32_System_WindowsProgramming", "Win32_System_Performance", "Win32_System_Pipes", "Win32_Storage_FileSystem", "Win32_Security", "Win32_System_IO", "Win32_System_RemoteDesktop", "Win32_System_Registry", "Win32_System_Environment", "Win32_NetworkManagement_NetBios", "Win32_System_Memory", "Win32_System_LibraryLoader", "Win32_Devices_DeviceAndDriverInstallation"] }
+# Windows notifications (system_notify.rs): the WinRT toast API, which
+# windows-sys does not cover; already in the tree through wgpu and cpal
+# and the login device ids (machine_id.rs): WMI through COM
+windows = { version = "0.62.2", features = ["Data_Xml_Dom", "Foundation", "UI_Notifications", "Win32_Foundation", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Registry", "Win32_System_Variant", "Win32_System_WinRT", "Win32_System_Wmi"] }
+
+[target.'cfg(unix)'.dependencies]
+# getenv without allocating, for the allocator's choice (allocator.rs); already
+# in the tree
+libc = "0.2.190"
+
+# icon and version block of aurora-viewer.exe (build.rs; runs rc.exe of the
+# Windows SDK). Without `toml`: nothing is read from Cargo.toml.
+[build-dependencies]
+# the bundled dictionaries, compressed into the exe (build.rs)
+flate2 = "1.1.10"
+winresource = { version = "0.1.34", default-features = false }
+
+[lints]
+workspace = true

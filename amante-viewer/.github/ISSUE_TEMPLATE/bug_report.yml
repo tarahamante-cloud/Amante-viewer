@@ -1,0 +1,46 @@
+name: Bug Report
+description: Report a bug in Aurora
+type: Bug
+body:
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: What steps are required to reproduce the problem?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual behavior
+      description: A clear and concise description of what actually happened.
+    validations:
+      required: true
+
+  - type: input
+    id: viewer-version
+    attributes:
+      label: Viewer version and System information if applicable
+      placeholder: 0.5.1, Windows 11, Intel I9-14900K, RTX 4090 24Gb, 32Gb
+    validations:
+      required: true
+
+  - type: upload
+    id: attachments
+    attributes:
+      label: Attachments (Logs, Screenshots, or Files)
+      description: |
+        **WARNING:** All uploaded files are **PUBLIC** and visible to everyone on the internet. 
+        Do **NOT** upload sensitive information, private logs, passwords, or personal data. 
+        Attach only public screenshots or sanitized logs.
+    validations:
+      required: false

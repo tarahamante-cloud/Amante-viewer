@@ -1,0 +1,46 @@
+# Build output (one target per worktree, never committed)
+/target/
+**/target/
+
+# Agent worktrees, scratch space and release builds (they live outside the
+# repository, this is a safety net)
+/work/
+/RELEASE/
+
+# The 3D emoji font that older commits downloaded (the 2D one is in git)
+/assets/emoji/Noto-3D-*.ttf
+
+# Firestorm sources: cloned next to the repository, never inside it
+/phoenix-firestorm/
+
+# Cache folders the scene's streamers create where the tests run (the
+# crate's folder): never sources
+/crates/aurora-viewer/anim/
+/crates/aurora-viewer/mat/
+/crates/aurora-viewer/mesh/
+/crates/aurora-viewer/settings/
+/crates/aurora-viewer/sound/
+/crates/aurora-viewer/tex/
+
+# Fuzzing: the corpus libFuzzer grows, the failing inputs, coverage data
+# (fuzz/; the seeds are made by the targets' code)
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/coverage/
+
+# Logs, captures, local settings
+*.log
+*.png.tmp
+/captures/
+.env
+.env.*
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Per-task scratch files (agents)
+/.scratch/

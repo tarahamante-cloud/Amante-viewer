@@ -1,0 +1,27 @@
+[package]
+name = "aurora-audio"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+description = "Audio output engine for Aurora Viewer: volume-channel mixer, parcel music streaming, PCM sinks."
+
+[dependencies]
+sonora = "0.2.0"
+aurora-version = { version = "0.1.0", path = "../aurora-version" }
+# realtime: the device callbacks run in the multimedia scheduler's "Audio"
+# task (MMCSS), so a busy viewer does not starve them.
+cpal = { version = "0.18.2", features = ["realtime"] }
+crossbeam-channel = "0.5.17"
+log = "0.4.34"
+parking_lot = "0.12.5"
+rtrb = "0.4"
+rustls = "0.23.45"
+symphonia = { version = "0.6.1", default-features = false, features = ["mp3", "aac", "ogg", "vorbis", "wav", "pcm", "id3v2"] }
+thiserror = "2.0.21"
+url = "2"
+webpki-root-certs = "1.0.9"
+
+[lints]
+workspace = true

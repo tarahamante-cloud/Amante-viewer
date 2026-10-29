@@ -1,0 +1,66 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/Aurora-Viewer/Aurora-Viewer"
+publish = false
+
+# The single local profile: check.ps1 (clippy, tests) and the demo runs share
+# it, so a worktree compiles everything once. It behaves like the shipped
+# build (no debug assertions or overflow checks, no console window) and only
+# skips the slow LTO of --release, kept for releases and performance work.
+# Debug info: line tables only (function names and line numbers in crash
+# stacks, without the gigabytes of full debug info in target/).
+[profile.dev]
+opt-level = 1
+debug = "line-tables-only"
+debug-assertions = false
+overflow-checks = false
+
+[profile.dev.package."*"]
+opt-level = 3
+
+# CI (clippy, tests): compiled fast rather than running fast; keeps the
+# debug assertions and overflow checks as an extra net for the tests.
+[profile.ci]
+inherits = "dev"
+opt-level = 0
+debug = false
+debug-assertions = true
+overflow-checks = true
+incremental = false
+
+[profile.ci.package."*"]
+opt-level = 0
+
+# "Debug viewer" of aurora-tools.cmd (target\debugging): a console window,
+# debug assertions and overflow checks, full debug info for Aurora's own
+# crates (line tables only for the dependencies, to keep it to a few GB).
+[profile.debugging]
+inherits = "dev"
+debug = "full"
+debug-assertions = true
+overflow-checks = true
+
+[profile.debugging.package."*"]
+opt-level = 3
+debug = "line-tables-only"
+
+[profile.release]
+debug = "line-tables-only"
+lto = "thin"
+codegen-units = 16
+
+# Shared lints: every crate opts in with `[lints] workspace = true`.
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+
+[workspace.lints.clippy]
+# Render passes and GPU setup legitimately take many parameters and
+# nested tuple types; splitting them would not make the code clearer.
+too_many_arguments = "allow"
+type_complexity = "allow"
