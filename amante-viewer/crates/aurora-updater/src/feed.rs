@@ -11,6 +11,9 @@ use std::time::Duration;
 pub const RELEASES: &str = aurora_version::amante_config::RELEASES_API;
 pub const RELEASE_PAGE: &str = aurora_version::amante_config::RELEASE_PAGE;
 const DOWNLOADS: &str = aurora_version::amante_config::RELEASE_DOWNLOADS;
+/// Notification-only discovery is independent of executable replacement.
+pub const NOTIFICATION_PAGE: &str = "https://github.com/tarahamante-cloud/Amante-viewer/releases";
+const NOTIFICATION_API: &str = "https://api.github.com/repos/tarahamante-cloud/Amante-viewer/releases?per_page=100";
 pub const POLICY: &str = "aurora-update-policy.json";
 pub const MAX_ARCHIVE: u64 = 2 * 1024 * 1024 * 1024;
 
@@ -106,6 +109,10 @@ impl Source {
             self.loopback || aurora_version::amante_config::PRODUCTION_UPDATES_READY,
             "Amante production updates are inactive: owner-controlled endpoints and authenticated release metadata are pending"
         );
+        self.http_client()
+    }
+
+    fn http_client(&self) -> Result<Client> {
         let source = self.clone();
         let builder = Client::builder()
             .user_agent(aurora_version::user_agent())
@@ -200,6 +207,48 @@ impl Source {
     }
 }
 
+/// Read public release metadata only. Never fetch policies, packages or helpers.
+/// Links are constructed from the fixed Amante repository, not feed-provided URLs.
+pub async fn check_notification(current: &str, channel: Channel) -> Result<Option<Release>> {
+    ensure!(version(current).is_some(), "invalid installed version");
+    let source = Source {
+        url: NOTIFICATION_API.into(),
+        loopback: false,
+    };
+    let client = source.http_client()?;
+    let releases = serde_json::from_slice(&source.bytes(&client, NOTIFICATION_API, 4 * 1024 * 1024).await?)?;
+    Ok(notification_release(releases, current, channel))
+}
+
+fn notification_release(releases: Vec<GithubRelease>, current: &str, channel: Channel) -> Option<Release> {
+    let (v, r) = releases
+        .into_iter()
+        .filter_map(|r| {
+            let v = version(&r.tag_name)?;
+            let expected = format!("Amante-Viewer-{}-windows-x64.zip", r.tag_name);
+            (r.tag_name.starts_with('v')
+                && !r.draft
+                && r.prerelease == !v.pre.is_empty()
+                && channel.accepts(&v)
+                && r.assets.iter().any(|a| a.name == expected && a.size > 0 && a.size <= MAX_ARCHIVE))
+            .then_some((v, r))
+        })
+        .max_by(|a, b| a.0.cmp_precedence(&b.0))?;
+    if !super::is_newer(&v.to_string(), current) {
+        return None;
+    }
+    Some(Release {
+        url: format!("{NOTIFICATION_PAGE}/tag/{}", r.tag_name),
+        tag: r.tag_name,
+        version: v.to_string(),
+        notes: r.body.unwrap_or_default(),
+        archive: None,
+        checksum: None,
+        required: false,
+        maintenance: Default::default(),
+    })
+}
+
 pub fn version(value: &str) -> Option<Version> {
     Version::parse(value.strip_prefix('v').unwrap_or(value)).ok()
 }
@@ -259,6 +308,71 @@ pub struct Release {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn notice(tag: &str, draft: bool, prerelease: bool, package: bool) -> GithubRelease {
+        serde_json::from_value(serde_json::json!({
+            "tag_name": tag,
+            "draft": draft,
+            "prerelease": prerelease,
+            "html_url": "https://untrusted.example/ignore-this",
+            "body": "Release notes",
+            "assets": if package { vec![serde_json::json!({
+                "name": format!("Amante-Viewer-{tag}-windows-x64.zip"),
+                "size": 1234,
+                "browser_download_url": "https://untrusted.example/never-fetch"
+            })] } else { vec![] }
+        }))
+        .expect("fixture")
+    }
+
+    #[test]
+    fn notification_supports_first_development_download_and_never_installs() {
+        let r =
+            notification_release(vec![notice("v0.1.0", false, false, true)], "0.0.0+6.g755da7b22", Channel::Stable).expect("new release");
+        assert_eq!(r.url, format!("{NOTIFICATION_PAGE}/tag/v0.1.0"));
+        assert_eq!(r.notes, "Release notes");
+        assert!(r.archive.is_none() && r.checksum.is_none());
+        assert!(!r.required && !r.maintenance.clear_cache && !r.maintenance.reset_settings);
+        assert!(!std::hint::black_box(aurora_version::amante_config::PRODUCTION_UPDATES_READY));
+        assert!(Source::default().client().is_err());
+    }
+
+    #[test]
+    fn notification_suppresses_same_older_empty_and_unpublished_versions() {
+        for current in ["0.2.0", "0.2.0+3.gabcdef", "0.3.0"] {
+            assert!(notification_release(vec![notice("v0.2.0", false, false, true)], current, Channel::Stable).is_none());
+        }
+        for release in [
+            notice("v1.0.0", true, false, true),
+            notice("v1.0.0", false, false, false),
+            notice("v1.0.0", false, true, true),
+            notice("v1.0.0+2.gabc", false, false, true),
+            notice("v9.0.0/../../evil", false, false, true),
+        ] {
+            assert!(notification_release(vec![release], "0.0.0", Channel::Stable).is_none());
+        }
+        assert!(notification_release(vec![], "0.0.0", Channel::Stable).is_none());
+    }
+
+    #[test]
+    fn notification_selects_newest_ready_release_in_selected_channel() {
+        let releases = || {
+            vec![
+                notice("v0.3.0", false, false, true),
+                notice("v0.2.0", false, false, true),
+                notice("v0.4.0-beta.1", false, true, true),
+                notice("v9.0.0", false, false, false),
+            ]
+        };
+        assert_eq!(
+            notification_release(releases(), "0.1.0", Channel::Stable).expect("stable").version,
+            "0.3.0"
+        );
+        assert_eq!(
+            notification_release(releases(), "0.1.0", Channel::Beta).expect("beta").version,
+            "0.4.0-beta.1"
+        );
+    }
+
     #[test]
     fn maintenance_thresholds_survive_skipped_releases_and_do_not_repeat() {
         let latest = Version::parse("0.5.0").expect("fixture");

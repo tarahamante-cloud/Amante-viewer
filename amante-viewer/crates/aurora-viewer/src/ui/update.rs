@@ -294,6 +294,8 @@ pub fn show_real(
                 ui.label(
                     RichText::new(if required {
                         aurora_i18n::tr!("update-required")
+                    } else if updater.notification_only() {
+                        aurora_i18n::tr!("amante-update-intro")
                     } else {
                         aurora_i18n::tr!("update-intro")
                     })
@@ -368,11 +370,27 @@ pub fn show_real(
                 _ => {}
             }
             ui.add_space(8.0);
-            if let Some(release) = &updater.release {
+            if let Some(release) = &updater.release
+                && !updater.notification_only()
+            {
                 maintenance_summary(ui, p, release.maintenance);
             }
             ui.add_space(BEFORE_BUTTONS);
             match updater.state {
+                State::Offer if updater.notification_only() => {
+                    ui.horizontal(|ui| {
+                        let size = Vec2::new((width - 10.0) / 2.0, 34.0);
+                        if flat_button_sized(ui, p, aurora_i18n::tr!("update-later"), size).clicked() {
+                            updater.open = false;
+                        }
+                        if primary_button_sized(ui, p, aurora_i18n::tr!("amante-update-download"), size).clicked() {
+                            if let Some(release) = &updater.release {
+                                ctx.open_url(egui::OpenUrl::new_tab(&release.url));
+                            }
+                            updater.open = false;
+                        }
+                    });
+                }
                 State::Offer => {
                     ui.horizontal(|ui| {
                         let size = Vec2::new((width - 20.0) / if required { 2.0 } else { 3.0 }, 34.0);
@@ -411,10 +429,14 @@ pub fn show_real(
                     }
                 }
                 State::Error(_) | State::Rollback => {
-                    let url = updater
-                        .release
-                        .as_ref()
-                        .map_or(aurora_updater::feed::RELEASE_PAGE, |r| r.url.as_str());
+                    let url = updater.release.as_ref().map_or(
+                        if updater.notification_only() {
+                            aurora_updater::feed::NOTIFICATION_PAGE
+                        } else {
+                            aurora_updater::feed::RELEASE_PAGE
+                        },
+                        |r| r.url.as_str(),
+                    );
                     if ui
                         .add_enabled_ui(!url.is_empty(), |ui| {
                             flat_button_sized(ui, p, aurora_i18n::tr!("update-open-release"), Vec2::new(width, 34.0))
