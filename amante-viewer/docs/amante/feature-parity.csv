@@ -454,7 +454,7 @@
 "UI module","crates/aurora-viewer/src/ui/texture_library/tests.rs","","unchanged","not Windows-verified","not Windows-verified","not runtime-tested","",""
 "UI module","crates/aurora-viewer/src/ui/texture_library/texture_view.rs","","unchanged","not Windows-verified","not Windows-verified","not runtime-tested","",""
 "UI module","crates/aurora-viewer/src/ui/texture_library/windows.rs","","unchanged","not Windows-verified","not Windows-verified","not runtime-tested","",""
-"UI module","crates/aurora-viewer/src/ui/texture_picker.rs","","unchanged","not Windows-verified","not Windows-verified","not runtime-tested","",""
+"UI module","crates/aurora-viewer/src/ui/texture_picker.rs","","modified","not Windows-verified","not Windows-verified","not runtime-tested","",""
 "UI module","crates/aurora-viewer/src/ui/texture_picker/tree.rs","","unchanged","not Windows-verified","not Windows-verified","not runtime-tested","",""
 "UI module","crates/aurora-viewer/src/ui/theme_guard.rs","","unchanged","not Windows-verified","not Windows-verified","not runtime-tested","",""
 "UI module","crates/aurora-viewer/src/ui/toolbar.rs","","unchanged","not Windows-verified","not Windows-verified","not runtime-tested","",""

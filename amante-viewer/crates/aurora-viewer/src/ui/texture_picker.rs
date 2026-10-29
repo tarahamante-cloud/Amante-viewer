@@ -1102,7 +1102,7 @@ mod tests {
             world.inventory.root = root;
             let parent = if source == 0 { root } else { Uuid::from_u128(3) };
             world.inventory.created_folders(
-                [(1, 0, "Inventory"), (2, 1, "#Aurora"), (3, 2, "Aurora Library")]
+                [(1, 0, "Inventory"), (2, 1, "#Amante"), (3, 2, "Amante Library")]
                     .into_iter()
                     .map(|(id, parent, name)| aurora_net::inventory::InvFolder {
                         id: Uuid::from_u128(id),
