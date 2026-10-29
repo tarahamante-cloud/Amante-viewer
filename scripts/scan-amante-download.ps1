@@ -53,6 +53,23 @@ try {
     if (-not (Test-Path -LiteralPath $scanner -PathType Leaf)) {
         throw 'Microsoft Defender scanner is unavailable; no clean result can be claimed.'
     }
+    # Hosted build images may leave Defender stopped. Enable it for this
+    # ephemeral scan runner; never disable protection or add exclusions.
+    $service = Get-Service -Name WinDefend -ErrorAction Stop
+    $report['service_before'] = [ordered]@{
+        status = $service.Status.ToString()
+        start_type = $service.StartType.ToString()
+    }
+    if ($service.Status -ne 'Running') {
+        if ($service.StartType -eq 'Disabled') {
+            Set-Service -Name WinDefend -StartupType Manual -ErrorAction Stop
+        }
+        Start-Service -Name WinDefend -ErrorAction Stop
+        $service.WaitForStatus(
+            [System.ServiceProcess.ServiceControllerStatus]::Running,
+            [TimeSpan]::FromSeconds(30)
+        )
+    }
     Update-MpSignature -ErrorAction Stop
     $status = Get-MpComputerStatus -ErrorAction Stop
     $report.scanner = [ordered]@{
