@@ -1045,7 +1045,7 @@ mod tests {
             ..Default::default()
         };
         let refused = |events: Vec<NetEvent>| matches!(events.as_slice(), [NetEvent::GroupCreated { success: false, .. }]);
-        assert!(refused(create("aurora builders", &info, 1000, 100, true)), "a demo group's name");
+        assert!(refused(create("amante builders", &info, 1000, 100, true)), "a demo group's name");
         assert!(refused(create("Test Fee Group", &info, 50, 100, true)), "not enough L$");
         assert!(refused(create("Test Limit Group", &info, 1000, 100, false)), "the group limit");
         let events = create("Test Created Group", &info, 1000, 100, true);

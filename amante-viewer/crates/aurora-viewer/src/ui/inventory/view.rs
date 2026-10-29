@@ -990,7 +990,7 @@ pub(super) fn within(inv: &Inventory, roots: &[Uuid]) -> IdSet {
 fn compare(a: &Entry, b: &Entry, sort: Sort) -> Ordering {
     // Viewer support folders stay discoverable above system categories,
     // including in date order, as for Firestorm's support folder.
-    let support = |e: &Entry| e.folder && !e.library && matches!(e.name.as_str(), "#aurora" | "#firestorm");
+    let support = |e: &Entry| e.folder && !e.library && matches!(e.name.as_str(), "#amante" | "#aurora" | "#firestorm");
     let pinned = support(b).cmp(&support(a));
     if pinned != Ordering::Equal {
         return pinned;
@@ -1259,6 +1259,8 @@ mod tests {
         let root = inv.root;
         folder(&mut inv, 30, root, -1, "#Amante");
         folder(&mut inv, 31, root, -1, "#Firestorm");
+        // Existing upstream folders keep their names and their priority.
+        folder(&mut inv, 32, root, -1, "#Aurora");
         for by_date in [false, true] {
             for system_first in [false, true] {
                 let prefs = InventoryPreferences {
@@ -1271,7 +1273,7 @@ mod tests {
                 };
                 let mut cache = ViewCache::default();
                 cache.prepare(&inv, prefs.sort);
-                assert_eq!(&cache.children(root, &prefs, inv.lib_root)[..2], &[id(30), id(31)]);
+                assert_eq!(&cache.children(root, &prefs, inv.lib_root)[..3], &[id(30), id(32), id(31)]);
             }
         }
     }
