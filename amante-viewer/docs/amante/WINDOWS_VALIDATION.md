@@ -1,6 +1,6 @@
 # Windows validation record
 
-## Branding revision pending a new Windows build
+## Latest automated branding build — desktop validation pending
 
 The user requested Amante across every product-owned landing screen, menu and
 other visible surface after confirming the direct download worked. Source now
@@ -8,10 +8,63 @@ includes that expanded branding, branded bundled news, project links and
 distribution README. Existing content, compatibility identifiers and required
 upstream legal notices are not rewritten.
 
-The earlier successful ZIP below does **not** contain this new source. Its
-checksum and test results remain evidence for its exact revision only. The
-current feature CSV is reset to source-only status until a new package passes.
-Do not describe the branding changes as Windows-tested before that run.
+The updated package is
+`Amante-Viewer-v0.0.0+14.gca32d4292-windows-x64.zip`, from source
+`ca32d42921c3c0c3a2d6b63791c37d753f2eb5d9`.
+
+- Build: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40825559436>.
+- Windows artifact: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40825559436/artifacts/12877593258>.
+- Inner ZIP SHA-256:
+  `cba3e43ae3df90b63ecca5a572f3bfa873285f2d0eaed4d04e89916ca2fd741b`.
+- Offline evidence: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40825559436/artifacts/12877497096>.
+
+| Evidence level | Verified result / remaining limitation |
+|---|---|
+| Source | All 8,643 original files retained and tracked; 8,525 canonical blobs unchanged, 118 modified, no original assets changed |
+| Linux build | Formatting, all-target checks/Clippy, targeted offline tests, normal native binary build and CLI passed |
+| Windows build | Complete optimized native x64 application built successfully |
+| Full Windows offline harness | 6,094 passed, zero failed, 30 ignored across 16 executables; compilation passed on a 17,178,693,632-byte runner |
+| Viewer offline harness | 5,086 passed, zero failed, nine ignored; the three earlier regressions below now pass |
+| Distribution | Original inner ZIP independently downloaded and checksum matched; archive contains 31 entries, including the 165,193,728-byte x64 `amante-viewer.exe` and Amante README |
+| Identity / licenses / assets | Extracted `--version`, x64 PE, Amante ProductName/FileDescription/OriginalFilename and packaged document/license comparisons passed; embedded original assets preserved |
+| Profiles / updater | Offline namespace/path and loopback update/rollback fixtures passed; real keyring, interactive profile isolation and graphical updater/relaunch still unverified |
+| Per-area evidence | All 1,996 feature CSV rows bind to this exact source and package; whole-target build/package checks are not per-feature runtime tests |
+| Desktop runtime | Not verified: native GPU startup, window/taskbar/notification identity and interactive menu/tool/settings/shortcut checks still require the human desktop checklist |
+
+The original ZIP was also scanned without executing or repacking it:
+<https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40830009993>.
+Defender updated signatures successfully, returned zero, reported no detection
+and confirmed the same package checksum afterward. This is one scanner's
+result, **not** proof of safety, code signing, update authenticity or Google
+Safe Browsing clearance. Do not bypass a browser or antivirus block.
+
+Earlier packages below do **not** contain this expanded branding. Their
+checksums and results remain evidence only for their own revisions. The current
+CSV explicitly leaves every desktop-runtime field as `not runtime-tested`.
+
+### Branding candidate with failed regressions
+
+Run [40822636228](https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40822636228)
+tested source `681f42f1b06d260f751c1426f91e6e25c6dd5cd4`.
+
+- **Source:** all 8,643 baseline files retained; no original assets changed.
+- **Build:** Linux checks, all-target Clippy and normal binary build passed.
+  The complete Windows test harness compiled on a runner reporting
+  17,174,360,064 bytes of memory. The separate optimized Windows build was
+  superseded before completion, so this is not a release-build pass.
+- **Package:** no replacement ZIP is certified by this run.
+- **Offline runtime:** all 16 test binaries ran: 6,091 passed, 3 failed and
+  30 were ignored. The viewer alone had 5,083 passed, 3 failed and 9 ignored.
+  Failures were the old demo-group name assertion and two inventory ordering
+  checks: support-folder sorting had not recognized the new `#Amante` name.
+- **Desktop runtime:** interactive Windows/GPU checks remain unverified.
+
+Source `ca32d42921c3c0c3a2d6b63791c37d753f2eb5d9` corrects those causes,
+retains legacy `#Aurora` support-folder priority without renaming user data,
+and adds coverage for both folder names. The corrected full workflow is
+[40825559436](https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40825559436);
+all three corrected workflow jobs passed. This result is not inferred from
+the earlier failed candidate.
 
 ## Successful automated run — 2026-10-29 UTC
 
@@ -20,7 +73,7 @@ All three jobs passed: Linux, Windows release packaging, and the complete
 Windows offline harness. Tested source:
 `755da7b22999cb255c22d41183882c7f08724cdd`.
 
-**Use this package instead of the earlier development build below:**
+**Historical package, superseded by the branding build above:**
 
 - Download: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40806913429/artifacts/12869344616>.
 - Inner ZIP: `Amante-Viewer-v0.0.0+6.g755da7b22-windows-x64.zip`.

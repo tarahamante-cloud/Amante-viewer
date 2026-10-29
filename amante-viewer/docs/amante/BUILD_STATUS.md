@@ -19,9 +19,10 @@
 
 - Targeted network code and local TLS test code passed `cargo check`.
 - Owner-controlled root CI run
-  <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40806913429>
+  <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40825559436>
   passed all three jobs at source
-  `755da7b22999cb255c22d41183882c7f08724cdd`.
+  `ca32d42921c3c0c3a2d6b63791c37d753f2eb5d9`, including the expanded Amante
+  landing/menu/help/tool/localization branding.
 - Attempting the full workspace test executable build reached a SIGKILL while
   compiling the viewer's very large test harness under Replit's 8 GiB limit.
   No test cases ran in that attempt. This is separate from the successful
@@ -30,7 +31,7 @@
   tests excluding only the viewer test executable and the local updater suite.
   The full viewer unit harness subsequently compiled and ran on a Windows
   runner with about 16 GiB: 5,086 passed, zero failed, nine ignored. The whole
-  Windows workspace harness had 6,090 passes, zero failures and 30 ignored
+  Windows workspace harness had 6,094 passes, zero failures and 30 ignored
   tests across 16 executables. Ignored tests are not passes.
 - Native binary build/version checks passed on Linux and Windows. These CLI
   checks do not exercise rendering or sign-in.
