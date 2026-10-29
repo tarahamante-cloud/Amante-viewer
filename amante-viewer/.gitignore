@@ -1,6 +1,8 @@
 # Build output (one target per worktree, never committed)
 /target/
 **/target/
+# This upstream source module is named target; it is not Cargo build output.
+!/crates/aurora-viewer/src/ik_edit/project/target/
 
 # Agent worktrees, scratch space and release builds (they live outside the
 # repository, this is a safety net)

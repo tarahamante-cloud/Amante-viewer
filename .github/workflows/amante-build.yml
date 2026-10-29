@@ -27,6 +27,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Verify all immutable baseline files are tracked
+        run: node ../scripts/verify-viewer-preservation.mjs --require-tracked
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update
@@ -65,6 +67,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Verify all immutable baseline files are tracked
+        run: node ../scripts/verify-viewer-preservation.mjs --require-tracked
       - name: Build complete native Windows x64 viewer
         run: |
           rustup toolchain install 1.99.1 --profile minimal
@@ -86,7 +90,7 @@ jobs:
           $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           [IO.File]::WriteAllText("$zip.sha256", "$hash  $name.zip`n", [Text.UTF8Encoding]::new($false))
           ./scripts/verify-windows-package.ps1 -Zip $zip -Evidence ../generated-artifacts/windows-package-verification.json
-          node ../scripts/verify-viewer-preservation.mjs ../generated-artifacts/windows-package-verification.json
+          node ../scripts/verify-viewer-preservation.mjs --require-tracked ../generated-artifacts/windows-package-verification.json
           Copy-Item docs/amante/feature-parity.csv ../generated-artifacts/windows-feature-parity.csv
       - name: Downloadable Windows build, not a published release
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -117,6 +121,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Verify all immutable baseline files are tracked
+        run: node ../scripts/verify-viewer-preservation.mjs --require-tracked
       - name: Full offline native unit and integration harness
         run: |
           rustup toolchain install 1.99.1 --profile minimal

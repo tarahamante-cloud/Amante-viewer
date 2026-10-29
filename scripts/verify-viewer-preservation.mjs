@@ -1,6 +1,7 @@
 // Compare the native tree against the immutable, pre-edit source inventory.
 // This verifies source preservation, not successful behavior on a live grid.
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,9 +19,16 @@ const records = inventory.files.map((file) => {
   return { path: file.path, status: blob === file.blob ? "unchanged" : "modified", baselineBlob: file.blob, currentBlob: blob };
 });
 const byPath = new Map(records.map((r) => [r.path, r.status]));
+const args = process.argv.slice(2);
+const requireTracked = args.includes("--require-tracked");
+const evidencePath = args.find((arg) => arg !== "--require-tracked");
+const tracked = requireTracked
+  ? new Set(execFileSync("git", ["-C", workspace, "ls-files", "-z", "--", "amante-viewer"], { encoding: "utf8" }).split("\0"))
+  : null;
+const untrackedBaseline = tracked ? inventory.files.filter((file) => !tracked.has(`amante-viewer/${file.path}`)).map((file) => file.path) : [];
 // Optional evidence is emitted only after checking the extracted Windows ZIP.
 // Whole-target compilation and distribution checks are NOT per-feature tests.
-const evidence = process.argv[2] ? JSON.parse(readFileSync(process.argv[2], "utf8")) : null;
+const evidence = evidencePath ? JSON.parse(readFileSync(evidencePath, "utf8")) : null;
 if (evidence && (evidence.schema !== 1 || evidence.nativeBuild !== "passed" || evidence.packageVerification !== "passed" || !/^[a-f0-9]{64}$/.test(evidence.sha256))) {
   throw new Error("Expected successful Windows package verification evidence");
 }
@@ -43,10 +51,11 @@ const summary = {
   unchanged: records.filter((r) => r.status === "unchanged").length,
   modified: records.filter((r) => r.status === "modified").length,
   missing: records.filter((r) => r.status === "missing").map((r) => r.path),
+  ...(requireTracked ? { untrackedBaseline } : {}),
   changedAssets: records.filter((r) => r.status !== "unchanged" && /(?:^|\/)assets\//.test(r.path)).map((r) => r.path),
   evidence: "Git blob comparison against the pre-edit inventory; not runtime parity",
 };
 mkdirSync(join(workspace, "generated-artifacts"), { recursive: true });
 writeFileSync(join(workspace, "generated-artifacts/source-preservation.json"), `${JSON.stringify({ ...summary, files: records }, null, 2)}\n`);
 console.log(JSON.stringify(summary, null, 2));
-if (summary.missing.length) process.exitCode = 1;
+if (summary.missing.length || untrackedBaseline.length) process.exitCode = 1;
