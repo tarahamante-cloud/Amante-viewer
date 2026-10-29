@@ -25,6 +25,15 @@ inspection. The CSV is an item-by-item source table derived from this inventory:
   check every original file and regenerate the table.
 - The detailed current blob comparison is written to the ignored
   `generated-artifacts/source-preservation.json`.
+- Comparisons use Git's canonical text/binary handling. Windows checkout
+  line-ending conversions are reported separately, not as source or asset
+  edits; original raw-byte identities are also retained in the detailed report.
+- Use `--require-tracked` to reject baseline files that exist locally but
+  would be omitted from a Git export.
+- Package-backed attribution requires the exact built Git revision and a clean
+  native source checkout (apart from the generated CSV). An unrelated package
+  report cannot certify the current source tree. Regression checks:
+  `node --test scripts/verify-viewer-preservation.test.mjs`.
 
 ## Feature groups found in the actual source
 

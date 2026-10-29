@@ -59,6 +59,24 @@ The internal Cargo target still has its upstream name; the packaging step
 creates the Amante executable. Launch the packaged file, not an Aurora install.
 No administrator rights should be required for the portable package itself.
 
+## Windows runtime prerequisites
+
+The development executable is not a self-contained Windows installation. It
+imports `MSVCP140.dll`, `VCRUNTIME140.dll` and `VCRUNTIME140_1.dll`; the ZIP does
+not redistribute Microsoft's runtime. Install the supported **x64 Microsoft
+Visual C++ Redistributable** from
+[Microsoft's official instructions](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist)
+if it is not already installed, following your organization's security policy.
+Do not download individual DLLs from third-party sites. Installing prerequisites
+may require administrator approval even though the portable viewer itself does
+not.
+
+A working Vulkan-capable GPU and its vendor's supported graphics driver are
+also required. CI's successful extracted `--version` proves loading on the
+hosted runner, which already has developer runtimes; it does not certify a clean
+Windows machine or the native graphics path. This is an unsigned development
+build, not a signed release or a reason to bypass Windows security warnings.
+
 Run the first graphics test in offline mode:
 
 ```powershell

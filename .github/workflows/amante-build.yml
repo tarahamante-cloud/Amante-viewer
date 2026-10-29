@@ -3,10 +3,10 @@ name: Amante native checks and Windows download
 on:
   workflow_dispatch:
   pull_request:
-    paths: ["amante-viewer/**", ".github/workflows/amante-build.yml", "scripts/amante-*"]
+    paths: ["amante-viewer/**", ".github/workflows/amante-build.yml", "scripts/amante-*", "scripts/verify-viewer-preservation*"]
   push:
     branches: [main]
-    paths: ["amante-viewer/**", ".github/workflows/amante-build.yml", "scripts/amante-*"]
+    paths: ["amante-viewer/**", ".github/workflows/amante-build.yml", "scripts/amante-*", "scripts/verify-viewer-preservation*"]
 
 permissions:
   contents: read
@@ -28,7 +28,9 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Verify all immutable baseline files are tracked
-        run: node ../scripts/verify-viewer-preservation.mjs --require-tracked
+        run: |
+          node --test ../scripts/verify-viewer-preservation.test.mjs
+          node ../scripts/verify-viewer-preservation.mjs --require-tracked
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update

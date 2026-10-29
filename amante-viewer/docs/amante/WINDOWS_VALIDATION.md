@@ -1,15 +1,69 @@
 # Windows validation record
 
-## Evidence under collection
+## Successful automated run — 2026-10-29 UTC
+
+Root workflow: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40806913429>.
+All three jobs passed: Linux, Windows release packaging, and the complete
+Windows offline harness. Tested source:
+`755da7b22999cb255c22d41183882c7f08724cdd`.
+
+**Use this package instead of the earlier development build below:**
+
+- Download: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40806913429/artifacts/12869344616>.
+- Inner ZIP: `Amante-Viewer-v0.0.0+6.g755da7b22-windows-x64.zip`.
+- SHA-256 of the **inner versioned ZIP**, not GitHub's outer artifact ZIP:
+  `4d2664eca934e31e35dd7d56c82f5b77cdc9829a697f593067a2defb19a8f55a`.
+- Test evidence: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40806913429/artifacts/12868329829>.
+- Artifacts have 14-day retention; they are not a published release.
+
+| Evidence level | Verified outcome / remaining limitation |
+|---|---|
+| Source preservation | 8,643 baseline files present and tracked; canonical comparison: 8,605 unchanged, 38 modified, no original assets changed |
+| Linux | Formatting, all-target check and Clippy, targeted offline security/updater tests, native build and CLI passed |
+| Windows native application | Complete release build passed on Windows NT 10.0.26100.0 |
+| Windows full harness | Compiled on 17,174,360,064-byte runner; **6,090 passed, zero failed, 30 ignored**, across 16 executables |
+| Viewer harness | **5,086 passed, zero failed, nine ignored** |
+| Profile isolation | Default config/cache/media/log path separation, isolated unit-test paths and separate literal credential service names passed; real keyring/profile behavior not exercised |
+| Local updater | Ten unit tests and ten loopback integration tests passed, including rollback/profile-preservation cases; graphical update/relaunch still untested |
+| Distribution | Actual download, independent inner ZIP checksum, archive integrity, 29 entries, `amante-viewer.exe` present (165,228,544 bytes) |
+| Windows identity | Extracted `--version`, x64 PE and ProductName/FileDescription/OriginalFilename checks passed |
+| Assets/licenses | Packaged license/doc/source files matched their build source; original embedded assets canonically preserved; no graphics rendering inferred |
+| Interactive desktop | Not exercised: GPU, menus/settings/shortcuts, dialogs, real keyring, devices and graphical updater fixture remain pending |
+| Live grids | Not exercised, never automated; voluntary human-only |
+
+The executable imports `MSVCP140.dll`, `VCRUNTIME140.dll` and
+`VCRUNTIME140_1.dll`. This unsigned development ZIP does not include Microsoft's
+runtime. See [runtime prerequisites](WINDOWS_BUILD.md#windows-runtime-prerequisites).
+The hosted developer image already has it; neither clean-machine launch nor
+Vulkan graphics is certified by successful `--version`.
+
+The original Windows source report used raw checkout bytes and therefore
+counted CRLF conversions as edits. Retained it unchanged, then replayed the
+exact build commit with Git-normalized comparison locally. All 8,643
+Windows-recorded blob identities matched that checkout or its CRLF form, with
+no unexplained source differences; canonical counts are those above. The
+replayed `feature-parity.csv` attributes all 1,996 rows to this exact build
+revision and package SHA, explicitly **not** to per-feature runtime tests.
+
+After this run, only documentation/evidence tooling and CI wiring changed;
+native product source was not changed. Seven local synthetic regression tests
+cover checkout line endings, real binary edits, missing/untracked source,
+distinct evidence levels, mismatched package revisions and post-build native
+edits. Source-only invocations intentionally reset CSV Windows evidence;
+package attribution requires a clean native checkout of the exact built
+commit. The post-run evidence-tool changes are not claimed to have executed
+in the successful Windows run.
+
+## First completed Windows build
 
 - Owner-controlled source repository: <https://github.com/tarahamante-cloud/Amante-viewer>.
 - Native source and build support only were uploaded with owner approval;
   unrelated Replit starter apps and local/build data were excluded.
-- Current verification run: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40803551100>.
+- First package/test run: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40803551100>.
 - Source revision submitted: `703544fe274016bffdb032b839afc7521e05f797`.
 - Immutable upstream baseline: `d555fb677004bee8fd9e7f12b0e33a8978e77d4c`.
-- Baseline comparison: all 8,643 original files present and tracked; 8,606
-  unchanged, 37 modified, no original assets changed.
+- Canonical baseline comparison: all 8,643 original files present and tracked;
+  8,607 unchanged, 36 modified, no original assets changed.
 - The first source-import run was superseded and cancelled when the complete
   harness and distribution-verification steps were added. A cancelled run is
   not a passing build or test result.
@@ -19,20 +73,20 @@
   added a tracked-inventory gate before compilation in every job. The initial
   filesystem-only comparison did not prove the exported Git tree was complete.
 
-| Evidence level | Current outcome |
+| Evidence level | Earlier-run outcome |
 |---|---|
 | Source preservation | Passed Git blob comparison against immutable inventory |
-| Windows native target | Build running; not yet a pass |
-| Actual Windows ZIP and SHA-256 | Pending; no checksum is claimed |
-| Extracted CLI, PE/resources, assets/licenses | Pending Windows package verification |
+| Windows native target | Passed release build on Windows runner |
+| Actual Windows ZIP and SHA-256 | Downloaded and independently hash-verified; see package below |
+| Extracted CLI, PE/resources, assets/licenses | Passed package verification on Windows NT 10.0.26100.0 |
 | Complete Windows unit/integration harness | Compiled on 17,174,360,064-byte Windows runner; 6,085 passed, 2 failed, 30 ignored |
 | Interactive Windows desktop | Not exercised |
 | Graphical updater/rollback fixture | Not exercised; passing updater unit fixtures would not replace this |
 | Live-grid behavior | Not exercised; voluntary human-only |
 
-The Linux job on the current run completed the all-target compile check, then
+The Linux job on this earlier run completed the all-target compile check, then
 failed strict Clippy on a collapsible nested condition in the crash-report
-window. A behavior-preserving let-chain fix is prepared locally. Formatting
+window. A behavior-preserving let-chain fix was subsequently applied. Formatting
 and binary-only Clippy passed on that fix. The local full-workspace/all-target
 Clippy attempt was killed under the same 8 GiB limit when checking the viewer
 test target; that attempt is not a pass. The Windows jobs were left running to
@@ -54,6 +108,50 @@ The original Windows evidence artifact is
 It contains actual compiler output, memory capacity, per-binary exit codes and
 logs. The nine ignored viewer tests and other ignored workspace tests are not
 counted as passes. The release/package job from that run remains separate.
+
+## First actual development package
+
+- Download: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40803551100/artifacts/12868593402>.
+- Inner ZIP: `Amante-Viewer-v0.0.0+4.g703544fe2-windows-x64.zip`.
+- SHA-256 of that **inner ZIP**, not GitHub's surrounding artifact ZIP:
+  `60a24588b151b462c2835cc1f3ad6a8c3fe04de2b753d8c97c4031c0bcdbcb86`.
+- Source revision: `703544fe274016bffdb032b839afc7521e05f797`.
+- The release build took approximately 39 minutes; its Windows job was green,
+  although the overall run was red from the separately documented Linux lint
+  and two stale branding assertions.
+- Downloaded the actual artifact independently, verified its inner checksum
+  against both the SHA sidecar and Windows package report, checked ZIP
+  integrity, and confirmed all 1,996 feature rows retain distinct
+  source/build/package/desktop evidence. The archive contains 28 entries;
+  `amante-viewer.exe` is 165,217,792 bytes.
+- Windows verification executed the extracted CLI successfully and checked
+  x64 PE headers, product/description/original-filename resources, install
+  metadata, dictionary/emoji licenses and all packaged Amante documentation.
+- Import-table inspection also found `MSVCP140.dll`, `VCRUNTIME140.dll` and
+  `VCRUNTIME140_1.dll`. The package requires the supported x64 Microsoft Visual
+  C++ Redistributable; the hosted developer image already has it. A clean
+  Windows machine and a working Vulkan graphics driver remain unverified.
+
+The initial Windows raw-byte source report classified checkout CRLF conversion
+as modification. This was an evidence-tool limitation, not thousands of native
+code/asset edits. Replayed the exact build revision locally with Git-normalized
+comparison and checked **every one of the 8,643 Windows-recorded source blobs**
+against that checkout or its CRLF form: no unexplained differences. Canonical
+result: 8,607 unchanged, 36 modified, zero missing/untracked baseline files,
+zero changed assets. The original raw report is retained, not overwritten;
+the canonical report and replay proof are separate generated evidence. Added
+regression fixtures for CRLF, real binary changes, missing/untracked source and
+separate build/package/runtime attribution.
+
+## Correction run
+
+The branch `windows-validation` contains the identity assertion and lint fixes,
+plus explicit no-I/O profile-path and credential-namespace regression tests.
+The current full run is
+<https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40806913429>
+at source `755da7b22999cb255c22d41183882c7f08724cdd`. All three jobs passed.
+Do not apply its results to
+the earlier ZIP or substitute an unbuilt source revision for the packaged one.
 
 `feature-parity.csv` enumerates all 1,996 inventoried UI modules, menu call
 sites, settings and shortcut/toolbar declarations. Each row has separate
