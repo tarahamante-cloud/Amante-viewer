@@ -377,7 +377,7 @@ pub fn show_real(
             }
             ui.add_space(BEFORE_BUTTONS);
             match updater.state {
-                State::Offer if updater.notification_only() => {
+                State::Offer if updater.notification_only() && !required => {
                     ui.horizontal(|ui| {
                         let size = Vec2::new((width - 10.0) / 2.0, 34.0);
                         if flat_button_sized(ui, p, aurora_i18n::tr!("update-later"), size).clicked() {

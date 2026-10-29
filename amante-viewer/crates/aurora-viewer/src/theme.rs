@@ -115,12 +115,16 @@ pub struct Palette {
 }
 
 impl Palette {
-    /// The brand gradient in the world (docs/BRANDING.md: gradients are for
-    /// brand elements), from its bright end to its deep one: teal, light
-    /// indigo, violet, the colors of the aurora of the login screen. The
-    /// rez effect runs along it (scene/rez.rs).
+    /// Amante's loading-effect gradient: warm metallic gold at the leading
+    /// edge, emerald in the middle, deep green in the trail. Independent of
+    /// UI accents so the world/avatars can shimmer green and gold without
+    /// recoloring menus, selection highlights or the login screen.
     pub fn aurora_gradient(&self) -> [Color32; 3] {
-        [self.teal, self.indigo_light, self.violet]
+        [
+            Color32::from_rgb(0xE9, 0xC6, 0x6B),
+            Color32::from_rgb(0x00, 0x84, 0x54),
+            Color32::from_rgb(0x00, 0x45, 0x2E),
+        ]
     }
 
     /// A northern light, from the green of its foot to the violet of its
@@ -336,6 +340,28 @@ impl egui::theme::StyleProvider<egui::widget_style::TextEditStyle> for FieldSize
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn amante_loading_gradient_is_gold_and_emerald_without_changing_ui_accents() {
+        let mut palette = Theme::default().skin_palette();
+        let expected = [
+            Color32::from_rgb(233, 198, 107),
+            Color32::from_rgb(0, 132, 84),
+            Color32::from_rgb(0, 69, 46),
+        ];
+        assert_eq!(palette.aurora_gradient(), expected);
+        palette.teal = Color32::WHITE;
+        palette.indigo_light = Color32::BLACK;
+        palette.violet = Color32::RED;
+        assert_eq!(
+            palette.aurora_gradient(),
+            expected,
+            "loading colors must not inherit the UI accents"
+        );
+        assert_eq!(palette.teal, Color32::WHITE);
+        assert_eq!(palette.indigo_light, Color32::BLACK);
+        assert_eq!(palette.violet, Color32::RED);
+    }
 
     /// "Reduce animations" ends egui's transitions at once, and gives
     /// them back their duration when it is turned off, a skin reload in

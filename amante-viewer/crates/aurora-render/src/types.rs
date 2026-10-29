@@ -1177,8 +1177,8 @@ pub struct FrameParams {
     pub rlva_overlays: Vec<OverlayEffect>,
     /// Linear RGBA from the UI palette for selected-face overlays.
     pub selection_color: [f32; 4],
-    /// The rez effect's colors (`rez_apply` in object.wgsl): the brand
-    /// gradient of the UI palette, linear, from the line's leading edge to
+    /// The rez effect's colors (`rez_apply` in object.wgsl): the loading
+    /// gradient, linear, from the line's leading edge to
     /// its trail; the first entry's w is the look (1 grid, 2 scanlines,
     /// 3 wireframe).
     pub rez_gradient: [[f32; 4]; 3],
