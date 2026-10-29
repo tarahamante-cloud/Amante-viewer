@@ -70,19 +70,20 @@ try {
             [TimeSpan]::FromSeconds(30)
         )
     }
-    Update-MpSignature -ErrorAction Stop
-    $status = Get-MpComputerStatus -ErrorAction Stop
+    # Use Defender's native command, avoiding the hosted image's failing
+    # PowerShell/CIM provider. A failed update must not become a clean scan.
+    $signatureOutput = & $scanner -SignatureUpdate 2>&1
+    $signatureExitCode = $LASTEXITCODE
+    $signatureOutput |
+        Out-File -LiteralPath (Join-Path $ReportDirectory 'defender-signature-update.txt') -Encoding utf8
+    $signatureOutput | ForEach-Object { Write-Output "$_" }
     $report.scanner = [ordered]@{
         name = 'Microsoft Defender'
-        product_version = $status.AMProductVersion
-        engine_version = $status.AMEngineVersion
-        signature_version = $status.AntivirusSignatureVersion
-        signature_updated = $status.AntivirusSignatureLastUpdated
-        service_enabled = $status.AMServiceEnabled
-        antivirus_enabled = $status.AntivirusEnabled
+        binary_product_version = (Get-Item -LiteralPath $scanner).VersionInfo.ProductVersion
+        signature_update_exit_code = $signatureExitCode
     }
-    if (-not $status.AMServiceEnabled -or -not $status.AntivirusEnabled) {
-        throw 'Defender is not available for this scan; no clean result can be claimed.'
+    if ($signatureExitCode -ne 0) {
+        throw "Defender signature update failed with $signatureExitCode; no clean result can be claimed."
     }
 
     # Microsoft's custom-scan option scans archives and ignores file exclusions,
