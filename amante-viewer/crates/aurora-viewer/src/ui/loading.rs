@@ -294,7 +294,7 @@ fn banner(
             l.id(),
             crest,
             Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)),
-            Color32::WHITE.gamma_multiply(a),
+            super::widgets::PICTURE_TINT.gamma_multiply(a),
         );
     }
 

@@ -303,7 +303,7 @@ pub fn top(
         menu_options(&resp, p, st, &mut action);
         let open = egui::Popup::is_id_open(ui.ctx(), egui::Popup::default_response_id(&resp));
         slot_face(ui, p, wolf, resp.hovered() || open, false);
-        paint_icon(ui, icons, "wolf", wolf, 24.0, Color32::WHITE);
+        paint_icon(ui, icons, "wolf", wolf, 24.0, crate::ui::widgets::PICTURE_TINT);
         menu::dropdown_placed(
             &resp,
             p,
