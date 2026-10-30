@@ -326,6 +326,115 @@ fn bar_frame(p: &Palette) -> egui::Frame {
 const TOP_SLOT: Vec2 = Vec2::new(22.0, 20.0);
 const TOP_ICON: f32 = 16.0;
 
+/// Width reserved for the place/SLURL island or field before top commands
+/// start narrowing it.
+const TOP_PLACE_MIN: f32 = 128.0;
+const TOP_TOOLBAR_GAP: f32 = 4.0;
+
+/// The top command row is capped so a long custom toolbar never takes over
+/// the navigation field or the place island.
+fn top_toolbar_width(
+    ctx: &egui::Context,
+    buttons: &[crate::ui::skin::ToolButton],
+    style: super::toolbar::Style,
+    available: f32,
+    editing: bool,
+) -> f32 {
+    if buttons.is_empty() && !editing {
+        return 0.0;
+    }
+    let max = (available - TOP_PLACE_MIN).max(0.0).min(available * 0.35);
+    if max < 22.0 {
+        return 0.0;
+    }
+    if buttons.is_empty() {
+        return max.min(32.0);
+    }
+    let natural: Vec<f32> = buttons
+        .iter()
+        .map(|b| natural_width(ctx, b, style.mode, 28.0, 16.0, DOCK_MIC_W))
+        .collect();
+    let labelled = style.mode != super::toolbar::ButtonMode::IconsOnly;
+    let gap = TOP_TOOLBAR_GAP;
+    let fit = sizing::fit(&natural, style.sizing, labelled, max, gap, 22.0);
+    (fit.iter().sum::<f32>() + gap * (fit.len().saturating_sub(1)) as f32).min(max)
+}
+
+/// Draw a configurable horizontal command bar inside an allocated top slot.
+#[allow(clippy::too_many_arguments)]
+fn top_toolbar(
+    ui: &mut egui::Ui,
+    p: &Palette,
+    icons: &Icons,
+    layout: &Layout,
+    toolbar: &mut super::toolbar::ToolbarUi,
+    settings: &super::toolbar::ToolbarSettings,
+    panels: &mut Panels,
+    mic: &mut MicButton,
+    row: &Row<'_>,
+    width: f32,
+    height: f32,
+    dock: bool,
+    action: &mut BarAction,
+) {
+    let (rect, target) = ui.allocate_exact_size(Vec2::new(width.max(1.0), height), egui::Sense::click());
+    toolbar.context(&target, p, row.bar, row.style, None, row.locked);
+    let content_rect = if dock { rect.shrink2(Vec2::splat(islands::PAD)) } else { rect };
+    let button_height = content_rect.height().max(1.0);
+    let mut child = ui.new_child(
+        egui::UiBuilder::new()
+            .max_rect(content_rect)
+            .layout(egui::Layout::left_to_right(egui::Align::Center)),
+    );
+    child.set_clip_rect(content_rect);
+    child.spacing_mut().item_spacing.x = TOP_TOOLBAR_GAP;
+
+    let buttons = settings.bar(super::toolbar::Bar::Top, layout);
+    let labelled = row.style.mode != super::toolbar::ButtonMode::IconsOnly;
+    let square = if dock { islands::SLOT } else { TOP_SLOT.x };
+    let natural: Vec<f32> = buttons
+        .iter()
+        .map(|b| natural_width(ui.ctx(), b, row.style.mode, square, TOP_ICON, DOCK_MIC_W))
+        .collect();
+    let widths = sizing::fit(&natural, row.style.sizing, labelled, content_rect.width(), TOP_TOOLBAR_GAP, 22.0);
+    let width_by_command: std::collections::HashMap<_, _> = buttons
+        .iter()
+        .map(|button| button.command.as_str())
+        .zip(widths.iter().copied())
+        .collect();
+    let used = widths.iter().sum::<f32>() + TOP_TOOLBAR_GAP * (widths.len().saturating_sub(1)) as f32;
+    let lead = sizing::place(row.style.align, content_rect.left(), content_rect.right(), used) - content_rect.left();
+    let mut rects = Vec::new();
+    egui::ScrollArea::horizontal()
+        .id_salt("toolbar_top_scroll")
+        .auto_shrink([false, false])
+        .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysHidden)
+        .max_height(button_height)
+        .show(&mut child, |scroll| {
+            scroll.set_min_height(button_height);
+            scroll.horizontal(|scroll| {
+                scroll.spacing_mut().item_spacing.x = TOP_TOOLBAR_GAP;
+                if lead > 0.0 {
+                    scroll.add_space(lead);
+                }
+                let look = |button: &crate::ui::skin::ToolButton| {
+                    let width = width_by_command.get(button.command.as_str()).copied().unwrap_or(square);
+                    ButtonLook {
+                        size: Vec2::new(width, button_height),
+                        icon: TOP_ICON.min(button_height - 6.0),
+                        dock,
+                        mode: row.style.mode,
+                        left: labelled,
+                        opens: egui::RectAlign::BOTTOM_START,
+                        editing: row.editing,
+                    }
+                };
+                rects = toolbar_row(scroll, p, icons, buttons, look, toolbar, panels, mic, row, action);
+            });
+        });
+    toolbar.drop_bar(&target, super::toolbar::Bar::Top, &rects, p, row.locked);
+}
+
 fn icon_button_response(ui: &mut egui::Ui, p: &Palette, icons: &Icons, icon: &str, tip: &str, size: f32) -> egui::Response {
     let (rect, resp) = ui.allocate_exact_size(TOP_SLOT, egui::Sense::click());
     if resp.hovered() {
@@ -1655,6 +1764,8 @@ pub fn top_bars(
     p: &Palette,
     icons: &Icons,
     layout: &Layout,
+    toolbar: &mut super::toolbar::ToolbarUi,
+    toolbar_settings: &super::toolbar::ToolbarSettings,
     panels: &mut Panels,
     st: &StatusInfo,
     audio: &mut crate::settings::AudioSettings,
@@ -1662,9 +1773,27 @@ pub fn top_bars(
     media: super::audio::MediaState,
     notif: &mut super::notifications::NotifUi,
     bell: BellState,
+    mic: &mut MicButton,
+    top_row: &Row<'_>,
 ) -> (BarAction, super::audio::AudioAction) {
     if !st.classic_bars {
-        return islands::top(ui, p, icons, panels, st, audio, audio_ui, media, notif, bell);
+        return islands::top(
+            ui,
+            p,
+            icons,
+            layout,
+            toolbar,
+            toolbar_settings,
+            panels,
+            st,
+            audio,
+            audio_ui,
+            media,
+            notif,
+            bell,
+            mic,
+            top_row,
+        );
     }
     let mut action = BarAction::None;
     let mut audio_action = super::audio::AudioAction::None;
@@ -1810,6 +1939,33 @@ pub fn top_bars(
                         if on {
                             state_chip(ui, p, text);
                         }
+                    }
+                    let top_buttons = toolbar_settings.bar(super::toolbar::Bar::Top, layout);
+                    let toolbar_width = top_toolbar_width(
+                        ui.ctx(),
+                        top_buttons,
+                        top_row.style,
+                        ui.available_width(),
+                        toolbar.open && !toolbar_settings.locked,
+                    );
+                    if toolbar_width > 0.0 {
+                        ui.add_space(TOP_TOOLBAR_GAP);
+                        top_toolbar(
+                            ui,
+                            p,
+                            icons,
+                            layout,
+                            toolbar,
+                            toolbar_settings,
+                            panels,
+                            mic,
+                            top_row,
+                            toolbar_width,
+                            layout.nav_bar_height.min(22.0),
+                            false,
+                            &mut action,
+                        );
+                        ui.add_space(TOP_TOOLBAR_GAP);
                     }
                     ui.add_space(4.0);
                     egui::Frame::new()

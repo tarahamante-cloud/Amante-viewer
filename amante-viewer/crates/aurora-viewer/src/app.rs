@@ -13282,23 +13282,6 @@ impl App {
                     bottom_top: self.interface.last_room.map_or(screen_rect.bottom() - 56.0, |(_, bottom)| bottom),
                     menu_open: egui::Popup::is_any_open(&ctx),
                 });
-                if chrome.top {
-                    let (bar, audio_action) = ui::bars::top_bars(
-                        ui,
-                        &p,
-                        icons,
-                        layout,
-                        &mut self.panels,
-                        &status,
-                        &mut self.settings.audio,
-                        &mut self.audio_ui,
-                        media,
-                        &mut self.notif_ui,
-                        bell,
-                    );
-                    a.bar = bar;
-                    a.audio = Some(audio_action);
-                }
                 // AURORA_DEMO_BARS: the mockup's voice (connected; talking
                 // with `voice`) and chat island width, for this run only and
                 // with the islands (Firestorm's bars stay as they were)
@@ -13423,6 +13406,44 @@ impl App {
                 self.grid_status_listed = toolbar_settings.location("gridstatus", bar_layout).is_some();
                 self.toolbar_ui.islands = !classic_bars;
                 self.chat_ui.keep_focus = self.settings.chat_keep_focus;
+                if chrome.top {
+                    let top_row = ui::bars::Row {
+                        unread: if demo_bars.read { 0 } else { self.world.conversations_badge() },
+                        latest_unread: self.world.social.latest_unread(),
+                        flash: self.chat_ui.button_flash.button(ctx.input(|i| i.time)).0,
+                        flying: self.world.agent.flying,
+                        seated: self.world.agent.is_sitting(),
+                        mouselook: self.camera.mouselook(),
+                        ao_active: self.settings.ao.accounts.get(&self.world.agent_id).is_some_and(|a| a.enabled)
+                            && !self.ao_runtime.paused,
+                        locked: toolbar_settings.locked,
+                        favorites: &favorites,
+                        bar: ui::toolbar::Bar::Top,
+                        style: toolbar_settings
+                            .style(ui::toolbar::Bar::Top)
+                            .resolve(ui::toolbar::Bar::Top, !classic_bars),
+                        editing: self.toolbar_ui.open && !toolbar_settings.locked,
+                    };
+                    let (bar, audio_action) = ui::bars::top_bars(
+                        ui,
+                        &p,
+                        icons,
+                        bar_layout,
+                        &mut self.toolbar_ui,
+                        toolbar_settings,
+                        &mut self.panels,
+                        &status,
+                        &mut self.settings.audio,
+                        &mut self.audio_ui,
+                        media,
+                        &mut self.notif_ui,
+                        bell,
+                        &mut mic,
+                        &top_row,
+                    );
+                    a.bar = bar;
+                    a.audio = Some(audio_action);
+                }
                 // the chat fields' suggestions (#980); the residents around
                 // only while a nearby field lists or predicts them
                 let suggest = &mut self.chat_ui.suggest;

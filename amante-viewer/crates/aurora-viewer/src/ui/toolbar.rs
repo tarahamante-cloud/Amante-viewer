@@ -1,10 +1,10 @@
 //! Toolbar customization after LLToolBar::handleRightMouseDown,
 //! LLToolBarView::handleDropTool and LLFloaterToybox (indra/llui/lltoolbar.cpp,
 //! indra/newview/{lltoolbarview,llfloatertoybox}.cpp, originally LGPL 2.1).
-//! Three toolbars, as Firestorm's: the bottom one (Firestorm's bar or the
-//! dock of the islands), the left and the right ones; a command stands in
-//! one of them at most. Each has Firestorm's button mode, alignment and
-//! layout style (menu_toolbars_horizontal.xml / _vertical.xml).
+//! Four toolbars: the top navigation actions, the bottom one (Firestorm's
+//! bar or the dock of the islands), the left and right ones; a command
+//! stands in one of them at most. Each has Firestorm's button mode,
+//! alignment and layout style (menu_toolbars_horizontal.xml / _vertical.xml).
 //! Moves commit on release; dropping back in the window removes a button.
 //! At the human's request, the layout and lock are shared by all accounts,
 //! unlike Firestorm's per-account toolbar persistence.
@@ -25,16 +25,18 @@ use serde::{Deserialize, Serialize};
 /// One of LLToolBarView's toolbars.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Bar {
+    Top,
     Bottom,
     Left,
     Right,
 }
 
 impl Bar {
-    pub const ALL: [Bar; 3] = [Bar::Bottom, Bar::Left, Bar::Right];
+    /// Keep the existing bottom/side indices stable; Top is appended.
+    pub const ALL: [Bar; 4] = [Bar::Bottom, Bar::Left, Bar::Right, Bar::Top];
 
     pub fn vertical(self) -> bool {
-        self != Bar::Bottom
+        matches!(self, Bar::Left | Bar::Right)
     }
 
     fn index(self) -> usize {
@@ -42,7 +44,14 @@ impl Bar {
             Bar::Bottom => 0,
             Bar::Left => 1,
             Bar::Right => 2,
+            Bar::Top => 3,
         }
+    }
+}
+
+impl Default for Bar {
+    fn default() -> Self {
+        Self::Bottom
     }
 }
 
@@ -120,6 +129,10 @@ impl BarStyle {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ToolbarSettings {
+    /// Commands in the top navigation bar; empty by default so old layouts
+    /// keep their former appearance.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub top: Vec<ToolButton>,
     /// The bottom toolbar. None follows the skin; Some([]) deliberately
     /// keeps an empty toolbar.
     pub buttons: Option<Vec<ToolButton>>,
@@ -129,6 +142,7 @@ pub struct ToolbarSettings {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub right: Vec<ToolButton>,
     pub bottom_style: BarStyle,
+    pub top_style: BarStyle,
     pub left_style: BarStyle,
     pub right_style: BarStyle,
 }
@@ -140,6 +154,7 @@ impl ToolbarSettings {
 
     pub fn bar<'a>(&'a self, bar: Bar, layout: &'a Layout) -> &'a [ToolButton] {
         match bar {
+            Bar::Top => &self.top,
             Bar::Bottom => self.buttons(layout),
             Bar::Left => &self.left,
             Bar::Right => &self.right,
@@ -148,6 +163,7 @@ impl ToolbarSettings {
 
     pub fn style(&self, bar: Bar) -> BarStyle {
         match bar {
+            Bar::Top => self.top_style,
             Bar::Bottom => self.bottom_style,
             Bar::Left => self.left_style,
             Bar::Right => self.right_style,
@@ -156,6 +172,7 @@ impl ToolbarSettings {
 
     fn style_mut(&mut self, bar: Bar) -> &mut BarStyle {
         match bar {
+            Bar::Top => &mut self.top_style,
             Bar::Bottom => &mut self.bottom_style,
             Bar::Left => &mut self.left_style,
             Bar::Right => &mut self.right_style,
@@ -169,14 +186,13 @@ impl ToolbarSettings {
             .find(|&bar| self.bar(bar, layout).iter().any(|b| b.command == command))
     }
 
-    /// No empty command, and each command once over the three toolbars
-    /// (the bottom one first).
+    /// No empty command, and each command once over all toolbars.
     pub fn sanitize(&mut self) {
         let mut seen = std::collections::HashSet::new();
         if let Some(buttons) = &mut self.buttons {
             buttons.retain(|b| !b.command.is_empty() && seen.insert(b.command.clone()));
         }
-        for side in [&mut self.left, &mut self.right] {
+        for side in [&mut self.left, &mut self.right, &mut self.top] {
             side.retain(|b| !b.command.is_empty() && seen.insert(b.command.clone()));
         }
     }
@@ -223,6 +239,8 @@ pub struct ToolbarUi {
     /// The look the bars are drawn in (given by the app): the islands' dock
     /// or Firestorm's bars.
     pub islands: bool,
+    /// Destination for a click on an unplaced catalogue tile.
+    pub add_to: Bar,
     pending: Option<Edit>,
     /// true restores defaults, false clears all (Firestorm's confirmations).
     confirm: Option<bool>,
@@ -444,6 +462,7 @@ impl ToolbarUi {
             Edit::Restore => {
                 // LLToolBarView::loadDefaultToolbars: the buttons and the settings
                 let changed = settings.buttons.is_some()
+                    || !settings.top.is_empty()
                     || !settings.left.is_empty()
                     || !settings.right.is_empty()
                     || Bar::ALL.iter().any(|&b| settings.style(b) != BarStyle::default());
@@ -455,7 +474,7 @@ impl ToolbarUi {
             }
             _ => {}
         }
-        let old: [Vec<ToolButton>; 3] = Bar::ALL.map(|bar| settings.bar(bar, layout).to_vec());
+        let old: [Vec<ToolButton>; 4] = Bar::ALL.map(|bar| settings.bar(bar, layout).to_vec());
         let mut next = old.clone();
         match edit {
             Edit::Insert(bar, button, rank) => {
@@ -479,13 +498,14 @@ impl ToolbarUi {
         if next == old {
             return false;
         }
-        let [bottom, left, right] = next;
+        let [bottom, left, right, top] = next;
         // an untouched bottom toolbar keeps following the skin
         if bottom != old[0] {
             settings.buttons = Some(bottom);
         }
         settings.left = left;
         settings.right = right;
+        settings.top = top;
         true
     }
 }

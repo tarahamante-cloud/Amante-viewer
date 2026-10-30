@@ -47,6 +47,7 @@ fn default_pos(ctx: &egui::Context) -> egui::Pos2 {
 /// What the tooltip of a placed command says (Toolbar_*_Tooltip).
 fn placed_tip(bar: Bar, islands: bool) -> &'static str {
     match bar {
+        Bar::Top => aurora_i18n::tr!("toolbar-in-top"),
         Bar::Bottom if islands => aurora_i18n::tr!("toolbar-in-dock"),
         Bar::Bottom => aurora_i18n::tr!("toolbar-in-bottom"),
         Bar::Left => aurora_i18n::tr!("toolbar-in-left"),
@@ -132,6 +133,7 @@ fn tile(ui: &mut egui::Ui, p: &Palette, rect: Rect, button: &ToolButton, state: 
 fn style_row(ui: &mut egui::Ui, p: &Palette, bar: Bar, islands: bool, saved: BarStyle) -> Option<BarStyle> {
     let style = saved.resolve(bar, islands);
     let name = match bar {
+        Bar::Top => aurora_i18n::tr!("toolbar-bar-top"),
         Bar::Bottom if islands => aurora_i18n::tr!("toolbar-bar-dock"),
         Bar::Bottom => aurora_i18n::tr!("toolbar-bar-bottom"),
         Bar::Left => aurora_i18n::tr!("toolbar-bar-left"),
@@ -230,6 +232,27 @@ impl ToolbarUi {
                 ui.horizontal(|ui| {
                     widgets::pills::search_box(ui, p, &mut self.search, &hint, ui.available_width());
                 });
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new(aurora_i18n::tr!("toolbar-add-to")).size(12.0).color(p.muted));
+                    let targets = [Bar::Top, Bar::Bottom, Bar::Left, Bar::Right];
+                    let mut selected = targets.iter().position(|bar| *bar == self.add_to).unwrap_or(1);
+                    let labels = [
+                        (aurora_i18n::tr!("toolbar-bar-top"), true),
+                        (
+                            if islands {
+                                aurora_i18n::tr!("toolbar-bar-dock")
+                            } else {
+                                aurora_i18n::tr!("toolbar-bar-bottom")
+                            },
+                            true,
+                        ),
+                        (aurora_i18n::tr!("toolbar-bar-left"), true),
+                        (aurora_i18n::tr!("toolbar-bar-right"), true),
+                    ];
+                    if widgets::segmented(ui, p, &mut selected, &labels) {
+                        self.add_to = targets[selected];
+                    }
+                });
                 let filter = super::sort_key(self.search.trim());
                 let shown: Vec<&ToolButton> = all
                     .iter()
@@ -285,8 +308,8 @@ impl ToolbarUi {
                                         });
                                     }
                                     if response.clicked() {
-                                        let at = settings.buttons(layout).len();
-                                        self.pending = Some(Edit::Insert(Bar::Bottom, (*button).clone(), at));
+                                        let at = settings.bar(self.add_to, layout).len();
+                                        self.pending = Some(Edit::Insert(self.add_to, (*button).clone(), at));
                                     }
                                 }
                                 Tile::Placed => {
@@ -301,12 +324,12 @@ impl ToolbarUi {
                             }
                         }
                     });
-                // each toolbar's settings: the bottom one, and a side one
-                // that holds buttons
+                // each toolbar's settings; the top and bottom bars are
+                // always listed, and empty side bars stay out of the way.
                 let mut card = crate::ui::sheet::card_begin(ui);
                 card.child.spacing_mut().item_spacing.y = 8.0;
                 for bar in Bar::ALL {
-                    if (bar == Bar::Bottom || !settings.bar(bar, layout).is_empty())
+                    if (matches!(bar, Bar::Top | Bar::Bottom) || !settings.bar(bar, layout).is_empty())
                         && let Some(next) = style_row(&mut card.child, p, bar, islands, settings.style(bar))
                     {
                         self.pending = Some(Edit::Style(bar, next));

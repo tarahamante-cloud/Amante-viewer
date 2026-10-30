@@ -214,6 +214,9 @@ pub fn top(
     ui: &mut egui::Ui,
     p: &Palette,
     icons: &Icons,
+    layout: &crate::ui::skin::Layout,
+    toolbar: &mut crate::ui::toolbar::ToolbarUi,
+    toolbar_settings: &crate::ui::toolbar::ToolbarSettings,
     panels: &mut Panels,
     st: &StatusInfo,
     audio: &mut crate::settings::AudioSettings,
@@ -221,6 +224,8 @@ pub fn top(
     media: crate::ui::audio::MediaState,
     notif: &mut crate::ui::notifications::NotifUi,
     bell: BellState,
+    mic: &mut super::MicButton,
+    top_row: &super::Row<'_>,
 ) -> (BarAction, crate::ui::audio::AudioAction) {
     let mut action = BarAction::None;
     let ctx = ui.ctx().clone();
@@ -252,7 +257,18 @@ pub fn top(
     let bug_rect = st
         .show_bug_report
         .then(|| row(screen, menu_rect.right() + MARGIN, menu_rect.right() + MARGIN + PAD * 2.0 + SLOT));
-    let span = row(screen, bug_rect.unwrap_or(menu_rect).right() + MARGIN, right);
+    let nav_right = bug_rect.unwrap_or(menu_rect).right();
+    let toolbar_available = (right - nav_right - 2.0 * MARGIN - PAD * 2.0).max(0.0);
+    let toolbar_width = super::top_toolbar_width(
+        ui.ctx(),
+        toolbar_settings.bar(crate::ui::toolbar::Bar::Top, layout),
+        top_row.style,
+        toolbar_available,
+        toolbar.open && !toolbar_settings.locked,
+    );
+    let toolbar_rect = (toolbar_width > 0.0).then(|| row(screen, nav_right + MARGIN, nav_right + MARGIN + toolbar_width + PAD * 2.0));
+    let place_left = toolbar_rect.map_or(nav_right + MARGIN, |rect| rect.right() + MARGIN);
+    let span = row(screen, place_left, right);
     let (place_rect, detail) = super::place::layout(ui, st, span);
 
     // each island is an area of its own: the pointer over it is over the
@@ -328,6 +344,25 @@ pub fn top(
             if resp.on_hover_text(aurora_i18n::tr!("bug-title")).clicked() {
                 action = BarAction::ReportBug;
             }
+        });
+    }
+    if let Some(rect) = toolbar_rect {
+        area(&ctx, p, "toolbar_top", rect, |ui| {
+            super::top_toolbar(
+                ui,
+                p,
+                icons,
+                layout,
+                toolbar,
+                toolbar_settings,
+                panels,
+                mic,
+                top_row,
+                rect.width(),
+                rect.height(),
+                true,
+                &mut action,
+            );
         });
     }
     area(&ctx, p, "place", place_rect, |ui| {
@@ -1095,6 +1130,58 @@ mod tests {
     use super::super::{IslandsLook, StatusInfo};
     use super::*;
 
+    fn draw_top(
+        ui: &mut egui::Ui,
+        p: &Palette,
+        icons: &Icons,
+        panels: &mut Panels,
+        st: &StatusInfo,
+        audio: &mut crate::settings::AudioSettings,
+        audio_ui: &mut crate::ui::audio::AudioUi,
+        media: crate::ui::audio::MediaState,
+        notif: &mut crate::ui::notifications::NotifUi,
+        bell: BellState,
+    ) -> (BarAction, crate::ui::audio::AudioAction) {
+        let layout = crate::ui::skin::Layout::default();
+        let mut toolbar = crate::ui::toolbar::ToolbarUi::default();
+        let toolbar_settings = crate::ui::toolbar::ToolbarSettings::default();
+        let favorites = crate::ui::bars::favorites::View::default();
+        let mut mic = super::super::MicButton::default();
+        let row = super::super::Row {
+            unread: bell.unread,
+            latest_unread: None,
+            flash: 0.0,
+            flying: false,
+            seated: false,
+            mouselook: false,
+            ao_active: false,
+            locked: toolbar_settings.locked,
+            favorites: &favorites,
+            bar: crate::ui::toolbar::Bar::Top,
+            style: toolbar_settings
+                .style(crate::ui::toolbar::Bar::Top)
+                .resolve(crate::ui::toolbar::Bar::Top, true),
+            editing: false,
+        };
+        super::top(
+            ui,
+            p,
+            icons,
+            &layout,
+            &mut toolbar,
+            &toolbar_settings,
+            panels,
+            st,
+            audio,
+            audio_ui,
+            media,
+            notif,
+            bell,
+            &mut mic,
+            &row,
+        )
+    }
+
     fn status(stretch: bool, bug: bool) -> StatusInfo<'static> {
         StatusInfo {
             location_hidden: false,
@@ -1184,7 +1271,7 @@ mod tests {
                 ..Default::default()
             };
             let mut out = ctx.run_ui(input, |ui| {
-                top(
+                draw_top(
                     ui,
                     &p,
                     &icons,
@@ -1340,7 +1427,7 @@ mod tests {
                         ..Default::default()
                     };
                     let mut out = ctx.run_ui(input, |ui| {
-                        top(
+                        draw_top(
                             ui,
                             &p,
                             &icons,
@@ -1416,7 +1503,7 @@ mod tests {
         };
         let mut action = BarAction::None;
         let mut out = ctx.run_ui(input, |ui| {
-            action = top(
+            action = draw_top(
                 ui,
                 &p,
                 &icons,
@@ -1687,7 +1774,7 @@ mod tests {
                     ..Default::default()
                 };
                 let mut out = ctx.run_ui(input, |ui| {
-                    top(
+                    draw_top(
                         ui,
                         &p,
                         &Icons::default(),
@@ -1757,7 +1844,7 @@ mod tests {
         };
         let mut monitor = crate::ui::monitor::Monitor::default();
         let mut out = ctx.run_ui(input, |ui| {
-            top(
+            draw_top(
                 ui,
                 &p,
                 &icons,

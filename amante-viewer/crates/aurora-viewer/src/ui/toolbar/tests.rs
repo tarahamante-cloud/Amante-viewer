@@ -39,6 +39,40 @@ fn toolbar_moves_in_both_directions_without_duplicates_or_noop_saves() {
 }
 
 #[test]
+fn top_toolbar_commands_move_between_bars_and_persist() {
+    let layout = layout();
+    let mut settings = ToolbarSettings::default();
+    let mut state = ToolbarUi::default();
+
+    state.pending = Some(Edit::Insert(Bar::Top, button("friends"), 0));
+    assert!(state.commit(&layout, &mut settings));
+    assert_eq!(commands(&settings.top), ["friends"]);
+    assert_eq!(settings.location("friends", &layout), Some(Bar::Top));
+
+    // Moving a command to the bottom removes its top copy.
+    state.pending = Some(Edit::Insert(Bar::Bottom, button("friends"), 0));
+    assert!(state.commit(&layout, &mut settings));
+    assert!(settings.top.is_empty());
+    assert_eq!(settings.location("friends", &layout), Some(Bar::Bottom));
+
+    state.pending = Some(Edit::Insert(Bar::Top, button("friends"), 0));
+    assert!(state.commit(&layout, &mut settings));
+    settings.top_style = BarStyle {
+        mode: Some(ButtonMode::IconsWithText),
+        ..Default::default()
+    };
+    let saved: ToolbarSettings = serde_json::from_str(&serde_json::to_string(&settings).expect("serialize")).expect("reload");
+    assert_eq!(commands(&saved.top), ["friends"]);
+    assert_eq!(saved.location("friends", &layout), Some(Bar::Top));
+    assert_eq!(saved.style(Bar::Top), settings.top_style);
+
+    state.pending = Some(Edit::Restore);
+    assert!(state.commit(&layout, &mut settings));
+    assert!(settings.top.is_empty());
+    assert_eq!(settings.style(Bar::Top), BarStyle::default());
+}
+
+#[test]
 fn toolbar_persistence_preserves_custom_icons_empty_layout_and_skin_fallback() {
     let mut layout = layout();
     let mut settings = ToolbarSettings::default();
@@ -602,7 +636,7 @@ fn commands(list: &[ToolButton]) -> Vec<&str> {
 
 /// LLToolBarView keeps a command in one toolbar: dropped in another it
 /// moves there; removed, it leaves the one it was in; Clear all empties
-/// the three, Restore defaults brings the skin's bottom toolbar back with
+/// the four, Restore defaults brings the skin's bottom toolbar back with
 /// empty side ones and the looks' defaults (loadDefaultToolbars).
 #[test]
 fn toolbar_commands_stand_in_one_of_three_toolbars() {
@@ -708,11 +742,12 @@ fn toolbar_styles_follow_each_look_until_chosen_and_survive_a_restart() {
 
 /// A file edited by hand with a command twice keeps its first place.
 #[test]
-fn toolbar_sanitize_keeps_each_command_once_over_the_three_toolbars() {
+fn toolbar_sanitize_keeps_each_command_once_over_all_four_toolbars() {
     let mut settings = ToolbarSettings {
         buttons: Some(vec![button("people"), button("people"), button("inventory")]),
         left: vec![button("inventory"), button("radar"), button("")],
         right: vec![button("radar"), button("search")],
+        top: vec![button("search"), button("home")],
         ..Default::default()
     };
     settings.sanitize();
@@ -720,6 +755,7 @@ fn toolbar_sanitize_keeps_each_command_once_over_the_three_toolbars() {
     assert_eq!(commands(settings.buttons(&layout)), ["people", "inventory"]);
     assert_eq!(commands(&settings.left), ["radar"]);
     assert_eq!(commands(&settings.right), ["search"]);
+    assert_eq!(commands(&settings.top), ["home"]);
 }
 
 /// The window lists Firestorm's toybox (its 66 commands) and Aurora's own
