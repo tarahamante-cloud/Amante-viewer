@@ -1,0 +1,88 @@
+name: Publish approved Amante Windows preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful main-branch Amante Windows build run ID
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: ${{ inputs.run_id }}
+    steps:
+      - name: Download and verify the successful CI package
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+          run_json="$(mktemp)"
+          artifact_json="$(mktemp)"
+          gh api "repos/$repo/actions/runs/$RUN_ID" > "$run_json"
+          jq -e \
+            '.status == "completed" and .conclusion == "success" and .head_branch == "main" and .name == "Amante native checks and Windows download"' \
+            "$run_json" >/dev/null
+
+          commit="$(jq -r '.head_sha' "$run_json")"
+          short_commit="${commit:0:7}"
+          gh api "repos/$repo/actions/runs/$RUN_ID/artifacts" > "$artifact_json"
+          artifact_id="$(jq -er \
+            '[.artifacts[] | select(.name == "Amante-Viewer-windows-x64" and .expired == false)] | sort_by(.created_at) | last | .id' \
+            "$artifact_json")"
+
+          mkdir package
+          gh api "repos/$repo/actions/artifacts/$artifact_id/zip" > package/actions-artifact.zip
+          unzip -tqq package/actions-artifact.zip
+          package_name="$(unzip -Z1 package/actions-artifact.zip | grep -E '^Amante-Viewer-v[0-9][^/]*-windows-x64\.zip$' | head -n 1)"
+          test -n "$package_name"
+          unzip -p package/actions-artifact.zip "$package_name" > "package/$package_name"
+          unzip -p package/actions-artifact.zip "$package_name.sha256" > "package/$package_name.sha256"
+          (
+            cd package
+            sha256sum --check "$package_name.sha256"
+            unzip -tqq "$package_name"
+          )
+          unzip -p package/actions-artifact.zip windows-package-verification.json > package/verification.json
+          jq -e '.extractedCli | startswith("passed: --version")' package/verification.json >/dev/null
+
+          version="${package_name#Amante-Viewer-v}"
+          version="${version%-windows-x64.zip}"
+          public_name="Amante-Viewer-preview-$short_commit-windows-x64.zip"
+          cp "package/$package_name" "package/$public_name"
+          (
+            cd package
+            sha256sum "$public_name" > "$public_name.sha256"
+          )
+          {
+            echo "COMMIT=$commit" >> "$GITHUB_ENV"
+            echo "VERSION=$version" >> "$GITHUB_ENV"
+            echo "RELEASE_TAG=preview-v$version" >> "$GITHUB_ENV"
+            echo "PUBLIC_NAME=$public_name" >> "$GITHUB_ENV"
+          }
+
+      - name: Publish the verified Windows preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+          gh release create "$RELEASE_TAG" \
+            "package/$PUBLIC_NAME" \
+            "package/$PUBLIC_NAME.sha256" \
+            --repo "$repo" \
+            --target "$COMMIT" \
+            --title "Amante Viewer v$VERSION — Preview" \
+            --notes "Windows x64 preview built from commit $COMMIT. The public download does not require a GitHub sign-in. Verify the accompanying SHA-256 checksum before installing." \
+            --prerelease \
+            --latest=false
+
+          release_url="https://github.com/$repo/releases/tag/$RELEASE_TAG"
+          echo "Published $release_url" >> "$GITHUB_STEP_SUMMARY"
