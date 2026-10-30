@@ -42,9 +42,10 @@ fn toolbar_moves_in_both_directions_without_duplicates_or_noop_saves() {
 fn top_toolbar_commands_move_between_bars_and_persist() {
     let layout = layout();
     let mut settings = ToolbarSettings::default();
-    let mut state = ToolbarUi::default();
-
-    state.pending = Some(Edit::Insert(Bar::Top, button("friends"), 0));
+    let mut state = ToolbarUi {
+        pending: Some(Edit::Insert(Bar::Top, button("friends"), 0)),
+        ..Default::default()
+    };
     assert!(state.commit(&layout, &mut settings));
     assert_eq!(commands(&settings.top), ["friends"]);
     assert_eq!(settings.location("friends", &layout), Some(Bar::Top));

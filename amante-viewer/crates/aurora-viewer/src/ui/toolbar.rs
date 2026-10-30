@@ -23,9 +23,10 @@ use egui::{Rect, Response};
 use serde::{Deserialize, Serialize};
 
 /// One of LLToolBarView's toolbars.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub enum Bar {
     Top,
+    #[default]
     Bottom,
     Left,
     Right,
@@ -46,12 +47,6 @@ impl Bar {
             Bar::Right => 2,
             Bar::Top => 3,
         }
-    }
-}
-
-impl Default for Bar {
-    fn default() -> Self {
-        Self::Bottom
     }
 }
 
