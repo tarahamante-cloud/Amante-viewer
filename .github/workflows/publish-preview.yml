@@ -1,0 +1,81 @@
+name: Publish approved Amante Windows preview
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: "40957168017"
+      ARTIFACT_ID: "12936257650"
+      EXPECTED_COMMIT: "690d767794f6c75c4ed557b736b961823a3d5235"
+      EXPECTED_SHA256: "86a013a0c7d42aa07a50992cbad499b5c3805853e8ceecb44a89896233214b9d"
+      RELEASE_TAG: "preview-v0.0.0+21.g690d76779"
+      RELEASE_ID: "428518501"
+      PACKAGE_NAME: "Amante-Viewer-v0.0.0+21.g690d76779-windows-x64.zip"
+      PUBLIC_ASSET_NAME: "Amante-Viewer-preview-690d767-windows-x64.zip"
+
+    steps:
+      - name: Download and verify the successful CI package
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$GITHUB_REPOSITORY"
+          run_json="$(mktemp)"
+          artifact_json="$(mktemp)"
+          gh api "repos/$repo/actions/runs/$RUN_ID" > "$run_json"
+          jq -e \
+            --arg sha "$EXPECTED_COMMIT" \
+            '.status == "completed" and .conclusion == "success" and .head_sha == $sha' \
+            "$run_json" >/dev/null
+
+          gh api "repos/$repo/actions/artifacts/$ARTIFACT_ID" > "$artifact_json"
+          jq -e \
+            --arg name "Amante-Viewer-windows-x64" \
+            '.name == $name and .expired == false' \
+            "$artifact_json" >/dev/null
+
+          mkdir package
+          gh api "repos/$repo/actions/artifacts/$ARTIFACT_ID/zip" > package/actions-artifact.zip
+          unzip -p package/actions-artifact.zip "$PACKAGE_NAME" > "package/$PACKAGE_NAME"
+          unzip -p package/actions-artifact.zip "$PACKAGE_NAME.sha256" > "package/$PACKAGE_NAME.sha256"
+          (
+            cd package
+            sha256sum --check "$PACKAGE_NAME.sha256"
+          )
+          actual="$(sha256sum "package/$PACKAGE_NAME" | cut -d' ' -f1)"
+          test "$actual" = "$EXPECTED_SHA256"
+          unzip -p package/actions-artifact.zip windows-package-verification.json > package/verification.json
+          jq -e '.extractedCli | startswith("passed: --version")' package/verification.json >/dev/null
+
+          cp "package/$PACKAGE_NAME" "package/$PUBLIC_ASSET_NAME"
+          (
+            cd package
+            sha256sum "$PUBLIC_ASSET_NAME" > "$PUBLIC_ASSET_NAME.sha256"
+          )
+
+      - name: Upload assets and publish the preview release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload "$RELEASE_TAG" \
+            "package/$PUBLIC_ASSET_NAME" \
+            "package/$PUBLIC_ASSET_NAME.sha256" \
+            --repo "$GITHUB_REPOSITORY"
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" \
+            --method PATCH \
+            -F draft=false \
+            -F prerelease=true \
+            -F make_latest=false \
+            > release.json
+          jq -e \
+            --arg tag "$RELEASE_TAG" \
+            '.tag_name == $tag and .draft == false and .prerelease == true and (.assets | length) == 2' \
+            release.json >/dev/null
