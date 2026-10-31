@@ -361,10 +361,7 @@ mod tests {
             checksum: None,
             required: false,
         };
-        updater
-            .tx
-            .send(Event::Checked(Ok(Some(Box::new(release)))))
-            .expect("result");
+        updater.tx.send(Event::Checked(Ok(Some(Box::new(release))))).expect("result");
         let settings = Settings {
             update_mode: Mode::Automatic,
             ..Default::default()
@@ -430,10 +427,7 @@ mod tests {
             checksum: None,
             required: true,
         };
-        updater
-            .tx
-            .send(Event::Checked(Ok(Some(Box::new(release)))))
-            .expect("result");
+        updater.tx.send(Event::Checked(Ok(Some(Box::new(release))))).expect("result");
         let settings = Settings {
             update_mode: Mode::Disabled,
             ignored_update: "v0.3.0".into(),
