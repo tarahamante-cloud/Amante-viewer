@@ -12714,7 +12714,8 @@ photo-vf-poser-tip = Poser: pose the avatar without leaving the shot
 
 photo-vf-group-added = { $name } added to the focus · { $count ->
     [one] { $count } subject sharp
-   *[other] { $count } subjects sharp }
+   *[other] { $count } subjects sharp
+}
 
 photo-vf-group-removed = { $name } taken out of the focus
 
