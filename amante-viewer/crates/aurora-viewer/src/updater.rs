@@ -31,7 +31,7 @@ pub enum State {
     Rollback,
 }
 enum Event {
-    Checked(Result<Option<Release>, Failure>),
+    Checked(Result<Option<Box<Release>>, Failure>),
     Progress(Progress),
     Prepared(Result<Workspace, Failure>),
     Handoff(Result<(), Failure>),
@@ -160,7 +160,7 @@ impl Updater {
                 log::warn!("release check: {e:#}");
                 Failure::Network
             });
-            let _ = tx.send(Event::Checked(result));
+            let _ = tx.send(Event::Checked(result.map(|release| release.map(Box::new))));
         });
     }
 
@@ -183,7 +183,7 @@ impl Updater {
             match event {
                 Event::Checked(Ok(release)) => {
                     self.policy_pending = false;
-                    self.release = release;
+                    self.release = release.map(|release| *release);
                     self.state = if self.release.is_some() { State::Offer } else { State::Current };
                     if let Some(r) = &self.release {
                         info.version = VersionState::Available {
@@ -361,7 +361,10 @@ mod tests {
             checksum: None,
             required: false,
         };
-        updater.tx.send(Event::Checked(Ok(Some(release)))).expect("result");
+        updater
+            .tx
+            .send(Event::Checked(Ok(Some(Box::new(release)))))
+            .expect("result");
         let settings = Settings {
             update_mode: Mode::Automatic,
             ..Default::default()
@@ -427,7 +430,10 @@ mod tests {
             checksum: None,
             required: true,
         };
-        updater.tx.send(Event::Checked(Ok(Some(release)))).expect("result");
+        updater
+            .tx
+            .send(Event::Checked(Ok(Some(Box::new(release)))))
+            .expect("result");
         let settings = Settings {
             update_mode: Mode::Disabled,
             ignored_update: "v0.3.0".into(),
