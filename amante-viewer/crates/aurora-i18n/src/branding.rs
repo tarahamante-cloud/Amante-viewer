@@ -108,10 +108,11 @@ mod tests {
             assert!(crate::text_in(code, "exit-title").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "ui-bars-about").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "ui-options-aurora-build-help").contains("Amante"), "{code}");
-            assert!(
-                crate::text_in(code, "app-aurora-viewer-unable-to-initialize-metal").contains("Amante"),
-                "{code}"
-            );
+            let metal_error = branded
+                .lines()
+                .find(|line| line.starts_with("app-aurora-viewer-unable-to-initialize-metal = "))
+                .expect("Metal error message exists in every locale");
+            assert!(!metal_error.contains("Aurora"), "{code}");
             assert!(crate::text_in(code, "crash-heading").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "import-preview-aurora").contains("Aurora 3D"), "{code}");
             assert!(crate::text_in(code, "nameplate-aurora-staff").contains("Aurora"), "{code}");
