@@ -23,6 +23,7 @@ const PRODUCT_MESSAGES: &[&str] = &[
     "bridge-reinstalling",
     "bridge-stopped",
     "radar-opt-bridge",
+    "ui-options-aurora-build-help",
     "bridge-script-info-loading",
     "bridge-object-info-loading",
     "poser-bridge-needed",
@@ -105,6 +106,10 @@ mod tests {
             assert_eq!(ids(&original.body), ids(&rewritten.body), "{code}");
             assert!(crate::text_in(code, "exit-title").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "ui-bars-about").contains("Amante"), "{code}");
+            assert!(
+                crate::text_in(code, "ui-options-aurora-build-help").contains("Amante"),
+                "{code}"
+            );
             assert!(crate::text_in(code, "crash-heading").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "import-preview-aurora").contains("Aurora 3D"), "{code}");
             assert!(crate::text_in(code, "nameplate-aurora-staff").contains("Aurora"), "{code}");
