@@ -108,7 +108,10 @@ mod tests {
             assert!(crate::text_in(code, "exit-title").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "ui-bars-about").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "ui-options-aurora-build-help").contains("Amante"), "{code}");
-            assert!(crate::text_in(code, "app-aurora-viewer-unable-to-initialize-metal").contains("Amante"), "{code}");
+            assert!(
+                crate::text_in(code, "app-aurora-viewer-unable-to-initialize-metal").contains("Amante"),
+                "{code}"
+            );
             assert!(crate::text_in(code, "crash-heading").contains("Amante"), "{code}");
             assert!(crate::text_in(code, "import-preview-aurora").contains("Aurora 3D"), "{code}");
             assert!(crate::text_in(code, "nameplate-aurora-staff").contains("Aurora"), "{code}");
