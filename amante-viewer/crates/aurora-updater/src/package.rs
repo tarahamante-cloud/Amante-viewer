@@ -24,12 +24,21 @@ pub async fn download(
     cancel.check().map_err(|_| Failure::Network)?;
     let client = source.client().map_err(|e| failure(Failure::Network, e))?;
     let archive = release.archive.as_ref().ok_or(Failure::Unsupported)?;
-    let checksum = release.checksum.as_ref().ok_or(Failure::Unsupported)?;
-    let expected = source
-        .bytes(&client, &checksum.browser_download_url, 1024)
-        .await
-        .map_err(|e| failure(Failure::Network, e))?;
-    let expected = parse_checksum(&expected, &archive.name).map_err(|e| failure(Failure::Integrity, e))?;
+    let expected = if source.is_local() {
+        let checksum = release.checksum.as_ref().ok_or(Failure::Unsupported)?;
+        let expected = source
+            .bytes(&client, &checksum.browser_download_url, 1024)
+            .await
+            .map_err(|e| failure(Failure::Network, e))?;
+        parse_checksum(&expected, &archive.name).map_err(|e| failure(Failure::Integrity, e))?
+    } else {
+        release
+            .authentication
+            .as_ref()
+            .ok_or(Failure::Integrity)?
+            .verify(release)
+            .map_err(|e| failure(Failure::Integrity, e))?
+    };
     let path = work.join("download.zip");
     let fetch = Fetch {
         url: &archive.browser_download_url,
@@ -37,6 +46,14 @@ pub async fn download(
         sha256: expected,
     };
     fetch.to_file(source, &client, &path, cancel, &progress).await?;
+    if !source.is_local() {
+        release
+            .authentication
+            .as_ref()
+            .ok_or(Failure::Integrity)?
+            .verify(release)
+            .map_err(|e| failure(Failure::Integrity, e))?;
+    }
     let root = work.join("prepared");
     let cancel = cancel.clone();
     let tag = release.tag.clone();
@@ -108,8 +125,9 @@ impl Fetch<'_> {
     }
 }
 
-pub(crate) fn failure(kind: Failure, error: anyhow::Error) -> Failure {
-    log::warn!("update {kind:?}: {error:#}");
+pub(crate) fn failure(kind: Failure, _error: anyhow::Error) -> Failure {
+    // URLs may contain CDN signatures; parser errors may echo untrusted content.
+    log::warn!("update failed: {kind:?}");
     kind
 }
 

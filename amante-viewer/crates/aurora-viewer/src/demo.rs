@@ -90,6 +90,10 @@ pub mod env;
 /// (AURORA_DEMO_EXPERIENCE).
 #[path = "demo_experience.rs"]
 pub mod experience;
+/// A prop derezzed and particles started while the photo mode holds the
+/// world still (AURORA_DEMO_FREEZE_WORLD).
+#[path = "demo_freeze_world.rs"]
+pub mod freeze_world;
 /// Meshes filling the geometry arena until it outgrows its buffers
 /// (AURORA_DEMO_GEOMETRY).
 /// Friendship offers in the middle of the screen (AURORA_DEMO_FRIEND_PROMPT).
@@ -165,6 +169,10 @@ pub mod presence;
 /// Region / Estate answers (AURORA_DEMO_REGION).
 #[path = "demo_region.rs"]
 pub mod region;
+/// Messages to the whole region in the middle of the screen
+/// (AURORA_DEMO_REGION_MESSAGE).
+#[path = "demo_region_message.rs"]
+pub mod region_message;
 /// The rez effect of objects and avatars appearing (AURORA_DEMO_REZ_EFFECT).
 #[path = "demo_rez.rs"]
 pub mod rez;
@@ -184,6 +192,10 @@ pub mod seat_kill;
 /// AURORA_DEMO_SIM_CONSOLE, AURORA_DEMO_VOICE_MODERATION).
 #[path = "demo_sim_extras.rs"]
 pub mod sim_extras;
+/// The region's simulator version changing during the run
+/// (AURORA_DEMO_SIM_VERSION).
+#[path = "demo_sim_version.rs"]
+pub mod sim_version;
 /// A rainbow or a 22° halo in the region's sky (AURORA_DEMO_SKY_OPTICS).
 #[path = "demo_sky.rs"]
 pub mod sky;
@@ -574,7 +586,7 @@ fn compressed_particle_block(block: &[u8], legacy: bool) -> Option<aurora_net::o
 /// First friend of the demo buddy list (AURORA_DEMO_PROFILE=friend).
 pub const DEMO_FRIEND: Uuid = Uuid::from_u128(0xD0D0_0000_0000_0000_0000_0000_0000_0000 | 100);
 
-fn u(n: u128) -> Uuid {
+pub(crate) fn u(n: u128) -> Uuid {
     Uuid::from_u128(0xD0D0_0000_0000_0000_0000_0000_0000_0000 | n)
 }
 
@@ -2555,6 +2567,16 @@ pub fn show_accepted_scene() -> bool {
     std::env::var("AURORA_DEMO_INVENTORY").is_ok_and(|mode| mode.starts_with("offer") && mode.ends_with("-show"))
 }
 
+/// Accept the synthetic resident/object offer on arrival, without a click.
+pub fn auto_accept_inventory_scene() -> bool {
+    std::env::var("AURORA_DEMO_INVENTORY").is_ok_and(|mode| {
+        matches!(
+            mode.as_str(),
+            "offer-auto" | "offer-auto-show" | "offer-object-auto" | "offer-object-auto-show"
+        )
+    })
+}
+
 /// The simulator's answer to keeping `DEMO_TASK_OFFER`: the gift added to
 /// the folder of the acceptance (BulkUpdateInventory).
 pub fn task_offer_delivery(command: &aurora_net::NetCommand, owner: Uuid) -> Option<NetEvent> {
@@ -2658,6 +2680,18 @@ fn demo_folder(f: Uuid, owner: Uuid) -> aurora_net::inventory::FolderContents {
 }
 
 pub fn demo_reply(cmd: &aurora_net::NetCommand) -> Vec<NetEvent> {
+    if let aurora_net::NetCommand::FetchInventoryOrphans { request } = cmd {
+        let contents = if std::env::var("AURORA_DEMO_INVENTORY").is_ok_and(|mode| mode == "lost") {
+            crate::world::inventory::demo::lost_reply(DEMO_AGENT)
+        } else {
+            Default::default()
+        };
+        return vec![NetEvent::InventoryOrphansFetched {
+            request: *request,
+            owner: DEMO_AGENT,
+            result: Ok(contents),
+        }];
+    }
     // what scripts would hear of a click (AURORA_DEMO_WORLD_CLICKS)
     use aurora_net::control::{LBUTTON_DOWN, LBUTTON_UP, ML_LBUTTON_DOWN, ML_LBUTTON_UP};
     match cmd {
@@ -3485,6 +3519,9 @@ pub fn stand_from_prim(seat: Vec3, size: Vec3) -> Vec<NetEvent> {
 }
 
 pub fn action_mode_id(mode: &str) -> u32 {
+    if mode.starts_with("probe-") {
+        return 975;
+    }
     if mode.starts_with("pay-linked-menu") {
         return 974;
     }
@@ -3592,6 +3629,21 @@ pub fn alpha_click_overlay(mode: &str, pos: Vec3, rotation: Quat) -> NetEvent {
             face.material_id = material;
         }
     }
+    NetEvent::ObjectUpdates {
+        handle: HANDLE,
+        objects: vec![object],
+    }
+}
+
+/// Invisible probe enclosing the scripted Touch cube (#1401).
+pub fn click_probe(mode: &str, pos: Vec3) -> NetEvent {
+    let mut object = action_object(976, 0, 138.0, 126.0, [1.0, 1.0, 1.0, 0.0], "");
+    object.position = pos;
+    object.scale = Vec3::splat(4.0);
+    object.extra.reflection_probe = Some(aurora_prim::extra::ReflectionProbeParams {
+        flags: u8::from(mode.starts_with("probe-box")),
+        ..crate::build::edits::PROBE_DEFAULT
+    });
     NetEvent::ObjectUpdates {
         handle: HANDLE,
         objects: vec![object],
@@ -4144,7 +4196,12 @@ pub fn events() -> Vec<NetEvent> {
         torus,
         te(violet, 3, false, 0.0),
         ExtraParams::default(),
-        aurora_i18n::tr!("demo-aurora-viewer-rust-vulkan"),
+        // the graphics API this build draws with
+        if cfg!(target_os = "macos") {
+            aurora_i18n::tr!("demo-aurora-viewer-rust-metal")
+        } else {
+            aurora_i18n::tr!("demo-aurora-viewer-rust-vulkan")
+        },
     ));
     id += 1;
     add(prim(
@@ -5494,10 +5551,15 @@ pub fn events() -> Vec<NetEvent> {
         }
     }
     let dialog = std::env::var("AURORA_DEMO_DIALOG").ok().filter(|mode| !mode.is_empty());
-    let inventory_offer = std::env::var("AURORA_DEMO_INVENTORY")
-        .is_ok_and(|mode| matches!(mode.as_str(), "offer" | "offer-reject" | "offer-show"))
-        || offer_card_scene().is_some();
-    if std::env::var("AURORA_DEMO_INVENTORY").is_ok_and(|mode| mode == "offer-object-show") {
+    let inventory_offer = std::env::var("AURORA_DEMO_INVENTORY").is_ok_and(|mode| {
+        matches!(
+            mode.as_str(),
+            "offer" | "offer-reject" | "offer-show" | "offer-auto" | "offer-auto-show"
+        )
+    }) || offer_card_scene().is_some();
+    if std::env::var("AURORA_DEMO_INVENTORY")
+        .is_ok_and(|mode| matches!(mode.as_str(), "offer-object-show" | "offer-object-auto" | "offer-object-auto-show"))
+    {
         ev.push(NetEvent::InstantMessage(aurora_net::InstantMessage {
             from_agent_id: DEMO_GIVER,
             from_name: aurora_i18n::tr!("demo-gift-dispenser").into(),
@@ -6003,6 +6065,21 @@ pub const ANIMESH_MESH: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0000_0
 pub const ANIMESH_TEXTURE: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0000_0000_0101);
 pub const ANIMESH_ANIM: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0000_0000_0102);
 pub const ANIMESH_UNRIGGED_MESH: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0000_0000_0103);
+/// AURORA_DEMO_ANIMESH=points: a bar rigged to an attachment point alone,
+/// which the animesh's animation turns (#1492).
+pub const ANIMESH_POINT_MESH: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0000_0000_0104);
+pub const ANIMESH_POINT: &str = "Groin";
+/// The bar's prim, a child of the worn animesh 9203.
+pub const ANIMESH_POINT_PRIM: u32 = 9207;
+/// AURORA_DEMO_ANIMESH=points: a stem rigged between "Avatar Center" (on
+/// the root) and mPelvis, which the animation moves by position: its root
+/// end stays, its pelvis end follows, as a seat's flower stem (#1492).
+pub const ANIMESH_STEM_MESH: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0000_0000_0105);
+pub const ANIMESH_STEM_PRIM: u32 = 9208;
+
+pub fn animesh_points() -> bool {
+    std::env::var("AURORA_DEMO_ANIMESH").is_ok_and(|v| v == "points")
+}
 
 /// AURORA_DEMO_ANIMESH=churn: the ground animesh changes its mesh asset every
 /// `ANIMESH_CHURN_FRAMES` frames, as rigged meshes come and go on a grid.
@@ -6105,6 +6182,8 @@ pub(crate) fn animesh_objects(ground_mesh: Uuid) -> Vec<ObjectUpdate> {
         (9201, Vec3::new(134.0, 127.5, ground), 0, true, false, [0.0; 4]),
         (9202, Vec3::ZERO, 9201, false, true, [0.1, 0.85, 0.65, 1.0]),
         (9203, Vec3::new(0.15, 0.0, 0.2), 9001, true, true, [0.55, 0.35, 0.9, 1.0]),
+        (ANIMESH_POINT_PRIM, Vec3::ZERO, 9203, false, true, [0.95, 0.3, 0.4, 1.0]),
+        (ANIMESH_STEM_PRIM, Vec3::ZERO, 9203, false, true, [0.3, 0.9, 0.35, 1.0]),
         (
             9204,
             Vec3::new(134.5, 127.0, ground - 0.17),
@@ -6118,8 +6197,16 @@ pub(crate) fn animesh_objects(ground_mesh: Uuid) -> Vec<ObjectUpdate> {
         for f in &mut t.faces {
             f.texture = if is_mesh { ANIMESH_TEXTURE } else { BLANK_TEXTURE };
         }
+        if matches!(id, ANIMESH_POINT_PRIM | ANIMESH_STEM_PRIM) && !animesh_points() {
+            continue;
+        }
         let mesh = SculptParams {
-            texture: if id == 9200 { ground_mesh } else { ANIMESH_MESH },
+            texture: match id {
+                9200 => ground_mesh,
+                ANIMESH_POINT_PRIM => ANIMESH_POINT_MESH,
+                ANIMESH_STEM_PRIM => ANIMESH_STEM_MESH,
+                _ => ANIMESH_MESH,
+            },
             sculpt_type: LL_SCULPT_TYPE_MESH,
         };
         let volume = aurora_prim::VolumeParams {
@@ -7011,6 +7098,10 @@ pub fn lights_events(n: u32) -> Vec<NetEvent> {
 /// texel between 0.25 and 0.75 (a knit), and under it a red layer (a body
 /// add-on), attached first on the same point so that it is drawn after the
 /// dress (#1300).
+/// AURORA_DEMO_SOFT_MASK=1: a skin-tone disc on the groin whose texture is
+/// classified as Mask (mostly binary alpha, short soft fringe). Without the
+/// rigged auto-Mask skip it would be punched out; with it, the soft fringe
+/// stays visible (Physics Cock Max / #1492 class of attachments).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct HairDemo {
     pub layers: u32,
@@ -7022,6 +7113,7 @@ pub struct HairDemo {
     pub layered: bool,
     pub outer_first: bool,
     pub sheer: bool,
+    pub soft_mask: bool,
 }
 
 pub fn hair_demo() -> Option<HairDemo> {
@@ -7032,9 +7124,10 @@ pub fn hair_demo() -> Option<HairDemo> {
     let layered = cards > 0 && cards_args.contains(&"layered");
     let outer_first = layered && cards_args.contains(&"outer");
     let sheer = std::env::var("AURORA_DEMO_SHEER").is_ok_and(|v| v.trim() == "1");
+    let soft_mask = std::env::var("AURORA_DEMO_SOFT_MASK").is_ok_and(|v| v.trim() == "1");
     let demo = match std::env::var("AURORA_DEMO_HAIR").ok() {
         Some(v) => hair_demo_from(&v),
-        None if cards > 0 || sheer => HairDemo {
+        None if cards > 0 || sheer || soft_mask => HairDemo {
             layers: 0,
             ..hair_demo_from("")
         },
@@ -7046,6 +7139,7 @@ pub fn hair_demo() -> Option<HairDemo> {
         layered,
         outer_first,
         sheer,
+        soft_mask,
         ..demo
     })
 }
@@ -7065,15 +7159,22 @@ fn hair_demo_from(v: &str) -> HairDemo {
         layered: false,
         outer_first: false,
         sheer: false,
+        soft_mask: false,
     }
 }
 
 /// Knit texture of the dress of AURORA_DEMO_SHEER.
 pub const TEX_SHEER: Uuid = Uuid::from_u128(0xDE40_7E10_0000_0000_0000_0000_0000_0023);
 
+/// Soft-fringe Mask texture of AURORA_DEMO_SOFT_MASK (skin tone disc).
+pub const TEX_SOFT_MASK: Uuid = Uuid::from_u128(0xDE40_7E10_0000_0000_0000_0000_0000_0024);
+
 /// Mesh assets of AURORA_DEMO_SHEER: the dress, and the layer under it.
 pub const SHEER_DRESS_MESH: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0002_0000_0300);
 pub const SHEER_LAYER_MESH: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0002_0000_0301);
+
+/// Mesh asset of AURORA_DEMO_SOFT_MASK (pelvis shell).
+pub const SOFT_MASK_MESH: Uuid = Uuid::from_u128(0xD0D0_A111_0000_0000_0000_0002_0000_0302);
 
 /// Strand texture of the hair demo.
 pub const TEX_HAIR: Uuid = Uuid::from_u128(0xDE40_7E10_0000_0000_0000_0000_0000_0020);
@@ -7232,6 +7333,37 @@ pub fn hair_events(demo: HairDemo, crowd: u32) -> Vec<NetEvent> {
             worn.state = 0x10; // chest
             objects.push(worn);
         }
+    }
+    if demo.soft_mask {
+        // groin attach point 53: state nibbles swapped ((53 & 0x0F) << 4) |
+        // ((53 & 0xF0) >> 4) = 0x53
+        let mesh = SculptParams {
+            texture: SOFT_MASK_MESH,
+            sculpt_type: LL_SCULPT_TYPE_MESH,
+        };
+        let mut t = (*te([1.0, 1.0, 1.0, 1.0], 0, false, 0.0)).clone();
+        for f in &mut t.faces {
+            f.texture = TEX_SOFT_MASK;
+        }
+        let mut worn = prim(
+            200_062,
+            Vec3::ZERO,
+            Quat::IDENTITY,
+            Vec3::splat(0.1),
+            aurora_prim::VolumeParams {
+                sculpt: Some(mesh),
+                ..Default::default()
+            },
+            Arc::new(t),
+            ExtraParams {
+                sculpt: Some(mesh),
+                ..Default::default()
+            },
+            "",
+        );
+        worn.parent_id = 9000;
+        worn.state = 0x53; // groin
+        objects.push(worn);
     }
     vec![NetEvent::ObjectUpdates { handle: HANDLE, objects }]
 }
@@ -7428,6 +7560,31 @@ fn sheer_texture() -> (Vec<u8>, u32, u32) {
     (px, N, N)
 }
 
+/// Pixels of [`TEX_SOFT_MASK`] (RGBA8, 256×256): an opaque skin-tone disc
+/// with a two-texel soft fringe. Classifies as Mask; a 0.5 cutoff would
+/// erase the fringe, while Blend keeps it.
+fn soft_mask_texture() -> (Vec<u8>, u32, u32) {
+    const N: u32 = 256;
+    const R: f32 = 80.0;
+    const SOFT: f32 = 2.0;
+    let mut px = Vec::with_capacity((N * N * 4) as usize);
+    let c = (N as f32 - 1.0) * 0.5;
+    for y in 0..N {
+        for x in 0..N {
+            let d = ((x as f32 - c).hypot(y as f32 - c) - R).clamp(0.0, SOFT);
+            let a = if d <= 0.0 {
+                255
+            } else if d >= SOFT {
+                0
+            } else {
+                (255.0 * (1.0 - d / SOFT)) as u8
+            };
+            px.extend_from_slice(&[200, 160, 140, a]);
+        }
+    }
+    (px, N, N)
+}
+
 /// The procedural texture `id` takes a mip chain (the others are the
 /// 64-texel test panels, kept as they are).
 pub fn local_texture_mips(id: &Uuid) -> bool {
@@ -7435,6 +7592,7 @@ pub fn local_texture_mips(id: &Uuid) -> bool {
         || *id == TEX_HAIR_CARD
         || *id == TEX_HAIR_CARD_LAYERED
         || *id == TEX_SHEER
+        || *id == TEX_SOFT_MASK
         || *id == TEX_PROJECTED
         || *id == TEX_FOLIAGE
         || plants::is_texture(id)
@@ -7485,6 +7643,18 @@ mod hair_tests {
             let transparent = px.as_chunks::<4>().0.iter().filter(|p| p[3] == 0).count() as f32 / (w * h) as f32;
             assert!((transparent - empty as f32 / 100.0).abs() < 0.05, "{empty} % asked, {transparent}");
         }
+    }
+
+    /// Soft-fringe genital-class texture: Mask-classified, with a fringe
+    /// that a 0.5 cutoff would erase.
+    #[test]
+    fn soft_mask_texture_is_mask_with_a_soft_fringe() {
+        let (px, w, h) = soft_mask_texture();
+        assert_eq!(px.len(), (w * h * 4) as usize);
+        assert_eq!(classify_alpha(&px), AlphaKind::Mask);
+        let soft = px.as_chunks::<4>().0.iter().filter(|p| p[3] > 0 && p[3] < 128).count();
+        let solid = px.as_chunks::<4>().0.iter().filter(|p| p[3] >= 128).count();
+        assert!(solid > soft && soft > 0, "{solid} solid, {soft} soft fringe");
     }
 
     /// The strands of `AURORA_DEMO_HAIR_CARDS=<n>,layered` are a blended
@@ -7543,6 +7713,41 @@ pub fn animesh_animation() -> aurora_assets::Animation {
             pos_keys: Vec::new(),
         })
         .collect();
+    if animesh_points() {
+        a.joints.extend(point_animation().joints);
+    }
+    a
+}
+
+/// AURORA_DEMO_ANIMESH=points: the attachment point the bar is rigged to,
+/// swung up and down, and the pelvis moved forward and down by position,
+/// as a sit (#1492).
+pub fn point_animation() -> aurora_assets::Animation {
+    use aurora_assets::anim::{JointMotion, PosKey, RotKey};
+    let mut a = idle_animation();
+    a.duration = 2.0;
+    a.loop_out = 2.0;
+    a.joints = vec![JointMotion {
+        joint_name: ANIMESH_POINT.into(),
+        priority: 4,
+        rot_keys: [(0.0, -0.9), (1.0, 0.9), (2.0, -0.9)]
+            .into_iter()
+            .map(|(time, angle)| RotKey {
+                time,
+                rotation: Quat::from_rotation_y(angle),
+            })
+            .collect(),
+        pos_keys: Vec::new(),
+    }];
+    a.joints.push(JointMotion {
+        joint_name: "mPelvis".into(),
+        priority: 4,
+        rot_keys: Vec::new(),
+        pos_keys: [(0.0, Vec3::ZERO), (1.0, Vec3::new(0.3, 0.0, -0.2)), (2.0, Vec3::ZERO)]
+            .into_iter()
+            .map(|(time, position)| PosKey { time, position })
+            .collect(),
+    });
     a
 }
 
@@ -7604,6 +7809,10 @@ pub fn animation_edit_demo() -> bool {
     std::env::var("AURORA_DEMO_ANIM_LOOP").is_ok_and(|v| v == "sync-edit")
 }
 
+pub fn animation_resync_demo() -> bool {
+    std::env::var("AURORA_DEMO_ANIM_LOOP").is_ok_and(|v| v == "resync")
+}
+
 /// Sequence changes every 120 frames; a real stop/restart every 1200.
 /// In sync mode the second avatar's asset is withheld until frame 300.
 pub fn loop_animation_events(frame: u64) -> Vec<NetEvent> {
@@ -7623,7 +7832,7 @@ pub fn loop_animation_events(frame: u64) -> Vec<NetEvent> {
             anims: if step == 960 {
                 Vec::new()
             } else {
-                let id = if animation_sync_demo() {
+                let id = if animation_sync_demo() || animation_resync_demo() {
                     if avatar == DEMO_AGENT {
                         SYNC_LEADER_ANIM
                     } else {
@@ -7911,6 +8120,9 @@ pub fn local_texture(id: &Uuid) -> Option<(Vec<u8>, u32, u32)> {
     }
     if *id == TEX_SHEER {
         return Some(sheer_texture());
+    }
+    if *id == TEX_SOFT_MASK {
+        return Some(soft_mask_texture());
     }
     if *id == TEX_HAIR_CARD {
         return Some(hair_card_texture());

@@ -5,6 +5,29 @@ an unsigned or unfamiliar executable. Build and unit-test success are not
 malware-scanning results. Do not disable browser protection, add antivirus
 exclusions, rename/repack the package to evade detection, or run a blocked file.
 
+## Recorded investigation
+
+On 2026-10-29, the original Windows package
+`Amante-Viewer-v0.0.0+6.g755da7b22-windows-x64.zip` matched both GitHub's
+artifact digest and its package checksum. Its package SHA-256 is:
+
+```text
+4d2664eca934e31e35dd7d56c82f5b77cdc9829a697f593067a2defb19a8f55a
+```
+
+[The completed Defender scan](https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40817998567)
+reported no threats after successfully updating signatures. The recorded engine
+was `1.1.26100.4` and antivirus signatures were `1.463.16.0`. The original ZIP
+was unchanged after scanning, and this investigation did not launch the viewer.
+The runner's PowerShell/CIM update interface failed; the native Defender update
+and scan commands completed successfully. Preserve the native command output
+alongside the JSON report when reviewing results.
+
+Static inspection found no Authenticode certificate table in the packaged
+Amante executable. This establishes that it is unsigned, not why Google
+blocked it. Google's finding has not been diagnosed or cleared, and a single
+scanner's clean result does not certify the package as safe.
+
 ## Scan the existing package on a Windows CI runner
 
 The separate **Investigate an Amante Windows download** workflow scans an

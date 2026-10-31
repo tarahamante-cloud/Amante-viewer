@@ -236,14 +236,17 @@ impl PortalClip {
     }
 }
 
-/// Layout of a skeleton's palette in the palettes buffer: its joints, then
-/// its anchors. The first anchor places the skeleton itself (skeleton space
-/// to world); the scene gives the others to the attachment points.
-pub const SKELETON_ANCHOR: u32 = 160;
+/// Layout of a skeleton's palette in the palettes buffer: its joints (the
+/// 159 bones and collision volumes, the 47 body attachment points, which
+/// meshes are skinned to and animations turn as in the Legacy Viewer, and
+/// the identity slot), then its anchors. The first anchor places the
+/// skeleton itself (skeleton space to world); the scene gives the others to
+/// the attachment points.
+pub const SKELETON_ANCHOR: u32 = 208;
 
-/// First matrix of the weights of a skeleton's live morphs, after its
+/// First matrix of the weights of a skeleton's live morphs, after its 48
 /// anchors: column `k` is `palettes[base + LIVE_MORPH_WEIGHTS + k / 16][k / 4 % 4][k % 4]`.
-pub const LIVE_MORPH_WEIGHTS: u32 = 208;
+pub const LIVE_MORPH_WEIGHTS: u32 = 256;
 
 /// Per-face GPU record (must match `DrawRecord` in common.wgsl).
 #[repr(C)]
@@ -606,6 +609,10 @@ pub struct DrawLists {
 pub const IMPOSTOR_TILE: u32 = 256;
 pub const IMPOSTOR_TILES_PER_ROW: u32 = 8;
 pub const IMPOSTOR_TILES: u32 = IMPOSTOR_TILES_PER_ROW * IMPOSTOR_TILES_PER_ROW;
+/// At most four 32 MiB atlas pages; offscreen pictures are reclaimed first.
+pub const IMPOSTOR_MAX_TILES: u32 = IMPOSTOR_TILES * 4;
+/// A visible avatar waiting for a picture uses a cheap silhouette card.
+pub const IMPOSTOR_PENDING: u32 = 1 << 30;
 /// Impostor pictures taken per frame.
 pub const IMPOSTOR_CAPTURES: usize = 2;
 
@@ -936,6 +943,8 @@ pub enum AoMethod {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RenderSettings {
+    /// Percentage of the window resolution used by the world; UI stays native.
+    pub render_scale_percent: u32,
     pub water_effects: crate::WaterEffects,
     pub aa: AntiAliasing,
     pub tonemapper: Tonemapper,
@@ -981,6 +990,7 @@ pub struct RenderSettings {
 impl Default for RenderSettings {
     fn default() -> Self {
         RenderSettings {
+            render_scale_percent: 100,
             water_effects: crate::WaterEffects::default(),
             // the state `Renderer::new` builds its pipelines and targets
             // for, not the viewer's default (SMAA, in its own settings)
@@ -1284,6 +1294,11 @@ pub struct DepthOfField {
     pub coc_scale: f32,
     /// Focus distance along the view axis (m).
     pub focus: f32,
+    /// The far end of the zone kept sharp (m), `focus` for a single plane:
+    /// the photo viewfinder's group focus keeps every avatar between its
+    /// nearest (`focus`) and its farthest sharp, the blur growing beyond
+    /// each end as a lens's from its plane.
+    pub focus_far: f32,
     /// Largest circle (pixels of the image; CameraMaxCoF at the window's
     /// height).
     pub max_coc: f32,
@@ -1498,6 +1513,13 @@ pub struct RenderStats {
     pub thread_ms: f32,
     /// Render thread: time it waited for the main thread's packet (ms).
     pub thread_idle_ms: f32,
+    /// From the moment the frame began reading its input to its
+    /// presentation (ms; None when it was not presented). What the GPU
+    /// still has to draw after `present` is not in it.
+    pub input_ms: Option<f32>,
+    /// Main thread: the sleep the frame pacing asks before the next frame
+    /// reads its input (pacing.rs, ms).
+    pub pace_ms: f32,
     /// Bytes of the frame's write journal (writes.rs).
     pub journal_bytes: u64,
 }

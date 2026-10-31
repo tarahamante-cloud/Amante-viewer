@@ -11,13 +11,11 @@ pub mod avatar_picker;
 pub mod avatar_render_settings;
 pub mod backdrop;
 pub mod bars;
+pub mod beacons;
 pub mod bidi;
 pub mod blacklist;
+pub mod bug_report;
 pub mod bumps;
-pub mod sound_explorer;
-// Bug report form (disabled, see main.rs):
-// pub mod bug_report;
-pub mod beacons;
 pub mod buy_currency;
 pub mod buy_land;
 pub mod call_invite;
@@ -95,6 +93,7 @@ pub mod portals;
 pub mod presence;
 pub mod profile;
 pub mod region;
+pub mod region_message_prompt;
 pub mod region_restart;
 pub mod remote_object;
 pub mod report_abuse;
@@ -110,6 +109,7 @@ pub mod sky_beacons;
 pub mod snap;
 pub mod snapshot;
 pub mod sound_cues;
+pub mod sound_explorer;
 pub(crate) mod spelling;
 pub mod staff;
 pub mod stream_title;
@@ -245,8 +245,8 @@ impl Panels {
             about: false,
             stream_title: settings.audio.stream_title_window,
             stream_title_history: false,
-            camera_controls: false,
-            movement_controls: false,
+            camera_controls: settings.show_camera_controls,
+            movement_controls: settings.show_movement_controls,
             nav_edit: None,
             nav_edit_new: false,
         }

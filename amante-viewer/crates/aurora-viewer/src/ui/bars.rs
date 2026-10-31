@@ -8,6 +8,7 @@ pub(crate) mod clock;
 pub(crate) mod demo;
 pub mod dock;
 pub mod favorites;
+mod graphics;
 pub mod islands;
 mod place;
 pub mod side;
@@ -125,6 +126,8 @@ pub enum BarAction {
     SystemIsland(crate::settings::SystemIsland),
     NetStats(bool),
     GraphicsPreset(crate::graphics_presets::Preset),
+    SavedGraphicsPreset(String),
+    FpsCap(bool),
     CameraPreset(crate::camera::CameraPreset),
     GraphicsPreferences,
     CameraControls,
@@ -134,6 +137,7 @@ pub enum BarAction {
     CustomizeBars,
     /// The toolbar's Stop Animations (Firestorm's stop_animations command).
     StopAnimations,
+    ResyncAnimations,
     /// Show User Interface (Alt+Shift+U), and hiding it once confirmed.
     ToggleInterface,
     HideInterface,
@@ -248,6 +252,9 @@ pub struct StatusInfo<'a> {
     pub net_loss: f32,
     /// The graphics and camera presets in use (None: custom).
     pub graphics_preset: Option<crate::graphics_presets::Preset>,
+    pub graphics_saved: Vec<(String, bool)>,
+    pub fps_cap: bool,
+    pub fps_limit: u32,
     pub camera_preset: crate::camera::CameraPreset,
     /// The interface hidden (an edge brought the islands back), and the
     /// keys of its shortcut.
@@ -291,6 +298,7 @@ pub struct HealthMenu {
     pub stop_keys: String,
     pub rebake_keys: String,
     pub refresh_keys: String,
+    pub resync_keys: String,
 }
 
 /// The navigation bar's star (LLLocationInputCtrl's add landmark button).
@@ -849,7 +857,8 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
             "conversations",
             &mut panels.chat,
         );
-        if menu::item_keys(ui, p, "hand-move", aurora_i18n::tr!("gesture-title"), "Ctrl+G") {
+        let gestures = crate::keybinds::chord_label("KeyG", true, false, false);
+        if menu::item_keys(ui, p, "hand-move", aurora_i18n::tr!("gesture-title"), &gestures) {
             super::widgets::toggle_floater(ui.ctx(), "gestures", &mut panels.gestures);
         }
         for (tab, icon, label) in [
@@ -870,6 +879,16 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
         });
     });
     menu::submenu(ui, p, "world-filled", aurora_i18n::tr!("common-world"), true, |ui| {
+        if menu::item_keys(
+            ui,
+            p,
+            "refresh",
+            aurora_i18n::tr!("toolbar-command-resync-animations"),
+            &st.health.resync_keys,
+        ) {
+            *action = BarAction::ResyncAnimations;
+        }
+        menu::separator(ui, p);
         menu::submenu(ui, p, "device-desktop-filled", "HUDs", true, |ui| {
             let mut visible = st.show_huds;
             if flip(ui, p, "eye-filled", aurora_i18n::tr!("ui-bars-show-huds"), &mut visible, true) {
@@ -889,7 +908,8 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
         if menu::item(ui, p, "door-enter", aurora_i18n::tr!("portal-title")) {
             *action = BarAction::Portals;
         }
-        if menu::item_keys(ui, p, "history", aurora_i18n::tr!("common-teleport-history"), "Alt+H") {
+        let history = crate::keybinds::chord_label("KeyH", false, true, false);
+        if menu::item_keys(ui, p, "history", aurora_i18n::tr!("common-teleport-history"), &history) {
             *action = BarAction::TeleportHistory;
         }
         flip_window(
@@ -913,7 +933,8 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
         ) {
             panels.about_land = !panels.about_land;
         }
-        if menu::item_keys(ui, p, "building-castle", aurora_i18n::tr!("region-title"), "Alt+R") {
+        let region = crate::keybinds::chord_label("KeyR", false, true, false);
+        if menu::item_keys(ui, p, "building-castle", aurora_i18n::tr!("region-title"), &region) {
             super::widgets::toggle_floater(ui.ctx(), super::region::WINDOW, &mut panels.region_estate);
         }
         // menu_viewer.xml: Set Home to Here, after Region Details
@@ -921,7 +942,8 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
             *action = BarAction::SetHome;
         }
         // menu_viewer.xml: Search (Ctrl+F)
-        if menu::item_keys(ui, p, "search-filled", aurora_i18n::tr!("search-title"), "Ctrl+F") {
+        let search = crate::keybinds::chord_label("KeyF", true, false, false);
+        if menu::item_keys(ui, p, "search-filled", aurora_i18n::tr!("search-title"), &search) {
             super::widgets::toggle_floater(ui.ctx(), super::search::WINDOW, &mut panels.search);
         }
         flip_window(
@@ -1152,7 +1174,8 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
         );
         menu::separator(ui, p);
         // Firestorm's View › Camera Controls and Movement Controls
-        if menu::item_keys(ui, p, "video-filled", aurora_i18n::tr!("controls-camera-title"), "Ctrl+Shift+C") {
+        let camera = crate::keybinds::chord_label("KeyC", true, false, true);
+        if menu::item_keys(ui, p, "video-filled", aurora_i18n::tr!("controls-camera-title"), &camera) {
             panels.camera_controls = true;
         }
         if menu::item(ui, p, "walk", aurora_i18n::tr!("controls-movement-title")) {
@@ -1164,7 +1187,8 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
         if menu::item(ui, p, "camera-filled", aurora_i18n::tr!("ui-bars-reset-camera-esc")) {
             *action = BarAction::ResetCamera;
         }
-        if menu::item_keys(ui, p, "photo-filled", aurora_i18n::tr!("photo-title"), "Ctrl+Shift+S") {
+        let photo = crate::keybinds::chord_label("KeyS", true, false, true);
+        if menu::item_keys(ui, p, "photo-filled", aurora_i18n::tr!("photo-title"), &photo) {
             super::widgets::toggle_floater(ui.ctx(), super::snapshot::WINDOW, &mut panels.snapshot);
         }
     });
@@ -1413,7 +1437,8 @@ fn contents_menu(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, action: &m
         "inventory",
         &mut panels.inventory,
     );
-    if menu::item_keys(ui, p, "hand-move", aurora_i18n::tr!("gesture-title"), "Ctrl+G") {
+    let gestures = crate::keybinds::chord_label("KeyG", true, false, false);
+    if menu::item_keys(ui, p, "hand-move", aurora_i18n::tr!("gesture-title"), &gestures) {
         super::widgets::toggle_floater(ui.ctx(), "gestures", &mut panels.gestures);
     }
     menu::separator(ui, p);
@@ -1813,7 +1838,7 @@ pub fn top_bars(
                 if let Some(t) = icons.get("wolf") {
                     let img = egui::Image::new(t).fit_to_exact_size(Vec2::new(24.0, 24.0));
                     menu::button(ui, p, egui::Button::image(img), |ui| {
-                        main_menus(ui, p, panels, st, &mut action, true);
+                        menu::searchable(ui, p, |ui| main_menus(ui, p, panels, st, &mut action, true));
                     })
                     .on_hover_text(aurora_i18n::tr!("ui-bars-aurora-menu"));
                 }
@@ -1891,8 +1916,8 @@ pub fn top_bars(
                     };
                     // a click opens (or closes) the performance window
                     let fps = steady_label(ui, "fps", islands::fps_text(st.fps), fps_col, egui::Sense::click())
-                        .on_hover_cursor(egui::CursorIcon::PointingHand)
-                        .on_hover_text(aurora_i18n::tr!("ui-bars-frames-per-second-click-for-performance-details"));
+                        .on_hover_cursor(egui::CursorIcon::PointingHand);
+                    graphics::hover(&fps, p, st, &mut action);
                     if fps.clicked() {
                         panels.perf = !panels.perf;
                     }
@@ -2124,6 +2149,7 @@ pub fn run_command(ctx: &egui::Context, cmd: &str, panels: &mut Panels) -> BarAc
         "landmark_here" => return BarAction::CreateLandmark,
         "marketplacelistings" => return BarAction::MarketplaceListings,
         "stop_animations" => return BarAction::StopAnimations,
+        "resync_animations" => return BarAction::ResyncAnimations,
         "immersive" => return BarAction::ToggleImmersive,
         _ => {}
     }
@@ -3577,6 +3603,17 @@ mod tests {
         assert!(matches!(run_command(&ctx, "movement", &mut panels), BarAction::ToggleSwimming));
         assert!(matches!(run_command(&ctx, "water_walk", &mut panels), BarAction::ToggleWaterWalk));
         assert!(!panels.ao);
+    }
+
+    #[test]
+    fn resync_toolbar_command_is_available_and_dispatches_the_restart() {
+        let ctx = egui::Context::default();
+        let mut panels = Panels::from_settings(&crate::settings::Settings::default());
+        assert!(super::super::toolbar::ready("resync_animations"));
+        assert!(matches!(
+            run_command(&ctx, "resync_animations", &mut panels),
+            BarAction::ResyncAnimations
+        ));
     }
 
     /// The texts and filled circles a button paints with its unread count.

@@ -278,6 +278,19 @@ pub(crate) fn line_style(style: crate::settings::ChatStyle, group: Option<bool>)
 }
 
 impl ChatUi {
+    /// Recreate only the account-independent nearby window. IMs, messages,
+    /// drafts and focus never cross sessions. Its stable floater id lets the
+    /// existing layout restore position, size and minimized state.
+    pub fn from_settings(settings: &crate::settings::Settings) -> Self {
+        let mut st = Self::default();
+        st.popped.restore_nearby(settings.nearby_chat_window);
+        st
+    }
+
+    pub fn remember_layout(&self, settings: &mut crate::settings::Settings) {
+        settings.nearby_chat_window = self.popped.nearby_state();
+    }
+
     /// `start_gesture` and FSNearbyChat::showDefaultChatBar
     /// (indra/newview/llviewerinput.cpp, fsnearbychathub.cpp): take the local
     /// bar's keyboard, adding `/` only to an empty editor. A conversation's
@@ -396,6 +409,46 @@ impl ChatUi {
             self.popped.set_hidden(None, true);
         } else {
             self.popped.raise(None, true);
+        }
+    }
+
+    /// Communicate › Nearby Chat (menu_viewer.xml, `control|H`,
+    /// Floater.ToggleOrBringToFront on `fs_nearby_chat`). Docked, that is
+    /// the Conversations window on the nearby tab (FSFloaterNearbyChat::
+    /// openFloater hosts it there; closeHostedFloater closes that window).
+    /// Torn off, it is the nearby window: bring it forward, or put it away
+    /// when it is already in front with the keyboard.
+    pub fn toggle_nearby_chat(&mut self, ctx: &egui::Context, conversations_open: &mut bool) {
+        let apart = self.nearby_apart();
+        let id = if apart {
+            popout::floater_id(None)
+        } else {
+            "conversations".to_owned()
+        };
+        let view = NearbyChatView {
+            apart,
+            shown: if apart { self.popped.shown(None) } else { *conversations_open },
+            minimized: super::widgets::floater_minimized(ctx, &id),
+            front: super::widgets::floater_is_front(ctx, &id),
+            focused: super::widgets::floater_holds_keyboard(ctx, &id),
+            tab_visible: !self.contacts && self.selected.is_none(),
+        };
+        match nearby_chat_shortcut(view) {
+            NearbyChatShortcut::RaiseDetached => {
+                self.popped.raise(None, true);
+            }
+            NearbyChatShortcut::HideDetached => {
+                self.popped.set_hidden(None, true);
+            }
+            NearbyChatShortcut::ShowDocked => {
+                self.selected = None;
+                self.contacts = false;
+                self.show_profile = false;
+                self.conv_focus_request = true;
+                super::widgets::open_floater(ctx, "conversations", conversations_open);
+                super::widgets::bring_floater_front(ctx, "conversations");
+            }
+            NearbyChatShortcut::CloseDocked => *conversations_open = false,
         }
     }
 
@@ -1831,8 +1884,9 @@ impl Copied<'_> {
 }
 
 /// The selection of the lines (`select.rs`), as in Firestorm's transcript:
-/// a drag selects across them (never moving the window), a click without a
-/// drag clears it; a press gives them the keyboard, then Ctrl+A selects the
+/// a drag selects across them (never moving the window), a double click
+/// selects a word, a click without a drag clears it; a press gives them the
+/// keyboard, then Ctrl+A selects the
 /// whole conversation, Ctrl+C (Ctrl+Insert) copies the selection, Escape
 /// clears it, and what is typed goes to the conversation's field.
 fn select_lines(
@@ -1882,6 +1936,14 @@ fn select_lines(
     if content.clicked() && content.interact_pointer_pos().is_some_and(|p| area.contains(p)) {
         sel.clear();
     }
+    // a double click selects the word under the pointer (its second click
+    // cleared the selection just above)
+    if content.double_clicked()
+        && let Some(pos) = content.interact_pointer_pos().filter(|p| area.contains(*p))
+        && let Some((seq, range, text)) = select::word_at(drawn, pos)
+    {
+        sel.select_in_row(seq, range, text);
+    }
     // (no text cursor over the lines, though a drag selects them: the
     // arrow, the hand on links and names; the human's choice of 2026-10-16)
     if content.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Escape)) {
@@ -1909,7 +1971,7 @@ fn select_lines(
                 pressed: true,
                 modifiers,
                 ..
-            } if modifiers.command && !modifiers.alt => {
+            } if modifiers.command && !modifiers.alt && !modifiers.shift => {
                 if let Some((first, last)) = copied.ends() {
                     sel.select_all(first, last);
                 }
@@ -3196,6 +3258,52 @@ fn classic_pane(
     }
 }
 
+/// Where Nearby Chat stands when Control+H arrives
+/// (LLFloaterReg::toggleInstanceOrBringToFront).
+struct NearbyChatView {
+    /// Torn off (ChatHistoryTornOff): its own window, not the Conversations host.
+    apart: bool,
+    /// That window is open. Detached: not put away. Docked: Conversations is open.
+    shown: bool,
+    minimized: bool,
+    /// That window is the front one (LLFloater::isFrontmost).
+    front: bool,
+    /// The keyboard is inside it (LLFloater::hasFocus).
+    focused: bool,
+    /// Docked: the nearby tab is the one on screen.
+    tab_visible: bool,
+}
+
+enum NearbyChatShortcut {
+    /// Open or raise the detached window and focus its field.
+    RaiseDetached,
+    /// Put the detached window away. It stays torn off.
+    HideDetached,
+    /// Open Conversations on the nearby tab, in front, its field focused.
+    ShowDocked,
+    /// Close the Conversations window (closeHostedFloater on the host).
+    CloseDocked,
+}
+
+/// Floater.ToggleOrBringToFront for `fs_nearby_chat`. A window that is
+/// minimized, closed, behind another, or without the keyboard opens or
+/// comes forward. Only the front window that already shows nearby chat
+/// and holds the keyboard closes.
+fn nearby_chat_shortcut(view: NearbyChatView) -> NearbyChatShortcut {
+    let engaged = view.shown && !view.minimized && view.front && view.focused;
+    if view.apart {
+        if engaged {
+            NearbyChatShortcut::HideDetached
+        } else {
+            NearbyChatShortcut::RaiseDetached
+        }
+    } else if engaged && view.tab_visible {
+        NearbyChatShortcut::CloseDocked
+    } else {
+        NearbyChatShortcut::ShowDocked
+    }
+}
+
 /// The violet outline of the Conversations floater (#293) waits for what the
 /// pill of its bottom-bar button counts: IMs, group chats and conferences,
 /// never the nearby chat alone (`World::conversations_badge`).
@@ -3817,6 +3925,53 @@ pub(crate) fn bar_input(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn nearby(apart: bool, shown: bool, minimized: bool, front: bool, focused: bool, tab_visible: bool) -> NearbyChatView {
+        NearbyChatView {
+            apart,
+            shown,
+            minimized,
+            front,
+            focused,
+            tab_visible,
+        }
+    }
+
+    #[test]
+    fn nearby_chat_opens_unless_it_is_already_in_front_with_the_keyboard() {
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(false, false, false, false, false, false)),
+            NearbyChatShortcut::ShowDocked
+        ));
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(false, true, true, true, true, true)),
+            NearbyChatShortcut::ShowDocked
+        ));
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(false, true, false, false, true, true)),
+            NearbyChatShortcut::ShowDocked
+        ));
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(false, true, false, true, false, true)),
+            NearbyChatShortcut::ShowDocked
+        ));
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(false, true, false, true, true, false)),
+            NearbyChatShortcut::ShowDocked
+        ));
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(false, true, false, true, true, true)),
+            NearbyChatShortcut::CloseDocked
+        ));
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(true, false, false, false, false, false)),
+            NearbyChatShortcut::RaiseDetached
+        ));
+        assert!(matches!(
+            nearby_chat_shortcut(nearby(true, true, false, true, true, false)),
+            NearbyChatShortcut::HideDetached
+        ));
+    }
 
     #[test]
     fn a_chat_line_isolates_its_sender_s_display_name() {

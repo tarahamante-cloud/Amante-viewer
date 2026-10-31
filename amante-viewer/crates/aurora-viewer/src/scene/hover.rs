@@ -663,7 +663,7 @@ fn profile_enabled() -> bool {
 }
 
 impl super::Scene {
-    /// The HUD object the hover cursor is over, including invisible Blend
+    /// The HUD object the hover cursor is over, including invisible Mask/Blend
     /// buttons, which comes before any object of the world.
     pub fn hover_hud(&mut self, world: &crate::world::World, cursor: (f32, f32)) -> Option<usize> {
         if !profile_enabled() {
@@ -804,6 +804,9 @@ impl super::Scene {
         let (Some(o), Some(g)) = (world.objects.get(idx), self.gpu.get(idx)) else {
             return c;
         };
+        if o.extra.reflection_probe.is_some() {
+            return c | class::OFF_POINT;
+        }
         if o.click_action == crate::interaction::code::IGNORE {
             c |= class::IGNORE;
         }

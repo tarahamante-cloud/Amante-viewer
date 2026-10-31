@@ -19,24 +19,30 @@ mod field_centering_tests;
 mod movement_tests;
 pub(crate) use cascade::Group as CascadeGroup;
 pub mod color;
+mod copy_on_click;
 pub mod demo;
 #[cfg(test)]
 pub(crate) mod elide_tests;
 pub(crate) mod hero;
 pub(crate) mod keycap;
+mod modal_keys;
 pub(crate) mod pills;
 mod resize;
 pub(crate) mod scroll_offset;
 #[cfg(test)]
 pub(crate) mod steady_tests;
+mod text_field;
 mod unread;
 mod volume;
 mod workspace;
 pub use color::color_button;
+pub use copy_on_click::copy_on_click;
+pub(crate) use modal_keys::{default_button, enter_pressed};
 pub use pills::{
     clearable_search_box, dot_pill, dot_pill_width, filter_field, filter_pill, filter_pill_at, filter_pill_width, pill_tab, pill_tab_wide,
     search_box,
 };
+pub use text_field::text_field;
 pub use unread::{CountSize, UnreadCount, unread_count};
 pub use volume::{VolumeScale, perceptual_override, set_perceptual_volume, volume_slider, volume_slider_with};
 pub use workspace::{
@@ -306,6 +312,9 @@ pub struct Floater<'a> {
     /// Resized by its edges, its body keeps this width over height, the
     /// window adding the second value around it (see `keep_aspect`).
     pub aspect: Option<(f32, Vec2)>,
+    /// Its layer: the windows' own (`Middle`), or `Foreground` over an
+    /// overlay whose controls sit there (the photo viewfinder's poser).
+    pub order: egui::Order,
     cascade: Option<CascadeGroup>,
     partial_outside: bool,
     /// A chat window: it stays in immersive mode (`hide_windows`).
@@ -338,6 +347,7 @@ impl<'a> Floater<'a> {
             flush_body: false,
             steady_size: false,
             aspect: None,
+            order: egui::Order::Middle,
             cascade: None,
             partial_outside: false,
             chat: false,
@@ -511,7 +521,8 @@ impl<'a> Floater<'a> {
                     bottom: if minimized && !compact { 4 } else { 10 },
                 }
             });
-        // Ctrl+W closes it as its cross does, when it is the frontmost
+        // Ctrl+W closes it as its cross does, when it is the frontmost.
+        // Ctrl+Shift+W closes every window.
         let mut close = super::close_key::take(ctx, egui::Id::unique(self.id));
         super::close_key::shown(ctx, egui::Id::unique(self.id));
         // the toolbar button, a menu entry or a shortcut asked to expand it
@@ -552,6 +563,7 @@ impl<'a> Floater<'a> {
         // Window retains its normal movement and persisted layout.
         let mut w = egui::Window::new(&self.title)
             .id(window_id)
+            .order(self.order)
             .title_bar(false)
             .fade_in(false)
             .fade_out(false)
@@ -920,6 +932,9 @@ impl<'a> Floater<'a> {
 /// mini-map): `frame` around `body`, which fills it. Like a floater it is
 /// placed by the layout (`layout::Slot`), snaps to the other windows when
 /// moved with Alt or resized, and is resized by the same edge handles.
+/// `locked`: the user can neither move nor resize it (it still follows the
+/// viewer's edges and the group it is glued to).
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn bare_window(
     ctx: &egui::Context,
     p: &Palette,
@@ -928,13 +943,18 @@ pub(crate) fn bare_window(
     frame: egui::Frame,
     default: egui::Rect,
     min_size: Vec2,
+    locked: bool,
     body: impl FnOnce(&mut egui::Ui),
 ) {
     let window_id = egui::Id::unique(id);
     if window_hidden(ctx, window_id, true, false) {
         return;
     }
-    let drag = resize::Drag::prepare(ctx, window_id, min_size);
+    let drag = if locked {
+        None
+    } else {
+        resize::Drag::prepare(ctx, window_id, min_size)
+    };
     let mut w = egui::Window::new(title)
         .id(window_id)
         .title_bar(false)
@@ -944,6 +964,7 @@ pub(crate) fn bare_window(
         .default_pos(default.min)
         .default_size(default.size())
         .min_size(min_size)
+        .movable(!locked)
         .resizable(false)
         .constrain(true);
     let slot = super::layout::slot(ctx, window_id);
@@ -970,12 +991,18 @@ pub(crate) fn bare_window(
     }) else {
         return;
     };
-    window_click_tolerance(&shown.response);
+    // locked: no drag on the move ID at all, or the layout would carry the
+    // windows glued to it while it stays put
+    if !locked {
+        window_click_tolerance(&shown.response);
+    }
     slot.shown(ctx, shown.response.rect, false);
     if let (Some(drag), Some(requested)) = (drag, resized) {
         drag.finish(ctx, window_id, requested, shown.response.rect);
     }
-    resize::handles(ctx, p, &shown.response);
+    if !locked {
+        resize::handles(ctx, p, &shown.response);
+    }
 }
 
 /// A resized window's rect on whole physical pixels. The pointer moves by
@@ -1229,6 +1256,48 @@ pub fn attention_mark(painter: &egui::Painter, p: &Palette, rect: egui::Rect, ra
     );
 }
 
+/// Is the floater `id` shown in front of the floater `other`? A window not
+/// shown is behind every other, whatever its layer (the poser's goes up
+/// over the photo viewfinder).
+pub fn floater_above(ctx: &egui::Context, id: &str, other: &str) -> bool {
+    let (id, other) = (egui::Id::unique(id), egui::Id::unique(other));
+    ctx.memory(|m| {
+        let place = |want: egui::Id| m.layer_ids().filter(|l| m.areas().is_visible(l)).position(|l| l.id == want);
+        place(id) > place(other)
+    })
+}
+
+/// The floater `id` is the front window (LLFloater::isFrontmost): the topmost
+/// visible layer that is not the background.
+pub fn floater_is_front(ctx: &egui::Context, id: &str) -> bool {
+    let want = egui::Id::unique(id);
+    ctx.memory(|m| {
+        m.layer_ids()
+            .filter(|layer| layer.order != egui::Order::Background && m.areas().is_visible(layer))
+            .last()
+            .is_some_and(|layer| layer.id == want)
+    })
+}
+
+/// The keyboard is inside the floater `id` (LLFloater::hasFocus).
+pub fn floater_holds_keyboard(ctx: &egui::Context, id: &str) -> bool {
+    let want = egui::Id::unique(id);
+    let Some(focus) = ctx.memory(|m| m.focused()) else {
+        return false;
+    };
+    ctx.read_response(focus).is_some_and(|response| response.layer_id.id == want)
+}
+
+/// Bring the floater `id` to the front, expanding it when it is minimized
+/// (LLFloater::setVisibleAndFrontmost).
+pub fn bring_floater_front(ctx: &egui::Context, id: &str) {
+    if floater_minimized(ctx, id) {
+        expand_floater(ctx, id);
+    } else {
+        ctx.move_to_top(egui::LayerId::new(egui::Order::Middle, egui::Id::unique(id)));
+    }
+}
+
 /// Is the floater `id` reduced to its title bar?
 pub fn floater_minimized(ctx: &egui::Context, id: &str) -> bool {
     ctx.data_mut(|d| d.get_persisted::<bool>(egui::Id::unique((id, "minimized"))))
@@ -1289,14 +1358,6 @@ const EXPAND: &str = "expand";
 /// Title bar button with a Tabler icon (drawn by hand if it is missing).
 fn title_button(ui: &mut egui::Ui, p: &Palette, icon: &str) -> egui::Response {
     title_button_sized(ui, p, icon, Vec2::splat(16.0))
-}
-
-/// The standard plain close glyph, with a toolbar-sized hit target.
-pub(crate) fn close_button(ui: &mut egui::Ui, p: &Palette) -> egui::Response {
-    let label = aurora_i18n::tr!("common-close");
-    let response = title_button_sized(ui, p, "x", Vec2::new(24.0, 36.0));
-    response.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), label));
-    response.on_hover_text(label).on_hover_cursor(egui::CursorIcon::PointingHand)
 }
 
 fn title_button_sized(ui: &mut egui::Ui, p: &Palette, icon: &str, size: Vec2) -> egui::Response {
@@ -1650,22 +1711,41 @@ pub fn switch_labeled(ui: &mut egui::Ui, p: &Palette, on: &mut bool, label: impl
     .inner
 }
 
+/// Custom-painted controls follow an explicit font override in their UI scope.
+fn control_font(ui: &egui::Ui, default_size: f32) -> egui::FontId {
+    ui.style()
+        .override_font_id
+        .clone()
+        .unwrap_or_else(|| egui::FontId::proportional(default_size))
+}
+
 /// Flat tab strip. Returns true when the selection changed.
 pub fn tabs(ui: &mut egui::Ui, p: &Palette, selected: &mut usize, labels: &[(&str, bool)]) -> bool {
-    tabs_row(ui, p, selected, labels, false)
+    tabs_row(ui, p, selected, labels, false, false)
+}
+
+/// The same tab strip at the density of fixed inspector controls.
+pub fn compact_tabs(ui: &mut egui::Ui, p: &Palette, selected: &mut usize, labels: &[(&str, bool)]) -> bool {
+    tabs_row(ui, p, selected, labels, false, true)
 }
 
 /// Equal-width tabs spanning a data inspector, with the usual theme and input handling.
 pub fn stretched_tabs(ui: &mut egui::Ui, p: &Palette, selected: &mut usize, labels: &[(&str, bool)]) -> bool {
-    tabs_row(ui, p, selected, labels, true)
+    tabs_row(ui, p, selected, labels, true, false)
 }
 
-fn tabs_row(ui: &mut egui::Ui, p: &Palette, selected: &mut usize, labels: &[(&str, bool)], stretched: bool) -> bool {
+fn tabs_row(ui: &mut egui::Ui, p: &Palette, selected: &mut usize, labels: &[(&str, bool)], stretched: bool, compact: bool) -> bool {
     let mut changed = false;
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 4.0;
         let n = labels.len().max(1) as f32;
-        let font = egui::FontId::proportional(12.0);
+        let font = control_font(ui, 12.0);
+        let minimum_height = if compact { 22.0 } else { 30.0 };
+        let height = if ui.style().override_font_id.is_some() {
+            (ui.fonts_mut(|f| f.row_height(&font)) + if compact { 8.0 } else { 12.0 }).max(minimum_height)
+        } else {
+            minimum_height
+        };
         let text_w: Vec<f32> = labels
             .iter()
             .map(|(l, _)| ui.fonts_mut(|f| f.layout_no_wrap((*l).to_owned(), font.clone(), Color32::PLACEHOLDER).size().x) + 18.0)
@@ -1681,7 +1761,7 @@ fn tabs_row(ui: &mut egui::Ui, p: &Palette, selected: &mut usize, labels: &[(&st
             } else {
                 text_w[i] * compact + extra.min(40.0)
             };
-            let (rect, resp) = ui.allocate_exact_size(Vec2::new(w, 30.0), if *enabled { Sense::click() } else { Sense::hover() });
+            let (rect, resp) = ui.allocate_exact_size(Vec2::new(w, height), if *enabled { Sense::click() } else { Sense::hover() });
             let sel = *selected == i;
             if sel || (resp.hovered() && *enabled) {
                 let fill = if sel {
@@ -1888,8 +1968,17 @@ pub fn icon_toggle(ui: &mut egui::Ui, p: &Palette, icon: &str, tip: &str, on: bo
     small_icon_button(ui, p, icon, tip, true, on)
 }
 
+/// Flat icon toggle with a larger glyph and hit target, in logical points.
+pub fn icon_toggle_sized(ui: &mut egui::Ui, p: &Palette, icon: &str, tip: &str, on: bool, side: f32) -> bool {
+    sized_icon_button(ui, p, icon, tip, true, on, side)
+}
+
 fn small_icon_button(ui: &mut egui::Ui, p: &Palette, icon: &str, tip: &str, enabled: bool, on: bool) -> bool {
-    let (rect, resp) = ui.allocate_exact_size(Vec2::new(20.0, 20.0), if enabled { Sense::click() } else { Sense::hover() });
+    sized_icon_button(ui, p, icon, tip, enabled, on, 20.0)
+}
+
+fn sized_icon_button(ui: &mut egui::Ui, p: &Palette, icon: &str, tip: &str, enabled: bool, on: bool, side: f32) -> bool {
+    let (rect, resp) = ui.allocate_exact_size(Vec2::splat(side), if enabled { Sense::click() } else { Sense::hover() });
     let fill = if on {
         p.violet
     } else if resp.hovered() && enabled {
@@ -1907,7 +1996,7 @@ fn small_icon_button(ui: &mut egui::Ui, p: &Palette, icon: &str, tip: &str, enab
         Some(t) => {
             ui.painter().image(
                 t.id(),
-                egui::Rect::from_center_size(rect.center(), Vec2::splat(14.0)),
+                egui::Rect::from_center_size(rect.center(), Vec2::splat(side * 0.7)),
                 egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
                 col,
             );
@@ -1986,10 +2075,17 @@ fn text_button(ui: &mut egui::Ui, p: &Palette, label: &str, size: Option<Vec2>) 
     // Keep the button in the parent's layout so wrapped toolbars can break
     // before it. A child UI would wrap internally and enlarge narrow windows.
     // The theme gives every button its plain filled face.
-    let button = egui::Button::new(RichText::new(label).size(12.0).color(p.ink));
+    let button = egui::Button::new(RichText::new(label).font(control_font(ui, 12.0)).color(p.ink));
     match size {
         Some(size) => ui.add_sized(size, button.truncate()),
-        None => ui.add(button.min_size(Vec2::new(0.0, 20.0))),
+        None => {
+            let height = if ui.style().override_font_id.is_some() {
+                ui.spacing().interact_size.y
+            } else {
+                20.0
+            };
+            ui.add(button.min_size(Vec2::new(0.0, height)))
+        }
     }
 }
 
@@ -2176,13 +2272,13 @@ pub fn action_button_if(
 const KEYED_ICON: f32 = 15.0;
 const KEYED_GAP: f32 = 7.0;
 /// Room around the content of a button that takes its content's width.
-const KEYED_PAD: f32 = 24.0;
+pub(crate) const KEYED_PAD: f32 = 24.0;
 
 /// An `action_button_keyed`'s icon with its gap, label and keycaps widths.
 fn keyed_parts(ui: &egui::Ui, icon: &str, label: &str, key: Option<&crate::keybinds::Binding>) -> (f32, f32, f32) {
     let text = ui
         .painter()
-        .layout_no_wrap(label.to_owned(), egui::FontId::proportional(12.5), Color32::PLACEHOLDER)
+        .layout_no_wrap(label.to_owned(), control_font(ui, 12.5), Color32::PLACEHOLDER)
         .size()
         .x;
     // an icon alone (empty label) sits in the middle, without the gap
@@ -2219,7 +2315,7 @@ pub fn action_button_keyed(
     const ICON: f32 = KEYED_ICON;
     const GAP: f32 = KEYED_GAP;
     let enabled = enabled && ui.is_enabled();
-    let font = egui::FontId::proportional(12.5);
+    let font = control_font(ui, 12.5);
     let (lead, text_w, caps_w) = keyed_parts(ui, icon, label, key);
     let icon = if key.is_some() && size.x > 0.0 && lead + text_w + caps_w + 2.0 * GAP > size.x {
         ""
@@ -2229,7 +2325,12 @@ pub fn action_button_keyed(
     let lead = if icon.is_empty() { 0.0 } else { lead };
     let content = lead + text_w + caps_w;
     let desired = Vec2::new(if size.x > 0.0 { size.x } else { content + KEYED_PAD }, size.y);
-    let (rect, resp) = ui.allocate_exact_size(desired, if enabled { Sense::click() } else { Sense::hover() });
+    let (rect, mut resp) = ui.allocate_exact_size(desired, if enabled { Sense::click() } else { Sense::hover() });
+    match kind {
+        ActionKind::Primary => modal_keys::offer(&mut resp, modal_keys::Answer::Primary),
+        ActionKind::Danger => modal_keys::offer(&mut resp, modal_keys::Answer::Danger),
+        _ => {}
+    }
     let hot = enabled && (resp.hovered() || resp.has_focus());
     let (fill, ink) = match kind {
         ActionKind::Primary => (if hot { p.violet_light } else { p.violet }, p.on_accent),
@@ -2356,7 +2457,7 @@ pub struct DialogButton<'a> {
 pub fn action_button_fit(ui: &egui::Ui, icon: &str, label: &str) -> f32 {
     let text = ui
         .painter()
-        .layout_no_wrap(label.to_owned(), egui::FontId::proportional(12.5), Color32::PLACEHOLDER)
+        .layout_no_wrap(label.to_owned(), control_font(ui, 12.5), Color32::PLACEHOLDER)
         .size()
         .x;
     let lead = match (icon.is_empty(), label.is_empty()) {
@@ -2449,15 +2550,16 @@ pub fn glass_action_icon(ui: &mut egui::Ui, p: &Palette, icon: &str, label: &str
 
 /// Primary action using the Aurora accent and the flat button geometry.
 pub fn primary_button_sized(ui: &mut egui::Ui, p: &Palette, label: &str, size: Vec2) -> egui::Response {
-    ui.add_sized(
+    let mut response = ui.add_sized(
         size,
         egui::Button::new(RichText::new(label).size(12.0).strong().color(p.on_accent))
             .fill(p.violet)
             .stroke(Stroke::new(1.0, p.violet))
             .corner_radius(ui.visuals().widgets.inactive.corner_radius)
             .truncate(),
-    )
-    .on_hover_text(label)
+    );
+    modal_keys::offer(&mut response, modal_keys::Answer::Primary);
+    response.on_hover_text(label)
 }
 
 /// Green online / grey offline.

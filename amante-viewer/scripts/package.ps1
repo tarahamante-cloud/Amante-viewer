@@ -40,6 +40,12 @@ Get-ChildItem -LiteralPath $dictionaries -Directory -ErrorAction Stop | ForEach-
 }
 $docs = 'LICENSE', 'NOTICE.md', 'AMANTE.md' | ForEach-Object { Join-Path $Source $_ }
 Copy-Item -LiteralPath $docs -Destination $Out -ErrorAction Stop
+
+$rtcLicenses = Join-Path $Out 'licenses/rtc-crypto'
+New-Item -ItemType Directory -Force -Path $rtcLicenses -ErrorAction Stop | Out-Null
+foreach ($name in @('LICENSE-MIT', 'LICENSE-APACHE', 'AMANTE-PATCH.md')) {
+    Copy-Item -LiteralPath (Join-Path $Source "vendor/rtc-crypto/$name") -Destination $rtcLicenses -ErrorAction Stop
+}
 Copy-Item -LiteralPath (Join-Path $Source 'docs/amante/README.md') -Destination (Join-Path $Out 'README.md') -ErrorAction Stop
 New-Item -ItemType Directory -Force -Path (Join-Path $Out 'docs') -ErrorAction Stop | Out-Null
 Copy-Item -LiteralPath (Join-Path $Source 'docs/amante') -Destination (Join-Path $Out 'docs') -Recurse -ErrorAction Stop

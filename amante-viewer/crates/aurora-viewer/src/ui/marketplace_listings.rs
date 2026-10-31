@@ -610,7 +610,7 @@ impl ListingsUi {
                 if !filter.is_empty() && !it.name.to_lowercase().contains(filter) {
                     continue;
                 }
-                let icon = super::inventory::item_icon(it.asset_type, it.inv_type, it.flags);
+                let (icon, tint) = super::inventory::inventory_item_icon(inv, it, p);
                 let mut label = tree::name(&it.name, p);
                 if let Some(permissions) = super::inventory::permissions::Permissions::inventory(inv, item) {
                     permissions.append_suffix(ui, &mut label, p);
@@ -620,13 +620,7 @@ impl ListingsUi {
                 let response = ui
                     .horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = 4.0;
-                        tree::icon(
-                            ui,
-                            icons,
-                            icon,
-                            p,
-                            Some(super::inventory::item_icon_color(it.asset_type, it.inv_type, p)),
-                        );
+                        tree::icon(ui, icons, icon, p, Some(tint));
                         renaming = panel.rename(ui, p, inv, item);
                         if renaming {
                             ui.response()
@@ -892,7 +886,7 @@ impl ListingsUi {
             // validateNonNegativeS32
             text.retain(|c| c.is_ascii_digit());
             text.truncate(10);
-            if edit.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+            if edit.lost_focus() && widgets::enter_pressed(ui) {
                 answer = Some(true);
             }
             ui.add_space(12.0);

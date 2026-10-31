@@ -91,6 +91,15 @@ the pack does not include.
 The crates used by Aurora Viewer (see `Cargo.lock`) are under licenses
 compatible with the GPL version 3 (mostly MIT and/or Apache-2.0).
 
+Amante includes a locally patched copy of webrtc-rs `rtc-crypto` 0.21.1 in
+`vendor/rtc-crypto`, Copyright Rain Liu and the webrtc-rs contributors, under
+MIT OR Apache-2.0. Both upstream license texts are retained in that directory.
+`AMANTE-PATCH.md` identifies the upstream revision and dependency-only patch.
+Font metadata and emoji bitmap extraction use the Fontations `skrifa` crate
+(MIT OR Apache-2.0); Linux window-title fonts use Crossfont and its system
+FreeType/Fontconfig libraries. Native credential storage uses the maintained
+keyring-core platform-store crates (MIT OR Apache-2.0).
+
 ## HIDAPI
 
 The MIT-licensed `hidapi` Rust crate bundles native HIDAPI for SpaceMouse

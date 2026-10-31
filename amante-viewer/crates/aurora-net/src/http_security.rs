@@ -6,6 +6,7 @@ use reqwest::{Client, ClientBuilder, Url, redirect::Policy};
 pub(crate) fn login_client() -> ClientBuilder {
     let ll_ca = reqwest::Certificate::from_pem_bundle(include_bytes!("../lindenlab.pem")).unwrap_or_default();
     Client::builder()
+        .https_only(true)
         .user_agent(aurora_version::user_agent())
         .connect_timeout(std::time::Duration::from_secs(15))
         .tls_certs_merge(ll_ca)
@@ -14,13 +15,15 @@ pub(crate) fn login_client() -> ClientBuilder {
 
 pub(crate) fn simulator_client() -> ClientBuilder {
     Client::builder()
+        .https_only(true)
         .user_agent(aurora_version::user_agent())
         .tls_certs_only(crate::simulator_roots())
+        .redirect(login_redirects())
 }
 
 /// Only the explicitly selected HTTPS origin is trusted with login secrets.
 /// A server response cannot authorize a new host, port, or protocol.
-pub(crate) fn credential_destination(initial: &Url, target: &Url) -> bool {
+pub fn credential_destination(initial: &Url, target: &Url) -> bool {
     initial.scheme() == "https"
         && target.scheme() == "https"
         && initial.host_str().is_some()
@@ -34,7 +37,7 @@ pub(crate) fn credential_destination(initial: &Url, target: &Url) -> bool {
         && initial.origin() == target.origin()
 }
 
-pub(crate) fn login_redirects() -> Policy {
+pub fn login_redirects() -> Policy {
     Policy::custom(|attempt| {
         if attempt.previous().len() >= 5 {
             attempt.error("too many login redirects")

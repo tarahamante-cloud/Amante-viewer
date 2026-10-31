@@ -453,10 +453,9 @@ impl DayEditorUi {
             ui.label(RichText::new(aurora_i18n::tr!("ui-day-editor-name")).size(12.0).color(p.ink));
             // refresh: renaming needs modify rights and an item
             let enabled = self.rights.modify && self.rights.save && self.item.is_some();
-            let r = ui.add_enabled(
-                enabled,
-                egui::TextEdit::singleline(&mut self.name).desired_width(320.0).char_limit(63),
-            );
+            let r = crate::ui::widgets::text_field(ui, enabled, &mut self.name, |b, _| {
+                egui::TextEdit::singleline(b).desired_width(320.0).char_limit(63)
+            });
             if r.changed()
                 && let Some(doc) = &mut self.doc
             {
@@ -997,7 +996,7 @@ impl DayEditorUi {
                 ui.add_space(8.0);
                 ui.horizontal(|ui| {
                     let size = Vec2::new(0.0, 26.0);
-                    let enter = ui.input(|i| i.key_pressed(egui::Key::Enter));
+                    let enter = widgets::enter_pressed(ui);
                     if widgets::action_button(ui, p, "check", aurora_i18n::tr!("common-ok"), ActionKind::Primary, size).clicked() || enter {
                         out.push(DayAction::SaveAs(env_edit::correct_item_name(&name)));
                         close = true;

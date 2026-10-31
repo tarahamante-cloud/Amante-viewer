@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["crates/*"]
+exclude = ["vendor/rtc-crypto"]
 
 [workspace.package]
 version = "0.1.0"
@@ -8,6 +9,11 @@ edition = "2024"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/Aurora-Viewer/Aurora-Viewer"
 publish = false
+
+# Upstream RTC has not yet adopted the patched digest stack. Keep its provider
+# implementation/API, with only the RustCrypto dependencies upgraded.
+[patch.crates-io]
+rtc-crypto = { path = "vendor/rtc-crypto" }
 
 # The single local profile: check.ps1 (clippy, tests) and the demo runs share
 # it, so a worktree compiles everything once. It behaves like the shipped

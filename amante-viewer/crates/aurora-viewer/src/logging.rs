@@ -60,6 +60,10 @@ pub fn open_directory(path: &Path) -> std::io::Result<()> {
 
 /// Mask the id of capability URLs (".../cap/<uuid>").
 fn redact(line: &str) -> std::borrow::Cow<'_, str> {
+    let safe = aurora_version::privacy::redact_log(line);
+    if matches!(safe, std::borrow::Cow::Owned(_)) {
+        return safe;
+    }
     if !line.contains("/cap/") {
         return line.into();
     }
@@ -239,8 +243,13 @@ pub fn init() {
     let path = log_path();
     let _ = std::fs::rename(&path, dir.join(format!("{}.previous.log", log_stem())));
     let file = std::fs::File::create(&path).ok();
+    // `pulseaudio` off: the PulseAudio client logs `ERROR Reactor error:
+    // Client disconnected` each time cpal closes a stream (every output or
+    // capture device switch). Real stream failures reach aurora-audio through
+    // cpal's error callback, which reopens the device.
     env_logger::Builder::from_env(
-        env_logger::Env::default().default_filter_or("info,wgpu_core=warn,wgpu_hal=warn,naga=warn,reqwest=warn,symphonia=warn"),
+        env_logger::Env::default()
+            .default_filter_or("info,wgpu_core=warn,wgpu_hal=warn,naga=warn,reqwest=warn,symphonia=warn,pulseaudio=off,zbus=warn"),
     )
     .format_timestamp_millis()
     .target(env_logger::Target::Pipe(Box::new(Tee {
@@ -289,7 +298,7 @@ mod tests {
             redact(
                 "error sending request for url (https://sim1.agni.lindenlab.com:12043/cap/0b6c6a8e-1f0d-4d3e-9a1b-2c3d4e5f6a7b): timeout"
             ),
-            "error sending request for url (https://sim1.agni.lindenlab.com:12043/cap/…): timeout"
+            "error sending request for url ([URL removed]): timeout"
         );
         assert_eq!(redact("plain line"), "plain line");
     }

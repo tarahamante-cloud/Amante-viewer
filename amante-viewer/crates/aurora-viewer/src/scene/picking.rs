@@ -598,14 +598,15 @@ impl Scene {
     }
 
     pub fn click_bounds(&self, world: &World, idx: usize) -> Option<(Vec3, Vec3)> {
-        let (pos, rot, _) = Self::object_transform(world, idx, Instant::now(), 0)?;
+        let now = Instant::now();
+        let (pos, rot, _) = Self::object_transform(world, idx, now, 0)?;
         let g = self.gpu.get(idx);
         let geom = g.and_then(|g| g.geom).and_then(|key| self.geom_ready(&key));
         let (mut min, mut max) = geom.map_or((-Vec3::splat(0.5), Vec3::splat(0.5)), |g| (g.min, g.max));
         if let Some(unbind) = g.and_then(|g| self.unbind_of(g)) {
             (min, max) = transformed_box(unbind, min, max);
         }
-        let scale = world.visual_scale(idx);
+        let scale = world.visual_scale_at(idx, now);
         Some((pos + rot * ((min + max) * 0.5 * scale), (max - min) * scale))
     }
 
@@ -687,7 +688,7 @@ impl Scene {
         let key = geometry.or(g.geom)?;
         let geom = self.geom_ready(&key)?;
         let (pos, rot, _) = Self::object_transform(world, idx, now, 0)?;
-        let model = self.drawn_model(g, o, world.visual_scale(idx), Some(key), pos, rot);
+        let model = self.drawn_model(g, o, world.visual_scale_at(idx, now), Some(key), pos, rot);
         let inv = model.inverse();
         let counts = &self.exact_tests;
         counts.objects.fetch_add(1, Relaxed);
@@ -735,13 +736,11 @@ impl Scene {
                     };
                     let tf = o.te.as_ref().map(|te| *te.face(hit.face)).unwrap_or_default();
                     // LLToolPie::handleMouseDown prioritizes transparent
-                    // attachments. HUD buttons own the whole Blend triangle,
-                    // and a face that draws nothing is a button whatever its
-                    // material mode: hit zones are often alpha-0 prims with a
-                    // Mask or Opaque material (no draw record), or faces with
-                    // the library's transparent texture. Visible Mask faces
-                    // keep their cutouts and move gestures keep holes.
-                    if g.hud && mode == FacePick::Surface && (tf.color[3] < 0.004 || self.blend_face(world, o, g, hit.face)) {
+                    // attachments. Left clicks own the whole HUD triangle in
+                    // every alpha mode, including Mask cutouts. Hover follows
+                    // the same target; quick movement keeps texture holes.
+                    // Right-click selection already includes hidden surfaces.
+                    if g.hud && mode == FacePick::Surface {
                         return Some(hit);
                     }
                     let draw = geom
@@ -893,7 +892,7 @@ impl Scene {
         let key = g.geom?;
         let geom = self.geom_ready(&key)?;
         let (pos, rot, _) = Self::object_transform(world, idx, now, 0)?;
-        let model = self.drawn_model(g, o, world.visual_scale(idx), Some(key), pos, rot);
+        let model = self.drawn_model(g, o, world.visual_scale_at(idx, now), Some(key), pos, rot);
         let inv = model.inverse();
         // (the ray in object space, as `pick::ray_faces` takes it there)
         let (origin, dir) = (inv.transform_point3(ray.0), inv.transform_vector3(ray.1));
@@ -965,7 +964,7 @@ impl Scene {
         let tf = super::plants::plant_face(o).unwrap_or_else(|| o.te.as_ref().map(|te| *te.face(hit.face)).unwrap_or_default());
         let mut st = hit.uv;
         if tf.planar() {
-            let p = model.inverse().transform_point3(ray.0 + ray.1 * hit.t) * o.visual_scale();
+            let p = model.inverse().transform_point3(ray.0 + ray.1 * hit.t) * o.visual_scale_at(now);
             let n = model.transpose().transform_vector3(hit.normal).normalize_or_zero();
             let b = if n.x.abs() >= 0.5 {
                 Vec3::new(0.0, if n.x < 0.0 { -1.0 } else { 1.0 }, 0.0)
@@ -1107,7 +1106,7 @@ impl Scene {
                 && world
                     .objects
                     .get(idx)
-                    .is_some_and(|o| o.click_action == crate::interaction::code::IGNORE)
+                    .is_some_and(|o| o.click_action == crate::interaction::code::IGNORE && o.extra.reflection_probe.is_none())
                 && ray_may_hit(g, ray)
                 && self.hit_distance(world, idx, ray, now, true, among).is_some_and(|t| t <= limit)
         })
@@ -1127,7 +1126,7 @@ impl Scene {
         let mut found = false;
         for (idx, g) in self.pick_objects(among) {
             let Some(o) = world.objects.get(idx) else { continue };
-            if g.faces.is_empty() || g.hud || o.click_action == crate::interaction::code::IGNORE {
+            if g.faces.is_empty() || g.hud || o.extra.reflection_probe.is_some() || o.click_action == crate::interaction::code::IGNORE {
                 continue;
             }
             if !g.is_avatar && !ray_may_hit(g, ray) {
@@ -1197,7 +1196,12 @@ impl Scene {
         let mut found = false;
         for (idx, g) in self.pick_objects(None) {
             let Some(o) = world.objects.get(idx) else { continue };
-            if g.hud || g.rigged || Some(idx) == wearer || o.click_action == crate::interaction::code::IGNORE {
+            if g.hud
+                || g.rigged
+                || Some(idx) == wearer
+                || o.extra.reflection_probe.is_some()
+                || o.click_action == crate::interaction::code::IGNORE
+            {
                 continue;
             }
             // an invisible clicker under the mesh, often partly inside the
@@ -1258,7 +1262,12 @@ impl Scene {
         let props = HashMap::new();
         for (idx, g) in self.pick_objects(among) {
             let Some(o) = world.objects.get(idx) else { continue };
-            if g.hud || g.is_avatar || o.click_action == crate::interaction::code::IGNORE || !ray_may_hit(g, ray) {
+            if g.hud
+                || g.is_avatar
+                || o.extra.reflection_probe.is_some()
+                || o.click_action == crate::interaction::code::IGNORE
+                || !ray_may_hit(g, ray)
+            {
                 continue;
             }
             let hidden = include_hidden && o.click_action != crate::interaction::code::DISABLED;
@@ -1355,6 +1364,9 @@ impl Scene {
     /// Nearest Blend surface in front of the displayed/action point. The
     /// hover search reuses its candidate list and large-face hierarchies;
     /// a full search remains available to check the index independently.
+    /// Ordinary picks exclude probes, as LLToolPie::handleMouseDown and
+    /// LLOctreeIntersect::check (indra/newview/llspatialpartition.cpp) do;
+    /// only the selection paths honor SelectReflectionProbes.
     pub(super) fn blend_hit(
         &self,
         world: &World,
@@ -1372,6 +1384,7 @@ impl Scene {
                 || g.is_avatar
                 || g.rigged
                 || (g.owner_avatar.is_some() && o.visual_volume().is_mesh())
+                || o.extra.reflection_probe.is_some()
                 || o.click_action == crate::interaction::code::IGNORE
                 || !ray_may_hit(g, ray)
             {
@@ -1432,6 +1445,7 @@ impl Scene {
                 // (of a worn mesh, only the invisible faces of one without a
                 // skin: `worn_unrigged_mesh`)
                 || (g.owner_avatar.is_some() && o.visual_volume().is_mesh() && !(include_hidden && worn_unrigged_mesh(o, g)))
+                || o.extra.reflection_probe.is_some()
                 || o.click_action == crate::interaction::code::IGNORE
             {
                 continue;
@@ -1445,7 +1459,7 @@ impl Scene {
             let Some((pos, rot, _)) = Self::object_transform(world, idx, now, 0) else {
                 continue;
             };
-            let inv = self.drawn_model(g, o, o.visual_scale(), g.geom, pos, rot).inverse();
+            let inv = self.drawn_model(g, o, o.visual_scale_at(now), g.geom, pos, rot).inverse();
             if !ray_box(inv.transform_point3(ray.0), inv.transform_vector3(ray.1), geom.min, geom.max).is_some_and(|t| t < nearest) {
                 continue;
             }
@@ -1958,6 +1972,82 @@ pub(super) mod tests {
     }
 
     #[test]
+    fn reflection_probes_do_not_intercept_actions_or_hover() {
+        let (mut world, mut scene, front, back) = scene_with_two_objects();
+        let ray = (Vec3::new(0.0, 0.0, 50.0), Vec3::X);
+        let front_point = Vec3::new(2.5, 0.0, 50.0);
+        let back_point = Vec3::new(6.5, 0.0, 50.0);
+        world.objects.get_mut(back).unwrap().click_action = crate::interaction::code::TOUCH;
+        world.objects.get_mut(back).unwrap().update_flags = 1 << 7;
+        for idx in [front, back] {
+            scene.gpu[idx].center = world.objects.get(idx).unwrap().position;
+            scene.gpu[idx].radius = 1.0;
+            scene.pick.set(idx, super::super::hover::PickEntry::of(&scene.gpu[idx]));
+        }
+        // Ordinary transparent surfaces still stop clicks, even without an action.
+        scene.gpu[front].faces[0].te_alpha = 0.4;
+        let point = scene.action_point(&world, Some(ray), Some(back_point), false, 100.0).unwrap();
+        assert_eq!(point, front_point);
+        assert_eq!(scene.interaction_at_ray(&world, point, ray, true), Some(front));
+
+        for flags in [0, 1, 1 | 4] {
+            world.objects.get_mut(front).unwrap().extra.reflection_probe = Some(aurora_prim::extra::ReflectionProbeParams {
+                flags,
+                ..crate::build::edits::PROBE_DEFAULT
+            });
+            // Both non-actionable and scripted probes must let the click through.
+            for action in [crate::interaction::code::TOUCH, crate::interaction::code::IGNORE] {
+                for scripted in [false, true] {
+                    let probe = world.objects.get_mut(front).unwrap();
+                    probe.click_action = action;
+                    probe.update_flags = if scripted { 1 << 7 } else { 0 };
+                    for alpha in [0.0, 0.4] {
+                        scene.gpu[front].faces[0].te_alpha = alpha;
+                        scene.pick.changed(front);
+                        let point = scene.action_point(&world, Some(ray), Some(back_point), false, 100.0).unwrap();
+                        assert_eq!(
+                            point, back_point,
+                            "probe flags={flags}, action={action}, scripted={scripted}, alpha={alpha}"
+                        );
+                        assert_eq!(scene.interaction_at_ray(&world, point, ray, true), Some(back));
+                        assert_eq!(
+                            crate::interaction::target(&world, back, &HashMap::new()).unwrap().action,
+                            crate::interaction::Action::Touch
+                        );
+                        assert_eq!(
+                            scene.hover_pick(&world, Some(ray), Some(back_point), 100.0),
+                            (Some(back_point), Some(back))
+                        );
+                        assert_eq!(
+                            scene.interaction_point(&world, Some(ray), Some(back_point), false, 100.0),
+                            Some(back_point)
+                        );
+                        assert_eq!(scene.blend_hit(&world, ray, Some(back_point), 100.0, None), None);
+                        assert_eq!(
+                            scene.point_behind_ignored(&world, ray, 100.0, Instant::now(), None),
+                            Some(back_point)
+                        );
+                        assert_eq!(scene.point_behind_rigged(&world, ray, 0.0, 100.0, None), Some(back_point));
+                        // Foreground depth still occludes the scripted cube.
+                        let occluder = Vec3::new(1.0, 0.0, 50.0);
+                        assert_eq!(scene.action_point(&world, Some(ray), Some(occluder), false, 100.0), Some(occluder));
+                        assert_eq!(scene.interaction_at_ray(&world, front_point, ray, true), None);
+                    }
+                }
+            }
+        }
+        // Removing the probe parameters restores an ordinary Blend surface.
+        let object = world.objects.get_mut(front).unwrap();
+        object.extra.reflection_probe = None;
+        object.click_action = crate::interaction::code::TOUCH;
+        scene.pick.changed(front);
+        assert_eq!(
+            scene.hover_pick(&world, Some(ray), Some(back_point), 100.0),
+            (Some(front_point), Some(front))
+        );
+    }
+
+    #[test]
     fn reflection_probe_selection_toggle_passes_through_invisible_probes_for_menu_edit_and_wheel() {
         let (mut world, mut scene, front, back) = scene_with_two_objects();
         let ray = (Vec3::new(0.0, 0.0, 50.0), Vec3::X);
@@ -2132,7 +2222,7 @@ pub(super) mod tests {
     }
 
     #[test]
-    fn hud_blend_buttons_keep_normal_clicks_while_move_and_mask_picks_respect_texture_holes() {
+    fn hud_left_clicks_ignore_alpha_while_move_picks_respect_texture_holes() {
         let (mut world, mut scene, front, back) = scene_with_two_objects();
         let own = world.objects.index_of_uuid(&world.agent_id).unwrap();
         let parent = world.objects.get(own).unwrap().key.local_id;
@@ -2159,21 +2249,40 @@ pub(super) mod tests {
             .textures
             .pick_masks
             .insert(texture, super::super::textures::PickMask::from_rgba(2, 2, &[0; 16]).unwrap());
-        for (pbr, legacy) in [(None, None), (Some(1), None), (None, Some(legacy_mat::alpha_mode::BLEND))] {
-            for alpha in [1.0, 0.5, 0.001, 0.0] {
+        for (pbr, legacy, texture_alpha) in [
+            (None, None, AlphaKind::Blend),
+            (Some(1), None, AlphaKind::Blend),
+            (None, Some(legacy_mat::alpha_mode::BLEND), AlphaKind::Blend),
+            (None, None, AlphaKind::Mask),
+            (Some(2), None, AlphaKind::Blend),
+            (None, Some(legacy_mat::alpha_mode::MASK), AlphaKind::Blend),
+        ] {
+            scene.textures.alpha_by_slot[0] = texture_alpha;
+            for (alpha, texel_alpha) in [1.0, 0.5, 0.001, 0.0].into_iter().flat_map(|a| [0, 127, 255].map(|t| (a, t))) {
+                scene.textures.pick_masks.insert(
+                    texture,
+                    super::super::textures::PickMask::from_rgba(1, 1, &[255, 255, 255, texel_alpha]).unwrap(),
+                );
                 let draw = &mut scene.gpu[front].faces[0];
                 draw.pbr_alpha = pbr;
                 draw.legacy_alpha = legacy;
                 draw.te_alpha = alpha;
-                draw.pass = if alpha < 0.004 { Pass::Hidden } else { Pass::Blend };
+                draw.pass = if alpha < 0.004 {
+                    Pass::Hidden
+                } else if pbr == Some(2) || legacy == Some(legacy_mat::alpha_mode::MASK) || texture_alpha == AlphaKind::Mask {
+                    Pass::Mask
+                } else {
+                    Pass::Blend
+                };
                 Arc::make_mut(world.objects.get_mut(front).unwrap().te.as_mut().unwrap()).faces[0].color[3] = alpha;
                 let (idx, _, ray) = scene.hud_pick(&world, cursor, false).unwrap();
-                assert_eq!(idx, front, "Blend {pbr:?}/{legacy:?}, alpha {alpha}");
+                assert_eq!(idx, front, "material {pbr:?}/{legacy:?}, alpha {alpha}, texel {texel_alpha}");
                 let touch = scene.touch_surface(&world, idx, ray).unwrap();
                 assert_eq!(touch.face, 0);
                 assert!(touch.st.abs_diff_eq(Vec3::new(0.5, 0.5, 0.0), 1e-5));
                 assert_eq!(scene.hover_hud(&world, cursor), Some(front));
-                assert_eq!(scene.hud_move_pick(&world, cursor), Some(back));
+                let moved = if alpha >= 0.004 && texel_alpha > 0 { front } else { back };
+                assert_eq!(scene.hud_move_pick(&world, cursor), Some(moved));
                 assert_eq!(scene.hud_edit_pick(&world, cursor).unwrap().0, front);
             }
         }
@@ -2181,6 +2290,8 @@ pub(super) mod tests {
         scene.gpu[front].faces[0].pass = Pass::Blend;
         Arc::make_mut(world.objects.get_mut(front).unwrap().te.as_mut().unwrap()).faces[0].color[3] = 1.0;
         scene.gpu[front].faces[0].legacy_alpha = None;
+        scene.gpu[front].faces[0].pbr_alpha = None;
+        scene.textures.alpha_by_slot[0] = AlphaKind::Blend;
         // Follow repeats/offsets in HUD space, rather than the raw mesh UV.
         let mut pixels = vec![255; 4 * 4 * 4];
         for y in 0..4 {
@@ -2203,14 +2314,16 @@ pub(super) mod tests {
         assert_eq!(scene.hud_pick(&world, cursor, false).unwrap().0, front);
         assert_eq!(scene.hud_move_pick(&world, cursor), Some(front));
         scene.gpu[front].faces[0].pbr_alpha = Some(2);
-        assert_eq!(scene.hud_pick(&world, cursor, false).unwrap().0, back);
+        assert_eq!(scene.hud_pick(&world, cursor, false).unwrap().0, front);
+        assert_eq!(scene.hud_edit_pick(&world, cursor).unwrap().0, front);
+        assert_eq!(scene.hud_move_pick(&world, cursor), Some(back));
         scene.gpu[front].faces[0].pbr_alpha = None;
         scene.textures.alpha_by_slot[0] = AlphaKind::Mask;
-        assert_eq!(scene.hud_pick(&world, cursor, false).unwrap().0, back);
+        assert_eq!(scene.hud_pick(&world, cursor, false).unwrap().0, front);
         assert_eq!(scene.hud_move_pick(&world, cursor), Some(back));
         scene.textures.alpha_by_slot[0] = AlphaKind::Blend;
         scene.gpu[front].faces[0].legacy_alpha = Some(legacy_mat::alpha_mode::MASK);
-        assert_eq!(scene.hud_pick(&world, cursor, false).unwrap().0, back);
+        assert_eq!(scene.hud_pick(&world, cursor, false).unwrap().0, front);
         assert_eq!(scene.hud_move_pick(&world, cursor), Some(back));
         scene.gpu[front].faces[0].legacy_alpha = None;
         scene.gpu[front].faces[0].pbr_alpha = Some(2);

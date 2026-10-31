@@ -1271,14 +1271,13 @@ impl PlacesUi {
         }
         let editable = place.item.is_some_and(|i| actions::renameable(inv, i, &no_protection()));
         if let Some((_, text)) = self.aurora.note.as_mut() {
-            let r = ui.add_enabled(
-                editable,
-                egui::TextEdit::multiline(text)
+            let r = crate::ui::widgets::text_field(ui, editable, text, |b, _| {
+                egui::TextEdit::multiline(b)
                     .hint_text(aurora_i18n::tr!("ui-places-note-hint"))
                     .char_limit(NOTE_MAX)
                     .desired_rows(2)
-                    .desired_width(width),
-            );
+                    .desired_width(width)
+            });
             // the notes are saved when the field is left
             if r.lost_focus()
                 && text.trim() != place.note.trim()
@@ -1572,7 +1571,7 @@ fn name_dialog(ctx: &egui::Context, p: &Palette, id: &str, prompt: &str, name: &
         ui.add_space(6.0);
         let r = ui.add(egui::TextEdit::singleline(name).char_limit(63).desired_width(f32::INFINITY));
         r.request_focus();
-        if r.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+        if r.lost_focus() && widgets::enter_pressed(ui) {
             done = Some(!name.trim().is_empty());
         }
         ui.add_space(10.0);

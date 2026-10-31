@@ -17,12 +17,40 @@
 
 ## Amante verification
 
+### Branding and service-ownership audit checks (2026-10-29)
+
+- `cargo fmt --all --check` passed with Rust 1.99.1.
+- `cargo test --profile ci --locked -p aurora-i18n -p aurora-version -p aurora-updater`
+  passed its unit, catalog and loopback integration suites (46 tests).
+  After adding the exhaustive intentional-name regression, all five targeted
+  branding regressions passed, including that new test.
+- `node --test scripts/verify-viewer-preservation.test.mjs` passed seven tests.
+  Source preservation found all 8,643 baseline files tracked, no missing files
+  and no changed original assets.
+- `bash scripts/amante-dev.sh check` reached SIGKILL compiling the viewer's
+  all-target test harness; this attempt did **not** pass.
+- The lower-memory normal application check,
+  `env -u LD_AUDIT RUSTUP_TOOLCHAIN=1.99.1 CARGO_BUILD_JOBS=1 cargo check --profile ci --workspace --locked`,
+  passed, with 28 existing platform/dead-code warnings.
+- No new desktop binary was built or exercised, no real OAuth authorization
+  was performed and no owner media package was downloaded.
+
+Earlier local validation passed formatting, all-target compilation/Clippy,
+eight targeted security regressions and eleven local updater fixtures. Other
+workspace tests were filtered out, not counted as passing. A later local
+modified application build also suffered an OOM/SIGKILL under the observed
+8 GiB limit, without a Rust source diagnostic; no binary/version check completed
+in that attempt. These local outcomes remain separate from the subsequent
+successful owner-controlled CI builds below.
+
 - Targeted network code and local TLS test code passed `cargo check`.
 - Owner-controlled root CI run
-  <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40825559436>
+  <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40882122452>
   passed all three jobs at source
-  `ca32d42921c3c0c3a2d6b63791c37d753f2eb5d9`, including the expanded Amante
-  landing/menu/help/tool/localization branding.
+  `824d7dd8fb179673c49efd50a984de6d1e3f512e`, including the Amante branding
+  and corrected required-update notification behavior. This is the exact
+  packaged source in the owner's repository, not a claim about an independently
+  evolving workspace checkout.
 - Attempting the full workspace test executable build reached a SIGKILL while
   compiling the viewer's very large test harness under Replit's 8 GiB limit.
   No test cases ran in that attempt. This is separate from the successful
@@ -30,8 +58,8 @@
 - The lower-memory path compile-checks all targets, then executes the workspace
   tests excluding only the viewer test executable and the local updater suite.
   The full viewer unit harness subsequently compiled and ran on a Windows
-  runner with about 16 GiB: 5,086 passed, zero failed, nine ignored. The whole
-  Windows workspace harness had 6,094 passes, zero failures and 30 ignored
+  runner with about 16 GiB: 5,088 passed, zero failed, nine ignored. The whole
+  Windows workspace harness had 6,099 passes, zero failures and 30 ignored
   tests across 16 executables. Ignored tests are not passes.
 - Native binary build/version checks passed on Linux and Windows. These CLI
   checks do not exercise rendering or sign-in.

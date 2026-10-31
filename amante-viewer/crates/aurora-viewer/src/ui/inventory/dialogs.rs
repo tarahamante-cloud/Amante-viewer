@@ -224,10 +224,9 @@ pub(super) fn show(
                                 folder: inv.folders.contains_key(id),
                             })
                             .collect();
+                        let holds_worn = rules::worn_ancestors(inv, &facts.worn);
                         if ids.iter().all(|id| {
-                            rules::movable(inv, *id, &prefs.protected)
-                                && rules::in_type(inv, *id, 14)
-                                && !facts.worn.iter().any(|w| rules::under(inv, *w, *id))
+                            rules::movable(inv, *id, &prefs.protected) && rules::in_type(inv, *id, 14) && !holds_worn.contains(id)
                         }) {
                             Ok(Mutation {
                                 operations,
@@ -358,10 +357,7 @@ fn share(
                     let kind = inv.folders.get(id).map_or(-1, |f| f.info.type_default);
                     (super::tree::folder_icon(kind, false), p.muted)
                 },
-                |it| {
-                    let color = item_icon_color(it.asset_type, it.inv_type, p);
-                    (item_icon(it.asset_type, it.inv_type, it.flags), color)
-                },
+                |it| inventory_item_icon(inv, it, p),
             );
             let (fate, tag, why) = match rules::offer(inv, *id, &prefs.protected, &facts.worn) {
                 Ok(bucket) if rules::offer_has_no_copy(inv, &bucket) => {
@@ -483,7 +479,7 @@ fn share(
                 let primary =
                     crate::ui::widgets::primary_button_sized(ui, p, aurora_i18n::tr!("ui-inventory-dialogs-give"), Vec2::new(96.0, 28.0));
                 ctx.data_mut(|d| d.insert_temp(egui::Id::unique(("inventory_share_give", ui_id)), primary.rect));
-                give = !given.is_empty() && (primary.clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter)));
+                give = !given.is_empty() && (primary.clicked() || crate::ui::widgets::enter_pressed(ui));
             });
             cancel = crate::ui::widgets::flat_button_sized(ui, p, aurora_i18n::tr!("common-cancel"), Vec2::new(96.0, 28.0)).clicked();
         });
@@ -872,14 +868,12 @@ fn notecard_description(
         rules::mutable(inv, it.id, &prefs.protected) && it.owner_mask & rules::MODIFY != 0 && st.pending.is_none() && !st.save_pending;
     ui.horizontal(|ui| {
         ui.label(aurora_i18n::tr!("common-description"));
-        let response = ui.add_enabled(
-            can_edit,
-            egui::TextEdit::singleline(&mut description.text)
+        let response = crate::ui::widgets::text_field(ui, can_edit, &mut description.text, |b, ui| {
+            egui::TextEdit::singleline(b)
                 .id(egui::Id::unique(("notecard_description", st.ui_id, it.id)))
-                .interactive(can_edit)
                 .char_limit(127)
-                .desired_width(ui.available_width()),
-        );
+                .desired_width(ui.available_width())
+        });
         if can_edit
             && response.lost_focus()
             && description.text != it.desc
@@ -917,12 +911,9 @@ fn animation(
             ui.label(aurora_i18n::tr!("common-description"));
             if let Some((_, description)) = &mut st.animation_description {
                 let can_edit = rules::mutable(inv, it.id, &prefs.protected) && it.owner_mask & rules::MODIFY != 0 && st.pending.is_none();
-                let response = ui.add_enabled(
-                    can_edit,
-                    egui::TextEdit::singleline(description)
-                        .char_limit(127)
-                        .desired_width(ui.available_width()),
-                );
+                let response = crate::ui::widgets::text_field(ui, can_edit, description, |b, ui| {
+                    egui::TextEdit::singleline(b).char_limit(127).desired_width(ui.available_width())
+                });
                 if can_edit
                     && description != &it.desc
                     && response.lost_focus()
@@ -1291,9 +1282,15 @@ mod tests {
         };
         document_frame(&ctx, &inv, &mut st, vec![key(egui::Key::End), egui::Event::Text("\nÉté 🐺".into())]);
         assert!(st.preview_dirty);
+        assert!(super::document_save_focused(&ctx), "native Ctrl+S belongs to this notecard");
         let (_, actions) = document_frame(&ctx, &inv, &mut st, vec![key(egui::Key::S)]);
         assert!(matches!(&actions[..], [InvAction::SaveContent { editor, item, text, close: false }]
             if *editor == st.ui_id && Some(*item) == st.preview && text == "Avant\nÉté 🐺"));
+        ctx.memory_mut(|m| m.surrender_focus(m.focused().expect("document focus")));
+        assert!(
+            !super::document_save_focused(&ctx),
+            "the world shortcut works again outside the document"
+        );
     }
 
     #[test]
@@ -1414,12 +1411,17 @@ mod tests {
                 &mut st,
                 vec![
                     egui::Event::Key {
-                        key: egui::Key::Home,
+                        key: if cfg!(target_os = "macos") {
+                            egui::Key::ArrowUp
+                        } else {
+                            egui::Key::Home
+                        },
                         physical_key: None,
                         pressed: true,
                         repeat: false,
                         modifiers: egui::Modifiers {
-                            ctrl: true,
+                            ctrl: !cfg!(target_os = "macos"),
+                            mac_cmd: cfg!(target_os = "macos"),
                             command: true,
                             ..Default::default()
                         },

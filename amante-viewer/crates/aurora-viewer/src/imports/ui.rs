@@ -11,14 +11,31 @@ use egui::{RichText, Vec2};
 const IMPORT_POSITION: egui::Pos2 = egui::Pos2 { x: 48.0, y: 80.0 };
 
 pub(super) mod destination;
+mod folder_panel;
+mod folder_preview;
+mod footer;
 mod inspector;
-pub(crate) mod launcher;
+pub(crate) mod local_status;
+mod queue;
+mod source_root;
+
+pub(crate) const WINDOW: &str = "asset_imports_v7";
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum Tab {
+    #[default]
+    Batch,
+    Folder,
+    Permissions,
+}
 mod material_panel;
 mod mesh_panel;
 pub(crate) mod permission_panel;
 mod sound_panel;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod unified_tests;
 mod zoom;
 
 // egui's menu style and button strokes can change the padding between states.
@@ -88,10 +105,15 @@ pub(crate) fn factor_swatch(ui: &mut egui::Ui, p: &Palette, id_salt: impl egui::
 
 pub enum Action {
     Files,
+    Folder,
     Start,
     Cancel,
     Preview(Uuid),
     Play(Uuid, bool),
+    AnimationModel(Uuid),
+    SelectAnimationModel(Uuid, Uuid),
+    RemoveAnimationModel(Uuid),
+    DefaultAnimationModel(Uuid),
     SoundGain(Uuid),
     Reload(Uuid),
     RestoreDraft(Uuid),
@@ -103,6 +125,7 @@ pub enum Action {
     Local(Uuid),
     ClearLocal(Uuid),
     RezLocal(Uuid),
+    StageLocalUploads,
     MapFile(Uuid, usize),
     MapInventory(Uuid, usize),
     Zoom(Uuid, Option<usize>),
@@ -200,15 +223,7 @@ fn file_status(ui: &mut egui::Ui, p: &Palette, entry: &Entry) {
     }
 }
 
-fn metadata_controls(
-    ui: &mut egui::Ui,
-    p: &Palette,
-    entry: &mut Entry,
-    inventory: &crate::world::inventory::Inventory,
-    protected: &HashSet<Uuid>,
-    picker: &mut destination::Picker,
-    demo: bool,
-) {
+fn metadata_controls(ui: &mut egui::Ui, entry: &mut Entry) {
     let mesh = matches!(entry.source, Some(Source::Mesh(_)));
     egui::Grid::new("import_metadata")
         .num_columns(2)
@@ -228,12 +243,6 @@ fn metadata_controls(
                         .desired_width((ui.available_width() - if mesh { 0.0 } else { 100.0 }).clamp(120.0, 360.0))
                         .char_limit(127),
                 );
-                ui.end_row();
-                ui.label(aurora_i18n::tr!("import-destination"));
-                if demo {
-                    picker.demo(ui);
-                }
-                picker.show(ui, p, inventory, protected, &mut entry.folder);
                 ui.end_row();
             }
         });
@@ -284,12 +293,15 @@ pub fn show(
     world: &crate::world::World,
     inventory_prefs: &crate::ui::inventory::InventoryPreferences,
 ) -> Vec<Action> {
+    #[cfg(test)]
+    ctx.data_mut(|data| data.remove::<(egui::Rect, egui::Rect, bool)>(egui::Id::unique("import_upload_action")));
     let mut actions = Vec::new();
     let old_permissions = prefs.clone();
-    launcher::show(ctx, p, imports, prefs);
-    if imports.open && std::mem::take(&mut imports.choose_files_on_open) {
-        actions.push(Action::Files);
+    if imports.choice != Choice::Local {
+        imports.choice = Choice::Bulk;
     }
+    imports.sync_destinations(prefs, world, inventory_prefs);
+    imports.reconcile_active();
     let prices = if imports.demo_started {
         Prices {
             texture: Some(10),
@@ -302,9 +314,6 @@ pub fn show(
     };
     let prices = prices.with_fallback(world.upload_cost);
     inspector::show(ctx, p, imports, prefs, world, inventory_prefs, &prices, &mut actions);
-    if imports.launcher_open && imports.open {
-        launcher::keep_accessible(ctx, imports.window_choice().window_id());
-    }
     if prefs.permissions_for(Kind::Mesh) != old_permissions.permissions_for(Kind::Mesh) {
         for entry in &mut imports.entries {
             if let Some(Source::Mesh(draft)) = &mut entry.source {
@@ -325,6 +334,9 @@ pub fn show(
         .show(ctx, p, &mut confirm, |ui| {
             if let Some(cost) = imports.total(&prices) {
                 ui.label(aurora_i18n::tr!("import-confirm-price", cost = cost));
+            }
+            if imports.folders.active() && !imports.folder_plan_ready(world, inventory_prefs) {
+                ui.label(aurora_i18n::tr!("import-folders-auto-create"));
             }
             ui.horizontal(|ui| {
                 let size = Vec2::new(0.0, 26.0);
@@ -579,6 +591,129 @@ fn texture(
         );
     } else {
         ui.spinner();
+    }
+}
+
+fn animation_model_controls(
+    ui: &mut egui::Ui,
+    p: &Palette,
+    id: Uuid,
+    model: &super::animation_model::Selection,
+    saved: &[super::animation_model::Saved],
+    actions: &mut Vec<Action>,
+) {
+    ui.label(aurora_i18n::tr!("import-animation-model"));
+    let mut selected = model.saved;
+    let name = saved
+        .iter()
+        .find(|saved| Some(saved.id) == selected)
+        .map(|saved| saved.name.as_str())
+        .or_else(|| {
+            model
+                .current
+                .as_ref()
+                .and_then(|current| current.path.file_stem())
+                .and_then(|name| name.to_str())
+        })
+        .unwrap_or(aurora_i18n::tr!("import-animation-model-default"));
+    if ui
+        .ctx()
+        .data(|data| data.get_temp::<bool>(egui::Id::unique(("animation_model_list_open", id))))
+        .unwrap_or(false)
+    {
+        // Scripted captures keep the list visible after startup focus changes.
+        // Any human interaction returns the demo to ordinary popup behaviour.
+        if ui.input(|input| {
+            input.pointer.any_pressed()
+                || input
+                    .events
+                    .iter()
+                    .any(|event| matches!(event, egui::Event::Key { pressed: true, .. }))
+        }) {
+            ui.ctx()
+                .data_mut(|data| data.remove_temp::<bool>(egui::Id::unique(("animation_model_list_open", id))));
+        } else {
+            egui::Popup::open_id(
+                ui.ctx(),
+                ui.make_persistent_id(egui::IdSalt::new(("animation_models", id))).with("popup"),
+            );
+        }
+    }
+    let list = egui::ComboBox::from_id_salt(("animation_models", id))
+        .width(ui.available_width())
+        .selected_text(name)
+        .close_behavior(egui::PopupCloseBehavior::CloseOnClickOutside)
+        .show_ui(ui, |ui| {
+            if selection(ui, &mut selected, None, aurora_i18n::tr!("import-animation-model-default")).clicked() {
+                ui.close();
+            }
+            for saved in saved {
+                ui.push_id(saved.id, |ui| {
+                    ui.allocate_ui_with_layout(
+                        Vec2::new(ui.available_width(), 26.0),
+                        egui::Layout::right_to_left(egui::Align::Center),
+                        |ui| {
+                            let label = aurora_i18n::tr!("import-animation-model-remove", name = saved.name.clone());
+                            let remove =
+                                action_button(ui, p, "trash-filled", "", ActionKind::Flat, Vec2::splat(26.0)).on_hover_text(&label);
+                            remove.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), &label));
+                            let row =
+                                selection(ui, &mut selected, Some(saved.id), &saved.name).on_hover_text(saved.path.display().to_string());
+                            ui.ctx().data_mut(|data| {
+                                data.insert_temp(egui::Id::unique(("animation_model_remove", id, saved.id)), remove.rect);
+                                data.insert_temp(egui::Id::unique(("animation_model_row", id, saved.id)), row.rect);
+                            });
+                            if remove.clicked() {
+                                actions.push(Action::RemoveAnimationModel(saved.id));
+                            }
+                            if row.clicked() {
+                                ui.close();
+                            }
+                        },
+                    );
+                });
+            }
+        })
+        .response
+        .on_hover_text(aurora_i18n::tr!("import-animation-model-help"));
+    ui.ctx()
+        .data_mut(|data| data.insert_temp(egui::Id::unique(("animation_model_list", id)), list.rect));
+    if selected != model.saved {
+        if let Some(saved) = selected {
+            actions.push(Action::SelectAnimationModel(id, saved));
+        } else {
+            actions.push(Action::DefaultAnimationModel(id));
+        }
+    }
+    ui.horizontal(|ui| {
+        let choose = tool_button(ui, p, aurora_i18n::tr!("import-animation-model-choose"), !model.pending);
+        if choose.clicked() {
+            actions.push(Action::AnimationModel(id));
+        }
+        let reset = tool_button(
+            ui,
+            p,
+            aurora_i18n::tr!("import-animation-model-default"),
+            model.current.is_some() || model.pending,
+        );
+        if reset.clicked() {
+            actions.push(Action::DefaultAnimationModel(id));
+        }
+        ui.ctx().data_mut(|data| {
+            data.insert_temp(egui::Id::unique(("animation_model_choose", id)), choose.rect);
+            data.insert_temp(egui::Id::unique(("animation_model_reset", id)), reset.rect);
+        });
+        if model.pending {
+            ui.spinner();
+        }
+    });
+    if let Some(error) = &model.error {
+        ui.label(RichText::new(error).small().color(p.danger));
+        ui.label(
+            RichText::new(aurora_i18n::tr!("import-animation-model-kept"))
+                .small()
+                .color(p.muted),
+        );
     }
 }
 

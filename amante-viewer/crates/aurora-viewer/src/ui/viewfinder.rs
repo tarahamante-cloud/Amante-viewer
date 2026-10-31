@@ -17,6 +17,7 @@ use egui::{Align2, Color32, FontId, Id, Order, Pos2, Rect, Sense, Stroke, Stroke
 
 mod controls;
 mod isolate;
+mod light;
 mod looks;
 mod presets;
 pub use controls::{CamMode, Pad, roll_text};
@@ -47,6 +48,8 @@ pub struct Viewfinder {
     pub isolate: bool,
     /// The filter panel (`looks`).
     pub looks: bool,
+    /// The light panel (`light`): the photo's sky, water and sun.
+    pub light: bool,
     /// The camera presets panel (`presets`) and its saving form.
     pub presets: bool,
     pub preset_form: PresetForm,
@@ -62,10 +65,20 @@ pub struct Viewfinder {
     pub af: Autofocus,
     /// The AF point, in fractions of the screen (None: its centre).
     pub point: Option<Pos2>,
-    /// The avatar the focus is on (AF area Avatar).
-    pub subject: Option<uuid::Uuid>,
+    /// What the focus is on: an avatar (AF area Avatar), or the group of
+    /// avatars and points Shift + click gathers, the first the one clicked
+    /// first.
+    pub subjects: Vec<vf::Subject>,
+    /// The point a click alone focused on, the first of a group Shift +
+    /// click starts from there.
+    pub last_point: Option<glam::Vec3>,
+    /// The zone the group keeps sharp (None for one subject).
+    pub zone: Option<vf::Zone>,
     /// The depth under the AF point asked of the renderer.
     pub pick: Option<u64>,
+    /// That depth was asked by Shift + click: the avatar or the point there
+    /// joins the group, or leaves it.
+    pub adding: bool,
     /// That depth was asked by the shutter with the lens locked: the same
     /// subject under the point keeps the lock.
     pub recheck: bool,
@@ -120,6 +133,12 @@ pub struct Frame<'a> {
     /// The head of the avatar under the AF point, or of the subject (its
     /// box in points), whether the focus is on it, and the avatar's name.
     pub face: Option<(Rect, bool, String)>,
+    /// The rest of a group focus: its heads (boxes and names) and its
+    /// points (points), and the zone kept sharp from the nearest to the
+    /// farthest (m).
+    pub group: Vec<(Rect, String)>,
+    pub points: Vec<Pos2>,
+    pub zone: Option<(f32, f32)>,
     /// The camera's pitch (degrees, positive up).
     pub pitch: f32,
     pub histogram: Option<&'a [u32; vf::HISTOGRAM_BINS]>,
@@ -141,6 +160,8 @@ pub struct Frame<'a> {
     /// would hold.
     pub presets: &'a [crate::camera::CameraShot],
     pub preset_object: Option<String>,
+    /// The poser's window shows over the viewfinder.
+    pub posing: bool,
 }
 
 /// The keys the help and the hints name.
@@ -188,6 +209,8 @@ pub enum Out {
     Isolate(Isolate),
     /// The camera presets panel, or choosing its object in the scene.
     Preset(Preset),
+    /// The poser's window opened or closed (#1389).
+    Poser,
     /// Out of the photo mode.
     Exit,
 }
@@ -565,6 +588,9 @@ impl Viewfinder {
         if self.looks {
             self.looks_panel(ctx, p, screen, s, panel, &mut out);
         }
+        if self.light {
+            self.light_panel(ctx, p, screen, panel, view, &mut out);
+        }
         if self.isolate {
             self.isolate_picking(ctx, p, frame, f, &mut out);
             self.isolate_panel(ctx, p, screen, f, &mut out);
@@ -781,13 +807,13 @@ impl Viewfinder {
                     ui,
                     p,
                     "sun-filled",
-                    time_label(panel.light.time),
+                    time_label(panel.light.env.time),
                     p.ink,
                     aurora_i18n::tr!("photo-vf-time-tip"),
                 )
                 .clicked()
                 {
-                    panel.light.time = next_time(panel.light.time);
+                    panel.light.env.set_time(next_time(panel.light.env.time));
                 }
             });
         y += 24.0;
@@ -810,10 +836,18 @@ impl Viewfinder {
                 Dial::Exposure => aurora_i18n::tr!("photo-vf-dial-exposure"),
                 Dial::Distance => aurora_i18n::tr!("photo-vf-dial-distance"),
             };
-            let rows: [(&str, String); 8] = [
+            let rows: [(&str, String); 10] = [
                 (
                     aurora_i18n::tr!("photo-vf-cheat-click-key"),
                     aurora_i18n::tr!("photo-vf-cheat-click").to_owned(),
+                ),
+                (
+                    aurora_i18n::tr!("photo-vf-cheat-ctrl-click-key"),
+                    aurora_i18n::tr!("photo-vf-cheat-ctrl-click").to_owned(),
+                ),
+                (
+                    aurora_i18n::tr!("photo-vf-cheat-shift-click-key"),
+                    aurora_i18n::tr!("photo-vf-cheat-shift-click").to_owned(),
                 ),
                 (
                     aurora_i18n::tr!("photo-vf-cheat-enter-key"),
@@ -857,6 +891,29 @@ impl Viewfinder {
             }
             let keys = aurora_i18n::tr!("photo-vf-cheat-keys", menu = f.keys.menu, af = f.keys.af_mode);
             shadow_text(back, p, Pos2::new(x, y), Align2::LEFT_CENTER, &keys, regular(12.0), p.muted);
+            // put away from where it is read (the quick menu brings it back)
+            y += 24.0;
+            let hide = egui::Area::new(Id::unique("vf_hints_hide"))
+                .order(Order::Foreground)
+                .fade_in(false)
+                .pivot(Align2::LEFT_CENTER)
+                .fixed_pos(Pos2::new(x, y))
+                .show(ctx, |ui| {
+                    icon_text_button(
+                        ui,
+                        p,
+                        "eye-off",
+                        aurora_i18n::tr!("photo-vf-hints-hide"),
+                        p.muted,
+                        aurora_i18n::tr!("photo-vf-hints-hide-tip"),
+                    )
+                    .clicked()
+                })
+                .inner;
+            if hide {
+                s.viewfinder.hints = false;
+                self.say(aurora_i18n::tr!("photo-vf-hints-hidden", menu = f.keys.menu), false, f.now);
+            }
         }
 
         // the histogram
@@ -983,27 +1040,30 @@ impl Viewfinder {
             .as_ref()
             .filter(|_| s.viewfinder.area == AfArea::Avatar && s.dof.focus != PhotoFocus::Manual);
         let mut under = f.point + Vec2::new(0.0, AF_BOX / 2.0 + 6.0);
+        let radius = ctx.global_style().visuals.window_corner_radius;
+        // a face box with whose head the lens takes above it
+        let face_box = |rect: Rect, name: &str, stroke: Stroke| {
+            painter.rect_stroke(rect, radius, shadow, StrokeKind::Middle);
+            painter.rect_stroke(rect, radius, stroke, StrokeKind::Middle);
+            shadow_text(
+                painter,
+                p,
+                rect.left_top() - Vec2::new(0.0, 4.0),
+                Align2::LEFT_BOTTOM,
+                name,
+                bold(ctx, 11.0),
+                stroke.color,
+            );
+        };
         match face {
             Some(&(rect, on, ref name)) if on || display != Display::Hidden => {
                 let rect = Rect::from_center_size(rect.center(), rect.size() * if on { scale } else { 1.0 });
-                let radius = ctx.global_style().visuals.window_corner_radius;
-                let (stroke, c) = if on {
-                    (Stroke::new(2.5, color), color)
+                let stroke = if on {
+                    Stroke::new(2.5, color)
                 } else {
-                    (Stroke::new(1.2, p.ink.gamma_multiply(0.7)), p.ink.gamma_multiply(0.7))
+                    Stroke::new(1.2, p.ink.gamma_multiply(0.7))
                 };
-                painter.rect_stroke(rect, radius, shadow, StrokeKind::Middle);
-                painter.rect_stroke(rect, radius, stroke, StrokeKind::Middle);
-                // whose head the lens takes
-                shadow_text(
-                    painter,
-                    p,
-                    rect.left_top() - Vec2::new(0.0, 4.0),
-                    Align2::LEFT_BOTTOM,
-                    name,
-                    bold(ctx, 11.0),
-                    c,
-                );
+                face_box(rect, name, stroke);
                 if on {
                     under = Pos2::new(rect.center().x, rect.bottom() + 8.0);
                 } else {
@@ -1019,12 +1079,21 @@ impl Viewfinder {
                 }
             }
         }
+        // the rest of a group, each face and point held the same way
+        for (r, name) in &f.group {
+            face_box(Rect::from_center_size(r.center(), r.size() * scale), name, Stroke::new(2.5, color));
+        }
+        for &at in &f.points {
+            brackets(painter, at, scale, Stroke::new(width, color), shadow);
+        }
         if locked && self.af.recent(f.now) && display != Display::Hidden {
-            let text = format!("{} m", vf::distance_text(self.af.distance()));
-            let text = if self.af.distance() >= vf::INFINITY {
-                "∞".to_owned()
-            } else {
-                text
+            let text = match f.zone {
+                // the group: from its nearest subject to its farthest
+                Some((near, far)) => {
+                    format!("{}–{} m", vf::distance_text(near), vf::distance_text(far))
+                }
+                _ if self.af.distance() >= vf::INFINITY => "∞".to_owned(),
+                _ => format!("{} m", vf::distance_text(self.af.distance())),
             };
             shadow_text(painter, p, under, Align2::CENTER_TOP, &text, bold(ctx, 12.0), p.success);
         }
@@ -1443,6 +1512,7 @@ impl Viewfinder {
                         self.drawer = !self.drawer;
                         self.looks &= !self.drawer;
                         self.presets &= !self.drawer;
+                        self.light &= !self.drawer;
                         if self.drawer && self.isolate {
                             self.isolate = false;
                             out.push(Out::Isolate(Isolate::Picking(false)));
@@ -1469,8 +1539,19 @@ impl Viewfinder {
                     ) {
                         panel.freeze_world = !panel.freeze_world;
                     }
-                    // five above the shutter, six under it (the panels of the
-                    // shot together)
+                    // the drawer's Light section alone, next to the shutter
+                    if dock_button(ui, p, Face::Icon("sun-filled"), aurora_i18n::tr!("photo-vf-light-tip"), self.light) {
+                        self.light = !self.light;
+                        self.drawer &= !self.light;
+                        self.looks &= !self.light;
+                        self.presets &= !self.light;
+                        if self.light && self.isolate {
+                            self.isolate = false;
+                            out.push(Out::Isolate(Isolate::Picking(false)));
+                        }
+                    }
+                    // six above the shutter, seven under it (the panels of
+                    // the shot together)
                     ui.add_space(6.0);
                     self.shutter_button(ui, p, out);
                     ui.add_space(6.0);
@@ -1480,6 +1561,7 @@ impl Viewfinder {
                         self.drawer &= !self.isolate;
                         self.looks &= !self.isolate;
                         self.presets &= !self.isolate;
+                        self.light &= !self.isolate;
                         if !self.isolate {
                             out.push(Out::Isolate(Isolate::Picking(false)));
                         }
@@ -1494,6 +1576,7 @@ impl Viewfinder {
                         self.looks = !self.looks;
                         self.drawer &= !self.looks;
                         self.presets &= !self.looks;
+                        self.light &= !self.looks;
                         // opens on the tab of the chosen look
                         if self.looks
                             && let Some(layer) = s.looks.get(panel.looks.selected)
@@ -1515,10 +1598,16 @@ impl Viewfinder {
                         self.presets = !self.presets;
                         self.drawer &= !self.presets;
                         self.looks &= !self.presets;
+                        self.light &= !self.presets;
                         if self.presets && self.isolate {
                             self.isolate = false;
                             out.push(Out::Isolate(Isolate::Picking(false)));
                         }
+                    }
+                    // the toolbar's Poser, the interface being hidden: pose
+                    // the avatar without leaving the shot
+                    if dock_button(ui, p, Face::Icon("wand"), aurora_i18n::tr!("photo-vf-poser-tip"), f.posing) {
+                        out.push(Out::Poser);
                     }
                     let has_photo = f.review.is_some();
                     if dock_button(ui, p, Face::Icon("photo-filled"), aurora_i18n::tr!("photo-vf-last-photo"), false) && has_photo {
@@ -1654,6 +1743,14 @@ impl Viewfinder {
                                     aurora_i18n::tr!("photo-vf-help-click-text"),
                                 ),
                                 (
+                                    aurora_i18n::tr!("photo-vf-cheat-ctrl-click-key").to_owned(),
+                                    aurora_i18n::tr!("photo-vf-help-ctrl-click-text"),
+                                ),
+                                (
+                                    aurora_i18n::tr!("photo-vf-help-shift-click").to_owned(),
+                                    aurora_i18n::tr!("photo-vf-help-shift-click-text"),
+                                ),
+                                (
                                     aurora_i18n::tr!("photo-vf-help-alt-click").to_owned(),
                                     aurora_i18n::tr!("photo-vf-help-alt-click-text"),
                                 ),
@@ -1723,28 +1820,33 @@ impl Viewfinder {
                             v
                         }),
                     ];
-                    for (title, rows) in sections {
-                        ui.add_space(6.0);
-                        ui.label(egui::RichText::new(title).font(bold(ctx, 12.0)).color(p.teal));
-                        egui::Grid::new(("vf_help", title))
-                            .num_columns(2)
-                            .spacing(Vec2::new(14.0, 8.0))
-                            .min_col_width(170.0)
-                            .show(ui, |ui| {
-                                for (key, text) in rows {
-                                    ui.label(egui::RichText::new(key).font(bold(ctx, 13.0)).color(p.ink));
-                                    ui.add(egui::Label::new(egui::RichText::new(text).size(13.0).color(p.muted)).wrap());
-                                    ui.end_row();
-                                }
-                            });
-                    }
-                    ui.add_space(8.0);
-                    widgets::divider(ui, p);
-                    ui.label(
-                        egui::RichText::new(aurora_i18n::tr!("photo-vf-help-free-camera"))
-                            .size(12.0)
-                            .color(p.muted),
-                    );
+                    egui::ScrollArea::vertical()
+                        .id_salt("vf_help_scroll")
+                        .max_height((screen.height() - 112.0).max(80.0))
+                        .show(ui, |ui| {
+                            for (title, rows) in sections {
+                                ui.add_space(6.0);
+                                ui.label(egui::RichText::new(title).font(bold(ctx, 12.0)).color(p.teal));
+                                egui::Grid::new(("vf_help", title))
+                                    .num_columns(2)
+                                    .spacing(Vec2::new(14.0, 8.0))
+                                    .min_col_width(170.0)
+                                    .show(ui, |ui| {
+                                        for (key, text) in rows {
+                                            ui.label(egui::RichText::new(key).font(bold(ctx, 13.0)).color(p.ink));
+                                            ui.add(egui::Label::new(egui::RichText::new(text).size(13.0).color(p.muted)).wrap());
+                                            ui.end_row();
+                                        }
+                                    });
+                            }
+                            ui.add_space(8.0);
+                            widgets::divider(ui, p);
+                            ui.label(
+                                egui::RichText::new(aurora_i18n::tr!("photo-vf-help-free-camera"))
+                                    .size(12.0)
+                                    .color(p.muted),
+                            );
+                        });
                 });
             });
     }
@@ -2097,12 +2199,12 @@ fn tiles(s: &Settings, panel: &SnapshotUi, f: &Frame) -> Vec<(&'static str, Stri
     ));
     v.push((
         aurora_i18n::tr!("photo-vf-time"),
-        time_label(panel.light.time).replace(
+        time_label(panel.light.env.time).replace(
             aurora_i18n::tr!("photo-vf-sky-current"),
             aurora_i18n::tr!("photo-light-time-current"),
         ),
         Box::new(|_, panel| {
-            panel.light.time = next_time(panel.light.time);
+            panel.light.env.set_time(next_time(panel.light.env.time));
             None
         }),
     ));

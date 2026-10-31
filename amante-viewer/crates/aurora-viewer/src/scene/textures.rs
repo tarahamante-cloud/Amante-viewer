@@ -894,6 +894,8 @@ pub struct TextureStreamer {
     cache_dir: PathBuf,
     /// Procedural demo textures: id -> slot.
     local_slots: HashMap<Uuid, u32>,
+    /// Worker-prepared local pixels, shared with avatar baking and UI previews.
+    local_images: HashMap<Uuid, Arc<aurora_render::preview::Image>>,
     /// Bumped whenever a slot's alpha class or alpha channel, or a sculpt
     /// map, changes.
     pub generation: u64,
@@ -928,6 +930,8 @@ pub struct TextureStreamer {
     pub demo_source: Option<DemoSource>,
     /// Textures also wanted as egui images (profile pictures...): small CPU copies.
     ui_wanted: std::collections::HashSet<Uuid>,
+    /// Session-long UI users, independent from the bounded hover cache.
+    ui_permanent: std::collections::HashSet<Uuid>,
     ui_ready: HashMap<Uuid, (u32, u32, Vec<u8>)>,
     ui_previews: super::texture_ui::Images,
     pub stats: TextureStats,
@@ -970,8 +974,9 @@ pub struct TextureStreamer {
     watch: LoadWatch,
 }
 
-/// Coarse pixels for an isolated appearance preview, decoded on a worker.
+/// Shared image sources for an isolated appearance preview, decoded on a worker.
 pub struct PreviewSource {
+    pub local: Option<Arc<aurora_render::preview::Image>>,
     pub bytes: Arc<Vec<u8>>,
     pub jpeg: PathBuf,
     pub blocks: PathBuf,
@@ -981,9 +986,64 @@ pub struct PreviewSource {
 }
 pub type PreviewRevision = (usize, Option<u8>, Option<(u32, u32)>, bool);
 impl PreviewSource {
+    /// Appearance editing can use resident pixels immediately and improve
+    /// them as finer levels arrive; export still requires the original data.
+    pub fn bake_ready(&self, id: Uuid) -> bool {
+        self.local.is_some()
+            || self.decoded.is_some()
+            || self.procedural
+            || is_builtin_transparent(&id)
+            || id == aurora_prim::te::BLANK_TEXTURE
+    }
+
+    pub fn bake_revision(&self) -> PreviewRevision {
+        let mut revision = self.revision();
+        if self.local.is_none() {
+            // Download packets do not change pixels until a new resident level
+            // is ready. Invalidating for every packet would starve the worker.
+            revision.0 = 0;
+        }
+        revision
+    }
+
+    pub fn bake_image(self, id: Uuid) -> Option<Arc<aurora_render::preview::Image>> {
+        if is_builtin_transparent(&id) || id == aurora_prim::te::BLANK_TEXTURE {
+            return Some(Arc::new(aurora_render::preview::Image {
+                size: [1, 1],
+                rgba: if is_builtin_transparent(&id) { vec![0; 4] } else { vec![255; 4] }.into(),
+            }));
+        }
+        let blocks = self.blocks.clone();
+        let discard = self.decoded.unwrap_or(0);
+        self.inspector_image(id).or_else(|| {
+            // A texture loaded from BC7 can be fully visible without any JPEG
+            // bytes in memory or on disk. Decode its resident cache level on
+            // the worker, preserving its resolution instead of the UI thumbnail.
+            let texture_cache::Transcoded::Bc7(cached) = texture_cache::read(&blocks, discard)? else {
+                return None;
+            };
+            let (width, height, blocks) = cached.levels.first()?;
+            let mut rgba = aurora_render::bc7::decode_level(blocks, *width, *height)?;
+            if !cached.alpha_channel || cached.alpha == AlphaKind::Opaque {
+                // Opaque BC7 encoders may quantize alpha to 254: the world
+                // ignores that channel, and a layer composite must do so too.
+                for pixel in rgba.as_chunks_mut::<4>().0 {
+                    pixel[3] = 255;
+                }
+            }
+            Some(Arc::new(aurora_render::preview::Image {
+                size: [*width, *height],
+                rgba: rgba.into(),
+            }))
+        })
+    }
+
     /// Inspector pixels at the resident resolution, decoded on a worker.
     /// Exports must wait for discard 0 instead of using the small BC7 preview.
     pub fn inspector_image(self, id: Uuid) -> Option<Arc<aurora_render::preview::Image>> {
+        if let Some(image) = self.local {
+            return Some(image);
+        }
         if let Some((rgba, width, height)) = crate::demo::local_texture(&id) {
             return Some(Arc::new(aurora_render::preview::Image {
                 size: [width, height],
@@ -1003,7 +1063,12 @@ impl PreviewSource {
         }))
     }
     pub fn revision(&self) -> PreviewRevision {
-        (self.bytes.len(), self.decoded, self.size, self.procedural)
+        (
+            self.local.as_ref().map_or(self.bytes.len(), |image| Arc::as_ptr(image) as usize),
+            self.decoded,
+            self.size,
+            self.procedural,
+        )
     }
     /// What `image` depends on: the level it decodes, never finer than
     /// preview_discard, instead of the exact bytes and level held. The
@@ -1011,6 +1076,9 @@ impl PreviewSource {
     /// busy region; small previews built again at each move (the shape
     /// editor's hints) cost a hitch every few hundred milliseconds.
     pub fn image_revision(&self) -> PreviewRevision {
+        if self.local.is_some() {
+            return self.revision();
+        }
         let Some((width, height)) = self.size.filter(|_| self.decoded.is_some()) else {
             return self.revision();
         };
@@ -1018,6 +1086,9 @@ impl PreviewSource {
         (0, Some(level), self.size, self.procedural)
     }
     pub fn image(self, id: Uuid) -> Option<Arc<aurora_render::preview::Image>> {
+        if let Some(image) = self.local {
+            return Some(image);
+        }
         let image = |width, height, rgba: Vec<u8>| {
             Arc::new(aurora_render::preview::Image {
                 size: [width, height],
@@ -1111,6 +1182,7 @@ impl TextureStreamer {
             alpha_channel_by_slot: Vec::new(),
             cache_dir,
             local_slots: HashMap::new(),
+            local_images: HashMap::new(),
             generation: 0,
             max_decodes: std::thread::available_parallelism().map(|n| n.get()).unwrap_or(4).max(2),
             decodes: 0,
@@ -1124,6 +1196,7 @@ impl TextureStreamer {
             can_fetch: false,
             demo_source: None,
             ui_wanted: Default::default(),
+            ui_permanent: Default::default(),
             ui_ready: HashMap::new(),
             ui_previews: Default::default(),
             stats: TextureStats::default(),
@@ -1192,6 +1265,7 @@ impl TextureStreamer {
     pub fn preview_source(&self, id: &Uuid) -> PreviewSource {
         let entry = self.entries.get(id);
         PreviewSource {
+            local: self.local_images.get(id).cloned(),
             bytes: entry.map(|e| e.data.clone()).unwrap_or_default(),
             jpeg: Self::cache_path(&self.cache_dir, id, true),
             blocks: Self::transcoded_path(&self.cache_dir, id),
@@ -1561,6 +1635,11 @@ impl TextureStreamer {
 
     pub fn unregister_local(&mut self, id: &Uuid) {
         self.local_slots.remove(id);
+        self.local_images.remove(id);
+    }
+
+    pub fn set_local_pixels(&mut self, id: Uuid, image: Arc<aurora_render::preview::Image>) {
+        self.local_images.insert(id, image);
     }
     pub fn register_local_image(&mut self, id: Uuid, slot: u32, alpha: AlphaKind, has_alpha: bool) {
         set_slot_alpha(&mut self.alpha_by_slot, &mut self.generation, &mut self.alpha_changes, slot, alpha);
@@ -1627,6 +1706,16 @@ impl TextureStreamer {
 
     /// Keep a texture resident and deliver a small RGBA copy for the UI.
     pub fn want_ui_image(&mut self, renderer: &mut Renderer, id: Uuid, jobs: &Jobs) {
+        if !id.is_nil() {
+            self.ui_permanent.insert(id);
+        }
+        self.want_transient_ui_image(renderer, id, jobs);
+    }
+
+    /// The inventory hover cache owns one bounded, releasable UI interest.
+    /// All UI users share one streamer reference per asset; a permanent
+    /// consumer can adopt an asset first requested by the hover cache.
+    pub fn want_transient_ui_image(&mut self, renderer: &mut Renderer, id: Uuid, jobs: &Jobs) {
         if id.is_nil() {
             return;
         }
@@ -1655,9 +1744,21 @@ impl TextureStreamer {
         self.note_usage(&id, 256.0);
     }
 
+    pub fn release_transient_ui_image(&mut self, id: &Uuid) {
+        if !self.ui_permanent.contains(id) && self.ui_wanted.remove(id) {
+            self.ui_ready.remove(id);
+            self.release(id);
+            if let Some(entry) = self.entries.get_mut(id)
+                && entry.refs == 0
+            {
+                entry.urgent = false;
+            }
+        }
+    }
+
     /// Decoded UI copy, once available (taken by the caller).
     pub fn take_ui_image(&mut self, id: &Uuid) -> Option<(u32, u32, Vec<u8>)> {
-        self.ui_previews.poll(&mut self.ui_ready);
+        self.ui_previews.poll(&mut self.ui_ready, &self.ui_wanted);
         self.ui_ready.remove(id)
     }
 
@@ -3137,8 +3238,96 @@ mod tests {
     use super::*;
 
     #[test]
+    fn wearable_bakes_use_resident_bc7_pixels_without_jpeg_and_upgrade_progressively() {
+        let id = Uuid::new_v4();
+        let path = std::env::temp_dir().join(format!("aurora-bake-{id}.bc7"));
+        let mips = aurora_render::build_mips(512, 512, [25, 100, 200, 255].repeat(512 * 512), 16);
+        let blocks = aurora_render::bc7::encode_chain(&mips, false).expect("compressible image");
+        let meta = texture_cache::Meta {
+            info: aurora_assets::J2kInfo {
+                width: 512,
+                height: 512,
+                components: 4,
+                levels: 10,
+            },
+            discard: 0,
+            alpha: AlphaKind::Opaque,
+            alpha_channel: false,
+        };
+        std::fs::write(&path, texture_cache::encode(&meta, None, &blocks).expect("cache")).expect("write cache");
+        let source = |decoded, bytes| PreviewSource {
+            local: None,
+            bytes: Arc::new(vec![0; bytes]),
+            jpeg: path.with_extension("j2k"),
+            blocks: path.clone(),
+            decoded,
+            size: Some((512, 512)),
+            procedural: false,
+        };
+        assert!(
+            source(Some(1), 0).bake_ready(id),
+            "coarse resident maps must not block all wearables"
+        );
+        let image = source(Some(1), 0).bake_image(id).expect("resident BC7 bake source");
+        assert_eq!(image.size, [256, 256]);
+        assert_eq!(image.rgba[3], 255);
+        let image = source(Some(0), 0).bake_image(id).expect("full resident BC7 source");
+        assert_eq!(
+            image.size,
+            [512, 512],
+            "bakes retain full source resolution above the UI thumbnail limit"
+        );
+        assert_ne!(source(Some(0), 0).bake_revision(), source(Some(1), 0).bake_revision());
+        assert_eq!(
+            source(Some(1), 0).bake_revision(),
+            source(Some(1), 500).bake_revision(),
+            "packets do not restart an unchanged bake"
+        );
+        let transparent = aurora_prim::te::TRANSPARENT_TEXTURE;
+        assert!(source(None, 0).bake_ready(transparent));
+        assert_eq!(
+            source(None, 0).bake_image(transparent).expect("built-in transparent").rgba.as_ref(),
+            &[0; 4]
+        );
+        assert!(!source(None, 0).bake_ready(id));
+        std::fs::remove_file(path).expect("remove own cache fixture");
+    }
+
+    #[test]
+    fn local_pixels_are_shared_refreshed_and_released_without_a_download() {
+        let mut textures = TextureStreamer::new(PathBuf::new());
+        let id = Uuid::new_v4();
+        let image = |color: [u8; 4]| {
+            Arc::new(aurora_render::preview::Image {
+                size: [1, 1],
+                rgba: color.to_vec().into(),
+            })
+        };
+        let first = image([255, 0, 0, 100]);
+        textures.set_local_pixels(id, first.clone());
+        let source = textures.preview_source(&id);
+        let revision = source.image_revision();
+        assert!(Arc::ptr_eq(&source.inspector_image(id).expect("bake pixels"), &first));
+        assert!(Arc::ptr_eq(&textures.preview_source(&id).image(id).expect("UI pixels"), &first));
+        let second = image([0, 0, 255, 200]);
+        textures.set_local_pixels(id, second.clone());
+        assert_ne!(textures.preview_source(&id).image_revision(), revision);
+        assert!(Arc::ptr_eq(
+            &textures.preview_source(&id).inspector_image(id).expect("reloaded pixels"),
+            &second
+        ));
+        textures.unregister_local(&id);
+        assert!(textures.preview_source(&id).local.is_none());
+        assert!(
+            !textures.entries.contains_key(&id),
+            "no asset fetch or disk cache entry for local pixels"
+        );
+    }
+
+    #[test]
     fn preview_images_ignore_the_budget_moving_finer_levels() {
         let source = |bytes: usize, decoded: Option<u8>| PreviewSource {
+            local: None,
             bytes: Arc::new(vec![0; bytes]),
             jpeg: PathBuf::new(),
             blocks: PathBuf::new(),
@@ -3221,6 +3410,34 @@ mod tests {
             counted: 0,
             refresh: false,
             epoch: 0,
+        }
+    }
+
+    #[test]
+    fn inventory_hover_cache_releases_only_its_ui_interest_and_preserves_other_users() {
+        for (permanent, world_refs) in [(false, 0), (false, 1), (true, 0), (true, 1)] {
+            let image = Uuid::from_u128(0x7e57);
+            let mut e = entry(Some(2), 256.0);
+            e.refs = 1 + world_refs;
+            e.urgent = true;
+            let mut streamer = pressed(0, vec![(image.as_u128(), e)]);
+            streamer.ui_wanted.insert(image);
+            if permanent {
+                // A profile/editor can adopt a texture first loaded by hover.
+                streamer.ui_permanent.insert(image);
+            }
+            streamer.ui_ready.insert(image, (1, 1, vec![255; 4]));
+            streamer.release_transient_ui_image(&image);
+            let refs = if permanent { 1 + world_refs } else { world_refs };
+            assert_eq!(streamer.entries[&image].refs, refs);
+            assert_eq!(streamer.ui_wanted.contains(&image), permanent);
+            assert_eq!(streamer.ui_ready.contains_key(&image), permanent);
+            assert_eq!(streamer.entries[&image].unused_since.is_some(), refs == 0);
+            if refs == 0 {
+                assert!(!streamer.entries[&image].urgent);
+            }
+            streamer.release_transient_ui_image(&image);
+            assert_eq!(streamer.entries[&image].refs, refs, "release is idempotent");
         }
     }
 
@@ -3489,6 +3706,21 @@ mod tests {
         s.note_usage_fixed(&id, super::super::terrain_surface::DECODE_PIXELS);
         s.recompute_wants();
         assert_eq!(s.entries[&id].want, 0, "terrain normal maps must upgrade beyond the 512 px preview");
+    }
+
+    #[test]
+    fn hud_textures_load_at_full_resolution_even_under_memory_pressure() {
+        let id = Uuid::from_u128(1);
+        for step in [0, 2] {
+            // a 1024 atlas on a 30 px button, three levels coarse on the GPU
+            let mut e = entry(Some(3), 30.0);
+            e.info = Some(file(1024));
+            e.gpu_size = (128, 128);
+            let mut s = pressed(step, vec![(1, e)]);
+            s.note_usage_fixed(&id, super::super::hud::TEXTURE_PIXELS);
+            s.recompute_wants();
+            assert_eq!(s.entries[&id].want, 0, "pressure step {step}");
+        }
     }
 
     /// The streamer under memory pressure step `step`, holding `entries`.

@@ -893,15 +893,15 @@ script-experience-choose = Choisir une expérience…
 script-experiences-unavailable = Impossible de charger vos expériences. L’association actuelle est conservée ; réessayez.
 script-experience-demo = Expérience de démonstration
 script-disconnected = Connexion interrompue. La source non enregistrée est conservée ; vous pouvez la copier.
-exit-title = Fermer Aurora Viewer ?
+exit-title = Fermer Amante Viewer ?
 exit-world-body = Quitter le viewer ou revenir à l’écran de connexion ?
-exit-login-body = Voulez-vous quitter Aurora Viewer ?
+exit-login-body = Voulez-vous quitter Amante Viewer ?
 exit-waiting = Déconnexion en cours…
 exit-logout = Déconnecter
 exit-logout-hint = Terminer la session et revenir à l’écran de connexion.
 exit-quit = Quitter
 bug-browser-mode = Dans mon navigateur
-bug-direct-mode = Envoyer depuis Aurora
+bug-direct-mode = Envoyer depuis Amante
 bug-open-github = Continuer sur GitHub
 bug-send-direct = Envoyer le rapport public
 bug-connect = Se connecter à GitHub
@@ -930,7 +930,7 @@ bug-github-unauthorized = L’autorisation GitHub a expiré ou a été révoqué
 bug-github-rate-limit = La limite de requêtes GitHub est atteinte. Réessayez plus tard.
 bug-github-ambiguous = Aucune confirmation de création reçue. Vérifiez les issues GitHub avant de réessayer : le rapport existe peut-être déjà.
 bug-title = Signaler un bug
-bug-heading = Aidez à améliorer Aurora
+bug-heading = Aidez à améliorer Amante
 bug-public-warning = Ce rapport sera public sur GitHub.
 bug-review-help = Décrivez le problème. Vous pouvez ajouter une image et choisir les données à partager.
 bug-description = Description
@@ -1540,10 +1540,10 @@ ui-login-aurora-viewer-v = Amante Viewer v{ $value0 }
 cli-aurora-viewer = { "Amante Viewer " }{ $version }
 cli-aurora-viewer-2 = { "Amante Viewer " }{ $version }{ " - " }{ $t }
 common-aurora-viewer = { "Amante Viewer " }{ $value0 }
-app-aurora-viewer-unable-to-initialize-vulkan = { "Aurora Viewer: impossible d'initialiser Vulkan : " }{ $e }
-app-graphics-start-failed-title = Aurora Viewer ne peut pas démarrer
+app-aurora-viewer-unable-to-initialize-vulkan = { "Amante Viewer: impossible d'initialiser Vulkan : " }{ $e }
+app-graphics-start-failed-title = Amante Viewer ne peut pas démarrer
 app-graphics-start-failed =
-    Aurora Viewer n'a pu ouvrir aucune carte graphique pour dessiner sa fenêtre.
+    Amante Viewer n'a pu ouvrir aucune carte graphique pour dessiner sa fenêtre.
 
     À essayer :
     • mettre à jour le pilote de la carte graphique ;
@@ -1553,29 +1553,29 @@ app-graphics-start-failed =
     Détails : { $e }
 
     Le journal de ce démarrage : { $log }
-app-gpu-stall-title = Aurora Viewer : la carte graphique ne répond plus
+app-gpu-stall-title = Amante Viewer : la carte graphique ne répond plus
 app-gpu-stall =
-    La carte graphique n'a pas terminé d'image depuis { $seconds } secondes. Aurora fonctionne toujours (le monde, le son, le chat continuent) mais rien ne peut être affiché tant que la carte ne répond pas.
+    La carte graphique n'a pas terminé d'image depuis { $seconds } secondes. Amante fonctionne toujours (le monde, le son, le chat continuent) mais rien ne peut être affiché tant que la carte ne répond pas.
 
     À essayer :
     • patienter un peu : un pilote graphique qui se réinitialise peut prendre plusieurs secondes ;
     • mettre à jour le pilote de la carte graphique ;
     • désactiver les overlays des autres programmes (Discord, Steam, MSI Afterburner…) ;
-    • au prochain démarrage, choisir les graphismes de secours qu'Aurora proposera.
+    • au prochain démarrage, choisir les graphismes de secours qu'Amante proposera.
 
-    Continuer d'attendre ? Oui continue d'attendre ; Non ferme Aurora (vous êtes déconnecté proprement).
-app-gpu-lost-title = Aurora Viewer : la carte graphique a été perdue
+    Continuer d'attendre ? Oui continue d'attendre ; Non ferme Amante (vous êtes déconnecté proprement).
+app-gpu-lost-title = Amante Viewer : la carte graphique a été perdue
 app-gpu-lost =
-    La carte graphique a cessé de fonctionner pour Aurora : son pilote a été réinitialisé (une image trop longue à dessiner, ou sa mémoire vidéo pleine), ou la carte a été retirée ou prise par un autre programme. Plus rien ne peut être affiché : Aurora se ferme quand vous appuyez sur OK (vous êtes déconnecté proprement).
+    La carte graphique a cessé de fonctionner pour Amante : son pilote a été réinitialisé (une image trop longue à dessiner, ou sa mémoire vidéo pleine), ou la carte a été retirée ou prise par un autre programme. Plus rien ne peut être affiché : Amante se ferme quand vous appuyez sur OK (vous êtes déconnecté proprement).
 
     À essayer :
     • mettre à jour le pilote de la carte graphique ;
     • réduire la taille des très grandes photos, ou la qualité graphique ;
     • fermer les autres programmes qui utilisent beaucoup la carte graphique ;
-    • au prochain démarrage, choisir les graphismes de secours qu'Aurora proposera.
-cmdline-mod-aurora-does-not-have-an-animation-overrider-ao-yet = Aurora n'a pas encore d'animation overrider (AO).
+    • au prochain démarrage, choisir les graphismes de secours qu'Amante proposera.
+cmdline-mod-aurora-does-not-have-an-animation-overrider-ao-yet = Amante n'a pas encore d'animation overrider (AO).
 cmdline-mod-use-hover-height-in-appearance = Ajustez la hauteur de survol de votre avatar dans Apparence → Hauteur de survol.
-ui-context-aurora-recommends-against-opening-this-link-if-it-asks = Aurora vous déconseille d'ouvrir ce lien. S'il vous demande de vous connecter ou de payer, c'est très probablement une arnaque : ne donnez jamais votre mot de passe ni vos informations de paiement.
+ui-context-aurora-recommends-against-opening-this-link-if-it-asks = Amante vous déconseille d'ouvrir ce lien. S'il vous demande de vous connecter ou de payer, c'est très probablement une arnaque : ne donnez jamais votre mot de passe ni vos informations de paiement.
 demo-auto-blend = Auto : fondu
 demo-auto-mask = Auto : masque
 ui-inventory-properties-permissions = Autorisations
@@ -1846,7 +1846,7 @@ ui-contacts-this-contact-set-is-empty = Ce cercle est vide.
 ui-inventory-dialogs-this-document-has-unsaved-changes = Ce document contient des modifications non enregistrées.
 world-appearance-this-outfit-folder-cannot-be-modified = Ce dossier de tenue ne peut pas être modifié.
 world-inventory-actions-this-folder-cannot-receive-the-selection = Ce dossier ne peut pas recevoir la sélection.
-ui-context-this-link-leads-to-a-site-that-is-not = Ce lien mène à un site qui n'est pas dans la liste des sites de confiance d'Aurora. Méfiez-vous des fausses pages de connexion et des offres trop belles : ne donnez jamais votre mot de passe ni vos informations de paiement.
+ui-context-this-link-leads-to-a-site-that-is-not = Ce lien mène à un site qui n'est pas dans la liste des sites de confiance d'Amante. Méfiez-vous des fausses pages de connexion et des offres trop belles : ne donnez jamais votre mot de passe ni vos informations de paiement.
 ui-options-what-shiny-surfaces-reflect-as-in-firestorm = Ce que reflètent les surfaces brillantes (comme le Legacy Viewer)
 world-status-this-resident-has-enabled-do-not-disturb-and-will = Ce résident a activé Ne pas déranger et verra votre message plus tard.
 link-trust-this-site-imitates-the-name-of-an-official-site = Ce site reprend le nom d'un site officiel sans en être un.
@@ -2081,7 +2081,7 @@ ui-login-terms-of-service = Conditions d'utilisation
 ui-contacts-configure = { "Configurer : " }{ $set }
 ui-contacts-configure-selected-contact-set = Configurer le cercle sélectionné
 world-groups-conference = Conférence
-ui-contacts-multi-person-conference-coming-soon-in-aurora = Conférence à plusieurs : à venir dans Aurora
+ui-contacts-multi-person-conference-coming-soon-in-aurora = Conférence à plusieurs : à venir dans Amante
 ui-options-conferences = Conférences
 ui-bars-ad-hoc-conferences = Conférences ad hoc
 ui-profile-connected = Connecté
@@ -2335,7 +2335,7 @@ ui-options-direct = Direct
 ui-bars-available = Disponible
 ui-options-layout = Disposition
 ui-options-slurl-links = Liens Second Life
-ui-options-slurl-links-open = Ouvrir les liens SLURL et Hypergrid dans Aurora
+ui-options-slurl-links-open = Ouvrir les liens SLURL et Hypergrid dans Amante
 ui-options-slurl-links-open-help = Enregistre secondlife://, hop:// et x-grid-location-info:// pour cet utilisateur. Avant la connexion, un lieu sélectionne sa grille et le point de départ ; dans le monde, sa fiche s’ouvre.
 ui-options-slurl-links-other = Ces liens s'ouvrent actuellement dans { $program }.
 ui-options-backup = Sauvegarde
@@ -2345,12 +2345,12 @@ ui-options-backup-save-button = Sauvegarder…
 ui-options-backup-restore = Restaurer les réglages
 ui-options-backup-restore-help = Lit un fichier de sauvegarde et remet aussitôt les parties choisies. Ce PC garde sa connexion, la taille de sa fenêtre, ses dossiers et ses périphériques audio.
 ui-options-backup-restore-button = Restaurer…
-ui-options-backup-file-type = Sauvegarde des réglages d'Aurora
+ui-options-backup-file-type = Sauvegarde des réglages d'Amante
 ui-options-backup-saved = Réglages sauvegardés dans { $path }.
 ui-options-backup-save-failed = La sauvegarde n'a pas pu être écrite.
-ui-options-backup-not-a-backup = Ce fichier n'est pas une sauvegarde des réglages d'Aurora.
+ui-options-backup-not-a-backup = Ce fichier n'est pas une sauvegarde des réglages d'Amante.
 ui-options-backup-restore-title = Restaurer les réglages ?
-ui-options-backup-restore-from = Sauvegarde du { $date }, Aurora { $version }. Les parties cochées remplacent les actuelles.
+ui-options-backup-restore-from = Sauvegarde du { $date }, Amante { $version }. Les parties cochées remplacent les actuelles.
 ui-options-backup-part-settings = Préférences, avec les couleurs, les raccourcis et les barres
 ui-options-backup-part-layout = Disposition des fenêtres
 ui-options-backup-part-skin = Skin (fichiers de thème et de disposition)
@@ -2387,7 +2387,7 @@ ui-options-hover-tips-land-help = Nom de la parcelle, propriétaire, restriction
 ui-options-hover-tips-group-titles = Titre de groupe sur les avatars
 ui-options-hover-tips-delay = Délai avant l'apparition
 ui-options-temporary-tags = Afficher temporairement
-ui-options-temporary-tags-help = Pour les plaques Aurora et les étiquettes classiques. Le délai repart quand un avatar revient dans le champ de vision.
+ui-options-temporary-tags-help = Pour les plaques Amante et les étiquettes classiques. Le délai repart quand un avatar revient dans le champ de vision.
 ui-options-tag-show-time = Durée d'affichage
 ui-options-tag-show-time-help = Fondu sur la dernière seconde, comme dans le Legacy Viewer.
 ui-minimap-far = Distant
@@ -2403,7 +2403,7 @@ ui-context-give-my-calling-card = Donner ma carte de visite
 ui-chat-give-object-coming-soon = Donner un objet (à venir)
 ui-contacts-give-this-resident-a-nickname = Donner un surnom à ce résident
 ui-land-objects-deeded-to-group = Données au groupe :
-ui-options-folder-containing-llplugin-blank-aurora-s-own-plugins = Dossier contenant llplugin\ et SLPlugin, par exemple celui d'un autre viewer installé (vide : les plugins d'Aurora)
+ui-options-folder-containing-llplugin-blank-aurora-s-own-plugins = Dossier contenant llplugin\ et SLPlugin, par exemple celui d'un autre viewer installé (vide : le pack Amante configuré, si disponible)
 ui-options-plugins-folder-automatic = automatique
 ui-options-plugins-folder = Dossier des plugins
 common-folder-not-found = Dossier introuvable.
@@ -2450,7 +2450,7 @@ ui-options-friends-online-in-chat = Amis en ligne / hors ligne dans le chat loca
 ui-options-friends-online-in-chat-hint = Écrire aussi une ligne dans le chat local quand un ami se connecte ou se déconnecte
 ui-options-toast-friends-position = Place des toasts en ligne / hors ligne
 ui-options-toast-friends-position-hint = À côté des barres, jamais dessus ; en haut à droite, ils attendent tant que les cartes ou la liste de la cloche sont ouvertes
-ui-options-toast-friends-position-legacy = Les toasts du Legacy Viewer les montrent dans leur propre pile (Préférences › Aurora › Notifications)
+ui-options-toast-friends-position-legacy = Les toasts du Legacy Viewer les montrent dans leur propre pile (Préférences › Amante › Notifications)
 ui-options-friend-request-prompt = Offres d'amitié au milieu de l'écran
 ui-options-friend-request-prompt-hint = Une grande carte avec la photo du résident au lieu d'un toast ; Plus tard laisse l'offre sous la cloche
 ui-friend-prompt-wants = vous propose son amitié
@@ -2475,12 +2475,12 @@ ui-options-ims-in-notification-center-hint = Les toasts des messages restent aus
 ui-options-toast-duration = Durée des toasts de message
 ui-options-attention = Barre des tâches et notifications système
 ui-options-flash-on-message = Clignoter pour les messages
-ui-options-flash-on-message-hint = Quand Aurora n'est pas au premier plan : messages instantanés, discussions de groupe, offres et mentions de votre nom
+ui-options-flash-on-message-hint = Quand Amante n'est pas au premier plan : messages instantanés, discussions de groupe, offres et mentions de votre nom
 ui-options-flash-on-object-im = Aussi pour les objets
 ui-options-flash-on-script-dialog = Clignoter pour les dialogues
-ui-options-flash-on-script-dialog-hint = Les menus et zones de texte des scripts, quand Aurora n'est pas au premier plan
+ui-options-flash-on-script-dialog-hint = Les menus et zones de texte des scripts, quand Amante n'est pas au premier plan
 ui-options-system-notifications = Notifications système
-ui-options-system-notifications-hint = Notifications de Windows quand Aurora est en arrière-plan : messages instantanés, mentions, offres, avis et alertes. Un clic dessus vous y ramène.
+ui-options-system-notifications-hint = Notifications de Windows quand Amante est en arrière-plan : messages instantanés, mentions, offres, avis et alertes. Un clic dessus vous y ramène.
 ui-options-system-notifications-when-active = Même au premier plan
 ui-options-keywords = Alertes par mots-clés
 ui-options-keywords-on = Activer les alertes par mots-clés
@@ -2678,7 +2678,7 @@ dev-toolbox-copied = Copié
 dev-toolbox-save = Enregistrer en .txt
 dev-toolbox-log = Journal
 dev-toolbox-log-help = Écrire ce texte dans le journal de session
-dev-toolbox-nothing-sent = Rien n'est envoyé par Aurora : vous choisissez où coller ce texte.
+dev-toolbox-nothing-sent = Rien n'est envoyé par Amante : vous choisissez où coller ce texte.
 dev-toolbox-no-avatar-target = Aucun avatar pour cette cible : placez-vous à moins de 3 m d'un avatar, ou sélectionnez ce qu'il porte
 dev-toolbox-no-target = Rien à inspecter pour cette cible
 dev-toolbox-no-tool-output = Aucun diagnostic n'a rien écrit en 60 s : activez d'abord P3, P4, P5, P6, O9 ou M1.
@@ -3071,7 +3071,7 @@ ui-appearance-items-left-eyeball = Globe oculaire gauche
 ui-options-glow = Glow
 ui-options-bloom = Bloom
 ui-experimental-tip = Expérimental : en cours de développement, peut changer ou coûter plus que prévu
-ui-options-bloom-help = Un halo doux autour des parties les plus lumineuses de l'image (soleil sur le métal, lumières), en plus du glow ; propre à Aurora, désactivé par défaut
+ui-options-bloom-help = Un halo doux autour des parties les plus lumineuses de l'image (soleil sur le métal, lumières), en plus du glow ; propre à Amante, désactivé par défaut
 ui-options-bloom-strength = Intensité du bloom
 ui-options-bloom-strength-help = La part de la lumière au-delà du blanc qui se répand dans le halo
 ui-options-dof = Profondeur de champ
@@ -3274,12 +3274,12 @@ demo-land-night-club = Club de nuit
 common-interface = Interface
 build-ui-floaters-intersections-up-to-meters = Intersections jusqu'à (mètres)
 media-plugins-missing = Non installés
-media-plugins-downloading = Téléchargement des plugins média d'Aurora : { $received } / { $total } Mo
+media-plugins-downloading = Téléchargement des plugins média d'Amante : { $received } / { $total } Mo
 media-plugins-installing = Installation des plugins média…
-media-plugins-error-network = Téléchargement impossible : vérifiez votre connexion. Aurora réessaie tout seul.
-media-plugins-error-integrity = Le fichier téléchargé ne correspond pas au fichier attendu et n'a pas été installé. Aurora réessaie tout seul.
+media-plugins-error-network = Téléchargement impossible : vérifiez votre connexion. Amante réessaie tout seul.
+media-plugins-error-integrity = Le fichier téléchargé ne correspond pas au fichier attendu et n'a pas été installé. Amante réessaie tout seul.
 media-plugins-error-filesystem = Installation impossible : vérifiez l'espace libre et les droits d'écriture du dossier de données.
-media-plugins-error-unsupported = Cette version d'Aurora n'a pas de plugins média à télécharger : choisissez un dossier de plugins ci-dessus.
+media-plugins-error-unsupported = La distribution média Amante est en attente ou indisponible pour cette version : choisissez un dossier de plugins ci-dessus.
 media-plugins-retry = Réessayer
 media-plugins-page-waiting = Téléchargement des plugins média : { $percent } %
 media-plugins-page-failed = Les plugins média n'ont pas encore pu être téléchargés (Préférences › Son et voix › Média)
@@ -3770,7 +3770,7 @@ ui-sound-menu-option-5-hovered = Menu : choix 5 survolé
 ui-sound-menu-option-6-hovered = Menu : choix 6 survolé
 ui-sound-menu-option-7-hovered = Menu : choix 7 survolé
 ui-sound-menu-option-8-hovered = Menu : choix 8 survolé
-ui-bars-aurora-menu = Menu Aurora
+ui-bars-aurora-menu = Menu Amante
 ui-sound-context-menu-closed = Menu clic droit fermé
 ui-sound-context-menu-opened = Menu clic droit ouvert
 world-mod-test-menu = Menu de test
@@ -4241,7 +4241,7 @@ ui-audio-no-music-on-this-parcel = Pas de musique sur cette parcelle
 ui-audio-no-media-on-this-parcel = Pas de média sur cette parcelle
 ui-profile-no-web-profile-on-this-grid = Pas de profil web sur cette grille.
 ui-options-camera-no-mouse-wheel-zoom = Pas de zoom à la molette
-common-not-available-in-aurora-yet = Pas encore disponible dans Aurora
+common-not-available-in-aurora-yet = Pas encore disponible dans Amante
 keybinds-strafe-right = Pas latéral droit
 keybinds-strafe-left = Pas latéral gauche
 ui-land-general-not-for-sale = Pas à vendre
@@ -4447,7 +4447,7 @@ ui-options-camera-preset = Préréglage
 ui-options-warn-before-external-links = Prévenir avant un lien externe
 ui-options-link-previews = Aperçus des liens
 ui-options-link-previews-load = Charger automatiquement
-ui-options-link-previews-load-hint = Images et vidéos sous les liens, dans la fenêtre Conversations (styles Aurora, Compact et Bulles). Sites connus : ceux dont les liens ont la coche verte. Un autre site verrait votre adresse IP : ses aperçus attendent un clic
+ui-options-link-previews-load-hint = Images et vidéos sous les liens, dans la fenêtre Conversations (styles Amante, Compact et Bulles). Sites connus : ceux dont les liens ont la coche verte. Un autre site verrait votre adresse IP : ses aperçus attendent un clic
 ui-options-link-previews-never = Jamais
 ui-options-link-previews-trusted = Sites connus
 ui-options-link-previews-all = Tous les liens
@@ -5229,10 +5229,10 @@ stream-list-failed = Le fichier de la liste des flux n'a pas pu être écrit ni 
 ui-bars-market-data = Cours du L$
 ui-bars-script-library = Bibliothèque de scripts
 ui-bars-message-of-the-day = Message du jour
-ui-bars-wiki = Wiki d'Aurora Viewer
+ui-bars-wiki = Aide d'Amante Viewer
 ui-bars-knowledge-base = Base de connaissances
 ui-bars-sysinfo-button = Bouton d'informations système dans les conversations
-ui-bars-about = À propos d'Aurora Viewer
+ui-bars-about = À propos d'Amante Viewer
 cmdline-dice-successes = { "Succès: " }{ $successes }
 build-manip-south = Sud
 common-next = Suivant
@@ -5308,11 +5308,11 @@ ui-options-graphics-card-automatic = Automatique
 ui-options-graphics-card-help = Automatique prend d'abord la carte dédiée. Appliqué au prochain démarrage.
 ui-options-graphics-card-in-use = En cours : { $name }.
 ui-options-graphics-card-choice = Carte à utiliser
-ui-options-graphics-card-no-discrete = Seule la carte graphique intégrée est visible par le viewer. Sur un PC avec une carte NVIDIA, choisissez la carte NVIDIA comme « Processeur graphique préféré » pour aurora-viewer.exe dans le panneau de configuration NVIDIA, puis redémarrez le PC si elle n'apparaît toujours pas.
+ui-options-graphics-card-no-discrete = Seule la carte graphique intégrée est visible par le viewer. Sur un PC avec une carte NVIDIA, choisissez la carte NVIDIA comme « Processeur graphique préféré » pour amante-viewer.exe dans le panneau de configuration NVIDIA, puis redémarrez le PC si elle n'apparaît toujours pas.
 ui-options-graphics-card-cannot-present = La carte dédiée ne peut pas dessiner la fenêtre du viewer : branchez l'écran sur les sorties de la carte dédiée, pas sur celles de la carte mère.
 ui-options-overlays = Overlays
 ui-options-allow-overlays = Autoriser les overlays des autres programmes
-ui-options-allow-overlays-help = Les overlays de Steam, RivaTuner (MSI Afterburner), Epic Games et d'autres s'insèrent dans l'affichage du viewer et provoquent souvent des plantages ou une fenêtre blanche : ils sont tenus à l'écart sauf si vous les autorisez. La capture de jeu d'OBS Studio fonctionne toujours. L'overlay de Discord ne peut pas être tenu à l'écart : si la fenêtre devient blanche, désactivez-le pour Aurora dans Discord. Appliqué au prochain démarrage.
+ui-options-allow-overlays-help = Les overlays de Steam, RivaTuner (MSI Afterburner), Epic Games et d'autres s'insèrent dans l'affichage du viewer et provoquent souvent des plantages ou une fenêtre blanche : ils sont tenus à l'écart sauf si vous les autorisez. La capture de jeu d'OBS Studio fonctionne toujours. L'overlay de Discord ne peut pas être tenu à l'écart : si la fenêtre devient blanche, désactivez-le pour Amante dans Discord. Appliqué au prochain démarrage.
 ui-perf-vertical-synchronization-frame-rate-limit-presentation-render-thread-wait = Synchronisation verticale, limite d'images/s, présentation, attente du thread de rendu
 build-ui-texture-synchronize-materials = Synchroniser les matériaux
 common-system = Système
@@ -5521,7 +5521,7 @@ ui-options-fun = Pour le fun
 ui-options-about-fun = De petites choses pour s’amuser, toutes éteintes tant que vous ne les allumez pas.
 ui-options-section-extras = Extras
 ui-options-fun-plates = Plaques de nom
-ui-options-fun-classic-tags = Ces options jouent avec les plaques de nom : les étiquettes de nom classiques choisies sur la page Aurora restent telles quelles.
+ui-options-fun-classic-tags = Ces options jouent avec les plaques de nom : les étiquettes de nom classiques choisies sur la page Amante restent telles quelles.
 ui-options-fun-reduced-motion = « Réduire les animations » est activé : les plaques ne gigotent pas, et le compteur s’affiche sans ses effets.
 ui-options-fun-jiggle = Plaques de nom en gelée
 ui-options-fun-jiggle-help = Une plaque tremble comme une gelée chaque fois que le pointeur l’atteint, sans attente : plus vous la titillez, plus elle gigote. Une plaque qui s’agrandit dépasse sa taille puis se pose.
@@ -5529,7 +5529,7 @@ ui-options-fun-click-combo = Compteur de combo de clics
 ui-options-fun-click-combo-help = Chaque clic sur une plaque compte, et les comptes de chaque résident sont gardés sur cet ordinateur (rien n’est envoyé). Cinq clics en cinq secondes lancent un combo : un compteur jaillit du coin de la plaque, chaque clic le fait rebondir et la série s’échauffe. Un clic sur une plaque ne fait alors rien d’autre, sauf si une action de clic sur la plaque est choisie sur la page Avatars.
 ui-options-fun-try = Essayer
 ui-options-fun-try-help = Une plaque d’exemple : survolez-la et cliquez dessus pour essayer les options ci-dessus. Ses clics ne sont pas enregistrés.
-ui-options-about-confirmations = Ce qu’Aurora vous demande avant d’agir, et les alertes de la région.
+ui-options-about-confirmations = Ce qu’Amante vous demande avant d’agir, et les alertes de la région.
 ui-options-about-inventory = Les réglages des préférences de la fenêtre Inventaire, et le classement des éléments reçus.
 ui-options-about-controls = Sensibilité, double-clic au sol et touches de déplacement.
 ui-options-about-commands = Commandes tapées dans la barre de chat. Survolez un nom pour son aide.
@@ -5546,7 +5546,7 @@ ui-options-tab-bars-and-windows = Barres et fenêtres
 ui-options-tab-startup = Démarrage
 ui-options-aurora-redrawn-windows = Fenêtres redessinées
 ui-options-aurora-in-the-world = Dans le monde
-ui-options-aurora-water = Eau Aurora
+ui-options-aurora-water = Eau Amante
 ui-options-distance-and-detail = Distance et détail
 ui-options-shadows = Ombres
 ui-options-exposure-and-glow = Exposition et halo
@@ -5585,7 +5585,7 @@ ui-options-crash-github-hint = Oublie l’autorisation GitHub conservée sur cet
 ui-options-crash-github-forget = Oublier
 ui-options-your-data = Vos données
 ui-options-privacy-policy = Politique de confidentialité
-ui-options-privacy-policy-hint = Ce qu’Aurora Viewer envoie, à qui, et ce qu’il garde sur cet ordinateur, sur aurora-viewer.org.
+ui-options-privacy-policy-hint = La politique de confidentialité d’Amante attend la configuration du propriétaire.
 ui-options-privacy-policy-open = Lire
 ui-options-bars = Barres
 ui-options-at-startup = À l’ouverture
@@ -5655,7 +5655,7 @@ build-ui-floaters-download = Téléchargement
 ui-inventory-thumbnail-upload-from-your-computer = Télécharger depuis votre ordinateur
 ui-login-download-update = Télécharger la mise à jour
 login-driver-old-title = Votre pilote graphique n'est pas à jour
-login-driver-old-version = { $gpu } utilise le pilote { $found } ; Aurora demande la version { $minimum } ou plus récente.
+login-driver-old-version = { $gpu } utilise le pilote { $found } ; Amante demande la version { $minimum } ou plus récente.
 login-driver-old-age = { $gpu } utilise un pilote installé le { $date }, il y a plus de deux ans.
 login-driver-old-why = Les vieux pilotes sont la première cause de plantages et d'images cassées. La mise à jour prend quelques minutes.
 login-driver-download = Télécharger le pilote { $vendor }
@@ -5665,7 +5665,7 @@ login-safe-graphics-offer = Démarrer avec les graphismes de secours (le niveau 
 login-safe-graphics-use = Utiliser les graphismes de secours
 login-safe-graphics-keep = Garder mes réglages
 login-safe-graphics-active-title = Graphismes de secours activés
-login-safe-graphics-active = Aurora tourne au niveau Patate depuis que la carte graphique a cessé de répondre. Une fois la cause corrigée (pilote à jour, overlays coupés), remettez vos propres réglages.
+login-safe-graphics-active = Amante tourne au niveau Patate depuis que la carte graphique a cessé de répondre. Une fois la cause corrigée (pilote à jour, overlays coupés), remettez vos propres réglages.
 login-safe-graphics-restore = Remettre mes graphismes
 login-safe-graphics-stay = Garder les graphismes de secours
 ui-perf-downloaded = Téléchargé
@@ -6809,7 +6809,7 @@ common-for-sale = À vendre :
 ui-land-general-for-sale-to = À vendre à :
 ui-profile-coming-soon = À venir
 ui-profile-aurora-my-profile = Mon profil
-ui-profile-aurora-help = Le profil d'un résident : qui c'est, ce que vous pouvez faire avec lui, puis ses lieux préférés, ses annonces, sa première vie, son profil web et vos notes. Préférences › Aurora › Profils ramène la fenêtre du Legacy Viewer.
+ui-profile-aurora-help = Le profil d'un résident : qui c'est, ce que vous pouvez faire avec lui, puis ses lieux préférés, ses annonces, sa première vie, son profil web et vos notes. Préférences › Amante › Profils ramène la fenêtre du Legacy Viewer.
 ui-profile-aurora-conversation = Conversation
 ui-profile-aurora-call = Appel
 ui-profile-aurora-add-friend = Ajouter en ami
@@ -6936,7 +6936,7 @@ ui-profile-aurora-notes-private = Visibles par vous seul
 ui-profile-aurora-notes-saved = Enregistré
 ui-profile-aurora-notes-hint = Ce que vous voulez retenir sur { $name }…
 ui-profile-aurora-notes-kept = Les notes sont gardées par le serveur, sur tous vos ordinateurs.
-ui-contacts-coming-soon-in-aurora = À venir dans Aurora
+ui-contacts-coming-soon-in-aurora = À venir dans Amante
 ui-chat-at = { "À " }{ $value0 }
 ui-options-balance-change-above-which-received-spent-l-sounds-are = Écart de solde au-delà duquel les sons L$ reçus / dépensés sont joués (UISndMoneyChangeThreshold)
 keybinds-esc = Échap
@@ -7322,7 +7322,7 @@ monitor-tile-vram = Mémoire vidéo
 monitor-tile-net = Réseau
 monitor-tile-disk = Disque
 monitor-cores-used = { $used } cœurs
-monitor-unit-pct-aurora = % Aurora
+monitor-unit-pct-aurora = % Amante
 monitor-tile-cpu-sub = Médias { $media } · machine { $machine }
 monitor-fps = { $fps } i/s
 monitor-unit-ms-frame = ms par image
@@ -7428,8 +7428,8 @@ monitor-desc-meshes = Téléchargement et décodage des maillages, géométrie d
 monitor-desc-avatars = Poses et squelettes, animations, complexité, attachements et imposteurs des avatars éloignés ; caméra et commandes de l'agent.
 monitor-desc-scene = Culling et listes de dessin, synchronisation des objets reçus du réseau, particules, lumières et sondes de reflets.
 monitor-desc-world = Circuits UDP avec la région et ses voisines : mises à jour d'objets, mouvements, accusés de réception.
-monitor-desc-interface = Fenêtres et barres d'Aurora : préparation, mise en page et passe de rendu de l'interface.
-monitor-desc-media = Médias de parcelle, faces média et pages web : chacun tourne dans son propre processus SLPlugin, hors du processus Aurora, avec les processus qu'il lance.
+monitor-desc-interface = Fenêtres et barres d'Amante : préparation, mise en page et passe de rendu de l'interface.
+monitor-desc-media = Médias de parcelle, faces média et pages web : chacun tourne dans son propre processus SLPlugin, hors du processus Amante, avec les processus qu'il lance.
 monitor-desc-audio = Mixeur des sons du monde (48 voix au maximum) et flux musical de la parcelle.
 monitor-desc-voice = Voix spatiale (WebRTC) : capture, encodage et lecture des participants.
 monitor-desc-services = Cache d'inventaire, capacités et file d'événements, journaux de chat et historiques écrits sur disque.
@@ -7453,7 +7453,7 @@ monitor-setting-sounds = Sons
 monitor-setting-voice = Voix
 monitor-setting-chat-logs = Journaux de chat
 monitor-setting-cache-size = Taille du cache
-monitor-threads-sub = Aurora utilise { $used } cœurs sur { $cores } · { $threads } threads
+monitor-threads-sub = Amante utilise { $used } cœurs sur { $cores } · { $threads } threads
 monitor-no-system-counters = Les compteurs du système ne sont pas lisibles ici.
 monitor-cores-title = Charge par cœur logique
 monitor-whole-machine = machine entière · { $value }
@@ -7493,7 +7493,7 @@ monitor-thread-logs = Journaux et historiques
 monitor-thread-monitor = Échantillonnage de ce moniteur
 monitor-thread-unnamed = Threads sans nom (pilote graphique, système)
 monitor-memory-sub = Mémoire vive du processus et mémoire de la carte graphique
-monitor-aurora-process = processus Aurora
+monitor-aurora-process = processus Amante
 monitor-working-set = ensemble de travail
 monitor-private = Mémoire privée
 monitor-session-peak = Pic de la session
@@ -7674,8 +7674,8 @@ monitor-media-marketplace = Place du marché
 monitor-media-profile = Page web de profil
 
 # Fenêtre indépendante de récupération après plantage
-crash-title = Aurora Viewer — Rapport de plantage
-crash-heading = Aurora Viewer s’est arrêté de façon inattendue
+crash-title = Amante Viewer — Rapport de plantage
+crash-heading = Amante Viewer s’est arrêté de façon inattendue
 crash-explanation = Votre session est terminée. Les détails ci-dessous peuvent aider à comprendre le problème.
 crash-local-only = Ces informations sont conservées sur cet ordinateur. Rien n’a été envoyé.
 crash-details = Détails techniques
@@ -7716,9 +7716,9 @@ crash-publish = Publier sur GitHub
 crash-open-browser = Ouvrir dans le navigateur
 crash-body-copied = Le rapport est dans le presse-papiers : collez-le dans l’issue qui vient de s’ouvrir.
 crash-back = Retour
-crash-report-summary = Plantage d’Aurora Viewer
+crash-report-summary = Plantage d’Amante Viewer
 crash-report-expected = Le viewer devrait continuer à fonctionner.
-crash-report-actual = Aurora Viewer s’est arrêté de façon inattendue.
+crash-report-actual = Amante Viewer s’est arrêté de façon inattendue.
 crash-report-reason = Type de plantage
 crash-report-exit-code = Code de sortie du processus
 bug-log-native = exception native
@@ -7727,7 +7727,7 @@ update-demo-badge = APERÇU · VERSIONS DE DÉMONSTRATION
 update-title = Une mise à jour est disponible
 update-downloading-title = Téléchargement de la mise à jour
 update-ready-title = Tout est prêt pour la mise à jour
-update-intro = Une nouvelle version d’Aurora vous attend.
+update-intro = Une nouvelle version d’Amante vous attend.
 update-current = VERSION ACTUELLE
 update-new = NOUVELLE VERSION
 update-release-notes = Nouveautés
@@ -7743,7 +7743,7 @@ update-cache-keep = Cache : conservé.
 update-cache-clear = Cache : vidé. Les données seront téléchargées à nouveau si nécessaire.
 update-settings-migrate = Paramètres : conservés et adaptés automatiquement si nécessaire.
 update-settings-reset = Paramètres : réinitialisés aux valeurs par défaut. Vos choix personnalisés seront perdus.
-update-effects-restart = Aurora sera relancé. En cas d’échec au démarrage, les fichiers précédents seront restaurés.
+update-effects-restart = Amante sera relancé. En cas d’échec au démarrage, les fichiers précédents seront restaurés.
 update-demo-safe = Simulation : aucun fichier n’est téléchargé ou installé.
 update-skip = Ignorer cette version
 update-skip-hint = Ne plus proposer cette version. Les versions suivantes seront proposées.
@@ -7756,19 +7756,19 @@ update-demo-finish = Terminer la démo
 update-check = Vérifier les mises à jour
 update-check-hint = Afficher les mises à jour disponibles, même les versions ignorées.
 update-required-title = Une mise à jour est nécessaire
-update-required = Cette version n’est plus prise en charge. Mettez Aurora à jour pour vous connecter.
+update-required = Cette version n’est plus prise en charge. Mettez Amante à jour pour vous connecter.
 update-login-required = Connexion bloquée : installez la mise à jour obligatoire pour continuer.
 update-login-checking = Vérification des mises à jour avant la connexion…
 update-login-test = Installation de test : la connexion à une grille est désactivée.
 update-no-notes = Consultez la page de la release pour les nouveautés.
 update-preparing = Vérification et préparation des fichiers…
-update-restart = Installer et relancer Aurora
+update-restart = Installer et relancer Amante
 update-restarting = Préparation de la relance…
 update-open-release = Ouvrir la page de la release
 update-error-title = La mise à jour n’a pas abouti
 update-error-network = Le téléchargement ou la vérification a échoué. Vérifiez votre connexion et réessayez depuis « Vérifier les mises à jour ».
 update-error-integrity = Le fichier téléchargé ne correspond pas à l’empreinte publiée. Il n’a pas été installé.
-update-error-filesystem = Impossible de préparer l’installation. Vérifiez l’espace libre et les droits d’écriture du dossier, puis fermez les autres instances d’Aurora.
+update-error-filesystem = Impossible de préparer l’installation. Vérifiez l’espace libre et les droits d’écriture du dossier, puis fermez les autres instances d’Amante.
 update-error-package = Le paquet est incomplet ou invalide. L’installation actuelle est conservée.
 update-error-unsupported = Cette release ne permet pas l’installation automatique depuis ce dossier. Téléchargez-la depuis sa page et décompressez-la dans un dossier dédié.
 update-error-startup = L’auxiliaire de mise à jour n’a pas pu démarrer. L’installation actuelle est conservée.
@@ -7787,7 +7787,7 @@ update-beta-build = Construite le { $date }, n° { $number }
 bug-compose-heading = 1. Préparer le rapport
 bug-send-heading = 2. Choisir l’envoi
 bug-browser-help = Votre navigateur ouvrira le rapport déjà rempli. Vous pourrez le relire et le publier sur GitHub. Un compte GitHub est nécessaire.
-bug-direct-help = Aurora publiera le rapport quand vous cliquerez sur Envoyer. Connectez d’abord votre compte GitHub ci-dessous.
+bug-direct-help = Amante publiera le rapport quand vous cliquerez sur Envoyer. Connectez d’abord votre compte GitHub ci-dessous.
 bug-required-help = Pour continuer, renseignez un titre et le champ « Que s’est-il passé ? » dans Description.
 bug-other-actions = Autres actions
 bug-unavailable = Indisponible
@@ -8384,18 +8384,18 @@ ui-texture-picker-uuid = UUID
 build-ui-tools-owner-group = groupe
 build-ui-tools-owner-others = autres
 build-ui-tools-owner-public = public
-ui-options-aurora = Aurora
-ui-options-aurora-intro = Ce qu'Aurora fait autrement que le Legacy Viewer. Chaque élément redessiné peut revenir à sa version Legacy si vous la préférez.
+ui-options-aurora = Amante
+ui-options-aurora-intro = Ce qu'Amante fait autrement que le Legacy Viewer. Chaque élément redessiné peut revenir à sa version Legacy si vous la préférez.
 ui-options-aurora-all-firestorm = Tout en version Legacy
-ui-options-aurora-all-aurora = Tout en version Aurora
+ui-options-aurora-all-aurora = Tout en version Amante
 ui-options-aurora-appearance = Apparence
 ui-options-aurora-conversations = Conversations
-ui-options-aurora-conversations-help = Aurora : les messages groupés par auteur à côté de la liste des conversations ; Compacte : une ligne par message ; Bulles ; ou lignes de texte comme le Legacy Viewer.
+ui-options-aurora-conversations-help = Amante : les messages groupés par auteur à côté de la liste des conversations ; Compacte : une ligne par message ; Bulles ; ou lignes de texte comme le Legacy Viewer.
 ui-options-aurora-chat-lines = Lignes du chat local
 ui-options-aurora-chat-lines-help = Le chat local affiché au-dessus de la barre de chat : des cartes groupées par auteur avec sa photo, ou une ligne de texte par message comme le Legacy Viewer.
 ui-options-aurora-chat-lines-cards = Cartes
 ui-options-aurora-chat-lines-classic = Lignes (Legacy)
-ui-options-aurora-workspace = Aurora
+ui-options-aurora-workspace = Amante
 ui-options-aurora-compact = Compacte
 ui-options-aurora-bubbles = Bulles
 ui-options-aurora-lines = Lignes (Legacy)
@@ -8429,7 +8429,7 @@ ui-options-aurora-people-rows = Lignes riches
 ui-options-aurora-people-table = Tableau (Legacy)
 ui-options-aurora-profiles = Profils
 ui-options-aurora-profiles-help = En-tête avec photo, badges et actions, contenu en cartes ; ou fenêtres à onglets Vie SL, Flux, Favoris… comme le Legacy Viewer. Vaut pour les avatars et les groupes.
-ui-options-aurora-profiles-aurora = Aurora
+ui-options-aurora-profiles-aurora = Amante
 ui-options-aurora-profiles-classic = Fenêtre classique (Legacy)
 ui-options-aurora-profiles-rights = Droits d'amitié
 ui-options-aurora-profiles-rights-help = Sur le profil d'un ami, la ligne Permissions des Infos : les droits que vous lui accordez, puis ceux qu'il vous accorde. Masquée, ils restent dans la fenêtre Contacts.
@@ -8441,11 +8441,11 @@ ui-options-aurora-vf-controls-help = Les bagues, les choix de mise au point et l
 ui-options-aurora-vf-controls-always = Toujours
 ui-options-aurora-vf-controls-hover = Au survol
 ui-options-aurora-vf-controls-hidden = Masquées
-ui-options-aurora-photo-panel = Panneau Aurora
+ui-options-aurora-photo-panel = Panneau Amante
 ui-options-aurora-photo-classic = Fenêtre classique (Legacy)
 ui-options-aurora-about-land = À propos du terrain
 ui-options-aurora-about-land-help = Aperçu et gestion par intention, ou les 9 onglets du Legacy Viewer.
-ui-options-aurora-about-land-aurora = Aurora
+ui-options-aurora-about-land-aurora = Amante
 ui-options-aurora-about-land-classic = Fenêtre classique (Legacy)
 ui-options-aurora-search-help = Un seul champ, des puces par type et le détail à côté des résultats ; ou les 7 onglets du Legacy Viewer.
 ui-options-aurora-search-classic = Onglets (Legacy)
@@ -8453,12 +8453,12 @@ ui-options-aurora-region-estate-help = Aperçu, gestion par intention et interve
 ui-options-aurora-inventory-help = Une fenêtre qui s’élargit de l’arbre à un explorateur avec ses détails, ou l’arbre unique du Legacy Viewer.
 ui-options-aurora-pay-window = Fenêtre Payer
 ui-options-aurora-pay-window-help = Paiement des résidents, des groupes et des objets.
-ui-options-aurora-pay-aurora = Aurora
+ui-options-aurora-pay-aurora = Amante
 ui-options-aurora-pay-classic = Fenêtre classique (Legacy)
 ui-options-aurora-money-tracker-help = Les L$ reçus et payés pendant la session.
 ui-options-aurora-controls = Contrôles caméra et déplacement
 ui-options-aurora-controls-help = Les fenêtres Caméra et Déplacement.
-ui-options-aurora-controls-aurora = Aurora
+ui-options-aurora-controls-aurora = Amante
 ui-options-aurora-controls-classic = Fenêtres classiques (Legacy)
 ui-options-aurora-restart-alert = Alerte de redémarrage
 ui-options-aurora-restart-alert-help = Carte avec compte à rebours, ou boîte jaune centrée comme le Legacy Viewer.
@@ -8469,7 +8469,7 @@ ui-options-aurora-rez-effect-help = Un objet ou un avatar qui apparaît sous vos
 ui-options-aurora-rez-effect-aurora = Effet
 ui-options-aurora-rez-effect-classic = Gris (Legacy)
 ui-options-aurora-hover-tips = Infobulles du monde
-ui-options-aurora-hover-tips-help = Aurora : bulle, carte ou bandeau avec icônes et étiquettes (sa forme dans Préférences › Interface). Legacy : le texte du Legacy Viewer, avec son bouton « i ».
+ui-options-aurora-hover-tips-help = Amante : bulle, carte ou bandeau avec icônes et étiquettes (sa forme dans Préférences › Interface). Legacy : le texte du Legacy Viewer, avec son bouton « i ».
 ui-options-aurora-hover-tips-legacy = Texte (Legacy)
 ui-options-aurora-gaze = Regard
 ui-options-aurora-aim = Où va votre regard
@@ -8483,14 +8483,14 @@ ui-options-aurora-own-motion-help = Votre avatar bouge dès que vous appuyez sur
 ui-options-aurora-own-motion-instant = Immédiat
 ui-options-aurora-own-motion-server = Simulateur (Legacy)
 ui-options-aurora-animations = Animations
-ui-options-aurora-ground-feet = Utiliser le placement des pieds Aurora
+ui-options-aurora-ground-feet = Utiliser le placement des pieds Amante
 ui-options-aurora-ground-feet-moving = Aussi pendant les déplacements
 ui-options-aurora-ground-feet-moving-help = Étend la correction à la marche, à la course et aux déplacements accroupis. Sinon, elle s’estompe en mouvement et reprend à l’arrêt.
 ui-options-aurora-ground-feet-height = Hauteur maximale de correction
 ui-options-aurora-ground-feet-avatars = Nombre maximal d’autres avatars
 ui-options-aurora-ground-feet-avatars-help = Corrige les jambes des avatars les plus proches dans le champ de la caméra. Votre avatar ne compte pas dans cette limite. 0 : votre avatar uniquement. Par défaut : 5.
 ui-options-aurora-ground-feet-height-help = Déplacement vertical maximal de chaque pied par rapport à l’animation. Une valeur plus élevée permet d’atteindre des appuis plus éloignés. Par défaut : 0,4 m ; maximum : 1 m.
-ui-options-aurora-ground-feet-help = Remplace le placement standard du Legacy Viewer par l’adaptation Aurora aux pentes et aux marches distinctes. Les pieds peuvent se lever et les poses de priorité élevée gardent le contrôle. Sinon, les animations natives debout, accroupies et de récupération utilisent le comportement standard. Les deux corrections ne se cumulent jamais.
+ui-options-aurora-ground-feet-help = Remplace le placement standard du Legacy Viewer par l’adaptation Amante aux pentes et aux marches distinctes. Les pieds peuvent se lever et les poses de priorité élevée gardent le contrôle. Sinon, les animations natives debout, accroupies et de récupération utilisent le comportement standard. Les deux corrections ne se cumulent jamais.
 ui-options-aurora-animation-clock = Synchronisation temporelle
 ui-options-aurora-animation-clock-experimental = Expérimental : la lecture synchronisée est encore en cours de validation sur la grille pour les avatars et les animesh. Legacy reste le mode par défaut.
 ui-options-aurora-animation-clock-help = Avatars et animesh : l’horloge synchronisée suit le temps écoulé depuis le premier signal reçu, même après un chargement tardif ou une édition. Legacy démarre au chargement et reprend à la pose suspendue après une édition.
@@ -10066,7 +10066,7 @@ buy-land-can-not-change = Ne peut être ni fusionné ni divisé.
 buy-land-covenant-section = Règlement du domaine
 buy-land-must-agree = Vous devez accepter le règlement du domaine :
 buy-land-agree-covenant = J'accepte le règlement ci-dessus.
-buy-land-cannot-close = Vous ne pouvez pas fermer la fenêtre d'achat de terrain avant qu'Aurora Viewer ait estimé le prix de cette transaction.
+buy-land-cannot-close = Vous ne pouvez pas fermer la fenêtre d'achat de terrain avant qu'Amante Viewer ait estimé le prix de cette transaction.
 buy-land-nothing-selected = Impossible d'acheter le terrain : aucune parcelle sélectionnée.
 buy-land-across-regions = Impossible d'acheter le terrain : la sélection s'étend sur plusieurs régions. Sélectionnez une zone plus petite et réessayez.
 buy-land-only-officer = Impossible d'acheter le terrain pour le groupe : vous n'avez pas le droit d'acheter du terrain pour votre groupe actif.
@@ -11689,7 +11689,7 @@ contact-visual-lower = Diminuer la priorité
 contact-visual-inherit-hint = Une option activée ajoute une personnalisation. Sinon, les groupes moins prioritaires et les réglages généraux s’appliquent.
 contact-visual-border = Ajouter un contour à la plaque
 contact-visual-background = Teinter le fond de la plaque
-contact-visual-plate-name = Colorer le nom sur les plaques Aurora
+contact-visual-plate-name = Colorer le nom sur les plaques Amante
 contact-visual-ui-name = Colorer les noms ailleurs dans l’interface
 contact-visual-chat-name = Colorer les noms dans le chat
 contact-visual-chat-text = Colorer les messages du chat
@@ -12404,3 +12404,632 @@ particle-editor-inject-timeout = La grille n’a pas répondu : le script n’a 
 keybinds-lens-zoom-in = Réduire l’angle de vue
 keybinds-lens-zoom-out = Élargir l’angle de vue
 keybinds-lens-zoom-default = Réinitialiser l’angle de vue
+
+import-animation-model = Modèle d’aperçu
+
+import-animation-model-default = Standard
+
+import-animation-model-choose = Ajouter un modèle…
+
+import-animation-model-remove = Retirer { $name } de la liste
+
+import-animation-model-kept = L’aperçu précédent est conservé.
+
+import-animation-model-help = Ajoutez une fois vos modèles locaux DAE, glTF ou GLB, puis choisissez-les dans cette liste mémorisée. Le choix s’applique à toutes les animations de la file et sera réutilisé pour les prochains imports. Les modèles doivent être pondérés sur les os de Second Life, Bento compris. Retirer une entrée conserve son fichier. Les modèles servent uniquement aux aperçus et ne sont pas téléversés.
+
+import-animation-model-rigged = Choisissez un modèle pondéré sur le squelette de Second Life.
+
+keybinds-teleport-home = Se téléporter au domicile
+
+inventory-search-quick = Recherche rapide
+
+inventory-search-advanced = Avancée
+
+inventory-search-advanced-menu = Avancée…
+
+inventory-search-advanced-tip = Recherche avancée : combiner des règles avec toutes, l'une ou non
+
+inventory-smart-add-hint = Ajouter une règle…
+
+inventory-smart-match-all = Toutes les règles
+
+inventory-smart-match-any = L'une des règles
+
+inventory-smart-match-tip = Garder ce qui répond à toutes les règles, ou à l'une d'elles
+
+inventory-smart-not = Non
+
+inventory-smart-not-tip = Garder ce qui ne correspond pas
+
+inventory-smart-add-rule = Ajouter une règle
+
+inventory-smart-add-group = Ajouter un groupe
+
+inventory-smart-remove-rule = Retirer cette règle
+
+inventory-smart-remove-group = Retirer ce groupe
+
+inventory-smart-group = Groupe
+
+inventory-smart-empty = Aucune règle : tout est affiché
+
+inventory-smart-reset = Réinitialiser
+
+inventory-smart-save = Enregistrer…
+
+inventory-smart-save-tip = Enregistrer ces règles comme recherche intelligente
+
+inventory-smart-save-name = Nom de la recherche intelligente
+
+inventory-smart-save-confirm = Enregistrer
+
+inventory-smart-untitled = Recherche intelligente
+
+inventory-smart-section = Recherches intelligentes
+
+inventory-smart-rename = Renommer
+
+inventory-smart-delete = Supprimer
+
+inventory-smart-update = Enregistrer ici les règles en cours
+
+inventory-smart-more = +{ $count }
+
+inventory-smart-similar = Objets similaires
+
+inventory-smart-field-name = Nom
+
+inventory-smart-field-description = Description
+
+inventory-smart-field-creator = Créateur
+
+inventory-smart-field-uuid = UUID
+
+inventory-smart-field-folder = Dossier
+
+inventory-smart-field-type = Type
+
+inventory-smart-field-permissions = Permissions
+
+inventory-smart-field-worn = Porté
+
+inventory-smart-field-link = Lien
+
+inventory-smart-field-coalesced = Regroupé
+
+inventory-smart-field-date = Date
+
+inventory-smart-op-contains = contient
+
+inventory-smart-op-is = a le mot
+
+inventory-smart-op-starts-with = commence par
+
+inventory-smart-op-ends-with = finit par
+
+inventory-smart-op-pattern = correspond à
+
+inventory-smart-op-ends-in-number = finit par un nombre
+
+inventory-smart-op-has-version = a une version
+
+inventory-smart-pattern-tip = Utilisez * pour n'importe quels caractères et ? pour un seul
+
+inventory-smart-chip = { $field } { $op } « { $value } »
+
+inventory-smart-chip-bare = { $field } { $op }
+
+inventory-smart-chip-not = non : { $rule }
+
+inventory-smart-worn = Porté
+
+inventory-smart-link = Est un lien
+
+inventory-smart-coalesced = Objet regroupé
+
+inventory-smart-since-logout = Depuis la dernière déconnexion
+
+inventory-smart-age-newer = Plus récent que
+
+inventory-smart-age-older = Plus ancien que
+
+inventory-smart-hours = { $hours } h
+
+inventory-smart-types-none = Choisir les types
+
+inventory-smart-rights-none = Choisir les droits
+
+world-appearance-deleted-scarf = Écharpe supprimée
+
+demo-aurora-viewer-rust-metal = { "Amante Viewer\u000ARust · Metal" }
+
+app-aurora-viewer-unable-to-initialize-metal = { "Amante Viewer: impossible d'initialiser Metal : " }{ $e }
+
+contacts-import = Importer des cercles de contacts…
+
+contacts-import-hint = Choisissez settings_friends_groups.xml dans le dossier de votre compte du Legacy Viewer, ou un cercle exporté. Les membres sont réunis ; vos couleurs et surnoms existants sont conservés.
+
+contacts-import-file-type = Cercles de contacts (XML)
+
+contacts-import-success = Cercles de contacts importés ({ $count }). Vos membres, couleurs et surnoms existants ont été conservés.
+
+contacts-import-failed = Impossible d’importer les cercles de contacts. Choisissez un fichier XML de cercles valide (16 Mio maximum) et vérifiez que le dossier des paramètres de votre compte est accessible en écriture. Vos contacts ont été conservés.
+
+ui-login-second-life-client-rust-metal = Client Second Life  ·  Rust  ·  Metal
+
+ui-options-payment-sent-opens-conversation = Ouvrir la conversation quand vous payez un résident
+
+ui-options-payment-sent-opens-conversation-hint = Votre paiement direct à un résident s'affiche sous forme de carte dans votre conversation avec lui quand elle est ouverte. Activé, il l'ouvre.
+
+common-click-to-copy = Cliquer pour copier
+
+common-copied = Copié
+
+ui-contacts-message-hint = Message (facultatif)
+
+ui-contacts-enter-to-confirm = Appuyez sur Entrée pour confirmer
+
+ui-options-region-message-prompt = Messages de région au milieu de l'écran
+
+ui-options-region-message-prompt-hint = Une carte que l'on ferme avec OK au lieu d'un toast ; le message reste écrit dans le chat local
+
+ui-region-message-prompt-sent = a envoyé un message à la région
+
+ui-region-message-prompt-sent-to = a envoyé un message à { $region }
+
+ui-region-message-prompt-more = { $count ->
+    [one] Un autre message de région attend
+   *[other] { $count } autres messages de région attendent
+    }
+
+system-notification-open = Ouvrir
+
+dev-toolbox-target-me = Mon avatar
+
+dev-toolbox-target-me-hint = vous et ce que vous portez
+
+dev-toolbox-target-me-text = Mon avatar · { $worn } objets portés
+
+dev-toolbox-j9 = Squelette des animesh portées
+
+dev-toolbox-what-j9 = Les objets animés que porte la cible : articulations du skin, overrides d’articulations, squelette de contrôle et animations
+
+ui-options-automatic-fly = Décoller en maintenant Monter
+
+ui-options-automatic-fly-help = Maintenir la commande Sauter / Monter déclenche le vol. Désactivée, le saut au sol se répète tant que la commande reste appuyée, sans décoller ; la montée en vol fonctionne toujours. Utilisez le bouton Vol ou son raccourci pour décoller.
+
+ui-options-automatic-land = Atterrir en maintenant Descendre
+
+ui-options-automatic-land-help = Maintenir la commande S'accroupir / Descendre arrête le vol au contact du sol ou d'une plateforme. Désactivée, elle permet toujours de s'accroupir au sol et de descendre en vol. Utilisez le bouton Vol ou son raccourci pour arrêter de voler.
+
+ui-bars-menu-no-match = Aucune entrée ne correspond à « { $query } ».
+
+inventory-thumbnail-choose-layout = Choisissez votre vignette
+
+inventory-thumbnail-choose-layout-help = Cliquez pour choisir. Glissez l’image dans « Recadrer » pour ajuster la zone.
+
+inventory-thumbnail-stretch = Adapter au carré
+
+inventory-thumbnail-stretch-help = Afficher toute l’image en l’étirant pour remplir le carré.
+
+inventory-thumbnail-fit = Garder les proportions
+
+inventory-thumbnail-fit-help = Afficher toute l’image sans déformation, avec des marges transparentes.
+
+inventory-thumbnail-crop = Recadrer
+
+inventory-thumbnail-crop-help = Glissez l’image pour la cadrer, puis cliquez dessus pour utiliser ce recadrage.
+
+inventory-thumbnail-upload-complete = Image enregistrée.
+
+inventory-thumbnail-save-not-confirmed = Impossible de confirmer l’enregistrement de l’image. Réessayez.
+
+graphics-saved-title = Profils graphiques enregistrés
+
+graphics-saved-help = Sélectionnez un profil pour l’appliquer. Enregistrer met à jour ce profil ; Enregistrer sous… conserve la qualité de rendu actuelle sous un autre nom. Les limites FPS, la synchronisation verticale, le matériel et l’environnement restent inchangés.
+
+graphics-saved-save-as = Enregistrer sous…
+
+graphics-saved-modified = { $name } (modifié)
+
+parcel-visibility-filter = Filtrage des parcelles
+
+graphics-saved-name = Nom du profil
+
+graphics-saved-save = Enregistrer un profil graphique
+
+graphics-saved-empty = Aucun profil graphique enregistré
+
+graphics-saved-replace = Remplacer ce profil graphique ?
+
+graphics-saved-delete = Supprimer ce profil graphique ?
+
+graphics-fps-cap = Limiter à { $limit } images/s
+
+ui-minimap-lock-position = Verrouiller la position
+
+ui-options-rlva = RLVa
+
+ui-options-rlva-experimental = RLVa est très expérimental et encore en test : certaines restrictions peuvent ne pas fonctionner ou se comporter autrement que dans le Legacy Viewer.
+
+ui-options-download-connections = Connexions de téléchargement
+
+ui-options-download-connections-hint = Combien de textures et de maillages se téléchargent à la fois. Automatique suit la connexion ; Limité aide quand le réseau coupe pendant le chargement d'une région. Avec une carte réseau connue pour perdre sa connexion sous de nombreux téléchargements, ils restent toujours limités. Actif au prochain lancement.
+
+ui-options-download-connections-detected = Sur cet ordinateur, les téléchargements restent limités : { $adapter } a été trouvée.
+
+ui-options-download-connections-blocked = Indisponible sur cet ordinateur : { $adapter } perd sa connexion quand trop de téléchargements tournent à la fois.
+
+ui-options-download-connections-automatic = Automatique
+
+ui-options-download-connections-adaptive = Suivre la connexion (le plus rapide)
+
+ui-options-download-connections-limited = Limité (24 à la fois)
+
+ui-options-about-rlva = Restrictions par scripts (API RestrainedLove) : ce que les objets portés ou sur lesquels vous êtes assis peuvent verrouiller, et les restrictions actives.
+
+ui-options-render-scale = Échelle de rendu 3D
+
+ui-options-render-scale-help = Calcule le monde à une résolution réduite puis agrandit l'image pour améliorer la fluidité. L'interface et les HUD restent nets. Les photos enregistrées gardent leur pleine résolution.
+
+ui-inventory-context-find-similar = Trouver des similaires
+
+ui-inventory-context-find-similar-name = Même nom, toute version
+
+ui-inventory-context-find-similar-creator = Même créateur
+
+ui-inventory-context-find-similar-type = Même type
+
+ui-inventory-context-find-similar-folder = Même nom de dossier
+
+demo-region-message-restart = La région redémarre dans 10 minutes pour maintenance. Trouvez un endroit sûr ou téléportez-vous au lagon ; nous revenons très vite. Merci de votre patience !
+
+demo-region-message-event = La soirée dansante commence sur la place dans 5 minutes 🎶
+
+demo-payment-rent = Pour le loyer
+
+photo-light-sky = Ciel
+
+photo-light-day = Cycle du jour
+
+photo-light-own = Revenir à votre environnement
+
+photo-light-sun-azimuth = Azimut du soleil
+
+photo-light-sun-elevation = Élévation du soleil
+
+photo-light-sun-reset = Revenir au soleil de votre environnement
+
+photo-light-keep = Garder cette lumière
+
+photo-light-keep-tip = Garde le moment de la journée, le ciel, l'eau, le cycle du jour et le soleil de la photo comme votre propre environnement après la fermeture de cette fenêtre.
+
+photo-vf-light-tip = La lumière de la photo : ciel, eau et soleil
+
+photo-vf-poser-tip = Poseur : poser l'avatar sans quitter le cadrage
+
+photo-vf-group-added = { $name } ajouté à la mise au point · { $count ->
+    [one] { $count } sujet net
+   *[other] { $count } sujets nets
+}
+
+photo-vf-group-removed = { $name } retiré de la mise au point
+
+photo-vf-group-sky = Rien sur quoi faire le point ici : le ciel ne peut pas rejoindre la mise au point
+
+photo-vf-group-point = Le point
+
+photo-vf-help-shift-click = Maj + clic
+
+photo-vf-help-shift-click-text = Ajoute l'avatar ou le point visé à la mise au point ; à nouveau dessus, l'en retire : tous les sujets d'une photo de groupe restent nets (AF-S). Un clic seul repart d'un seul
+
+photo-vf-cheat-ctrl-click-key = Ctrl + clic
+
+photo-vf-cheat-ctrl-click = agir sur les objets et les HUDs
+
+photo-vf-help-ctrl-click-text = Utiliser l'objet ou le HUD sous le pointeur sans changer la mise au point
+
+photo-vf-cheat-shift-click-key = Maj + clic
+
+photo-vf-cheat-shift-click = mise au point de groupe
+
+photo-vf-hints-hide = Masquer l'aide-mémoire
+
+photo-vf-hints-hide-tip = Masque l'aide-mémoire (« Aide-mémoire » du menu rapide le réaffiche)
+
+photo-vf-hints-hidden = Aide-mémoire masqué · { $menu } : le menu rapide le réaffiche
+
+world-mod-group-notice-sent-by = { "Envoyée par " }{ $sender }
+
+world-payments-you-paid = { "Vous avez payé " }{ $amount }{ " L$ à " }{ $name }
+
+world-payments-you-paid-message = { "Vous avez payé " }{ $amount }{ " L$ à " }{ $name }{ " : " }{ $message }
+
+world-region-message-title = Message de région de { $name }
+
+world-region-message-line = Message de région de { $name } : { $message }
+
+update-error-unsupported-macos = Sur macOS, une nouvelle version s’installe à la main. Téléchargez-la depuis sa page, puis remplacez Amante Viewer dans votre dossier Applications par la nouvelle.
+
+build-compact-owned-only = Sélectionner mes objets uniquement
+
+build-compact-movable-only = Sélectionner les objets déplaçables uniquement
+
+contents-copy-folder-timeout = La création du dossier « { $folder } » n’a pas été confirmée en 60 secondes. Aucun contenu n’a été transféré.
+
+contents-copy-complete = { $count ->
+    [one] Contenu copié dans « { $folder } » : { $count } élément reçu.
+   *[other] Contenu copié dans « { $folder } » : { $count } éléments reçus.
+    }
+
+contents-copy-timeout = Copie dans « { $folder } » non confirmée après 60 secondes. Éléments reçus : { $received }/{ $count }. Vérifiez le contenu du dossier.
+
+contents-copy-unavailable = Copie dans « { $folder } » non confirmée : le dossier de destination est introuvable ou n’a pas pu être chargé.
+
+contents-copy-wear-busy = Le contenu a été copié dans « { $folder } », mais votre tenue n’a pas pu être changée pendant une autre modification de tenue. Portez le dossier depuis votre inventaire.
+
+ui-options-aurora-build = Outils de construction
+
+ui-options-aurora-build-help = L’espace de travail personnalisable Aurora, ou la barre d’outils et les onglets Général, Objet, Attributs, Texture et Contenu du Legacy Viewer.
+
+build-legacy-object = Objet
+
+build-legacy-texture = Texture
+
+build-legacy-ruler = Règle
+
+build-legacy-rotate = Pivoter (Ctrl)
+
+build-legacy-probes = Sél. les sondes de réfl.
+
+build-legacy-vector-copy = C
+
+build-legacy-vector-paste = P
+
+build-legacy-vector-system = p
+
+build-legacy-copy-keys = Copier les UUID
+
+build-legacy-glossiness = Lustrage
+
+build-legacy-link = Lier
+
+build-legacy-unlink = Délier
+
+shape-t-pose = T-pose
+
+poser-confirm-close = Confirmer quand la fermeture perd la pose
+
+poser-close-title = Fermer le poseur ?
+
+poser-close-confirm = La fermeture arrête la pose : { $count ->
+    [one] { $count } articulation modifiée est perdue
+   *[other] { $count } articulations modifiées sont perdues
+    }. Minimisez la fenêtre pour les garder.
+
+poser-close-dont-ask = Ne plus demander
+
+poser-close-minimize = Minimiser
+
+poser-close-anyway = Fermer quand même
+
+received-auto-accept = Accepter automatiquement les éléments offerts
+
+received-auto-accept-help = Accepter les éléments et dossiers offerts par les résidents et les objets sans confirmation. Les offres spéciales RLVa demandent toujours une confirmation.
+
+received-auto-accept-chat = Signaler les éléments acceptés automatiquement dans le chat local
+
+received-auto-accept-chat-help = Afficher un message système privé avec l’expéditeur, le type et le nom de l’élément. Aucun message n’est envoyé aux résidents autour de vous.
+
+received-auto-accept-notify = Afficher une notification pour les éléments acceptés automatiquement
+
+received-auto-accept-notify-help = Afficher une notification d’information sans demander une nouvelle acceptation.
+
+received-auto-accepted-title = Éléments reçus
+
+received-auto-accepted-resident = { $name } vous a donné cet élément ({ $kind }) : { $item }
+
+received-auto-accepted-object = Un objet nommé { $object } vous a donné cet élément ({ $kind }) : { $item }
+
+blender-live-choose-executable = Choisir l’exécutable Blender où installer le plugin
+
+blender-live-choosing = Choisissez l’exécutable Blender…
+
+blender-live-checking = Vérification du Blender choisi…
+
+blender-live-invalid-compression = État LiveMesh compressé invalide ou incomplet.
+
+blender-live-invalid-packed = Géométrie compacte LiveMesh invalide.
+
+appearance-outfit-copy-entry = { $item } - { $creator }
+
+appearance-outfit-copy-preparing = Préparation de la liste de la tenue…
+
+common-lost-and-found = Objets perdus et trouvés
+
+wearable-local-preview = Les textures locales servent d’aperçu privé. Importez la texture puis sélectionnez-la dans l’inventaire pour enregistrer.
+
+inventory-hover-pictures = Afficher les images au survol
+
+inventory-hover-pictures-help = Affiche les photos et les vignettes des objets ou dossiers après un court survol.
+
+area-search-group = Groupe
+
+area-search-last-owner = Dernier propriétaire
+
+area-search-land-impact = Impact sur le terrain
+
+area-search-prim-count = Nombre de primitives
+
+area-search-search = Rechercher
+
+area-search-columns = Colonnes
+
+area-search-regex = Utiliser les expressions régulières
+
+area-search-regex-error = Expression régulière : { $error }
+
+area-search-required = Ne lister que les objets qui sont
+
+area-search-excluded = Exclure les objets qui sont
+
+area-search-ranges = Distance et prix de vente
+
+area-search-attachment = Pièces jointes
+
+area-search-media = Média partagé
+
+area-search-copy-perm = Copie
+
+area-search-modify-perm = Modification
+
+area-search-transfer-perm = Transfert
+
+area-search-probes = Sondes de réflexion
+
+area-search-child-prim = Prims enfants
+
+area-search-neighbor-regions = Dans les régions voisines
+
+area-search-distance-range = Distance
+
+area-search-min = Min
+
+area-search-max = Max
+
+area-search-click-action = Action au clic de souris
+
+area-search-click-unrestricted = Sans restriction
+
+area-search-click-any = Toute action
+
+area-search-click-pay = Payer
+
+area-search-click-open = Ouvrir
+
+area-search-click-play = Lire
+
+area-search-click-media = Ouvrir le média
+
+area-search-save-defaults = Enregistrer par défaut
+
+area-search-copy-link = Copier le lien
+
+area-search-reset-columns = Réinitialiser les colonnes
+
+area-search-regex-limit = Limite de recherche dépassée. Simplifiez l'expression.
+
+area-search-reset-all-tip = Réinitialiser toute la recherche.
+
+area-search-reset-search-tip = Effacer les champs de recherche et les expressions régulières.
+
+area-search-reset-options-tip = Rétablir les options de filtrage d’origine.
+
+area-search-reset-columns-tip = Rétablir les colonnes par défaut.
+
+area-search-range-options = Plages
+
+area-search-reset-ranges-tip = Rétablir les plages de distance et de prix par défaut.
+
+area-search-results = Résultats
+
+local-appearance-warning = { $count ->
+    [one] Textures / matériaux locaux : { $count } objet
+   *[other] Textures / matériaux locaux : { $count } objets
+    }
+
+local-appearance-pending = Aperçus locaux mémorisés (en attente)
+
+local-appearance-details = Textures locales : { $textures } · Matériaux locaux : { $materials }
+
+local-appearance-private = Ces aperçus sont visibles uniquement par vous et sont restaurés après reconnexion. Chaque application expire après 7 jours.
+
+local-appearance-reveal = Faire clignoter les surfaces locales
+
+local-appearance-stop-reveal = Arrêter le repérage des surfaces locales
+
+local-appearance-library = Ouvrir les aperçus locaux
+
+local-appearance-remove = Retirer toutes les textures / matériaux locaux…
+
+local-appearance-confirm-title = Retirer les textures et matériaux locaux ?
+
+local-appearance-confirm-body = Rétablir l’apparence du serveur pour les objets mémorisés sur ce compte et cette grille (total : { $count }), y compris ceux actuellement absents. Ces applications ne seront plus restaurées après reconnexion. Vos fichiers locaux, la bibliothèque d’aperçus et les aperçus de maillages sont conservés.
+
+import-folders = Dossiers
+
+import-choose-folder = Ajouter un dossier…
+
+import-folders-enable = Organiser les dossiers d’import
+
+import-folders-arrange = Structure
+
+import-folders-mirror = Reprendre l’arborescence
+
+import-folders-type = Regrouper par type
+
+import-folders-flat = Destination unique
+
+import-folders-preview = Aperçu de l’inventaire
+
+import-folders-path = Chemin du dossier
+
+import-folders-path-help = Dossiers relatifs séparés par /. Laisser vide pour utiliser directement la destination.
+
+import-folders-edit-help = Modifier cette destination dans l’onglet Dossiers.
+
+import-folders-summary = { $folders } dossiers · { $files } fichiers sélectionnés
+
+import-folders-create = Créer les dossiers
+
+import-folders-ready = Destinations prêtes. Vérifiez les fichiers puis confirmez leur import ci-dessous.
+
+import-folders-prepare-first = Créez les dossiers prévus avant de calculer les frais ou d’importer.
+
+import-folders-invalid-path = Utilisez des noms de dossiers non vides de 63 octets maximum, séparés par /. Les caractères de contrôle, |, . et .. sont interdits.
+
+import-folders-failed = La création des dossiers a échoué. Les dossiers confirmés sont conservés ; vérifiez la destination avant de réessayer. Aucun import n’a été lancé.
+
+import-folders-empty = Ce dossier ne contient aucun fichier compatible avec l’import en lot.
+
+import-folders-read-failed = Le dossier source n’a pas pu être lu entièrement. Vérifiez ses droits d’accès puis réessayez.
+
+import-folders-scan-limit = Cette arborescence est trop grande ou trop profonde. Sélectionnez un dossier source plus petit.
+
+import-folders-textures = Textures
+
+import-folders-sounds = Sons
+
+import-folders-animations = Animations
+
+import-folders-materials = Materiaux
+
+import-folders-meshes = Maillages
+
+import-folders-other = Autres
+
+import-window-title = Importer
+
+import-queue = File d’import
+
+import-queue-empty = Aucun fichier visible dans la file.
+
+import-queue-clear = Vider la file
+
+import-tab-batch = Fichiers
+
+import-tab-folder = Aperçu des dossiers
+
+import-tab-permissions = Permissions
+
+import-use-default-folders = Utiliser les dossiers par défaut
+
+import-folders-auto-create = Les dossiers de destination manquants seront créés après confirmation de l’import.
+
+import-include-source-folder = Inclure le dossier source
+
+import-source-folder-name-help = Nom du dossier d’inventaire pour { $source }. Le dossier sur votre ordinateur reste inchangé.
+
+import-local-stage-upload = Ajouter à l’upload ({ $count })
+
+import-local-stage-upload-help = Conserver les aperçus locaux et préparer l’upload des fichiers cochés, y compris les fichiers masqués. Les frais seront confirmés séparément.

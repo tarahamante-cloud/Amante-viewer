@@ -869,15 +869,15 @@ script-experience-choose = 体験を選択…
 script-experiences-unavailable = 体験を読み込めません。現在の関連付けは保持されています。もう一度お試しください。
 script-experience-demo = デモ体験
 script-disconnected = 切断されました。未保存のソースは保持されているので、コピーできます。
-exit-title = Aurora Viewerを閉じますか？
+exit-title = Amante Viewerを閉じますか？
 exit-world-body = ビューアを終了しますか？それともログイン画面に戻りますか？
-exit-login-body = Aurora Viewerを終了しますか？
+exit-login-body = Amante Viewerを終了しますか？
 exit-waiting = ログアウト中…
 exit-logout = ログアウト
 exit-logout-hint = セッションを終了してログイン画面に戻ります。
 exit-quit = 終了
 bug-browser-mode = ブラウザで
-bug-direct-mode = Auroraから送信
+bug-direct-mode = Amanteから送信
 bug-open-github = GitHubへ進む
 bug-send-direct = 公開レポートを送信
 bug-connect = GitHubに接続
@@ -906,7 +906,7 @@ bug-github-unauthorized = GitHubの認証が期限切れか、取り消されま
 bug-github-rate-limit = GitHubのリクエスト上限に達しました。しばらくしてからもう一度お試しください。
 bug-github-ambiguous = 作成の確認を受信できませんでした。再試行する前にGitHubのIssueを確認してください。レポートがすでに作成されている可能性があります。
 bug-title = バグを報告
-bug-heading = Auroraの改善にご協力ください
+bug-heading = Amanteの改善にご協力ください
 bug-public-warning = このレポートはGitHubで公開されます。
 bug-review-help = 問題を説明してください。画像を追加し、共有するデータを選ぶことができます。
 bug-description = 説明
@@ -1005,7 +1005,7 @@ attachment-point = 装着ポイント{ $point }
 font-sample = 0123456789 · あいうえお · 漢字カナ · 「かぎかっこ」 · L$ 1,250
 number-decimal-separator = .
 number-thousands-separator = ,
-profile-date = { $year }/{ $month }/{ $day }
+profile-date = { $year }年{ $month }月{ $day }日
 profile-date-hidden = { $month }/{ $day }
 date-day-month = { $month }{ $day }日
 date-day-month-year = { $year }年{ $month }{ $day }日
@@ -1497,10 +1497,10 @@ ui-login-aurora-viewer-v = Amante Viewer v{ $value0 }
 cli-aurora-viewer = { "Amante Viewer " }{ $version }
 cli-aurora-viewer-2 = { "Amante Viewer " }{ $version }{ " - " }{ $t }
 common-aurora-viewer = { "Amante Viewer " }{ $value0 }
-app-aurora-viewer-unable-to-initialize-vulkan = { "Aurora Viewer：Vulkanを初期化できません：" }{ $e }
-app-graphics-start-failed-title = Aurora Viewerを起動できません
+app-aurora-viewer-unable-to-initialize-vulkan = { "Amante Viewer：Vulkanを初期化できません：" }{ $e }
+app-graphics-start-failed-title = Amante Viewerを起動できません
 app-graphics-start-failed =
-    Aurora Viewerはウィンドウの描画に使うグラフィックカードを開けませんでした。
+    Amante Viewerはウィンドウの描画に使うグラフィックカードを開けませんでした。
 
     次のことをお試しください：
     • グラフィックカードのドライバを更新する。
@@ -1510,29 +1510,29 @@ app-graphics-start-failed =
     詳細：{ $e }
 
     今回の起動のログ：{ $log }
-app-gpu-stall-title = Aurora Viewer：グラフィックカードが応答していません
+app-gpu-stall-title = Amante Viewer：グラフィックカードが応答していません
 app-gpu-stall =
-    グラフィックカードが{ $seconds }秒間、画像を描画し終えていません。Auroraは動作を続けています（ワールド、サウンド、チャットは継続中）が、カードが再び応答するまで何も描画できません。
+    グラフィックカードが{ $seconds }秒間、画像を描画し終えていません。Amanteは動作を続けています（ワールド、サウンド、チャットは継続中）が、カードが再び応答するまで何も描画できません。
 
     次のことをお試しください：
     • 少し待つ。グラフィックドライバが自動でリセットされる場合、数秒かかることがあります。
     • グラフィックカードのドライバを更新する。
     • 他のプログラム（Discord、Steam、MSI Afterburnerなど）のオーバーレイをオフにする。
-    • 次回の起動時に、Auroraが提案するセーフグラフィックを選ぶ。
+    • 次回の起動時に、Amanteが提案するセーフグラフィックを選ぶ。
 
-    待ち続けますか？「はい」で待ち続け、「いいえ」でAuroraを閉じます（正しくログアウトされます）。
-app-gpu-lost-title = Aurora Viewer：グラフィックカードが失われました
+    待ち続けますか？「はい」で待ち続け、「いいえ」でAmanteを閉じます（正しくログアウトされます）。
+app-gpu-lost-title = Amante Viewer：グラフィックカードが失われました
 app-gpu-lost =
-    グラフィックカードがAuroraで使えなくなりました。ドライバがリセットされた（画像の描画に時間がかかりすぎた、またはビデオメモリが不足した）か、カードが取り外されたか、別のプログラムに占有されています。これ以上何も描画できないため、OKを押すとAuroraを終了します（正しくログアウトされます）。
+    グラフィックカードがAmanteで使えなくなりました。ドライバがリセットされた（画像の描画に時間がかかりすぎた、またはビデオメモリが不足した）か、カードが取り外されたか、別のプログラムに占有されています。これ以上何も描画できないため、OKを押すとAmanteを終了します（正しくログアウトされます）。
 
     次のことをお試しください：
     • グラフィックカードのドライバを更新する。
     • 非常に大きな写真のサイズ、またはグラフィックの品質を下げる。
     • グラフィックカードを多く使うほかのプログラムを閉じる。
-    • 次回の起動時に、Auroraが提案するセーフグラフィックを選ぶ。
-cmdline-mod-aurora-does-not-have-an-animation-overrider-ao-yet = Auroraにはまだアニメーションオーバーライド（AO）がありません。
+    • 次回の起動時に、Amanteが提案するセーフグラフィックを選ぶ。
+cmdline-mod-aurora-does-not-have-an-animation-overrider-ao-yet = Amanteにはまだアニメーションオーバーライド（AO）がありません。
 cmdline-mod-use-hover-height-in-appearance = アバターのホバーする高さは「容姿 → ホバーする高さ」で調整してください。
-ui-context-aurora-recommends-against-opening-this-link-if-it-asks = Auroraはこのリンクを開かないことをおすすめします。ログインや支払いを求められた場合、詐欺の可能性が非常に高いです。パスワードや支払い情報は絶対に入力しないでください。
+ui-context-aurora-recommends-against-opening-this-link-if-it-asks = Amanteはこのリンクを開かないことをおすすめします。ログインや支払いを求められた場合、詐欺の可能性が非常に高いです。パスワードや支払い情報は絶対に入力しないでください。
 demo-auto-blend = 自動：ブレンド
 demo-auto-mask = 自動：マスク
 ui-inventory-properties-permissions = 権限
@@ -1803,7 +1803,7 @@ ui-contacts-this-contact-set-is-empty = このコンタクトセットは空で�
 ui-inventory-dialogs-this-document-has-unsaved-changes = このドキュメントには未保存の変更があります。
 world-appearance-this-outfit-folder-cannot-be-modified = このアウトフィットフォルダは変更できません。
 world-inventory-actions-this-folder-cannot-receive-the-selection = このフォルダには選択した項目を入れられません。
-ui-context-this-link-leads-to-a-site-that-is-not = このリンク先は、Auroraの信頼済みサイトリストにないサイトです。偽のログインページや、うますぎる話にご注意ください。パスワードや支払い情報は絶対に入力しないでください。
+ui-context-this-link-leads-to-a-site-that-is-not = このリンク先は、Amanteの信頼済みサイトリストにないサイトです。偽のログインページや、うますぎる話にご注意ください。パスワードや支払い情報は絶対に入力しないでください。
 ui-options-what-shiny-surfaces-reflect-as-in-firestorm = 光沢のある表面に映り込むもの（Legacy Viewerと同様）
 world-status-this-resident-has-enabled-do-not-disturb-and-will = この住人は取り込み中に設定しているため、後でメッセージを確認します。
 link-trust-this-site-imitates-the-name-of-an-official-site = このサイトは公式サイトの名前を模倣しています。
@@ -2035,7 +2035,7 @@ ui-login-terms-of-service = 利用規約
 ui-contacts-configure = { "設定：" }{ $set }
 ui-contacts-configure-selected-contact-set = 選択したコンタクトセットを設定
 world-groups-conference = 会議
-ui-contacts-multi-person-conference-coming-soon-in-aurora = 複数人での会議：Auroraで近日対応予定
+ui-contacts-multi-person-conference-coming-soon-in-aurora = 複数人での会議：Amanteで近日対応予定
 ui-options-conferences = 会議
 ui-bars-ad-hoc-conferences = アドホック会話
 ui-profile-connected = オンライン
@@ -2283,7 +2283,7 @@ ui-options-direct = 自分宛て
 ui-bars-available = 対応可能
 ui-options-layout = レイアウト
 ui-options-slurl-links = Second Lifeのリンク
-ui-options-slurl-links-open = SLURLとハイパーグリッドのリンクをAuroraで開く
+ui-options-slurl-links-open = SLURLとハイパーグリッドのリンクをAmanteで開く
 ui-options-slurl-links-open-help = このユーザーに対してsecondlife://、hop://、x-grid-location-info://を登録します。ログイン前は、場所のリンクでグリッドと開始位置が選択され、ワールド内ではその場所の詳細が開きます。
 ui-options-slurl-links-other = これらのリンクは現在、{ $program }で開きます。
 ui-options-backup = バックアップ
@@ -2293,12 +2293,12 @@ ui-options-backup-save-button = バックアップ…
 ui-options-backup-restore = 設定を復元
 ui-options-backup-restore-help = バックアップファイルを読み込み、選択した部分をすぐに元に戻します。このPCのログイン情報、ウィンドウサイズ、フォルダ、オーディオデバイスはそのまま維持されます。
 ui-options-backup-restore-button = 復元…
-ui-options-backup-file-type = Auroraの設定のバックアップ
+ui-options-backup-file-type = Amanteの設定のバックアップ
 ui-options-backup-saved = 設定を{ $path }にバックアップしました。
 ui-options-backup-save-failed = バックアップを書き込めませんでした。
-ui-options-backup-not-a-backup = このファイルはAuroraの設定のバックアップではありません。
+ui-options-backup-not-a-backup = このファイルはAmanteの設定のバックアップではありません。
 ui-options-backup-restore-title = 設定を復元しますか？
-ui-options-backup-restore-from = { $date }のバックアップ（Aurora { $version }）。チェックした部分が現在の内容と置き換わります。
+ui-options-backup-restore-from = { $date }のバックアップ（Amante { $version }）。チェックした部分が現在の内容と置き換わります。
 ui-options-backup-part-settings = 初期設定（色、ショートカット、バーを含む）
 ui-options-backup-part-layout = ウィンドウのレイアウト
 ui-options-backup-part-skin = スキン（テーマとレイアウトのファイル）
@@ -2332,7 +2332,7 @@ ui-options-hover-tips-land-help = 区画名、所有者、制限事項、販売�
 ui-options-hover-tips-group-titles = アバターのグループタイトル
 ui-options-hover-tips-delay = 表示までの待ち時間
 ui-options-temporary-tags = 名前タグを一時的に表示
-ui-options-temporary-tags-help = Auroraのプレートとクラシックタグに適用されます。アバターが再び視界に入るとタイマーがリセットされます。
+ui-options-temporary-tags-help = Amanteのプレートとクラシックタグに適用されます。アバターが再び視界に入るとタイマーがリセットされます。
 ui-options-tag-show-time = 表示時間
 ui-options-tag-show-time-help = Legacy Viewerと同様に、最後の1秒でフェードアウトします。
 ui-minimap-far = 遠く
@@ -2348,7 +2348,7 @@ ui-context-give-my-calling-card = 自分のコーリングカードを渡す
 ui-chat-give-object-coming-soon = オブジェクトを渡す（近日対応）
 ui-contacts-give-this-resident-a-nickname = この住人にニックネームを付ける
 ui-land-objects-deeded-to-group = グループに寄贈：
-ui-options-folder-containing-llplugin-blank-aurora-s-own-plugins = llplugin\ とSLPluginを含むフォルダ。例：別途インストールしたビューアのフォルダ（空欄：Aurora内蔵のプラグイン）
+ui-options-folder-containing-llplugin-blank-aurora-s-own-plugins = llplugin\ とSLPluginを含むフォルダ。例：別途インストールしたビューアのフォルダ（空欄：設定済みのAmanteパックがある場合に使用）
 ui-options-plugins-folder-automatic = 自動
 ui-options-plugins-folder = プラグインフォルダ
 common-folder-not-found = フォルダが見つかりません。
@@ -2395,7 +2395,7 @@ ui-options-friends-online-in-chat = フレンドのオンライン／オフラ�
 ui-options-friends-online-in-chat-hint = フレンドがログインまたはログアウトしたとき、近くのチャットにも1行表示します
 ui-options-toast-friends-position = オンライン／オフライントーストの位置
 ui-options-toast-friends-position-hint = バーの横に表示し、バーには重ねません。右上の場合、ベルのカードや一覧が開いている間は表示を待ちます
-ui-options-toast-friends-position-legacy = Legacy Viewerのトーストは専用のスタックに表示されます（初期設定 › Aurora › 通知）
+ui-options-toast-friends-position-legacy = Legacy Viewerのトーストは専用のスタックに表示されます（初期設定 › Amante › 通知）
 ui-options-friend-request-prompt = フレンド申請を画面中央に表示
 ui-options-friend-request-prompt-hint = トーストの代わりに、住人の写真付きの大きなカードを表示します。「後で」を選ぶと申請はベルに残ります
 ui-friend-prompt-wants = フレンド登録を希望しています
@@ -2417,12 +2417,12 @@ ui-options-ims-in-notification-center-hint = メッセージのトーストを�
 ui-options-toast-duration = メッセージトーストの表示時間
 ui-options-attention = タスクバーとシステム通知
 ui-options-flash-on-message = メッセージで点滅
-ui-options-flash-on-message-hint = Auroraが前面にないとき：IM、グループチャット、オファー、自分の名前への言及
+ui-options-flash-on-message-hint = Amanteが前面にないとき：IM、グループチャット、オファー、自分の名前への言及
 ui-options-flash-on-object-im = オブジェクトからも
 ui-options-flash-on-script-dialog = スクリプトダイアログで点滅
-ui-options-flash-on-script-dialog-hint = Auroraが前面にないときの、スクリプトのメニューとテキストボックス
+ui-options-flash-on-script-dialog-hint = Amanteが前面にないときの、スクリプトのメニューとテキストボックス
 ui-options-system-notifications = システム通知
-ui-options-system-notifications-hint = Auroraがバックグラウンドにあるとき、Windowsの通知を表示します：IM、メンション、オファー、お知らせ、警告。クリックするとその内容に戻ります。
+ui-options-system-notifications-hint = Amanteがバックグラウンドにあるとき、Windowsの通知を表示します：IM、メンション、オファー、お知らせ、警告。クリックするとその内容に戻ります。
 ui-options-system-notifications-when-active = 前面にあるときも
 ui-options-keywords = キーワード通知
 ui-options-keywords-on = キーワード通知をオンにする
@@ -2602,7 +2602,7 @@ dev-toolbox-copied = コピーしました
 dev-toolbox-save = .txtとして保存
 dev-toolbox-log = ログ
 dev-toolbox-log-help = このテキストをセッションログに書き込みます
-dev-toolbox-nothing-sent = Auroraは何も送信しません。このテキストをどこに貼り付けるかはあなたが選びます。
+dev-toolbox-nothing-sent = Amanteは何も送信しません。このテキストをどこに貼り付けるかはあなたが選びます。
 dev-toolbox-no-avatar-target = この対象にはアバターがいません：アバターの3 m以内に立つか、その着用物を選択してください
 dev-toolbox-no-target = この対象には調べるものがありません
 dev-toolbox-no-tool-output = 直近60秒間に何かを書き込んだ診断はありません：先にP3、P4、P5、P6、O9、M1のいずれかをオンにしてください。
@@ -2994,7 +2994,7 @@ ui-appearance-items-left-eyeball = 左眼球
 ui-options-glow = グロー
 ui-options-bloom = ブルーム
 ui-experimental-tip = 実験的機能：開発中のため、変更されたり、想定以上に負荷がかかったりする場合があります
-ui-options-bloom-help = 画像の最も明るい部分（金属に当たる日光、照明）の周りに柔らかい光の輪を加えます。グローとは別の、Aurora独自の効果で、デフォルトではオフです
+ui-options-bloom-help = 画像の最も明るい部分（金属に当たる日光、照明）の周りに柔らかい光の輪を加えます。グローとは別の、Amante独自の効果で、デフォルトではオフです
 ui-options-bloom-strength = ブルームの強さ
 ui-options-bloom-strength-help = 白を超える光がどれだけ光の輪に広がるか
 ui-options-dof = 被写界深度
@@ -3191,12 +3191,12 @@ demo-land-night-club = ナイトクラブ
 common-interface = インターフェース
 build-ui-floaters-intersections-up-to-meters = 交差の検出範囲（m）
 media-plugins-missing = 未インストール
-media-plugins-downloading = Auroraのメディアプラグインをダウンロード中：{ $received } / { $total } MB
+media-plugins-downloading = Amanteのメディアプラグインをダウンロード中：{ $received } / { $total } MB
 media-plugins-installing = メディアプラグインをインストール中…
-media-plugins-error-network = ダウンロードに失敗しました：接続を確認してください。Auroraが自動的に再試行します。
-media-plugins-error-integrity = ダウンロードしたファイルが想定と一致しないため、インストールしませんでした。Auroraが自動的に再試行します。
+media-plugins-error-network = ダウンロードに失敗しました：接続を確認してください。Amanteが自動的に再試行します。
+media-plugins-error-integrity = ダウンロードしたファイルが想定と一致しないため、インストールしませんでした。Amanteが自動的に再試行します。
 media-plugins-error-filesystem = インストールできません：データフォルダの空き容量と書き込み権限を確認してください。
-media-plugins-error-unsupported = このバージョンのAuroraにはダウンロードできるメディアプラグインがありません：上でプラグインフォルダを選択してください。
+media-plugins-error-unsupported = Amanteのメディア配信は設定待ちか、このビルドでは利用できません。上でプラグインフォルダを選択してください。
 media-plugins-retry = 再試行
 media-plugins-page-waiting = メディアプラグインをダウンロード中：{ $percent } %
 media-plugins-page-failed = メディアプラグインをまだダウンロードできていません（初期設定 › サウンドとボイス › メディア）
@@ -3682,7 +3682,7 @@ ui-sound-menu-option-5-hovered = メニュー：オプション5にマウスオ�
 ui-sound-menu-option-6-hovered = メニュー：オプション6にマウスオーバー
 ui-sound-menu-option-7-hovered = メニュー：オプション7にマウスオーバー
 ui-sound-menu-option-8-hovered = メニュー：オプション8にマウスオーバー
-ui-bars-aurora-menu = Auroraメニュー
+ui-bars-aurora-menu = Amanteメニュー
 ui-sound-context-menu-closed = コンテキストメニューを閉じた
 ui-sound-context-menu-opened = コンテキストメニューを開いた
 world-mod-test-menu = テストメニュー
@@ -4144,7 +4144,7 @@ ui-audio-no-music-on-this-parcel = この区画には音楽がありません
 ui-audio-no-media-on-this-parcel = この区画にはメディアがありません
 ui-profile-no-web-profile-on-this-grid = このグリッドにはウェブプロフィールがありません。
 ui-options-camera-no-mouse-wheel-zoom = マウスホイールでズームしない
-common-not-available-in-aurora-yet = Auroraではまだ利用できません
+common-not-available-in-aurora-yet = Amanteではまだ利用できません
 keybinds-strafe-right = 右へ平行移動
 keybinds-strafe-left = 左へ平行移動
 ui-land-general-not-for-sale = 非売品
@@ -4350,7 +4350,7 @@ ui-options-camera-preset = プリセット
 ui-options-warn-before-external-links = 外部リンクを開く前に警告
 ui-options-link-previews = リンクプレビュー
 ui-options-link-previews-load = 自動で読み込む
-ui-options-link-previews-load-hint = 会話ウィンドウ（Aurora、コンパクト、吹き出しスタイル）で、リンクの下に画像や動画を表示します。既知のサイト：リンクに緑のチェックが付くサイトです。それ以外のサイトにはIPアドレスが伝わるため、プレビューはクリックするまで読み込まれません
+ui-options-link-previews-load-hint = 会話ウィンドウ（Amante、コンパクト、吹き出しスタイル）で、リンクの下に画像や動画を表示します。既知のサイト：リンクに緑のチェックが付くサイトです。それ以外のサイトにはIPアドレスが伝わるため、プレビューはクリックするまで読み込まれません
 ui-options-link-previews-never = しない
 ui-options-link-previews-trusted = 既知のサイト
 ui-options-link-previews-all = すべてのリンク
@@ -5119,10 +5119,10 @@ stream-list-failed = ストリームリストのファイルを書き込めな�
 ui-bars-market-data = L$ の市場データ
 ui-bars-script-library = スクリプトライブラリ
 ui-bars-message-of-the-day = 本日のメッセージ
-ui-bars-wiki = Aurora Viewer Wiki
+ui-bars-wiki = Amante Viewer ヘルプ
 ui-bars-knowledge-base = ナレッジベース
 ui-bars-sysinfo-button = 会話のシステム情報ボタン
-ui-bars-about = Aurora Viewer について
+ui-bars-about = Amante Viewer について
 cmdline-dice-successes = { "成功数：" }{ $successes }
 build-manip-south = 南
 common-next = 次へ
@@ -5198,11 +5198,11 @@ ui-options-graphics-card-automatic = 自動
 ui-options-graphics-card-help = 「自動」では専用カードを優先します。次回起動時に適用されます。
 ui-options-graphics-card-in-use = 使用中：{ $name }。
 ui-options-graphics-card-choice = 使用するカード
-ui-options-graphics-card-no-discrete = ビューアから見えるのは内蔵グラフィックスだけです。NVIDIA カード搭載の PC では、NVIDIA コントロール パネルで aurora-viewer.exe の「優先するグラフィックス プロセッサ」を NVIDIA カードに設定し、それでもカードが表示されない場合は PC を再起動してください。
+ui-options-graphics-card-no-discrete = ビューアから見えるのは内蔵グラフィックスだけです。NVIDIA カード搭載の PC では、NVIDIA コントロール パネルで amante-viewer.exe の「優先するグラフィックス プロセッサ」を NVIDIA カードに設定し、それでもカードが表示されない場合は PC を再起動してください。
 ui-options-graphics-card-cannot-present = 専用カードではビューアのウィンドウを描画できません。モニターをマザーボードではなく、専用カードの出力端子に接続してください。
 ui-options-overlays = オーバーレイ
 ui-options-allow-overlays = 他のプログラムのオーバーレイを許可
-ui-options-allow-overlays-help = Steam オーバーレイ、RivaTuner（MSI Afterburner）、Epic Games オーバーレイなどはビューアの表示に入り込み、クラッシュや白いウィンドウの原因になることがよくあります。許可しない限り、これらは締め出されます。OBS Studio のゲームキャプチャは常に動作します。Discord のオーバーレイは締め出せないため、ウィンドウが白くなる場合は Discord で Aurora のオーバーレイをオフにしてください。次回起動時に適用されます。
+ui-options-allow-overlays-help = Steam オーバーレイ、RivaTuner（MSI Afterburner）、Epic Games オーバーレイなどはビューアの表示に入り込み、クラッシュや白いウィンドウの原因になることがよくあります。許可しない限り、これらは締め出されます。OBS Studio のゲームキャプチャは常に動作します。Discord のオーバーレイは締め出せないため、ウィンドウが白くなる場合は Discord で Amante のオーバーレイをオフにしてください。次回起動時に適用されます。
 ui-perf-vertical-synchronization-frame-rate-limit-presentation-render-thread-wait = 垂直同期、フレームレート制限、表示、レンダースレッドの待機
 build-ui-texture-synchronize-materials = マテリアルを同期
 common-system = システム
@@ -5402,7 +5402,7 @@ ui-options-fun = お遊び
 ui-options-about-fun = ちょっとしたお遊び機能です。オンにするまではすべてオフです。
 ui-options-section-extras = おまけ
 ui-options-fun-plates = ネームプレート
-ui-options-fun-classic-tags = これらのオプションはネームプレートに作用します。Auroraページで選んだクラシックな名前タグはそのままです。
+ui-options-fun-classic-tags = これらのオプションはネームプレートに作用します。Amanteページで選んだクラシックな名前タグはそのままです。
 ui-options-fun-reduced-motion = 「アニメーションを減らす」がオンです：プレートは揺れず、カウンターはエフェクトなしで表示されます。
 ui-options-fun-jiggle = ぷるぷるネームプレート
 ui-options-fun-jiggle-help = ポインターが触れるたびに、プレートがすぐにゼリーのように揺れます。せわしなく動かすほど大きく揺れます。大きくなるプレートは勢い余ってサイズを超えてから落ち着きます。
@@ -5410,7 +5410,7 @@ ui-options-fun-click-combo = クリックコンボカウンター
 ui-options-fun-click-combo-help = プレートへのクリックはすべてカウントされ、住人ごとの回数はこのコンピュータに保存されます（送信はされません）。5秒以内に5回クリックするとコンボ開始：プレートの角からカウンターが飛び出し、クリックのたびに弾み、連打が続くほど熱くなります。この間、プレートをクリックしても他には何も起きません。ただし「アバター」ページでプレートのクリック動作を選んでいる場合は除きます。
 ui-options-fun-try = 試してみる
 ui-options-fun-try-help = サンプルのプレートです。カーソルを合わせたりクリックしたりして、上のオプションを試せます。このクリックは保存されません。
-ui-options-about-confirmations = Auroraが実行前に確認すること、およびリージョンのアラート。
+ui-options-about-confirmations = Amanteが実行前に確認すること、およびリージョンのアラート。
 ui-options-about-inventory = インベントリウィンドウの初期設定と、受け取ったアイテムの整理。
 ui-options-about-controls = 感度、地面のダブルクリック、移動キー。
 ui-options-about-commands = チャットバーに入力するコマンド。名前にカーソルを合わせるとヘルプが表示されます。
@@ -5427,7 +5427,7 @@ ui-options-tab-bars-and-windows = バーとウィンドウ
 ui-options-tab-startup = 起動
 ui-options-aurora-redrawn-windows = 刷新されたウィンドウ
 ui-options-aurora-in-the-world = ワールド内
-ui-options-aurora-water = Auroraの水
+ui-options-aurora-water = Amanteの水
 ui-options-distance-and-detail = 距離とディテール
 ui-options-shadows = 影
 ui-options-exposure-and-glow = 露光とグロー
@@ -5466,7 +5466,7 @@ ui-options-crash-github-hint = クラッシュレポート用にこのコンピ�
 ui-options-crash-github-forget = 削除
 ui-options-your-data = あなたのデータ
 ui-options-privacy-policy = プライバシーポリシー
-ui-options-privacy-policy-hint = Aurora Viewerが何を誰に送信し、このコンピュータに何を保存するか（aurora-viewer.org）。
+ui-options-privacy-policy-hint = Amanteのプライバシーポリシーは所有者による設定待ちです。
 ui-options-privacy-policy-open = 読む
 ui-options-bars = バー
 ui-options-at-startup = 起動時
@@ -5536,7 +5536,7 @@ build-ui-floaters-download = ダウンロード
 ui-inventory-thumbnail-upload-from-your-computer = コンピュータからアップロード
 ui-login-download-update = アップデートをダウンロード
 login-driver-old-title = グラフィックドライバが古くなっています
-login-driver-old-version = { $gpu }のドライバは{ $found }です。Auroraには{ $minimum }以降が必要です。
+login-driver-old-version = { $gpu }のドライバは{ $found }です。Amanteには{ $minimum }以降が必要です。
 login-driver-old-age = { $gpu }のドライバは{ $date }にインストールされたもので、2年以上前のものです。
 login-driver-old-why = 古いドライバは、クラッシュや表示の乱れの最も一般的な原因です。更新は数分で終わります。
 login-driver-download = { $vendor }のドライバを入手
@@ -5546,7 +5546,7 @@ login-safe-graphics-offer = セーフグラフィック（「最低」レベル�
 login-safe-graphics-use = セーフグラフィックを使用
 login-safe-graphics-keep = 現在の設定を維持
 login-safe-graphics-active-title = セーフグラフィックがオンです
-login-safe-graphics-active = グラフィックカードが応答しなくなったため、Auroraは「最低」レベルで動作しています。原因を解消したら（ドライバの更新、オーバーレイの無効化など）、ご自分の設定に戻してください。
+login-safe-graphics-active = グラフィックカードが応答しなくなったため、Amanteは「最低」レベルで動作しています。原因を解消したら（ドライバの更新、オーバーレイの無効化など）、ご自分の設定に戻してください。
 login-safe-graphics-restore = グラフィック設定を元に戻す
 login-safe-graphics-stay = セーフグラフィックを維持
 ui-perf-downloaded = ダウンロード済み
@@ -6687,7 +6687,7 @@ common-for-sale = 販売中：
 ui-land-general-for-sale-to = 販売先：
 ui-profile-coming-soon = 近日公開
 ui-profile-aurora-my-profile = マイプロフィール
-ui-profile-aurora-help = 住人のプロフィールです。その人について、その人とできること、続いてお気に入りの場所、クラシファイド、リアルライフ、Webプロフィール、あなたのメモが表示されます。初期設定 › Aurora › プロフィール で Legacy Viewer のウィンドウに戻せます。
+ui-profile-aurora-help = 住人のプロフィールです。その人について、その人とできること、続いてお気に入りの場所、クラシファイド、リアルライフ、Webプロフィール、あなたのメモが表示されます。初期設定 › Amante › プロフィール で Legacy Viewer のウィンドウに戻せます。
 ui-profile-aurora-conversation = 会話
 ui-profile-aurora-call = コール
 ui-profile-aurora-add-friend = フレンドに追加
@@ -6805,7 +6805,7 @@ ui-profile-aurora-notes-private = 自分だけに表示
 ui-profile-aurora-notes-saved = 保存しました
 ui-profile-aurora-notes-hint = { $name }について覚えておきたいこと…
 ui-profile-aurora-notes-kept = メモはサーバーに保存され、どのコンピュータからでも利用できます。
-ui-contacts-coming-soon-in-aurora = Auroraに近日搭載
+ui-contacts-coming-soon-in-aurora = Amanteに近日搭載
 ui-chat-at = { $value0 }{ "へのメッセージ" }
 ui-options-balance-change-above-which-received-spent-l-sounds-are = L$の受け取り／支払いサウンドを再生する残高変化のしきい値（UISndMoneyChangeThreshold）
 keybinds-esc = Esc
@@ -7181,7 +7181,7 @@ monitor-tile-vram = ビデオメモリ
 monitor-tile-net = ネットワーク
 monitor-tile-disk = ディスク
 monitor-cores-used = { $used }コア
-monitor-unit-pct-aurora = % Aurora
+monitor-unit-pct-aurora = % Amante
 monitor-tile-cpu-sub = メディア{ $media } · マシン全体{ $machine }
 monitor-fps = { $fps } FPS
 monitor-unit-ms-frame = ms／フレーム
@@ -7284,8 +7284,8 @@ monitor-desc-meshes = メッシュのダウンロードとデコード、プリ�
 monitor-desc-avatars = ポーズとスケルトン、アニメーション、複雑さ、装着物、遠くのアバターのインポスター、自分のカメラと入力。
 monitor-desc-scene = カリングと描画リスト、ネットワークから受信したオブジェクトの同期、パーティクル、ライト、反射プローブ。
 monitor-desc-world = リージョンおよび隣接リージョンとの UDP サーキット：オブジェクトの更新、移動、確認応答。
-monitor-desc-interface = Aurora のウィンドウとバー：準備、レイアウト、インターフェースのレンダリングパス。
-monitor-desc-media = 区画メディア、メディアの面、Web ページ。それぞれが Aurora とは別の専用の SLPlugin プロセスで、起動したプロセスとともに実行されます。
+monitor-desc-interface = Amante のウィンドウとバー：準備、レイアウト、インターフェースのレンダリングパス。
+monitor-desc-media = 区画メディア、メディアの面、Web ページ。それぞれが Amante とは別の専用の SLPlugin プロセスで、起動したプロセスとともに実行されます。
 monitor-desc-audio = ワールドのサウンドのミキサー（最大 48 ボイス）と区画の音楽ストリーム。
 monitor-desc-voice = 空間ボイス（WebRTC）：参加者の音声の取り込み、エンコード、再生。
 monitor-desc-services = インベントリキャッシュ、ケーパビリティとイベントキュー、ディスクに書き込まれるチャットログと履歴。
@@ -7309,7 +7309,7 @@ monitor-setting-sounds = サウンド
 monitor-setting-voice = ボイス
 monitor-setting-chat-logs = チャットログ
 monitor-setting-cache-size = キャッシュサイズ
-monitor-threads-sub = Aurora は{ $cores }コア中{ $used }コアを使用 · { $threads }スレッド
+monitor-threads-sub = Amante は{ $cores }コア中{ $used }コアを使用 · { $threads }スレッド
 monitor-no-system-counters = この環境ではシステムのカウンターを読み取れません。
 monitor-cores-title = 論理コアごとの負荷
 monitor-whole-machine = マシン全体 · { $value }
@@ -7349,7 +7349,7 @@ monitor-thread-logs = チャットログと履歴
 monitor-thread-monitor = このモニターの計測
 monitor-thread-unnamed = 名前のないスレッド（グラフィックドライバ、システム）
 monitor-memory-sub = プロセスのメモリとグラフィックカードのメモリ
-monitor-aurora-process = Aurora のプロセス
+monitor-aurora-process = Amante のプロセス
 monitor-working-set = ワーキングセット
 monitor-private = プライベートメモリ
 monitor-session-peak = セッション中のピーク
@@ -7524,8 +7524,8 @@ monitor-media-marketplace = マーケットプレイス
 monitor-media-profile = プロフィールの Web ページ
 
 # Independent crash recovery window
-crash-title = Aurora Viewer — クラッシュレポート
-crash-heading = Aurora Viewer が予期せず停止しました
+crash-title = Amante Viewer — クラッシュレポート
+crash-heading = Amante Viewer が予期せず停止しました
 crash-explanation = セッションが終了しました。以下の詳細は問題の特定に役立つ場合があります。
 crash-local-only = この詳細はこのコンピュータに保存されています。何も送信されていません。
 crash-details = 技術的な詳細
@@ -7566,9 +7566,9 @@ crash-publish = GitHub に公開
 crash-open-browser = ブラウザで開く
 crash-body-copied = レポートをクリップボードにコピーしました。開いた issue に貼り付けてください。
 crash-back = 戻る
-crash-report-summary = Aurora Viewer のクラッシュ
+crash-report-summary = Amante Viewer のクラッシュ
 crash-report-expected = ビューアが動作し続けること。
-crash-report-actual = Aurora Viewer が予期せず停止しました。
+crash-report-actual = Amante Viewer が予期せず停止しました。
 crash-report-reason = クラッシュの種類
 crash-report-exit-code = プロセスの終了コード
 bug-log-native = ネイティブ例外
@@ -7577,7 +7577,7 @@ update-demo-badge = プレビュー · デモ用バージョン
 update-title = アップデートがあります
 update-downloading-title = アップデートをダウンロード中
 update-ready-title = アップデートの準備完了
-update-intro = Aurora の新しいバージョンが利用可能です。
+update-intro = Amante の新しいバージョンが利用可能です。
 update-current = 現在のバージョン
 update-new = 新しいバージョン
 update-release-notes = 新機能
@@ -7593,7 +7593,7 @@ update-cache-keep = キャッシュ：保持されます。
 update-cache-clear = キャッシュ：消去されます。データは必要に応じて再ダウンロードされます。
 update-settings-migrate = 設定：保持され、必要に応じて自動的に移行されます。
 update-settings-reset = 設定：既定値にリセットされます。カスタマイズした初期設定は失われます。
-update-effects-restart = Aurora が再起動します。起動に失敗した場合は、以前のファイルが復元されます。
+update-effects-restart = Amante が再起動します。起動に失敗した場合は、以前のファイルが復元されます。
 update-demo-safe = シミュレーション：ファイルはダウンロードもインストールもされません。
 update-skip = このバージョンをスキップ
 update-skip-hint = このバージョンの案内を停止します。今後のバージョンは引き続き案内されます。
@@ -7606,19 +7606,19 @@ update-demo-finish = デモを終了
 update-check = アップデートを確認
 update-check-hint = スキップしたバージョンを含め、利用可能なアップデートを表示します。
 update-required-title = アップデートが必要です
-update-required = このバージョンはサポートが終了しました。サインインする前に Aurora をアップデートしてください。
+update-required = このバージョンはサポートが終了しました。サインインする前に Amante をアップデートしてください。
 update-login-required = サインインがブロックされています。続行するには必要なアップデートをインストールしてください。
 update-login-checking = サインイン前にアップデートを確認中…
 update-login-test = テスト用インストール：グリッドへのサインインは無効です。
 update-no-notes = 新機能についてはリリースページをご覧ください。
 update-preparing = ファイルを検証して準備中…
-update-restart = インストールして Aurora を再起動
+update-restart = インストールして Amante を再起動
 update-restarting = 再起動の準備中…
 update-open-release = リリースページを開く
 update-error-title = アップデートが完了しませんでした
 update-error-network = ダウンロードまたは確認に失敗しました。接続を確認し、「アップデートを確認」から再試行してください。
 update-error-integrity = ダウンロードしたファイルが公開されているチェックサムと一致しません。インストールは行われませんでした。
-update-error-filesystem = インストールの準備ができません。空き容量とフォルダの書き込み権限を確認し、ほかの Aurora を終了してください。
+update-error-filesystem = インストールの準備ができません。空き容量とフォルダの書き込み権限を確認し、ほかの Amante を終了してください。
 update-error-package = パッケージが不完全または無効です。現在のインストールはそのまま保持されます。
 update-error-unsupported = このリリースは、このフォルダからは自動でインストールできません。リリースページからダウンロードし、専用のフォルダに展開してください。
 update-error-startup = 更新ヘルパーを起動できませんでした。現在のインストールはそのまま保持されています。
@@ -7637,7 +7637,7 @@ update-beta-build = { $date }ビルド、#{ $number }
 bug-compose-heading = 1. レポートを作成
 bug-send-heading = 2. 送信方法を選択
 bug-browser-help = 入力済みのレポートがブラウザで開きます。内容を確認してGitHubで公開してください。GitHubアカウントが必要です。
-bug-direct-help = 「送信」をクリックすると、Auroraがレポートを公開します。先に下でGitHubアカウントを接続してください。
+bug-direct-help = 「送信」をクリックすると、Amanteがレポートを公開します。先に下でGitHubアカウントを接続してください。
 bug-required-help = 続行するには、タイトルと「説明」の「何が起きましたか？」を入力してください。
 bug-other-actions = その他の操作
 bug-unavailable = 利用不可
@@ -8185,18 +8185,18 @@ ui-texture-picker-uuid = UUID
 build-ui-tools-owner-group = グループ
 build-ui-tools-owner-others = 他人
 build-ui-tools-owner-public = 公開
-ui-options-aurora = Aurora
-ui-options-aurora-intro = AuroraがLegacy Viewerと異なる点です。新しくデザインされた各要素は、お好みでLegacy版に戻せます。
+ui-options-aurora = Amante
+ui-options-aurora-intro = AmanteがLegacy Viewerと異なる点です。新しくデザインされた各要素は、お好みでLegacy版に戻せます。
 ui-options-aurora-all-firestorm = すべてLegacy版にする
-ui-options-aurora-all-aurora = すべてAurora版にする
+ui-options-aurora-all-aurora = すべてAmante版にする
 ui-options-aurora-appearance = 外観
 ui-options-aurora-conversations = 会話
-ui-options-aurora-conversations-help = Aurora：会話リストの横に、メッセージを発言者ごとにまとめて表示。コンパクト：1メッセージ1行。吹き出し。またはLegacy Viewerのようなテキスト行。
+ui-options-aurora-conversations-help = Amante：会話リストの横に、メッセージを発言者ごとにまとめて表示。コンパクト：1メッセージ1行。吹き出し。またはLegacy Viewerのようなテキスト行。
 ui-options-aurora-chat-lines = 近くのチャットの表示
 ui-options-aurora-chat-lines-help = チャットバーの上に表示される近くのチャット：発言者ごとに画像付きでまとめたカード、またはLegacy Viewerのように1メッセージ1行のテキスト。
 ui-options-aurora-chat-lines-cards = カード
 ui-options-aurora-chat-lines-classic = 行（Legacy）
-ui-options-aurora-workspace = Aurora
+ui-options-aurora-workspace = Amante
 ui-options-aurora-compact = コンパクト
 ui-options-aurora-bubbles = 吹き出し
 ui-options-aurora-lines = 行（Legacy）
@@ -8230,7 +8230,7 @@ ui-options-aurora-people-rows = 詳細表示
 ui-options-aurora-people-table = 表（Legacy）
 ui-options-aurora-profiles = プロフィール
 ui-options-aurora-profiles-help = 画像、バッジ、操作ボタン付きのヘッダーと、カードにまとめた内容。またはLegacy Viewerのように「Second Life」「フィード」「お気に入り」…のタブ付きウィンドウ。アバターとグループに適用されます。
-ui-options-aurora-profiles-aurora = Aurora
+ui-options-aurora-profiles-aurora = Amante
 ui-options-aurora-profiles-classic = クラシックウィンドウ（Legacy）
 ui-options-aurora-profiles-rights = フレンドの権限
 ui-options-aurora-profiles-rights-help = フレンドのプロフィールの「情報」にある「権限」の行：自分が相手に許可している権限と、相手が自分に許可している権限。非表示にした場合は「コンタクト」ウィンドウで確認できます。
@@ -8242,11 +8242,11 @@ ui-options-aurora-vf-controls-help = マウス操作用のレンズリング、�
 ui-options-aurora-vf-controls-always = 常に表示
 ui-options-aurora-vf-controls-hover = ホバー時
 ui-options-aurora-vf-controls-hidden = 非表示
-ui-options-aurora-photo-panel = Auroraパネル
+ui-options-aurora-photo-panel = Amanteパネル
 ui-options-aurora-photo-classic = クラシックウィンドウ（Legacy）
 ui-options-aurora-about-land = 土地情報
 ui-options-aurora-about-land-help = 概要と目的別にまとめた設定、またはLegacy Viewerの9つのタブ。
-ui-options-aurora-about-land-aurora = Aurora
+ui-options-aurora-about-land-aurora = Amante
 ui-options-aurora-about-land-classic = クラシックウィンドウ（Legacy）
 ui-options-aurora-search-help = 1つの入力欄、種類のチップ、結果の横の詳細。またはLegacy Viewerの7つのタブ。
 ui-options-aurora-search-classic = タブ（Legacy）
@@ -8254,12 +8254,12 @@ ui-options-aurora-region-estate-help = 概要、目的別にまとめた設定�
 ui-options-aurora-inventory-help = ツリーから詳細付きのエクスプローラーへと広がる1つのウィンドウ、またはLegacy Viewerの単一のツリー。
 ui-options-aurora-pay-window = 支払いウィンドウ
 ui-options-aurora-pay-window-help = 住人、グループ、オブジェクトへの支払い。
-ui-options-aurora-pay-aurora = Aurora
+ui-options-aurora-pay-aurora = Amante
 ui-options-aurora-pay-classic = クラシックウィンドウ（Legacy）
 ui-options-aurora-money-tracker-help = セッション中に受け取ったL$と支払ったL$。
 ui-options-aurora-controls = カメラと移動のコントロール
 ui-options-aurora-controls-help = 「カメラ」と「移動」のウィンドウ。
-ui-options-aurora-controls-aurora = Aurora
+ui-options-aurora-controls-aurora = Amante
 ui-options-aurora-controls-classic = クラシックウィンドウ（Legacy）
 ui-options-aurora-restart-alert = 再起動の警告
 ui-options-aurora-restart-alert-help = カウントダウン付きのカード、またはLegacy Viewerの中央に表示される黄色いボックス。
@@ -8270,7 +8270,7 @@ ui-options-aurora-rez-effect-help = 目の前でオブジェクトやアバタ�
 ui-options-aurora-rez-effect-aurora = エフェクト
 ui-options-aurora-rez-effect-classic = グレー（Legacy）
 ui-options-aurora-hover-tips = ワールドのツールチップ
-ui-options-aurora-hover-tips-help = Aurora：アイコンとラベル付きの吹き出し、カード、または読み取り表示（形式は初期設定 › インターフェースで選択）。Legacy：Legacy Viewerのテキストと「i」ボタン。
+ui-options-aurora-hover-tips-help = Amante：アイコンとラベル付きの吹き出し、カード、または読み取り表示（形式は初期設定 › インターフェースで選択）。Legacy：Legacy Viewerのテキストと「i」ボタン。
 ui-options-aurora-hover-tips-legacy = テキスト（Legacy）
 ui-options-aurora-gaze = 視線
 ui-options-aurora-aim = 視線の向き
@@ -8284,14 +8284,14 @@ ui-options-aurora-own-motion-help = キーを押すとすぐにアバターが�
 ui-options-aurora-own-motion-instant = 即時
 ui-options-aurora-own-motion-server = シミュレーター（Legacy）
 ui-options-aurora-animations = アニメーション
-ui-options-aurora-ground-feet = Auroraの足の配置を使用
+ui-options-aurora-ground-feet = Amanteの足の配置を使用
 ui-options-aurora-ground-feet-moving = 移動中も適用
 ui-options-aurora-ground-feet-moving-help = 足の補正を歩行、走行、しゃがみ歩きにも適用します。オフの場合、移動中は補正が徐々に解除され、静止すると再開します。
 ui-options-aurora-ground-feet-height = 足の最大調整量
 ui-options-aurora-ground-feet-avatars = 他のアバターの最大数
 ui-options-aurora-ground-feet-avatars-help = 視界内で最も近いアバターに脚の補正を適用します。自分のアバターはこの上限に含まれません。0：自分のアバターのみ。初期値：5。
 ui-options-aurora-ground-feet-height-help = アニメーションに対する各足の最大垂直移動量です。値を大きくすると、より離れた足場に届きます。初期値：0.4 m、最大：1 m。
-ui-options-aurora-ground-feet-help = Legacy Viewer標準の足の配置を、坂や段差ごとに合わせるAuroraの補正に置き換えます。足を上げる動作や優先度の高いポーズはそのまま優先されます。オフの場合、標準の立ち、しゃがみ、回復のアニメーションは通常の動作になります。2つの補正が重なることはありません。
+ui-options-aurora-ground-feet-help = Legacy Viewer標準の足の配置を、坂や段差ごとに合わせるAmanteの補正に置き換えます。足を上げる動作や優先度の高いポーズはそのまま優先されます。オフの場合、標準の立ち、しゃがみ、回復のアニメーションは通常の動作になります。2つの補正が重なることはありません。
 ui-options-aurora-animation-clock = アニメーションのタイミング
 ui-options-aurora-animation-clock-experimental = 試験的機能：アバターとアニメッシュの同期再生は、グリッドでまだ検証中です。既定はLegacyのままです。
 ui-options-aurora-animation-clock-help = アバターとアニメッシュ：同期クロックは、最初に受信した信号からの経過時間に従います（読み込みが遅れた場合や編集後も同様）。Legacyは読み込み時に開始し、編集後は一時停止したポーズから再開します。
@@ -9796,7 +9796,7 @@ buy-land-can-not-change = 統合・再分割不可
 buy-land-covenant-section = 不動産約款
 buy-land-must-agree = 不動産約款に同意してください：
 buy-land-agree-covenant = 上記の約款に同意します
-buy-land-cannot-close = Aurora Viewerがこの取引の価格を見積もるまで、「土地の購入」ウィンドウは閉じられません。
+buy-land-cannot-close = Amante Viewerがこの取引の価格を見積もるまで、「土地の購入」ウィンドウは閉じられません。
 buy-land-nothing-selected = 土地を購入できません：区画が選択されていません。
 buy-land-across-regions = 選択範囲が複数のリージョンにまたがっているため、土地を購入できません。より狭い範囲を選択して、もう一度お試しください。
 buy-land-only-officer = グループ用に土地を購入できません：現在アクティブなグループのために土地を購入する権限がありません。
@@ -11398,7 +11398,7 @@ contact-visual-lower = 優先度を下げる
 contact-visual-inherit-hint = オプションを有効にすると、上書き設定が追加されます。無効の場合は、優先度の低いセットと全般設定が適用されます。
 contact-visual-border = ネームプレートに枠線を追加
 contact-visual-background = ネームプレートの背景に色を付ける
-contact-visual-plate-name = Auroraネームプレートの名前に色を付ける
+contact-visual-plate-name = Amanteネームプレートの名前に色を付ける
 contact-visual-ui-name = インターフェースの他の場所の名前に色を付ける
 contact-visual-chat-name = チャットの送信者名に色を付ける
 contact-visual-chat-text = チャットメッセージに色を付ける
@@ -12095,3 +12095,620 @@ particle-editor-inject-timeout = グリッドから応答がありませんで�
 keybinds-lens-zoom-in = 視野角を狭める
 keybinds-lens-zoom-out = 視野角を広げる
 keybinds-lens-zoom-default = 視野角をリセット
+
+import-animation-model = プレビューモデル
+
+import-animation-model-default = 標準
+
+import-animation-model-choose = モデルを追加…
+
+import-animation-model-remove = 「{ $name }」を一覧から削除
+
+import-animation-model-kept = 前のプレビューを引き続き表示します。
+
+import-animation-model-help = ローカルのdae、gltf、glbモデルを一度追加すると、保存した一覧から選択できます。選択はキュー内のすべてのアニメーションに適用され、次回のインポートにも引き継がれます。Second Lifeのボーン（Bentoを含む）にウェイトを設定したモデルを使用してください。一覧から削除してもファイルは残ります。モデルはプレビューだけで使用され、アップロードされません。
+
+import-animation-model-rigged = Second Lifeのスケルトンにウェイトを設定したモデルを選択してください。
+
+keybinds-teleport-home = ホームにテレポート
+
+inventory-search-quick = クイック検索
+
+inventory-search-advanced = 詳細
+
+inventory-search-advanced-menu = 詳細検索…
+
+inventory-search-advanced-tip = 詳細検索：「すべて」「いずれか」「除外」でルールを組み合わせます
+
+inventory-smart-add-hint = ルールを追加…
+
+inventory-smart-match-all = すべてのルール
+
+inventory-smart-match-any = いずれかのルール
+
+inventory-smart-match-tip = すべてのルール、またはいずれかのルールに一致するものを表示します
+
+inventory-smart-not = 除外
+
+inventory-smart-not-tip = 除外するものを表示します
+
+inventory-smart-add-rule = ルールを追加
+
+inventory-smart-add-group = グループを追加
+
+inventory-smart-remove-rule = このルールを削除
+
+inventory-smart-remove-group = このグループを削除
+
+inventory-smart-group = グループ
+
+inventory-smart-empty = ルールなし：すべて表示されます
+
+inventory-smart-reset = リセット
+
+inventory-smart-save = 保存…
+
+inventory-smart-save-tip = このルールをスマート検索として保存
+
+inventory-smart-save-name = スマート検索の名前
+
+inventory-smart-save-confirm = 保存
+
+inventory-smart-untitled = スマート検索
+
+inventory-smart-section = スマート検索
+
+inventory-smart-rename = 名前を変更
+
+inventory-smart-delete = 削除
+
+inventory-smart-update = 現在のルールをここに保存
+
+inventory-smart-more = +{ $count }
+
+inventory-smart-similar = 類似アイテム
+
+inventory-smart-field-name = 名前
+
+inventory-smart-field-description = 説明
+
+inventory-smart-field-creator = 制作者
+
+inventory-smart-field-uuid = ＵＵＩＤ
+
+inventory-smart-field-folder = フォルダ
+
+inventory-smart-field-type = 種類
+
+inventory-smart-field-permissions = 権限
+
+inventory-smart-field-worn = 着用中
+
+inventory-smart-field-link = リンク
+
+inventory-smart-field-coalesced = 複合オブジェクト
+
+inventory-smart-field-date = 日付
+
+inventory-smart-op-contains = を含む
+
+inventory-smart-op-is = というワードを含む
+
+inventory-smart-op-starts-with = で始まる
+
+inventory-smart-op-ends-with = で終わる
+
+inventory-smart-op-pattern = に一致
+
+inventory-smart-op-ends-in-number = が数字で終わる
+
+inventory-smart-op-has-version = にバージョンがある
+
+inventory-smart-pattern-tip = 任意の文字列は*、任意の１文字は?で表します
+
+inventory-smart-chip = { $field }「{ $value }」{ $op }
+
+inventory-smart-chip-bare = { $field }{ $op }
+
+inventory-smart-chip-not = 除外条件：{ $rule }
+
+inventory-smart-worn = 着用中
+
+inventory-smart-link = リンク
+
+inventory-smart-coalesced = 複合オブジェクト
+
+inventory-smart-since-logout = 前回のログアウト以降
+
+inventory-smart-age-newer = より新しい
+
+inventory-smart-age-older = より古い
+
+inventory-smart-hours = { $hours }時間
+
+inventory-smart-types-none = 種類を選択
+
+inventory-smart-rights-none = 権限を選択
+
+world-appearance-deleted-scarf = 削除されたスカーフ
+
+demo-aurora-viewer-rust-metal = { "Auroraビューア\u000ARust・Metal" }
+
+app-aurora-viewer-unable-to-initialize-metal = { "Auroraビューア：Metalを初期化できませんでした：" }{ $e }
+
+contacts-import = コンタクトセットをインポート…
+
+contacts-import-hint = レガシービューアのアカウントフォルダからsettings_friends_groups.xml、またはエクスポートしたコンタクトセットを選択してください。メンバーは統合され、既存の色とニックネームは保持されます。
+
+contacts-import-file-type = コンタクトセット（ＸＭＬ）
+
+contacts-import-success = コンタクトセットをインポートしました（{ $count }件）。既存のメンバー、色、ニックネームは保持されました。
+
+contacts-import-failed = コンタクトセットをインポートできませんでした。有効なコンタクトセットのＸＭＬファイル（１６ＭｉＢ以下）を選択し、アカウント設定フォルダに書き込めるか確認してください。連絡先は保持されています。
+
+ui-login-second-life-client-rust-metal = Second Lifeクライアント・Rust・Metal
+
+ui-options-payment-sent-opens-conversation = 住人に支払ったときに会話を開く
+
+ui-options-payment-sent-opens-conversation-hint = 住人への直接の支払いは、その人との会話が開いているとカードで表示されます。有効にすると、支払ったときに会話を開きます。
+
+common-click-to-copy = クリックでコピー
+
+common-copied = コピーしました
+
+ui-contacts-message-hint = メッセージ（任意）
+
+ui-contacts-enter-to-confirm = Enterキーで確定
+
+ui-options-region-message-prompt = 画面中央にリージョンメッセージを表示
+
+ui-options-region-message-prompt-hint = トースト通知の代わりに「OK」で閉じるカードを表示します。メッセージは近くのチャットにも記録されます。
+
+ui-region-message-prompt-sent = さんがリージョンにメッセージを送信しました
+
+ui-region-message-prompt-sent-to = さんが{ $region }にメッセージを送信しました
+
+ui-region-message-prompt-more = { $count ->
+    [one] ほかにもう1件のリージョンメッセージがあります
+   *[other] ほか{ $count }件のリージョンメッセージがあります
+    }
+
+system-notification-open = 開く
+
+dev-toolbox-target-me = 自分のアバター
+
+dev-toolbox-target-me-hint = 自分と装着しているもの
+
+dev-toolbox-target-me-text = 自分のアバター・装着アイテム{ $worn }個
+
+dev-toolbox-j9 = 装着中のアニメッシュの骨格
+
+dev-toolbox-what-j9 = 対象が装着しているアニメーションオブジェクト：スキンの関節、関節のオーバーライド、制御用の骨格、アニメーション
+
+ui-options-automatic-fly = 上昇キーを押しっぱなしで飛行する
+
+ui-options-automatic-fly-help = ジャンプ／上昇キーを押し続けると飛行を開始します。オフの場合は、地上でのジャンプを押し続けている間は飛行せずに繰り返します。飛行中は上昇することも可能です。飛行を開始するには、飛行ボタンまたはショートカットを使用してください。
+
+ui-options-automatic-land = 下降キーを押しっぱなしで着地する
+
+ui-options-automatic-land-help = しゃがむ／下降キーを押し続けると、地面や足場に触れたときに飛行を終了します。オフの場合も、地上ではしゃがみ、飛行中は下降します。飛行を終了するには、飛行ボタンまたはショートカットを使用してください。
+
+ui-bars-menu-no-match = 「{ $query }」に一致する項目はありません。
+
+inventory-thumbnail-choose-layout = サムネイルを選択
+
+inventory-thumbnail-choose-layout-help = クリックして選択します。「切り抜いて表示」の画像はドラッグして範囲を調整できます。
+
+inventory-thumbnail-stretch = 正方形に合わせる
+
+inventory-thumbnail-stretch-help = 画像全体を引き伸ばして正方形いっぱいに表示します。
+
+inventory-thumbnail-fit = 縦横比を維持
+
+inventory-thumbnail-fit-help = 画像を変形せず全体を表示し、余白は透明にします。
+
+inventory-thumbnail-crop = 切り抜いて表示
+
+inventory-thumbnail-crop-help = 画像をドラッグして範囲を調整し、クリックして切り抜きを使用します。
+
+inventory-thumbnail-upload-complete = 画像を保存しました。
+
+inventory-thumbnail-save-not-confirmed = 画像の保存を確認できませんでした。もう一度お試しください。
+
+graphics-saved-title = 保存済みグラフィックプロファイル
+
+graphics-saved-help = プロファイルを選択して適用します。「保存」は選択中のプロファイルを更新し、「名前を付けて保存…」は現在の描画品質を別の名前で保存します。FPS 制限、垂直同期、ハードウェア、環境設定は変更されません。
+
+graphics-saved-save-as = 名前を付けて保存…
+
+graphics-saved-modified = { $name }（変更あり）
+
+parcel-visibility-filter = 区画のフィルタリング
+
+graphics-saved-name = プロファイル名
+
+graphics-saved-save = グラフィックプロファイルを保存
+
+graphics-saved-empty = 保存済みのグラフィックプロファイルはありません
+
+graphics-saved-replace = このグラフィックプロファイルを上書きしますか？
+
+graphics-saved-delete = このグラフィックプロファイルを削除しますか？
+
+graphics-fps-cap = フレームレートを { $limit } FPS に制限
+
+ui-minimap-lock-position = 位置をロック
+
+ui-options-rlva = ＲＬＶａ
+
+ui-options-rlva-experimental = ＲＬＶａは非常に実験的な機能で、現在もテスト中です。一部の制限が機能しなかったり、レガシービューアと異なる動作をしたりする場合があります。
+
+ui-options-download-connections = ダウンロード接続数
+
+ui-options-download-connections-hint = テクスチャとメッシュを同時にダウンロードする数です。「自動」は回線に合わせて増減し、「制限」はリージョンの読み込み中にネットワークが切れる場合に役立ちます。多数のダウンロードで接続が切れることが知られているネットワークアダプターでは、常に制限されます。次回の起動時に反映されます。
+
+ui-options-download-connections-detected = このコンピューターではダウンロードは制限されたままです：{ $adapter }が見つかりました。
+
+ui-options-download-connections-blocked = このコンピューターでは使用できません：{ $adapter }は同時に多数のダウンロードを行うと接続が切れます。
+
+ui-options-download-connections-automatic = 自動
+
+ui-options-download-connections-adaptive = 回線に合わせる（最速）
+
+ui-options-download-connections-limited = 制限（同時に２４）
+
+ui-options-about-rlva = スクリプトによる制限（RestrainedLove API）：装着中または座っているオブジェクトがロックできる内容と、現在有効な制限。
+
+ui-options-render-scale = ３Ｄ描画解像度
+
+ui-options-render-scale-help = ワールドを低い解像度で描画してから拡大し、フレームレートを向上させます。インターフェースとＨＵＤは鮮明なままです。保存する写真は元の解像度を使用します。
+
+ui-inventory-context-find-similar = 似たものを探す
+
+ui-inventory-context-find-similar-name = 同一の名前（バージョン問わず）
+
+ui-inventory-context-find-similar-creator = 同一の制作者
+
+ui-inventory-context-find-similar-type = 同一の種類
+
+ui-inventory-context-find-similar-folder = 同一のフォルダ名
+
+demo-region-message-restart = メンテナンスのため、リージョンは10分後に再起動します。安全な場所へ移動するか、ラグーンへテレポートしてください。すぐに戻ります。ご協力ありがとうございます！
+
+demo-region-message-event = 5分後に広場でダンスパーティーが始まります🎶
+
+demo-payment-rent = 家賃です
+
+photo-light-sky = 空
+
+photo-light-day = デイサイクル
+
+photo-light-own = 自分の環境に戻す
+
+photo-light-sun-azimuth = 太陽の方位角
+
+photo-light-sun-elevation = 太陽の高度
+
+photo-light-sun-reset = 自分の環境の太陽に戻す
+
+photo-light-keep = この光源を保持
+
+photo-light-keep-tip = このウィンドウを閉じた後も、写真の時刻、空、水、デイサイクル、太陽を自分の環境として保持します。
+
+photo-vf-light-tip = 写真のライト：空、水、太陽
+
+photo-vf-poser-tip = ポーザー：構図を保ったままアバターにポーズを付けます
+
+photo-vf-group-added = { $name }をピントの対象に追加しました（{ $count }件にピント）
+
+photo-vf-group-removed = { $name }をピントの対象から外しました
+
+photo-vf-group-sky = ここにはピントを合わせる対象がありません。空は追加できません
+
+photo-vf-group-point = ポイント
+
+photo-vf-help-shift-click = Shift＋クリック
+
+photo-vf-help-shift-click-text = アバターまたはクリックした場所をピント合わせの対象として追加し、もう一度クリックすると解除します。グループ写真の被写体すべてにピントを合わせます（ＡＦ‐Ｓ）。通常のクリックで最初からやり直します
+
+photo-vf-cheat-ctrl-click-key = Ｃｔｒｌ ＋ クリック
+
+photo-vf-cheat-ctrl-click = オブジェクトとＨＵＤを操作
+
+photo-vf-help-ctrl-click-text = ピントを変えずに、ポインターの下のオブジェクトやＨＵＤを操作します
+
+photo-vf-cheat-shift-click-key = Shift＋クリック
+
+photo-vf-cheat-shift-click = グループフォーカス
+
+photo-vf-hints-hide = このリストを隠す
+
+photo-vf-hints-hide-tip = 操作一覧を隠します（クイックメニューの「操作一覧」で再表示できます）
+
+photo-vf-hints-hidden = 操作一覧を隠しました。{ $menu }：クイックメニューで再表示できます
+
+world-mod-group-notice-sent-by = { "送信者：" }{ $sender }
+
+world-payments-you-paid = { $name }{ "にL$ " }{ $amount }{ "を支払いました" }
+
+world-payments-you-paid-message = { $name }{ "にL$ " }{ $amount }{ "を支払いました：" }{ $message }
+
+world-region-message-title = { $name }さんからのリージョンメッセージ
+
+world-region-message-line = { $name }さんからのリージョンメッセージ：{ $message }
+
+update-error-unsupported-macos = macOSでは、新しいバージョンは手動でインストールします。リリースページからダウンロードし、アプリケーションフォルダのAmante Viewerを新しいものに置き換えてください。
+
+build-compact-owned-only = 自分のオブジェクトだけを選択する
+
+build-compact-movable-only = 移動できるオブジェクトだけを選択する
+
+contents-copy-folder-timeout = ６０秒以内にフォルダ「{ $folder }」の作成を確認できませんでした。中身は転送していません。
+
+contents-copy-complete = 中身を「{ $folder }」にコピーしました（受信：{ $count }アイテム）。
+
+contents-copy-timeout = ６０秒以内に「{ $folder }」へのコピーを確認できませんでした。受信アイテム：{ $received }／{ $count }。フォルダの中身を確認してください。
+
+contents-copy-unavailable = 「{ $folder }」へのコピーを確認できませんでした。転送先フォルダが見つからないか、読み込めませんでした。
+
+contents-copy-wear-busy = 中身は「{ $folder }」にコピーされましたが、別のアウトフィットの変更が進行中のため、アウトフィットを変更できませんでした。インベントリからフォルダを着用してください。
+
+ui-options-aurora-build = 建築ツール
+
+ui-options-aurora-build-help = Auroraのカスタマイズ可能な作業画面、またはレガシービューアのツールバーと「一般」「オブジェクト」「特徴」「テクスチャ」「中身」タブを使用します。
+
+build-legacy-object = オブジェクト
+
+build-legacy-texture = テクスチャ
+
+build-legacy-ruler = 定規
+
+build-legacy-rotate = 回転（Ctrl）
+
+build-legacy-probes = 反射プローブを選択
+
+build-legacy-vector-copy = C
+
+build-legacy-vector-paste = P
+
+build-legacy-vector-system = p
+
+build-legacy-copy-keys = ＵＵＩＤをコピー
+
+build-legacy-glossiness = 光沢度
+
+build-legacy-link = リンク
+
+build-legacy-unlink = リンク解除
+
+shape-t-pose = Ｔポーズ
+
+poser-confirm-close = 閉じようとしてポーズが失われる前に確認
+
+poser-close-title = ポーザーを閉じますか？
+
+poser-close-confirm = 閉じるとポーズが停止し、変更した{ $count }箇所の関節が失われます。保持したい場合はウィンドウを最小化してください。
+
+poser-close-dont-ask = 今後は確認しない
+
+poser-close-minimize = 最小化
+
+poser-close-anyway = それでも閉じる
+
+received-auto-accept = 提供されたインベントリアイテムを自動的に受け取る
+
+received-auto-accept-help = 住人やオブジェクトから提供されたアイテムとフォルダを確認なしで受け取ります。RLVaの特別な提供では引き続き確認が必要です。
+
+received-auto-accept-chat = 自動的に受け取ったアイテムを近くのチャットに記録
+
+received-auto-accept-chat-help = 送り主、種類、名前を自分だけに表示するシステムメッセージです。近くの住人には送信されません。
+
+received-auto-accept-notify = 自動的に受け取ったアイテムの通知を表示
+
+received-auto-accept-notify-help = 受け取りの確認を求めず、情報のみの通知を表示します。
+
+received-auto-accepted-title = インベントリの受け取り
+
+received-auto-accepted-resident = { $name } さんから{ $kind } { $item } を受け取りました。
+
+received-auto-accepted-object = オブジェクト { $object } から{ $kind } { $item } を受け取りました。
+
+blender-live-checking = 選択したBlenderを確認しています…
+
+blender-live-choosing = Blenderの実行ファイルを選択してください…
+
+blender-live-choose-executable = プラグインをインストールするBlenderの実行ファイルを選択
+
+blender-live-invalid-packed = LiveMeshのパック形式のジオメトリが無効です。
+
+blender-live-invalid-compression = 圧縮されたLiveMeshスナップショットが無効または不完全です。
+
+appearance-outfit-copy-entry = { $item } - { $creator }
+
+appearance-outfit-copy-preparing = アウトフィットリストを準備しています…
+
+common-lost-and-found = 遺失物
+
+wearable-local-preview = ローカルテクスチャは自分だけのプレビューです。保存する前にテクスチャをアップロードし、インベントリから選択してください。
+
+inventory-hover-pictures = ホバーで画像を表示
+
+inventory-hover-pictures-help = 写真や保存したアイテム、フォルダ内の画像に、しばらくカーソルを合わせるとプレビュー表示されるようにします。
+
+area-search-group = グループ
+
+area-search-last-owner = 前のオーナー
+
+area-search-land-impact = 土地負荷
+
+area-search-prim-count = プリム数
+
+area-search-search = 検索
+
+area-search-columns = 列
+
+area-search-regex = 正規表現を使用
+
+area-search-regex-error = 正規表現：{ $error }
+
+area-search-required = 次の条件を満たすオブジェクトのみ表示
+
+area-search-excluded = 次のオブジェクトを除外
+
+area-search-ranges = 距離と販売価格
+
+area-search-attachment = 装着物
+
+area-search-media = 共有メディア
+
+area-search-copy-perm = コピー
+
+area-search-modify-perm = 修正
+
+area-search-transfer-perm = 再販／譲渡
+
+area-search-probes = リフレクションプローブ
+
+area-search-child-prim = 子プリム
+
+area-search-neighbor-regions = 隣接リージョン内
+
+area-search-distance-range = 距離
+
+area-search-min = 最小
+
+area-search-max = 最大
+
+area-search-click-action = マウスクリック時の動作
+
+area-search-click-unrestricted = 制限なし
+
+area-search-click-any = いずれかの動作
+
+area-search-click-pay = 支払う
+
+area-search-click-open = 開く
+
+area-search-click-play = 再生
+
+area-search-click-media = メディアを開く
+
+area-search-save-defaults = 既定として保存
+
+area-search-copy-link = リンクをコピー
+
+area-search-reset-columns = 列をリセット
+
+area-search-regex-limit = 照合の上限に達しました。正規表現を簡単にしてください。
+
+area-search-reset-all-tip = 検索全体をリセットします。
+
+area-search-reset-search-tip = 検索欄と正規表現をクリアします。
+
+area-search-reset-options-tip = フィルターの初期設定に戻します。
+
+area-search-reset-columns-tip = 既定の列に戻します。
+
+area-search-range-options = 範囲
+
+area-search-reset-ranges-tip = 距離と販売価格の範囲を既定に戻します。
+
+area-search-results = 結果
+
+local-appearance-warning = ローカルテクスチャ・マテリアル：オブジェクト{ $count }個
+
+local-appearance-pending = 保存済みのローカルプレビュー（待機中）
+
+local-appearance-details = ローカルテクスチャ：{ $textures }、ローカルマテリアル：{ $materials }
+
+local-appearance-private = このプレビューは自分にだけ表示され、再接続後に復元されます。適用から７日後に期限切れになります。
+
+local-appearance-reveal = ローカルの面を点滅表示
+
+local-appearance-stop-reveal = ローカルの面の点滅表示を停止
+
+local-appearance-library = ローカルプレビューを開く
+
+local-appearance-remove = すべてのローカルテクスチャ・マテリアルを解除…
+
+local-appearance-confirm-title = ローカルテクスチャとマテリアルを解除しますか？
+
+local-appearance-confirm-body = このアカウントとグリッドで記憶されたオブジェクト（合計{ $count }個）をサーバー上の外観に戻します。現在表示されていないオブジェクトも対象です。解除した適用状態は再接続後に復元されません。ローカルファイル、プレビューライブラリ、メッシュプレビューは保持されます。
+
+import-folders = フォルダー
+
+import-choose-folder = フォルダーを追加…
+
+import-folders-enable = アップロード先を整理
+
+import-folders-arrange = 構成
+
+import-folders-mirror = 元のフォルダー構成を維持
+
+import-folders-type = 種類別に分類
+
+import-folders-flat = 同じ保存先
+
+import-folders-preview = インベントリのプレビュー
+
+import-folders-path = フォルダーのパス
+
+import-folders-path-help = 保存先からの相対パスを/で区切って指定します。空欄にすると保存先をそのまま使用します。
+
+import-folders-edit-help = 「フォルダー」タブでこの保存先を変更できます。
+
+import-folders-summary = フォルダー{ $folders }個・選択したファイル{ $files }個
+
+import-folders-create = フォルダーを作成
+
+import-folders-ready = 保存先を準備しました。ファイルを確認してから、下のボタンでアップロードしてください。
+
+import-folders-prepare-first = 料金の計算やアップロードの前に、予定したフォルダーを作成してください。
+
+import-folders-invalid-path = 空でない６３バイト以内のフォルダー名を/で区切って指定してください。制御文字、|、.、..は使用できません。
+
+import-folders-failed = フォルダーを作成できませんでした。作成済みのフォルダーは保持されます。保存先を確認してから再試行してください。アップロードは開始していません。
+
+import-folders-empty = このフォルダーには一括アップロードできるファイルがありません。
+
+import-folders-read-failed = 元のフォルダーをすべて読み取れませんでした。アクセス権を確認してから再試行してください。
+
+import-folders-scan-limit = フォルダー構成が大きすぎるか深すぎます。より小さいフォルダーを選択してください。
+
+import-folders-textures = Textures
+
+import-folders-sounds = Sounds
+
+import-folders-animations = Animations
+
+import-folders-materials = Materials
+
+import-folders-meshes = Meshes
+
+import-folders-other = Other
+
+import-window-title = アップロード
+
+import-queue = アップロード待ち
+
+import-queue-empty = 表示するファイルがありません。
+
+import-queue-clear = キューを空にする
+
+import-tab-batch = ファイル
+
+import-tab-folder = フォルダープレビュー
+
+import-tab-permissions = 権限
+
+import-use-default-folders = 既定のフォルダーを使用
+
+import-folders-auto-create = アップロードを確定すると、必要な保存先フォルダーが作成されます。
+
+import-include-source-folder = 元のフォルダーを含める
+
+import-source-folder-name-help = { $source } のインベントリ内のフォルダー名。コンピューター上のフォルダーは変更されません。
+
+import-local-stage-upload = アップロードに追加（{ $count }）
+
+import-local-stage-upload-help = 非表示を含むチェック済みファイルのアップロードを準備し、ローカルプレビューは保持します。料金は別途確認します。

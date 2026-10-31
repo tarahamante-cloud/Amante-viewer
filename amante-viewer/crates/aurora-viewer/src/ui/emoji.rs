@@ -63,7 +63,7 @@ enum Glyph {
 }
 
 pub struct Emoji {
-    face: Option<ttf_parser::Face<'static>>,
+    face: Option<amante_fonts::Face<'static>>,
     /// By code point and full size (the font's bitmap) or not.
     glyphs: HashMap<(char, bool), Glyph>,
     /// Per-category list of code points that exist in the font.
@@ -167,7 +167,7 @@ impl Emoji {
     pub fn load() -> Emoji {
         // The font asked for (to compare another one), else the built-in one.
         let asked = std::env::var_os("AURORA_EMOJI_FONT");
-        let parse = |bytes: &'static [u8], name: &str| match ttf_parser::Face::parse(bytes, 0) {
+        let parse = |bytes: &'static [u8], name: &str| match amante_fonts::Face::parse(bytes, 0) {
             Ok(f) => {
                 log::info!("emoji font: {name}");
                 Some(f)
@@ -230,9 +230,8 @@ impl Emoji {
         let face = self.face.as_ref()?;
         let decoded = face
             .glyph_index(c)
-            .and_then(|gid| face.glyph_raster_image(gid, 128))
-            .filter(|img| img.format == ttf_parser::RasterImageFormat::PNG)
-            .and_then(|img| image::load_from_memory(img.data).ok())
+            .and_then(|gid| face.png_glyph(gid, 128))
+            .and_then(|png| image::load_from_memory(png).ok())
             .map(|img| {
                 let img = if full {
                     img.to_rgba8()

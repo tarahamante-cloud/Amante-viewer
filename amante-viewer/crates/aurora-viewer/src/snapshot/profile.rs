@@ -147,22 +147,119 @@ fn request(http: &reqwest::Client, method: reqwest::Method, url: &str, web: &Web
         .request(method, url)
         .header("Accept", "*/*")
         .header("Content-Type", "application/xml")
-        .header("Cookie", web.openid.as_str())
         .header("User-Agent", web.user_agent.as_str())
         .timeout(TIMEOUT);
-    if let Some(auth) = auth {
-        r = r.header("Cookie", auth);
+    // Storage receives its signed form and PNG, never grid/OpenID cookies.
+    if trusted_profile_destination(&web.profile, url) {
+        let cookies = match auth {
+            Some(auth) => format!("{}; {auth}", web.openid),
+            None => web.openid.clone(),
+        };
+        r = r.header("Cookie", cookies);
     }
     r
+}
+
+#[cfg(test)]
+fn test_loopback_http(url: &reqwest::Url) -> bool {
+    url.scheme() == "http"
+        && matches!(url.host_str(), Some("127.0.0.1" | "localhost" | "[::1]" | "::1"))
+        && url.username().is_empty()
+        && url.password().is_none()
+        && url.fragment().is_none()
+}
+
+#[cfg(test)]
+fn test_loopback_destination(profile: &reqwest::Url, target: &reqwest::Url) -> bool {
+    test_loopback_http(profile) && test_loopback_http(target) && profile.origin() == target.origin()
+}
+
+fn trusted_profile_destination(profile: &str, target: &str) -> bool {
+    match (reqwest::Url::parse(profile), reqwest::Url::parse(target)) {
+        (Ok(profile), Ok(target)) => {
+            #[cfg(test)]
+            {
+                if test_loopback_destination(&profile, &target) {
+                    return true;
+                }
+            }
+            aurora_net::http_security::credential_destination(&profile, &target)
+        }
+        _ => false,
+    }
+}
+
+fn profile_client(profile: &str, redirect: reqwest::redirect::Policy) -> Result<reqwest::Client, Error> {
+    #[cfg(test)]
+    {
+        let loopback = reqwest::Url::parse(profile).is_ok_and(|url| test_loopback_http(&url));
+        let builder = reqwest::Client::builder().https_only(!loopback).redirect(redirect);
+        let builder = if loopback { builder.no_proxy() } else { builder };
+        builder.build().map_err(|_| Error::Network)
+    }
+    #[cfg(not(test))]
+    {
+        let _ = profile;
+        reqwest::Client::builder()
+            .https_only(true)
+            .redirect(redirect)
+            .build()
+            .map_err(|_| Error::Network)
+    }
+}
+
+#[cfg(test)]
+mod security_tests {
+    use super::*;
+
+    #[test]
+    fn amante_security_profile_cookies_only_reach_exact_https_origin() {
+        let http = reqwest::Client::new();
+        let web = Web {
+            profile: "https://profile.example.invalid/".into(),
+            openid: "SYNTHETIC_OPENID".into(),
+            user_agent: "test".into(),
+        };
+        let same = request(&http, reqwest::Method::GET, &web.profile, &web, Some("SYNTHETIC_AUTH"))
+            .build()
+            .unwrap();
+        assert_eq!(same.headers()["Cookie"], "SYNTHETIC_OPENID; SYNTHETIC_AUTH");
+        for url in [
+            "https://storage.example.invalid/upload",
+            "http://profile.example.invalid/",
+            "https://profile.example.invalid:444/",
+            "https://profile.example.invalid.evil/",
+        ] {
+            let request = request(&http, reqwest::Method::POST, url, &web, Some("SYNTHETIC_AUTH"))
+                .build()
+                .unwrap();
+            assert!(!request.headers().contains_key(reqwest::header::COOKIE));
+            assert!(!trusted_profile_destination(&web.profile, url));
+        }
+    }
+
+    #[test]
+    fn test_http_profile_is_confined_to_its_loopback_origin() {
+        let profile = "http://127.0.0.1:12345/";
+        assert!(trusted_profile_destination(profile, "http://127.0.0.1:12345/snapshots/upload"));
+        for target in [
+            "http://127.0.0.1:12346/snapshots/upload",
+            "http://127.0.0.2:12345/snapshots/upload",
+            "http://localhost:12345/snapshots/upload",
+            "https://127.0.0.1:12345/snapshots/upload",
+        ] {
+            assert!(!trusted_profile_destination(profile, target));
+        }
+    }
 }
 
 /// getOpenIDCookieCoro: the web profile with the OpenID cookie, redirects
 /// followed; its Set-Cookie, path stripped, is the auth cookie of the posts.
 pub async fn auth_cookie(web: &Web) -> Result<String, Error> {
-    let http = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::limited(10))
-        .build()
-        .map_err(|_| Error::Network)?;
+    if !trusted_profile_destination(&web.profile, &web.profile) {
+        return Err(Error::Network);
+    }
+    let http = profile_client(&web.profile, aurora_net::http_security::login_redirects())?;
     let response = http
         .get(&web.profile)
         .header("Accept", "*/*")
@@ -188,11 +285,11 @@ pub async fn auth_cookie(web: &Web) -> Result<String, Error> {
 /// uploadImageCoro: the upload configuration, the form posted to its URL,
 /// then the 303's address.
 pub async fn post(web: &Web, auth: &str, png: Vec<u8>, caption: &str, add_location: bool) -> Result<(), Error> {
+    if !trusted_profile_destination(&web.profile, &web.profile) {
+        return Err(Error::Network);
+    }
     // setFollowRedirects(false): the 303 is read, then followed by hand
-    let http = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .map_err(|_| Error::Network)?;
+    let http = profile_client(&web.profile, reqwest::redirect::Policy::none())?;
     let config_url = format!(
         "{}snapshots/s3_upload_config?caption={}&add_loc={}",
         web.profile,
@@ -227,6 +324,9 @@ pub async fn post(web: &Web, auth: &str, png: Vec<u8>, caption: &str, add_locati
         .filter(|l| !l.is_empty())
         .map(str::to_owned)
         .ok_or(Error::NoRedirect)?;
+    if !trusted_profile_destination(&web.profile, &location) {
+        return Err(Error::NoRedirect);
+    }
     let response = request(&http, reqwest::Method::GET, &location, web, Some(auth))
         .send()
         .await

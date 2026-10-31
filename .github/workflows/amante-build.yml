@@ -11,6 +11,17 @@ on:
 permissions:
   contents: read
 
+# Public, compile-time owner settings. Empty reporting variables use the
+# approved Amante defaults in amante_config.rs, never upstream. Never put tokens here.
+env:
+  AMANTE_ISSUES_URL: ${{ vars.AMANTE_ISSUES_URL }}
+  AMANTE_ISSUES_API: ${{ vars.AMANTE_ISSUES_API }}
+  AMANTE_GITHUB_CLIENT_ID: ${{ vars.AMANTE_GITHUB_CLIENT_ID }}
+  AMANTE_RELEASES_API: ${{ vars.AMANTE_RELEASES_API }}
+  AMANTE_RELEASE_PAGE: ${{ vars.AMANTE_RELEASE_PAGE }}
+  AMANTE_RELEASE_DOWNLOADS: ${{ vars.AMANTE_RELEASE_DOWNLOADS }}
+  AMANTE_MEDIA_RELEASE_DOWNLOADS: ${{ vars.AMANTE_MEDIA_RELEASE_DOWNLOADS }}
+
 concurrency:
   group: amante-build-${{ github.ref }}
   cancel-in-progress: true
@@ -34,7 +45,7 @@ jobs:
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev
+          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev
           rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
           rustup override set 1.99.1
       - name: Formatting and offline security regression tests
@@ -47,6 +58,9 @@ jobs:
           # The complete viewer test executable exceeds small runners' memory.
           # Compile-check it above; retain/run network + updater fixtures here.
           cargo test --profile ci --workspace --exclude aurora-viewer --locked amante_security
+          cargo test --profile ci --locked -p aurora-i18n
+          cargo test --profile ci --locked -p amante-reporting-tests
+          cargo test --profile ci --locked -p amante-fonts -p amante-keyring
           cargo test --profile ci --workspace --locked --test updates
       - name: Build native Linux viewer without signing in
         env:

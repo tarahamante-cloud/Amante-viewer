@@ -31,7 +31,7 @@ pub enum State {
     Rollback,
 }
 enum Event {
-    Checked(Result<Option<Release>, Failure>),
+    Checked(Result<Option<Box<Release>>, Failure>),
     Progress(Progress),
     Prepared(Result<Workspace, Failure>),
     Handoff(Result<(), Failure>),
@@ -160,7 +160,7 @@ impl Updater {
                 log::warn!("release check: {e:#}");
                 Failure::Network
             });
-            let _ = tx.send(Event::Checked(result));
+            let _ = tx.send(Event::Checked(result.map(|release| release.map(Box::new))));
         });
     }
 
@@ -183,7 +183,7 @@ impl Updater {
             match event {
                 Event::Checked(Ok(release)) => {
                     self.policy_pending = false;
-                    self.release = release;
+                    self.release = release.map(|release| *release);
                     self.state = if self.release.is_some() { State::Offer } else { State::Current };
                     if let Some(r) = &self.release {
                         info.version = VersionState::Available {
@@ -265,7 +265,7 @@ impl Updater {
         if self.busy() {
             return;
         }
-        if !cfg!(windows) || release.archive.is_none() || release.checksum.is_none() {
+        if !cfg!(windows) || release.archive.is_none() || (release.checksum.is_none() && release.authentication.is_none()) {
             self.state = State::Error(Failure::Unsupported);
             self.open = true;
             return;
@@ -315,6 +315,11 @@ impl Updater {
         }
         let Some(work) = self.prepared.take() else { return };
         let Some(release) = &self.release else { return };
+        if self.source.authorize_install(release).is_err() {
+            self.state = State::Error(Failure::Integrity);
+            self.open = true;
+            return;
+        }
         let version = release.version.clone();
         let maintenance = release.maintenance;
         let tx = self.tx.clone();
@@ -347,6 +352,7 @@ mod tests {
         assert!(!updater.open);
         let release = Release {
             maintenance: Default::default(),
+            authentication: None,
             tag: "v99.0.0".into(),
             version: "99.0.0".into(),
             notes: String::new(),
@@ -355,7 +361,7 @@ mod tests {
             checksum: None,
             required: false,
         };
-        updater.tx.send(Event::Checked(Ok(Some(release)))).expect("result");
+        updater.tx.send(Event::Checked(Ok(Some(Box::new(release))))).expect("result");
         let settings = Settings {
             update_mode: Mode::Automatic,
             ..Default::default()
@@ -412,6 +418,7 @@ mod tests {
         updater.state = State::Rollback;
         let release = Release {
             maintenance: Default::default(),
+            authentication: None,
             tag: "v0.3.0".into(),
             version: "0.3.0".into(),
             notes: String::new(),
@@ -420,7 +427,7 @@ mod tests {
             checksum: None,
             required: true,
         };
-        updater.tx.send(Event::Checked(Ok(Some(release)))).expect("result");
+        updater.tx.send(Event::Checked(Ok(Some(Box::new(release))))).expect("result");
         let settings = Settings {
             update_mode: Mode::Disabled,
             ignored_update: "v0.3.0".into(),

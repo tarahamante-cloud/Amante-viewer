@@ -35,6 +35,8 @@ pub mod script_queue;
 mod selection_tests;
 pub mod shapes;
 pub mod silhouette;
+#[cfg(test)]
+mod take_tests;
 pub mod task_inventory;
 pub mod ui;
 
@@ -71,6 +73,8 @@ pub const MAX_ATTACHMENT_DIST: f32 = 3.5;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct BuildSettings {
+    /// Legacy Viewer tool strip and tabs instead of the Aurora workspace.
+    pub legacy_window: bool,
     /// Personal compact inspector arrangement, independent of edited objects.
     pub layout: layout::Layout,
     pub transform_expanded: bool,
@@ -121,6 +125,11 @@ pub struct BuildSettings {
     /// SelectReflectionProbes: off at each start (settings.xml, Persist=0).
     #[serde(skip)]
     pub select_probes: bool,
+    /// SelectOwnedOnly: clicks, rectangles and Area Search select only the
+    /// objects we own (`passes_select_filters`).
+    pub select_owned_only: bool,
+    /// SelectMovableOnly: the same for the objects we may move.
+    pub select_movable_only: bool,
     /// FSBuildToolDecimalPrecision: decimals of the Object tab numbers.
     pub decimal_precision: u8,
     /// CreateToolCopySelection / CopyCenters / CopyRotates.
@@ -211,6 +220,25 @@ pub fn can_transform(world: &World, idx: usize, linked: bool, mode: EditMode) ->
     root.update_flags & OBJECT_MOVE != 0 && (!(linked || mode == EditMode::Stretch) || root.update_flags & OBJECT_MODIFY != 0)
 }
 
+/// SelectOwnedOnly / SelectMovableOnly in LLSelectMgr::canSelectObject
+/// (indra/newview/llselectmgr.cpp, originally LGPL 2.1). permYouOwner and
+/// permMove read the root's flags; a permanent (pathfinding) object only
+/// counts as movable in the agent's region (isPermanentEnforced). The
+/// right-click menu's temporary selection skips this check, as
+/// LLToolSelect::handleObjectSelection does with temp_select.
+pub fn passes_select_filters(world: &World, s: &BuildSettings, idx: usize) -> bool {
+    use crate::ui::context::flags::{AFFECTS_NAVMESH, OBJECT_MOVE, OBJECT_YOU_OWNER};
+    if !s.select_owned_only && !s.select_movable_only {
+        return true;
+    }
+    let Some(root) = world.objects.get(root_of(world, idx)) else {
+        return false;
+    };
+    let flags = root.update_flags;
+    let permanent_enforced = flags & AFFECTS_NAVMESH != 0 && world.main_region != Some(root.key.region);
+    !(s.select_owned_only && flags & OBJECT_YOU_OWNER == 0) && !(s.select_movable_only && (flags & OBJECT_MOVE == 0 || permanent_enforced))
+}
+
 /// LLSelectMgr::highlightObjectAndFamily for the objects of ForceObjectSelect:
 /// each one's linkset, its root first.
 fn land_highlighted(world: &World) -> Vec<(usize, bool)> {
@@ -242,6 +270,28 @@ fn land_highlighted(world: &World) -> Vec<(usize, bool)> {
         }
     }
     out
+}
+
+/// The folder the selected roots were rezzed from, as their full
+/// ObjectProperties give it (nil when unknown), when Take may send them back
+/// there (handle_take): every root that knows its folder names the same
+/// one, and that folder is still in the agent's inventory, outside the Trash
+/// and the Library. None sends them to the Objects folder. The Inbox is
+/// accepted, as the Legacy Viewer does.
+pub(crate) fn take_folder(inv: &crate::world::inventory::Inventory, folders: impl IntoIterator<Item = Uuid>, trash: Uuid) -> Option<Uuid> {
+    let mut chosen = None;
+    for folder in folders.into_iter().filter(|f| !f.is_nil()) {
+        match chosen {
+            None => chosen = Some(folder),
+            // two possible destinations: the default one
+            Some(c) if c != folder => return None,
+            Some(_) => {}
+        }
+    }
+    let folder = chosen?;
+    let known = inv.folders.get(&folder).is_some_and(|f| !f.library);
+    let trashed = !trash.is_nil() && crate::world::inventory::actions::under(inv, folder, trash);
+    (known && !trashed).then_some(folder)
 }
 
 #[cfg(test)]
@@ -388,6 +438,7 @@ mod hud_tests {
 impl Default for BuildSettings {
     fn default() -> Self {
         BuildSettings {
+            legacy_window: false,
             layout: layout::Layout::default(),
             transform_expanded: true,
             color_picker: crate::ui::color_picker::Preferences::default(),
@@ -413,6 +464,8 @@ impl Default for BuildSettings {
             land_brush_force: 1.0,
             actual_root: false,
             select_probes: false,
+            select_owned_only: false,
+            select_movable_only: false,
             decimal_precision: 5,
             copy_selection: false,
             copy_centers: true,
@@ -1025,7 +1078,7 @@ impl BuildTool {
         let mut seen = std::collections::HashSet::new();
         let units: Vec<ObjKey> = idxs
             .iter()
-            .filter(|&&i| Some(select_type(world, i)) == kind)
+            .filter(|&&i| Some(select_type(world, i)) == kind && passes_select_filters(world, s, i))
             .filter_map(|&i| Self::unit_of(world, i, s.edit_linked))
             .filter(|u| seen.insert(*u))
             .collect();
@@ -1210,6 +1263,21 @@ impl BuildTool {
         m
     }
 
+    /// Take's folder: where the roots were rezzed from (`take_folder`), else
+    /// the Objects folder; a copy always goes to Objects (handle_take_copy).
+    fn take_destination(&self, world: &World, roots: &[usize], copy: bool) -> Uuid {
+        let rezzed_from = (!copy)
+            .then(|| {
+                let folders = roots
+                    .iter()
+                    .filter_map(|&r| world.objects.get(r))
+                    .map(|o| self.props.get(&o.full_id).map_or(Uuid::nil(), |p| p.folder_id));
+                take_folder(&world.inventory, folders, Self::folder_of_type(world, 14))
+            })
+            .flatten();
+        rezzed_from.unwrap_or_else(|| Self::folder_of_type(world, 6))
+    }
+
     fn folder_of_type(world: &World, t: i32) -> Uuid {
         world
             .inventory
@@ -1262,7 +1330,8 @@ impl BuildTool {
         self.deselect_all(world);
     }
 
-    /// Take / take a copy into the Objects folder (derez_objects).
+    /// Take into the folder the objects were rezzed from (handle_take), take
+    /// a copy into the Objects folder (handle_take_copy; derez_objects).
     pub fn take(&mut self, world: &mut World, copy: bool) {
         if self.attachment_selected(world) {
             return;
@@ -1271,7 +1340,7 @@ impl BuildTool {
         if roots.is_empty() {
             return;
         }
-        let objects = Self::folder_of_type(world, 6);
+        let objects = self.take_destination(world, &roots, copy);
         let dest = if copy {
             derez::ACQUIRE_TO_AGENT_INVENTORY
         } else {
@@ -1311,7 +1380,7 @@ impl BuildTool {
             self.status = aurora_i18n::tr!("build-mod-cannot-take-objects-from-multiple-regions-at-once").into();
             return;
         }
-        let objects = Self::folder_of_type(world, 6);
+        let objects = self.take_destination(world, &roots, copy);
         let destination = if copy {
             derez::ACQUIRE_TO_AGENT_INVENTORY
         } else {
@@ -1518,6 +1587,7 @@ impl BuildTool {
                 && x <= x1
                 && y >= y0
                 && y <= y1
+                && passes_select_filters(world, s, idx)
                 && let Some(u) = Self::unit_of(world, idx, s.edit_linked)
             {
                 units.push(u);
@@ -1650,6 +1720,8 @@ impl BuildTool {
             let (at, rot, _) = Scene::object_transform(world, idx, now, 0)?;
             Some((o.key, crate::world::lookat::local_offset(point, at, rot)))
         });
+        // what a click may select; Create still places on any surface
+        let pick = target.filter(|&idx| passes_select_filters(world, s, idx));
         match self.tool {
             Tool::Focus => false,
             Tool::Grab => {
@@ -1665,14 +1737,14 @@ impl BuildTool {
                 match mode {
                     EditMode::Face => {
                         let face = surface.and_then(|s| u8::try_from(s.face).ok());
-                        self.face_click(world, target, face, mods.shift);
+                        self.face_click(world, pick, face, mods.shift);
                         true
                     }
                     EditMode::Align => {
                         if !self.align_apply(world) {
                             // QToolAlign::pickCallback: whole linksets
                             s.edit_linked = false;
-                            self.click_select(world, s, target, mods.shift);
+                            self.click_select(world, s, pick, mods.shift);
                         }
                         true
                     }
@@ -1686,7 +1758,7 @@ impl BuildTool {
                         // not on a handle: select, or drag a selection rectangle
                         // (LLToolCompTranslate -> LLToolSelectRect)
                         let extend = mods.shift || mods.ctrl;
-                        self.click_select(world, s, target, extend);
+                        self.click_select(world, s, pick, extend);
                         self.rect = Some((cursor, cursor, extend));
                         true
                     }
@@ -1695,7 +1767,7 @@ impl BuildTool {
             Tool::Create => {
                 if mods.shift || mods.ctrl {
                     // Shift / Ctrl click selects instead (LLToolCompCreate)
-                    self.click_select(world, s, target, true);
+                    self.click_select(world, s, pick, true);
                     return true;
                 }
                 if s.copy_selection {

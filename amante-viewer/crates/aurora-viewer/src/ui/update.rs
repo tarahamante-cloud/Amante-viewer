@@ -527,6 +527,8 @@ fn failure_text(kind: aurora_updater::Failure) -> &'static str {
         Failure::Integrity => aurora_i18n::tr!("update-error-integrity"),
         Failure::Filesystem | Failure::Busy => aurora_i18n::tr!("update-error-filesystem"),
         Failure::Package => aurora_i18n::tr!("update-error-package"),
+        // macOS: an application to replace, not a folder to extract
+        Failure::Unsupported if cfg!(target_os = "macos") => aurora_i18n::tr!("update-error-unsupported-macos"),
         Failure::Unsupported => aurora_i18n::tr!("update-error-unsupported"),
         Failure::Startup => aurora_i18n::tr!("update-error-startup"),
     }
@@ -613,6 +615,7 @@ mod tests {
         let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("runtime");
         let mut updater = crate::updater::Updater::new(runtime.handle(), aurora_updater::feed::Channel::Stable);
         updater.release = Some(aurora_updater::feed::Release {
+            authentication: None,
             tag: "v0.3.0".into(),
             version: "0.3.0".into(),
             notes: "Synthetic notes".into(),

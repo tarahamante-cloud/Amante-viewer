@@ -193,6 +193,10 @@ pub struct Facts {
     /// Rendering exception: 0 normal, 1 never fully, 2 always fully.
     pub render: u8,
     pub blocked: bool,
+    /// Voice chat is muted for this resident (`LLMute::flagVoiceChat` only).
+    pub voice_blocked: bool,
+    /// Lindens cannot have their voice muted (`LLInspectAvatar`).
+    pub can_block_voice: bool,
     /// The independent owner particle filter is enabled.
     pub particles_blocked: bool,
     /// Asset blacklist owner categories: 1 worn, 2 rezzed, 4 gesture.
@@ -1137,7 +1141,7 @@ pub fn ask(ctx: &egui::Context, p: &Palette, q: &Question, dont_ask: &mut bool) 
         );
         ui.add_space(8.0);
         ui.horizontal(|ui| {
-            if super::widgets::flat_button(ui, p, q.yes).clicked() {
+            if super::widgets::default_button(super::widgets::flat_button(ui, p, q.yes)).clicked() {
                 answer = Some(true);
             }
             if super::widgets::flat_button(ui, p, q.no).clicked() {
@@ -1224,7 +1228,7 @@ pub fn teleport_confirm(ctx: &egui::Context, p: &Palette, id: &str, text: &str, 
         );
         ui.add_space(8.0);
         ui.horizontal(|ui| {
-            if super::widgets::flat_button(ui, p, aurora_i18n::tr!("common-teleport-3")).clicked() {
+            if super::widgets::default_button(super::widgets::flat_button(ui, p, aurora_i18n::tr!("common-teleport-3"))).clicked() {
                 answer = Some(true);
             }
             if super::widgets::flat_button(ui, p, aurora_i18n::tr!("common-cancel")).clicked() {
@@ -1303,7 +1307,7 @@ pub fn external_link_confirm(ctx: &egui::Context, p: &Palette, url: &str, dont_w
             } else {
                 aurora_i18n::tr!("ui-context-visit-link")
             };
-            if super::widgets::flat_button(ui, p, visit).clicked() {
+            if super::widgets::default_button(super::widgets::flat_button(ui, p, visit)).clicked() {
                 answer = Some(true);
             }
             if super::widgets::flat_button(ui, p, aurora_i18n::tr!("common-cancel")).clicked() {

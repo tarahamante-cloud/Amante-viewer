@@ -2,6 +2,7 @@
 //! llvelopack.cpp (Firestorm, originally LGPL 2.1); package operations use
 //! a separate process because Windows keeps the running executable mapped.
 
+pub mod authenticated;
 pub mod feed;
 pub mod install;
 pub mod media_pack;

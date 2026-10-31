@@ -8,7 +8,7 @@ pub const GITHUB: &str = "https://github.com/tarahamante-cloud/Amante-viewer";
 /// screen, top bar, Help menu) and by the crash window.
 pub const NEW_ISSUE: &str = "https://github.com/tarahamante-cloud/Amante-viewer/issues/new";
 /// The project's wiki, generated from the guides of `docs/`
-/// (`scripts/build-wiki.ps1`): Help › Aurora Viewer wiki.
+/// (`scripts/build-wiki.ps1`): Help › Amante Viewer help.
 pub const WIKI: &str = "https://github.com/tarahamante-cloud/Amante-viewer/blob/main/amante-viewer/docs/amante/README.md";
 /// Community Discord invite.
 pub const DISCORD: &str = "";

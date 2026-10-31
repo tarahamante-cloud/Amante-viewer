@@ -58,7 +58,7 @@ means that a live-grid feature has been tested.
 | Marketplace, money and commerce | `src/ui/marketplace_listings`, `money_tracker`, `aurora-net` | No purchases, payments, inventory writes or live transactions performed |
 | Preferences, notifications and monitoring | `src/ui/options`, `notifications`, `notification_center`, `monitor` | Amante data/keyring namespaces isolated; Windows registration pending CI/runtime |
 | Blender live integration | viewer `blender_live`, bundled addon source | Configuration path isolated; Blender integration not exercised |
-| About, news and diagnostics | `src/ui/about`, `news`, bug-report and crash modules | Local reports retained; remote Amante reporting requires owner configuration |
+| About, news and diagnostics | `src/ui/about`, `news`, bug-report and crash modules | Local reports retained; browser reports use the authorized fork; direct sending awaits owner OAuth |
 | Windows updater, safe extraction and rollback | `aurora-updater`, viewer updater UI | Implementation and local fixtures retained; production deliberately inactive |
 
 Paths in this table beginning with `src` are under `crates/aurora-viewer`.
@@ -75,14 +75,22 @@ are not themselves evidence that an action contacts Aurora.
 3. Amante has independent settings, cache/log and keyring namespaces. It does
    not silently import Aurora credentials or automatically migrate its data.
 4. Reports no longer default to Aurora's repository or OAuth application.
-   Local saving/copying remains available while configuration is pending.
+   Browser drafts use the authorized fork; local saving/copying remains
+   available while direct-send OAuth configuration is pending.
 5. Production updater requests are blocked pending authenticated Amante release
    metadata. Existing checksum, extraction and rollback implementations remain,
    but are not a substitute for signed update authorization.
 6. Primary titles, login channel, user agent, Windows resource identity,
    notifications and distributed executable identify Amante. The comprehensive
-   multilingual branding/content audit remains open; upstream demo-world names,
-   named presets, credits and some product prose still contain Aurora.
+   multilingual branding/content audit is documented in
+   [SERVICE_OWNERSHIP.md](SERVICE_OWNERSHIP.md). Product prose uses Amante;
+   upstream demo-world names, named formats/presets, credits and accurate
+   technical references intentionally retain Aurora. Tool instructions match
+   the fork's existing Amante inventory roots, bridge and Blender labels;
+   residents' existing content is not renamed.
+7. Native media distribution has a separate owner-controlled build setting.
+   Until configured, Preferences shows it as pending/unavailable rather than
+   contacting Aurora or repeatedly failing an update request.
 
 ## Evidence levels
 

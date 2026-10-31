@@ -219,7 +219,7 @@ pub fn show(
                                 .color(p.ink),
                         );
                         ui.label(
-                            RichText::new(aurora_i18n::tr!("ui-login-second-life-client-rust-vulkan"))
+                            RichText::new(crate::ui::login::client_tagline())
                                 .size(13.0 * layout.text_scale)
                                 .color(p.violet_pale),
                         );
@@ -1749,7 +1749,7 @@ mod tests {
                 aurora_i18n::tr!("ui-login-join-the-community"),
                 aurora_i18n::tr!("ui-login-version"),
                 aurora_i18n::tr!("ui-login-news"),
-                aurora_i18n::tr!("ui-login-second-life-client-rust-vulkan"),
+                crate::ui::login::client_tagline(),
             ] {
                 assert!(text_rect(&output, label).is_some(), "missing {label}");
             }

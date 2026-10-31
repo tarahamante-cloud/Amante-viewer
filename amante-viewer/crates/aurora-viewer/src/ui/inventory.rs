@@ -33,8 +33,11 @@ pub(crate) mod menu_layout;
 pub use delete::demo_events as delete_demo_events;
 mod dialogs;
 mod document;
+pub use embedded::save_focused as document_save_focused;
 pub(crate) mod drag;
 mod embedded;
+mod hover;
+pub use hover::demo_events as hover_demo_events;
 mod keyboard;
 pub(crate) mod listings;
 mod markdown;
@@ -47,7 +50,11 @@ pub(crate) mod properties;
 mod received;
 mod replace_links;
 mod rows;
+pub(crate) mod smart;
+mod smart_builder;
+pub(crate) mod smart_store;
 pub(crate) mod task_drop;
+pub(crate) mod task_selection;
 pub mod thumbnail;
 pub(crate) mod tree;
 pub(crate) mod view;
@@ -414,6 +421,14 @@ pub struct InventoryUi {
     filters_initialized: bool,
     filters: view::Filters,
     saved_filters: Option<view::Filters>,
+    /// Advanced search in this window: `filters.smart` holds the rules and
+    /// the quick search text waits in `quick_text` until it is turned off.
+    pub advanced: bool,
+    quick_text: String,
+    /// The saved smart search shown, highlighted in the sidebar.
+    pub active_smart: Option<u64>,
+    /// Find similar: the chip that undoes it restores `saved_filters`.
+    similar: bool,
     view: view::ViewCache,
     plain: rows::PlainTree,
     result_tree: view::TreeState,
@@ -461,12 +476,15 @@ pub struct InventoryUi {
     progress: Option<progress::State>,
     copy_jobs: progress::CopyJobs,
     notice: Option<(String, std::time::Instant)>,
+    contents_notice: Option<progress::Notice>,
+    thumbnail_notice: Option<progress::Notice>,
     pub message: String,
     pub dialog: Option<EditDialog>,
     move_to: Option<move_to::MoveTo>,
     pub links_filter: Option<Uuid>,
     pub windows: Vec<InventoryWindow>,
     pub thumbnail: thumbnail::ThumbnailUi,
+    hover: hover::State,
     pub share_picker: super::avatar_picker::AvatarPicker,
     pub share_items: Vec<Uuid>,
     pub property_edit: Option<(Uuid, PropertyEdit)>,
@@ -486,6 +504,7 @@ pub struct InventoryUi {
     pub content_save: Option<(Uuid, Vec<u8>, String)>,
     pub close_after_save: bool,
     pub wanted_images: HashSet<Uuid>,
+    pub wanted_hover_images: HashSet<Uuid>,
     /// Residents whose profile picture the give confirmation wants.
     pub wanted_pics: HashSet<Uuid>,
     pub playing: Option<(Uuid, bool)>,
@@ -642,6 +661,8 @@ impl InventoryUi {
     /// show_item_original: clear filters, expand ancestors, select and scroll to the original.
     pub fn show_original(&mut self, inv: &Inventory, id: Uuid) {
         self.keyboard_selection = false;
+        // first: leaving advanced mode puts the quick-search text back
+        self.leave_advanced();
         self.search.clear();
         self.filters = view::Filters::default();
         self.saved_filters = None;
@@ -719,6 +740,78 @@ impl InventoryUi {
         self.fetch_all = true;
         self.tab = 0;
     }
+    /// Advanced search on: what was typed in quick search becomes its rules
+    /// (`SmartQuery::from_quick`), so nothing is lost.
+    pub(crate) fn enter_advanced(&mut self, field: view::SearchField) {
+        if self.advanced {
+            return;
+        }
+        self.advanced = true;
+        self.filters_initialized = true;
+        self.quick_text = std::mem::take(&mut self.search);
+        self.filters.smart = Some(smart::SmartQuery::from_quick(&self.quick_text, field));
+    }
+    /// Back to quick search, its text as it was left.
+    pub(crate) fn leave_advanced(&mut self) {
+        if !self.advanced {
+            return;
+        }
+        self.advanced = false;
+        self.active_smart = None;
+        self.filters.smart = None;
+        if self.similar {
+            self.end_similar();
+        }
+        self.search = std::mem::take(&mut self.quick_text);
+    }
+    /// The filters Find links or Find similar set aside come back. Taken in
+    /// advanced mode, they hold its rules: quick search leaves them out.
+    pub(crate) fn restore_saved_filters(&mut self) {
+        if let Some(filters) = self.saved_filters.take() {
+            self.filters = filters;
+            if !self.advanced {
+                self.filters.smart = None;
+            }
+        }
+    }
+    /// Show a saved smart search (`id`) or an unsaved query (None) in this
+    /// window, over the whole inventory.
+    pub(crate) fn open_smart(&mut self, id: Option<u64>, query: smart::SmartQuery) {
+        if !self.advanced {
+            self.quick_text = std::mem::take(&mut self.search);
+            self.advanced = true;
+        }
+        self.search.clear();
+        self.filters.smart = Some(query);
+        self.filters_initialized = true;
+        self.links_filter = None;
+        self.active_smart = id;
+        self.fetch_all = true;
+        self.tab = 0;
+    }
+    /// Find similar: like Find all links, the filters in place come back
+    /// when its chip is removed.
+    pub(crate) fn find_similar(&mut self, query: smart::SmartQuery) {
+        if self.saved_filters.is_none() {
+            self.saved_filters = Some(self.filters.clone());
+        }
+        self.filters = view::Filters::default();
+        self.open_smart(None, query);
+        self.similar = true;
+    }
+    /// Find similar undone in place: back to the filters it set aside,
+    /// still in advanced mode.
+    pub(crate) fn end_similar(&mut self) {
+        self.similar = false;
+        self.restore_saved_filters();
+    }
+    pub(crate) fn finding_similar(&self) -> bool {
+        self.similar
+    }
+    /// The rules of the advanced search, None in quick search.
+    pub(crate) fn smart_query(&mut self) -> Option<&mut smart::SmartQuery> {
+        self.filters.smart.as_mut()
+    }
     /// The list is the flattened result tree, drawn row by row in sight only
     /// (`search_scroll`): a search or a filter, and every tab but the plain
     /// inventory — Received Items included, whose purchases pile up into
@@ -781,11 +874,10 @@ pub fn item_icon(asset_type: i32, inv_type: i32, flags: u32) -> &'static str {
         (1, _) => "Inv_Sound",
         (2, _) => "Inv_CallingCard",
         (3, _) => "Inv_Landmark",
-        (5, _) => "Inv_Clothing",
+        (5 | 13, _) => wearable_icon(asset_type, flags),
         (6, _) => "Inv_Object",
         (7, _) => "Inv_Notecard",
         (10, _) => "Inv_Script",
-        (13, _) => "Inv_BodyShape",
         (20, _) => "Inv_Animation",
         (21, _) => "Inv_Gesture",
         (24, _) => "Inv_LinkItem",
@@ -795,6 +887,65 @@ pub fn item_icon(asset_type: i32, inv_type: i32, flags: u32) -> &'static str {
         (57, _) => "Inv_Material",
         _ => "Inv_Invalid",
     }
+}
+
+/// LLInventoryIcon::assignWearableIcon / LLWearableType::inventoryFlagsToWearableType
+/// (indra/newview/llinventoryicon.cpp, indra/llappearance/llwearabletype.cpp).
+/// Only the low byte is a wearable type; the remaining inventory flags are independent.
+fn wearable_icon(asset_type: i32, flags: u32) -> &'static str {
+    match (asset_type, flags & 0xff) {
+        (13, 0) => "Inv_BodyShape",
+        (13, 1) => "Inv_Skin",
+        (13, 2) => "Inv_Hair",
+        (13, 3) => "Inv_Eye",
+        (5, 4) => "Inv_Shirt",
+        (5, 5) => "Inv_Pants",
+        (5, 6) => "Inv_Shoe",
+        (5, 7) => "Inv_Socks",
+        (5, 8) => "Inv_Jacket",
+        (5, 9) => "Inv_Gloves",
+        (5, 10) => "Inv_Undershirt",
+        (5, 11) => "Inv_Underpants",
+        (5, 12) => "Inv_Skirt",
+        (5, 13) => "Inv_Alpha",
+        (5, 14) => "Inv_Tattoo",
+        (5, 15) => "Inv_Physics",
+        (5, 16) => "Inv_Universal",
+        (13, _) => "Inv_BodyShape",
+        _ => "Inv_Clothing",
+    }
+}
+
+/// LLItemBridge::getIcon/getIconOverlay (indra/newview/llinventorybridge.cpp):
+/// links retain the original's type, wearable subtype and multi-object flags.
+/// Missing and cyclic targets retain the generic link icon until metadata arrives.
+pub(crate) fn inventory_item_icon(inv: &Inventory, it: &aurora_net::inventory::InvItem, p: &Palette) -> (&'static str, egui::Color32) {
+    if !matches!(it.asset_type, 24 | 25) {
+        return (
+            item_icon(it.asset_type, it.inv_type, it.flags),
+            item_icon_color(it.asset_type, it.inv_type, p),
+        );
+    }
+    if let Some(id) = rules::original(inv, it.id) {
+        if let Some(target) = inv.items.get(&id) {
+            return (
+                super::icons::inventory_link_name(item_icon(target.asset_type, target.inv_type, target.flags)),
+                item_icon_color(target.asset_type, target.inv_type, p),
+            );
+        }
+        if let Some(folder) = inv.folders.get(&id) {
+            return (
+                super::icons::inventory_link_name(tree::folder_icon(folder.info.type_default, false)),
+                p.violet_light,
+            );
+        }
+    }
+    (if it.asset_type == 25 { "Inv_LinkFolder" } else { "Inv_LinkItem" }, p.muted)
+}
+
+fn resolved_item_type_icon(ui: &mut egui::Ui, icons: &Icons, inv: &Inventory, it: &aurora_net::inventory::InvItem, p: &Palette) {
+    let (name, color) = inventory_item_icon(inv, it, p);
+    tree::icon(ui, icons, name, p, Some(color));
 }
 
 /// The height of an item row in Aurora's lists, shared with Appearance.
@@ -820,11 +971,6 @@ fn icon(ui: &mut egui::Ui, icons: &Icons, name: &str, p: &Palette) {
     tree::icon(ui, icons, name, p, None);
 }
 
-fn item_type_icon(ui: &mut egui::Ui, icons: &Icons, it: &aurora_net::inventory::InvItem, p: &Palette) {
-    let color = item_icon_color(it.asset_type, it.inv_type, p);
-    tree::icon(ui, icons, item_icon(it.asset_type, it.inv_type, it.flags), p, Some(color));
-}
-
 fn item_row(
     ui: &mut egui::Ui,
     p: &Palette,
@@ -847,7 +993,7 @@ fn item_row(
     st.visible.push(*id);
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 4.0;
-        item_type_icon(ui, icons, it, p);
+        resolved_item_type_icon(ui, icons, inv, it, p);
         if rename_row(ui, p, inv, *id, st, prefs, actions) {
             return;
         }
@@ -903,22 +1049,7 @@ fn item_response(
     drag::target(ui, p, &r, inv, it.parent, st, prefs, facts, actions);
     super::widgets::demo::rez_row(&r, it.id);
     super::widgets::demo::worn_row(&r, it.id);
-    let r = r.on_hover_ui(|ui| {
-        ui.label(&it.name);
-        ui.label(inventory_path(inv, it.parent));
-        ui.label(if it.created_at > 0 {
-            aurora_net::inventory::created_date(it.created_at)
-        } else {
-            aurora_i18n::tr!("ui-inventory-unknown-date").into()
-        });
-        if !it.desc.is_empty() {
-            ui.label(&it.desc);
-        }
-        if let Some(permissions) = permissions {
-            crate::ui::widgets::divider(ui, p);
-            ui.label(permissions.tooltip());
-        }
-    });
+    st.hover.record(&r, id, permissions);
     if r.clicked() || r.secondary_clicked() {
         st.select(ui, id, r.secondary_clicked());
     }
@@ -1020,6 +1151,7 @@ fn folder_response(
     }
     drag::target(ui, p, &destination, inv, id, state, prefs, facts, actions);
     drag::navigation::folder(ui, &destination, state.ui_id, id, open);
+    state.hover.record(&r, id, None);
     if r.clicked() || r.secondary_clicked() {
         state.select(ui, id, r.secondary_clicked());
     }
@@ -1032,7 +1164,7 @@ fn folder_response(
     r
 }
 
-fn folder_name(inv: &Inventory, id: Uuid) -> String {
+pub(crate) fn folder_name(inv: &Inventory, id: Uuid) -> String {
     if id == inv.root {
         aurora_i18n::tr!("common-my-inventory").to_owned()
     } else if id == inv.lib_root {
@@ -1147,20 +1279,9 @@ fn status(
     actions: &mut Vec<InvAction>,
     filtered: bool,
 ) {
-    let now = std::time::Instant::now();
-    let pending_message = st.busy().then(|| st.pending_status(now));
-    let (message, color) = if !st.message.is_empty() {
-        (st.message.as_str(), p.warn)
-    } else if let Some(message) = &pending_message {
-        (message.as_str(), p.ink)
-    } else if let Some(message) = st.success_notice(now) {
-        (message, p.success)
-    } else if st.fetch_all {
-        (aurora_i18n::tr!("ui-inventory-search-loading-folders"), p.muted)
-    } else {
-        ("", p.muted)
-    };
-    let message = message.to_owned();
+    let (message, color) = st
+        .status_message(p, std::time::Instant::now())
+        .unwrap_or_else(|| (String::new(), p.muted));
     let count = if filtered {
         aurora_i18n::tr!(
             "ui-inventory-results-objects-loaded",
@@ -1703,6 +1824,7 @@ pub fn show(
     open: &mut bool,
     appearance_busy: bool,
     images: &std::collections::HashMap<Uuid, egui::TextureHandle>,
+    hover_images: &std::collections::HashMap<Uuid, egui::TextureHandle>,
     pics: &std::collections::HashMap<Uuid, egui::TextureHandle>,
     script_settings: &super::scripts::settings::ScriptSettings,
     classic: bool,
@@ -1773,10 +1895,11 @@ pub fn show(
             facts.names.insert(resident, world.social.name_of(&resident));
         }
     }
-    if shown
-        && matches!(prefs.search_field, view::SearchField::Creator | view::SearchField::All)
-        && (!st.search.trim().is_empty() || st.windows.iter().any(|w| !w.state.search.trim().is_empty()))
-    {
+    // Advanced rules on Creator need the names too, whatever quick search is set to.
+    let smart_creator = |f: &view::Filters| f.smart.as_ref().is_some_and(|q| q.uses(smart::Field::Creator));
+    let quick_creator = matches!(prefs.search_field, view::SearchField::Creator | view::SearchField::All)
+        && (!st.search.trim().is_empty() || st.windows.iter().any(|w| !w.state.search.trim().is_empty()));
+    if shown && (quick_creator || smart_creator(&st.filters) || st.windows.iter().any(|w| smart_creator(&w.state.filters))) {
         if st.creator_generation != Some(world.inventory.generation) {
             st.creators = world
                 .inventory
@@ -1845,6 +1968,7 @@ pub fn show(
             aurora::widen(ctx, "inventory");
         }
     }
+    st.hover.show(p, inv, prefs, hover_images, &mut st.wanted_hover_images);
     st.was_open = *open && !super::widgets::floater_minimized(ctx, "inventory");
     controls::dialogs(ctx, p, st, prefs);
     finish_hidden_rename(inv, st, prefs, &mut actions);
@@ -1890,6 +2014,8 @@ pub fn show(
         w.state.progress.clone_from(&st.progress);
         w.state.copy_jobs.clone_from(&st.copy_jobs);
         w.state.notice.clone_from(&st.notice);
+        w.state.contents_notice.clone_from(&st.contents_notice);
+        w.state.thumbnail_notice.clone_from(&st.thumbnail_notice);
         w.state.merchant = st.merchant;
         w.state.marketplace_commands.clone_from(&st.marketplace_commands);
         w.state.playing = st.playing;
@@ -1965,6 +2091,9 @@ pub fn show(
                 aurora::widen(ctx, &window_id);
             }
         }
+        w.state
+            .hover
+            .show(p, &world.inventory, prefs, hover_images, &mut w.state.wanted_hover_images);
         w.state.was_open = w.open && !super::widgets::floater_minimized(ctx, &window_id);
         if let Some(root) = w.state.navigate_to.take() {
             w.root = root;
@@ -2009,6 +2138,7 @@ pub fn show(
             w.state.dialog = Some(EditDialog::Share(std::mem::take(&mut w.state.share_items), *resident));
         }
         st.wanted_images.extend(w.state.wanted_images.drain());
+        st.wanted_hover_images.extend(w.state.wanted_hover_images.drain());
         if before != (w.state.clipboard.clone(), w.state.cut) {
             st.clipboard.clone_from(&w.state.clipboard);
             st.cut = w.state.cut;
@@ -2053,6 +2183,8 @@ pub fn show(
 }
 
 #[cfg(test)]
+mod delete_tests;
+#[cfg(test)]
 mod drag_tests;
 #[cfg(test)]
 mod texture_tests;
@@ -2067,6 +2199,41 @@ fn headless_output(mut output: egui::FullOutput) -> egui::FullOutput {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn quick_search_never_keeps_advanced_rules() {
+        // Find similar from advanced mode, then back to quick search: the
+        // filters set aside held the rules, they must not come back.
+        let mut st = InventoryUi::default();
+        st.enter_advanced(view::SearchField::Name);
+        st.find_similar(smart::SmartQuery::default());
+        st.leave_advanced();
+        assert!(!st.advanced && st.filters.smart.is_none());
+    }
+
+    #[test]
+    fn ending_find_similar_brings_the_rules_back() {
+        let mut st = InventoryUi::default();
+        st.enter_advanced(view::SearchField::Name);
+        let rules = smart::SmartQuery::from_quick("hat", view::SearchField::Name);
+        st.filters.smart = Some(rules.clone());
+        st.find_similar(smart::SmartQuery::default());
+        st.end_similar();
+        assert!(st.advanced && !st.finding_similar());
+        assert_eq!(st.filters.smart, Some(rules));
+    }
+
+    #[test]
+    fn show_original_leaves_the_quick_text_out() {
+        let inv = Inventory::default();
+        let mut st = InventoryUi {
+            search: "hat".into(),
+            ..Default::default()
+        };
+        st.enter_advanced(view::SearchField::Name);
+        st.show_original(&inv, Uuid::from_u128(1));
+        assert!(!st.advanced && st.search.is_empty() && st.filters.smart.is_none());
+    }
 
     #[test]
     fn opening_inventory_focuses_search_without_taking_it_back() {
@@ -2099,6 +2266,7 @@ mod tests {
                         &mut open,
                         false,
                         &images,
+                        &Default::default(),
                         &Default::default(),
                         &scripts,
                         classic,
@@ -2168,6 +2336,7 @@ mod tests {
                         &mut open,
                         false,
                         &images,
+                        &Default::default(),
                         &Default::default(),
                         &scripts,
                         classic,
@@ -2358,6 +2527,100 @@ mod tests {
             &Default::default(),
         )
         .expect("replacement can be planned without opening Appearance");
+    }
+
+    #[test]
+    fn inventory_shortcuts_follow_target_metadata_and_handle_broken_chains() {
+        use aurora_net::inventory::InvItem;
+        let p = crate::theme::Theme::default().palette();
+        let mut inv = Inventory::default();
+        let id = Uuid::from_u128;
+        let link = InvItem {
+            id: id(2),
+            asset_type: 24,
+            asset_id: id(1),
+            flags: u32::MAX,
+            ..Default::default()
+        };
+        inv.items.insert(link.id, link.clone());
+        let snapshot_link = InvItem {
+            inv_type: 15,
+            ..link.clone()
+        };
+        assert_eq!(inventory_item_icon(&inv, &snapshot_link, &p), ("Inv_LinkItem", p.muted));
+        assert_eq!(inventory_item_icon(&inv, &link, &p), ("Inv_LinkItem", p.muted));
+        let mut types = vec![
+            (0, 0, 0),
+            (0, 15, 0),
+            (1, 1, 0),
+            (2, 2, 0),
+            (3, 3, 0),
+            (6, 6, 0),
+            (6, 6, OBJECT_HAS_MULTIPLE_ITEMS),
+            (7, 7, 0),
+            (10, 10, 0),
+            (20, 19, 0),
+            (21, 20, 0),
+            (49, 22, 0),
+            (56, 25, 0),
+            (57, 26, 0),
+            (5, 18, 255),
+            (99, 99, 0),
+        ];
+        types.extend((0..=16).map(|kind| (if kind < 4 { 13 } else { 5 }, 18, kind)));
+        for (asset_type, inv_type, flags) in types {
+            let target = InvItem {
+                id: id(1),
+                asset_type,
+                inv_type,
+                flags,
+                ..Default::default()
+            };
+            inv.items.insert(target.id, target.clone());
+            let (name, tint) = inventory_item_icon(&inv, &link, &p);
+            assert_eq!(name, format!("{}_Link", item_icon(asset_type, inv_type, flags)));
+            assert_eq!(tint, item_icon_color(asset_type, inv_type, &p));
+            assert_eq!(
+                inventory_item_icon(&inv, &target, &p),
+                (item_icon(asset_type, inv_type, flags), tint)
+            );
+        }
+        inv.items.insert(
+            id(1),
+            InvItem {
+                id: id(1),
+                asset_type: 24,
+                asset_id: id(3),
+                ..Default::default()
+            },
+        );
+        inv.items.insert(
+            id(3),
+            InvItem {
+                id: id(3),
+                asset_type: 13,
+                flags: 1,
+                ..Default::default()
+            },
+        );
+        assert_eq!(inventory_item_icon(&inv, &link, &p), ("Inv_Skin_Link", p.violet_light));
+        inv.items.get_mut(&id(3)).expect("target").asset_type = 24;
+        inv.items.get_mut(&id(3)).expect("target").asset_id = link.id;
+        assert_eq!(inventory_item_icon(&inv, &link, &p), ("Inv_LinkItem", p.muted));
+        inv.items.remove(&id(1));
+        inv.created_folders(vec![aurora_net::inventory::InvFolder {
+            id: id(1),
+            type_default: -1,
+            ..Default::default()
+        }]);
+        let folder_link = InvItem { asset_type: 25, ..link };
+        inv.items.insert(folder_link.id, folder_link.clone());
+        assert_eq!(
+            inventory_item_icon(&inv, &folder_link, &p),
+            ("Inv_FolderClosed_Link", p.violet_light)
+        );
+        inv.folders.remove(&id(1));
+        assert_eq!(inventory_item_icon(&inv, &folder_link, &p), ("Inv_LinkFolder", p.muted));
     }
 
     #[test]

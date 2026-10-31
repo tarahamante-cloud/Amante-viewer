@@ -202,6 +202,42 @@ fn amante_security_login_debug_does_not_disclose_secrets() {
     }
 }
 
+#[tokio::test]
+async fn amante_security_capability_posts_never_replay_to_another_origin_or_plaintext() {
+    let rejected = TcpListener::bind("127.0.0.1:0").await.unwrap();
+    for scheme in ["https", "http"] {
+        let target = format!("{scheme}://localhost:{}/rejected", rejected.local_addr().unwrap().port());
+        let server = Server::start(|_| {
+            vec![format!(
+                "HTTP/1.1 307 Temporary Redirect\r\nLocation: {target}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+            )]
+        })
+        .await;
+        let result = server
+            .client(simulator_client())
+            .post(server.url())
+            .body("SYNTHETIC_SESSION")
+            .send()
+            .await;
+        assert!(result.is_err());
+        assert_eq!(server.requests.lock().unwrap().len(), 1);
+        assert!(tokio::time::timeout(Duration::from_millis(100), rejected.accept()).await.is_err());
+    }
+    let url = format!("http://{}/cap/synthetic", rejected.local_addr().unwrap());
+    assert!(
+        simulator_client()
+            .no_proxy()
+            .build()
+            .unwrap()
+            .post(url)
+            .body("SYNTHETIC_SESSION")
+            .send()
+            .await
+            .is_err()
+    );
+    assert!(tokio::time::timeout(Duration::from_millis(100), rejected.accept()).await.is_err());
+}
+
 #[test]
 fn amante_security_login_origin_policy_rejects_lookalikes_and_downgrades() {
     let initial = Url::parse("https://login.example/login").unwrap();
