@@ -159,10 +159,7 @@ fn request(http: &reqwest::Client, method: reqwest::Method, url: &str, web: &Web
 #[cfg(test)]
 fn test_loopback_http(url: &reqwest::Url) -> bool {
     url.scheme() == "http"
-        && matches!(
-            url.host_str(),
-            Some("127.0.0.1" | "localhost" | "[::1]" | "::1")
-        )
+        && matches!(url.host_str(), Some("127.0.0.1" | "localhost" | "[::1]" | "::1"))
         && url.username().is_empty()
         && url.password().is_none()
         && url.fragment().is_none()
@@ -170,9 +167,7 @@ fn test_loopback_http(url: &reqwest::Url) -> bool {
 
 #[cfg(test)]
 fn test_loopback_destination(profile: &reqwest::Url, target: &reqwest::Url) -> bool {
-    test_loopback_http(profile)
-        && test_loopback_http(target)
-        && profile.origin() == target.origin()
+    test_loopback_http(profile) && test_loopback_http(target) && profile.origin() == target.origin()
 }
 
 fn trusted_profile_destination(profile: &str, target: &str) -> bool {
@@ -242,10 +237,7 @@ mod security_tests {
     #[test]
     fn test_http_profile_is_confined_to_its_loopback_origin() {
         let profile = "http://127.0.0.1:12345/";
-        assert!(trusted_profile_destination(
-            profile,
-            "http://127.0.0.1:12345/snapshots/upload"
-        ));
+        assert!(trusted_profile_destination(profile, "http://127.0.0.1:12345/snapshots/upload"));
         for target in [
             "http://127.0.0.1:12346/snapshots/upload",
             "http://127.0.0.2:12345/snapshots/upload",

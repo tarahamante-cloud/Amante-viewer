@@ -223,9 +223,7 @@ mod tests {
         let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("runtime");
         let root = std::env::temp_dir().join(format!("aurora-media-pack-{}", uuid::Uuid::new_v4()));
         let mut pack = PluginPack::new(root);
-        let unavailable = |state: PackState| {
-            matches!(state, PackState::Idle | PackState::Failed(Failure::Unsupported))
-        };
+        let unavailable = |state: PackState| matches!(state, PackState::Idle | PackState::Failed(Failure::Unsupported));
         assert!(pack.dir().is_none() && unavailable(pack.state()));
         assert!(!pack.poll(true, runtime.handle()));
         assert!(unavailable(pack.state()), "no download in a unit test");
