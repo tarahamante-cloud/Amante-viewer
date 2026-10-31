@@ -12710,7 +12710,7 @@ photo-vf-poser-tip = Poseur : poser l'avatar sans quitter le cadrage
 
 photo-vf-group-added = { $name } ajouté à la mise au point · { $count ->
     [one] { $count } sujet net
-   *[other] { $count } sujets nets
+   *[other] { $count } sujets nets }
 
 photo-vf-group-removed = { $name } retiré de la mise au point
 

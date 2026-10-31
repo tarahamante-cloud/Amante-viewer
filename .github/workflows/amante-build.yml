@@ -58,6 +58,7 @@ jobs:
           # The complete viewer test executable exceeds small runners' memory.
           # Compile-check it above; retain/run network + updater fixtures here.
           cargo test --profile ci --workspace --exclude aurora-viewer --locked amante_security
+          cargo test --profile ci --locked -p aurora-i18n
           cargo test --profile ci --locked -p amante-reporting-tests
           cargo test --profile ci --locked -p amante-fonts -p amante-keyring
           cargo test --profile ci --workspace --locked --test updates
