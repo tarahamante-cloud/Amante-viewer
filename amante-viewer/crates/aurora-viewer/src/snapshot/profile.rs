@@ -223,7 +223,7 @@ mod security_tests {
         let same = request(&http, reqwest::Method::GET, &web.profile, &web, Some("SYNTHETIC_AUTH"))
             .build()
             .unwrap();
-        assert_eq!(same.headers()["Cookie"], "SYNTHETIC_AUTH");
+        assert_eq!(same.headers()["Cookie"], "SYNTHETIC_OPENID; SYNTHETIC_AUTH");
         for url in [
             "https://storage.example.invalid/upload",
             "http://profile.example.invalid/",
