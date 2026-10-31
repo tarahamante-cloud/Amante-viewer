@@ -151,7 +151,11 @@ fn request(http: &reqwest::Client, method: reqwest::Method, url: &str, web: &Web
         .timeout(TIMEOUT);
     // Storage receives its signed form and PNG, never grid/OpenID cookies.
     if trusted_profile_destination(&web.profile, url) {
-        r = r.header("Cookie", auth.unwrap_or(&web.openid));
+        let cookies = match auth {
+            Some(auth) => format!("{}; {auth}", web.openid),
+            None => web.openid.clone(),
+        };
+        r = r.header("Cookie", cookies);
     }
     r
 }
