@@ -3,13 +3,13 @@
 //! the same Discord and website links: change them there too.
 
 /// Source code repository (GitHub page).
-pub const GITHUB: &str = "https://github.com/tarahamante-cloud/Amante-viewer-native";
+pub const GITHUB: &str = "https://github.com/tarahamante-cloud/Amante-viewer";
 /// Issue template chooser, opened in the browser by "Report a bug" (login
 /// screen, top bar, Help menu) and by the crash window.
-pub const NEW_ISSUE: &str = "https://github.com/tarahamante-cloud/Amante-viewer-native/issues/new";
+pub const NEW_ISSUE: &str = "https://github.com/tarahamante-cloud/Amante-viewer/issues/new";
 /// The project's wiki, generated from the guides of `docs/`
 /// (`scripts/build-wiki.ps1`): Help › Amante Viewer help.
-pub const WIKI: &str = "https://github.com/tarahamante-cloud/Amante-viewer-native/blob/amante-branding/docs/amante/README.md";
+pub const WIKI: &str = "https://github.com/tarahamante-cloud/Amante-viewer/blob/main/amante-viewer/docs/amante/README.md";
 /// Community Discord invite.
 pub const DISCORD: &str = "";
 /// Project website.
@@ -23,4 +23,4 @@ pub const PRIVACY_POLICY: &str = "";
 pub const NEWS_FEED: &str = "";
 /// Files of the source repository as GitHub serves them unrendered; a branch
 /// name and a path follow.
-pub const RAW_FILES: &str = "https://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer-native/";
+pub const RAW_FILES: &str = "https://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer/";

@@ -156,10 +156,56 @@ fn request(http: &reqwest::Client, method: reqwest::Method, url: &str, web: &Web
     r
 }
 
+#[cfg(test)]
+fn test_loopback_http(url: &reqwest::Url) -> bool {
+    url.scheme() == "http"
+        && matches!(
+            url.host_str(),
+            Some("127.0.0.1" | "localhost" | "[::1]" | "::1")
+        )
+        && url.username().is_empty()
+        && url.password().is_none()
+        && url.fragment().is_none()
+}
+
+#[cfg(test)]
+fn test_loopback_destination(profile: &reqwest::Url, target: &reqwest::Url) -> bool {
+    test_loopback_http(profile)
+        && test_loopback_http(target)
+        && profile.origin() == target.origin()
+}
+
 fn trusted_profile_destination(profile: &str, target: &str) -> bool {
     match (reqwest::Url::parse(profile), reqwest::Url::parse(target)) {
-        (Ok(profile), Ok(target)) => aurora_net::http_security::credential_destination(&profile, &target),
+        (Ok(profile), Ok(target)) => {
+            #[cfg(test)]
+            {
+                if test_loopback_destination(&profile, &target) {
+                    return true;
+                }
+            }
+            aurora_net::http_security::credential_destination(&profile, &target)
+        }
         _ => false,
+    }
+}
+
+fn profile_client(profile: &str, redirect: reqwest::redirect::Policy) -> Result<reqwest::Client, Error> {
+    #[cfg(test)]
+    {
+        let loopback = reqwest::Url::parse(profile).is_ok_and(|url| test_loopback_http(&url));
+        let builder = reqwest::Client::builder().https_only(!loopback).redirect(redirect);
+        let builder = if loopback { builder.no_proxy() } else { builder };
+        builder.build().map_err(|_| Error::Network)
+    }
+    #[cfg(not(test))]
+    {
+        let _ = profile;
+        reqwest::Client::builder()
+            .https_only(true)
+            .redirect(redirect)
+            .build()
+            .map_err(|_| Error::Network)
     }
 }
 
@@ -192,6 +238,23 @@ mod security_tests {
             assert!(!trusted_profile_destination(&web.profile, url));
         }
     }
+
+    #[test]
+    fn test_http_profile_is_confined_to_its_loopback_origin() {
+        let profile = "http://127.0.0.1:12345/";
+        assert!(trusted_profile_destination(
+            profile,
+            "http://127.0.0.1:12345/snapshots/upload"
+        ));
+        for target in [
+            "http://127.0.0.1:12346/snapshots/upload",
+            "http://127.0.0.2:12345/snapshots/upload",
+            "http://localhost:12345/snapshots/upload",
+            "https://127.0.0.1:12345/snapshots/upload",
+        ] {
+            assert!(!trusted_profile_destination(profile, target));
+        }
+    }
 }
 
 /// getOpenIDCookieCoro: the web profile with the OpenID cookie, redirects
@@ -200,11 +263,7 @@ pub async fn auth_cookie(web: &Web) -> Result<String, Error> {
     if !trusted_profile_destination(&web.profile, &web.profile) {
         return Err(Error::Network);
     }
-    let http = reqwest::Client::builder()
-        .https_only(true)
-        .redirect(aurora_net::http_security::login_redirects())
-        .build()
-        .map_err(|_| Error::Network)?;
+    let http = profile_client(&web.profile, aurora_net::http_security::login_redirects())?;
     let response = http
         .get(&web.profile)
         .header("Accept", "*/*")
@@ -234,11 +293,7 @@ pub async fn post(web: &Web, auth: &str, png: Vec<u8>, caption: &str, add_locati
         return Err(Error::Network);
     }
     // setFollowRedirects(false): the 303 is read, then followed by hand
-    let http = reqwest::Client::builder()
-        .https_only(true)
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .map_err(|_| Error::Network)?;
+    let http = profile_client(&web.profile, reqwest::redirect::Policy::none())?;
     let config_url = format!(
         "{}snapshots/s3_upload_config?caption={}&add_loc={}",
         web.profile,

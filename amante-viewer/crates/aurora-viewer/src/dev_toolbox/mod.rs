@@ -109,7 +109,7 @@ mod tests {
         assert_eq!(target_avatar(Target::Selection, me, Some(other), None), None);
         assert_eq!(
             header("0.8.3", "J9", Some(Target::MyAvatar), true),
-            "Aurora 0.8.3 · J9 · target: my avatar · names hidden"
+            "Amante 0.8.3 · J9 · target: my avatar · names hidden"
         );
     }
 
