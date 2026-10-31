@@ -3,6 +3,8 @@
 //! the system credential store (Windows Credential Manager, protected by the
 //! user's session) instead of Firestorm's bin_conf.dat file.
 
+use amante_keyring as keyring;
+
 const SERVICE: &str = "Amante Viewer";
 const MFA_SERVICE: &str = "Amante Viewer MFA";
 const MFA_LIFETIME: u64 = 30 * 24 * 60 * 60;
@@ -51,7 +53,7 @@ fn service_entry(service: &str, grid: &str, username: &str) -> Option<keyring::E
     if username.trim().is_empty() {
         return None;
     }
-    keyring::Entry::new(service, &account(grid, username))
+    keyring::entry(service, &account(grid, username))
         .map_err(|e| log::warn!("credential store unavailable: {e}"))
         .ok()
 }

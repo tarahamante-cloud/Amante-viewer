@@ -283,7 +283,7 @@ pub(crate) fn organization_drag_preview(ctx: &egui::Context, p: &Palette, id: eg
 pub fn section_header(ui: &mut egui::Ui, p: &Palette, icon: &str, title: &str) {
     ui.horizontal(|ui| {
         glyph(ui, icon, p.violet_light, 17.0);
-        ui.label(RichText::new(title).size(13.0).strong().color(p.ink));
+        ui.label(RichText::new(title).font(super::control_font(ui, 13.0)).strong().color(p.ink));
     });
     ui.add_space(4.0);
 }
@@ -344,7 +344,7 @@ fn section<R>(
     // a plain title takes the style of the section titles; a caller's own
     // rich text or galley (an outfit's name with its suffix) is kept
     let title = match title {
-        egui::WidgetText::Text(text) => RichText::new(text).size(12.5).strong().color(p.ink).into(),
+        egui::WidgetText::Text(text) => RichText::new(text).font(super::control_font(ui, 12.5)).strong().color(p.ink).into(),
         styled => styled,
     };
     let indent = ui.spacing().indent;
@@ -617,7 +617,9 @@ pub(crate) fn overlay<R>(
     response
 }
 
-/// Modal dialogs use the same surface and spacing as regular windows.
+/// Modal dialogs use the same surface and spacing as regular windows. Enter
+/// clicks their main button and their first text field takes the focus
+/// (`modal_keys`).
 pub struct Modal(egui::Modal, Option<(Palette, f32)>);
 
 impl Modal {
@@ -659,10 +661,12 @@ impl Modal {
             frame.fill = Color32::from_rgba_unmultiplied(p.panel.r(), p.panel.g(), p.panel.b(), (f32::from(p.panel_alpha) * tint) as u8);
         }
         let mut glass_slot = None;
+        let keys = super::modal_keys::begin(ctx, self.0.area.layer());
         let response = self.0.frame(frame).show(ctx, |ui| {
             glass_slot = Some((ui.painter().clone(), ui.painter().add(egui::Shape::Noop)));
             body(ui)
         });
+        super::modal_keys::end(ctx, keys);
         if let Some((painter, slot)) = glass_slot {
             let style = ctx.global_style();
             if self.1.is_none() && style.visuals.window_fill.a() < 255 {

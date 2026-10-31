@@ -153,9 +153,9 @@ const FLAG_DOUBLE_SIDED: u32 = 2048u;
 const FLAG_ANCHORED: u32 = 4096u;
 const FLAG_LIP_SYNC: u32 = 8192u;
 // a skeleton's own anchor (skeleton space to world), from its first joint
-const SKELETON_ANCHOR: u32 = 160u;
+const SKELETON_ANCHOR: u32 = 208u;
 // the weights of a skeleton's live morphs, after its anchors (object.wgsl)
-const LIVE_MORPH_WEIGHTS: u32 = 208u;
+const LIVE_MORPH_WEIGHTS: u32 = 256u;
 
 @group(0) @binding(0) var<uniform> frame: Frame;
 // atlas of 2x2 tiles, cascade i in tile (i % 2, i / 2)
@@ -756,6 +756,18 @@ fn probe_radiance(pos: vec3<f32>, frag: vec2<f32>, r: vec3<f32>, roughness: f32,
     }
     let s = sample_probes(pos, frag, r, clamp(roughness, 0.0, 1.0) * probe_max_lod());
     return select(fallback, s.rgb, s.w > 0.0);
+}
+
+// The largest value of the Rgba16Float scene targets (HDR_FORMAT).
+const HDR_MAX: f32 = 65504.0;
+
+// `c` written to a scene target as it would be stored, but finite: a
+// highlight brighter than the format holds (a sun specular on a smooth
+// metal or mirror) stays as bright as it can instead of turning infinite,
+// and a NaN counts as black. One such pixel would otherwise reach the TAA
+// history and the bloom chain, which spread it over the whole image (#1380).
+fn finite_hdr(c: vec3<f32>) -> vec3<f32> {
+    return select(clamp(c, vec3<f32>(-HDR_MAX), vec3<f32>(HDR_MAX)), vec3<f32>(0.0), c != c);
 }
 
 /// Reflection passes: drop geometry behind the mirror / below the water.

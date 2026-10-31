@@ -102,7 +102,7 @@ pub struct SystemFace {
     pub data: &'static [u8],
     /// Face in the file (collections).
     pub index: u32,
-    face: ttf_parser::Face<'static>,
+    face: amante_fonts::Face<'static>,
 }
 
 impl SystemFace {
@@ -134,9 +134,10 @@ pub struct RowMetrics {
 }
 
 impl RowMetrics {
-    pub fn of(face: &ttf_parser::Face<'_>) -> Option<RowMetrics> {
-        let em = f32::from(face.units_per_em());
-        let (ascent, descent, gap) = (f32::from(face.ascender()), f32::from(face.descender()), f32::from(face.line_gap()));
+    pub fn of(face: &amante_fonts::Face<'_>) -> Option<RowMetrics> {
+        let metrics = face.metrics();
+        let em = f32::from(metrics.units_per_em);
+        let (ascent, descent, gap) = (metrics.ascent, metrics.descent, metrics.leading);
         let height = (ascent - descent + gap) / em;
         (em > 0.0 && height > 0.0).then_some(RowMetrics {
             ascent: ascent / em,
@@ -220,7 +221,7 @@ fn scan() -> Vec<SystemFace> {
                 &map[..]
             }
         };
-        let Ok(face) = ttf_parser::Face::parse(data, index) else {
+        let Ok(face) = amante_fonts::Face::parse(data, index) else {
             continue;
         };
         log::debug!("system fallback font for {script}: {file}, face {index}");
@@ -309,30 +310,15 @@ fn map_file(path: &Path) -> Option<memmap2::Mmap> {
 /// outline for `c`, or face `only` if it has one.
 ///
 /// This is also what keeps a damaged file away from egui, which panics on a
-/// face it cannot open: ttf-parser wants the same header and table directory
-/// as egui's parser, and the `head`, `hhea` and `maxp` tables on top.
+/// face it cannot open: the Fontations adapter validates the header, table
+/// directory and the `head`, `hhea` and `maxp` tables, as well as glyph outlines.
 fn face_with(data: &[u8], c: char, only: Option<u32>) -> Option<u32> {
-    let faces = ttf_parser::fonts_in_collection(data).unwrap_or(1).min(64);
-    let usable = |i: u32| ttf_parser::Face::parse(data, i).is_ok_and(|face| draws(&face, c));
+    let faces = amante_fonts::face_count(data).min(64);
+    let usable = |i: u32| amante_fonts::Face::parse(data, i).is_ok_and(|face| face.has_outline(c));
     match only {
         Some(i) => (i < faces && usable(i)).then_some(i),
         None => (0..faces).find(|&i| usable(i)),
     }
-}
-
-/// A glyph with an outline: egui draws outlines only, so a face that has
-/// just a bitmap or a color layer for `c` would show nothing.
-fn draws(face: &ttf_parser::Face<'_>, c: char) -> bool {
-    struct Sink;
-    impl ttf_parser::OutlineBuilder for Sink {
-        fn move_to(&mut self, _: f32, _: f32) {}
-        fn line_to(&mut self, _: f32, _: f32) {}
-        fn quad_to(&mut self, _: f32, _: f32, _: f32, _: f32) {}
-        fn curve_to(&mut self, _: f32, _: f32, _: f32, _: f32, _: f32, _: f32) {}
-        fn close(&mut self) {}
-    }
-    face.glyph_index(c)
-        .is_some_and(|glyph| face.outline_glyph(glyph, &mut Sink).is_some())
 }
 
 #[cfg(test)]

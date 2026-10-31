@@ -93,11 +93,22 @@ pub enum Action {
     Revert,
 }
 
+/// LLInventoryModel::findCategoryUUIDForTypeInRoot (llinventorymodel.cpp):
+/// a system folder is a child of the root, the smallest id when the server
+/// left two. Every inventory rule asks this for each entry it checks, so it
+/// reads the root's few children instead of every folder (#1580); the whole
+/// inventory is only scanned when the root does not list one.
 pub fn system_folder(inv: &Inventory, kind: i32) -> Option<Uuid> {
+    let is_system = |f: &super::inventory::Folder| f.info.type_default == kind && !f.library;
     inv.folders
-        .values()
-        .find(|f| f.info.type_default == kind && !f.library)
+        .get(&inv.root)
+        .into_iter()
+        .flat_map(|root| &root.children)
+        .filter_map(|id| inv.folders.get(id))
+        .filter(|f| f.info.parent == inv.root && is_system(f))
         .map(|f| f.info.id)
+        .min()
+        .or_else(|| inv.folders.values().find(|f| is_system(f)).map(|f| f.info.id))
 }
 
 pub fn cof(inv: &Inventory) -> Option<Uuid> {
@@ -189,11 +200,31 @@ pub fn loaded(inv: &Inventory, folder: Uuid) -> bool {
     inv.folders.get(&folder).is_some_and(|f| f.state == FetchState::Fetched)
 }
 
+/// Loaded, and every link resolved: to its original, or known broken. A
+/// broken link never holds an outfit back (LLAppearanceMgr::
+/// updateAppearanceFromCOF waits only while the inventory is still fetched).
 pub fn complete(inv: &Inventory, folder: Uuid) -> bool {
     loaded(inv, folder)
         && folder_links(inv, folder)
             .iter()
-            .all(|l| l.folder || inv.items.contains_key(&l.target))
+            .all(|l| l.folder || inv.items.contains_key(&l.target) || inv.broken(&l.target))
+}
+
+/// `folder_links` without the links to a broken original, which are skipped
+/// and dropped from the rewritten folder (LLAppearanceMgr::
+/// wearInventoryCategoryOnAvatar: "Attempt to wear a broken link").
+pub fn usable_links(inv: &Inventory, folder: Uuid) -> Vec<OutfitLink> {
+    let mut links = folder_links(inv, folder);
+    links.retain(|l| l.folder || !inv.broken(&l.target));
+    links
+}
+
+/// Logs the broken links an outfit change skips, once per change (menus
+/// read `usable_links` at every frame).
+fn warn_broken(inv: &Inventory, folder: Uuid) {
+    for l in folder_links(inv, folder).iter().filter(|l| !l.folder && inv.broken(&l.target)) {
+        log::warn!("outfit link \"{}\" in folder {folder} is broken: skipped", l.name);
+    }
 }
 
 /// Only the relevant folders and link targets are fetched, including retry.
@@ -228,7 +259,7 @@ pub fn missing_targets(inv: &Inventory, folder: Uuid) -> impl Iterator<Item = Uu
         .filter_map(|id| inv.items.get(id))
         .filter(move |it| it.parent == folder && it.asset_type == 24 && !it.asset_id.is_nil())
         .map(|it| it.asset_id)
-        .filter(|target| !inv.items.contains_key(target))
+        .filter(|target| !inv.items.contains_key(target) && !inv.missing_items.contains(target))
 }
 
 /// One FetchInventory2 request for these items, none when there are none.
@@ -260,7 +291,7 @@ pub fn prepare_contents(inv: &mut Inventory, agent: Uuid, folder: Uuid) -> Vec<N
         }
         pending.extend(f.children.iter().copied());
         for link in folder_links(inv, id) {
-            if !link.folder && !link.target.is_nil() && !inv.items.contains_key(&link.target) {
+            if !link.folder && !link.target.is_nil() && !inv.items.contains_key(&link.target) && !inv.broken(&link.target) {
                 missing.insert(link.target);
             }
         }
@@ -279,7 +310,8 @@ pub fn prepare_contents(inv: &mut Inventory, agent: Uuid, folder: Uuid) -> Vec<N
 }
 
 /// LLAppearanceMgr::wearInventoryCategory: ordinary folders are recursive;
-/// unrelated inventory types are ignored, incomplete or broken links are refused.
+/// unrelated inventory types and broken links are skipped, links still
+/// loading are refused.
 pub fn wearable_contents(inv: &Inventory, folder: Uuid) -> Result<Vec<OutfitLink>, String> {
     let mut pending = vec![folder];
     let mut seen = HashSet::new();
@@ -290,7 +322,7 @@ pub fn wearable_contents(inv: &Inventory, folder: Uuid) -> Result<Vec<OutfitLink
         }
         let f = inv.folders.get(&id).ok_or(aurora_i18n::tr!("common-folder-not-found"))?;
         require_complete(inv, id)?;
-        for link in folder_links(inv, id).into_iter().filter(|l| !l.folder) {
+        for link in usable_links(inv, id).into_iter().filter(|l| !l.folder) {
             let item = inv
                 .items
                 .get(&link.target)
@@ -340,7 +372,7 @@ pub fn plan(inv: &Inventory, action: Action, worn: &HashMap<Uuid, u8>) -> Result
             OutfitMutation {
                 folder,
                 create: None,
-                links: folder_links(inv, folder).into_iter().filter(|l| l.target != item).collect(),
+                links: usable_links(inv, folder).into_iter().filter(|l| l.target != item).collect(),
                 cof: None,
             },
             false,
@@ -348,7 +380,9 @@ pub fn plan(inv: &Inventory, action: Action, worn: &HashMap<Uuid, u8>) -> Result
     }
     let cof = cof(inv).ok_or(aurora_i18n::tr!("world-appearance-the-current-outfit-folder-is-unavailable"))?;
     require_complete(inv, cof)?;
-    let mut current = folder_links(inv, cof);
+    // the rewritten COF drops its broken links
+    warn_broken(inv, cof);
+    let mut current = usable_links(inv, cof);
     if matches!(
         action,
         Action::Add(_)
@@ -439,7 +473,7 @@ pub fn plan(inv: &Inventory, action: Action, worn: &HashMap<Uuid, u8>) -> Result
                 require_complete(inv, change.folder)?;
                 change.links = links;
                 change.links.extend(
-                    folder_links(inv, change.folder)
+                    usable_links(inv, change.folder)
                         .into_iter()
                         .filter(|l| !l.folder && inv.items.get(&l.target).is_some_and(|it| it.asset_type == 0)),
                 );
@@ -478,10 +512,11 @@ pub fn plan(inv: &Inventory, action: Action, worn: &HashMap<Uuid, u8>) -> Result
                     continue;
                 }
                 require_complete(inv, *id)?;
+                warn_broken(inv, *id);
                 links.extend(if contents {
                     wearable_contents(inv, *id)?
                 } else {
-                    folder_links(inv, *id)
+                    usable_links(inv, *id)
                 });
             }
             let mut next: Vec<_> = links
@@ -601,6 +636,7 @@ pub fn plan(inv: &Inventory, action: Action, worn: &HashMap<Uuid, u8>) -> Result
             for id in folders {
                 require_outfit(inv, id)?;
                 require_complete(inv, id)?;
+                warn_broken(inv, id);
                 removable.extend(
                     wearable_contents(inv, id)?
                         .iter()
@@ -724,8 +760,12 @@ pub fn plan(inv: &Inventory, action: Action, worn: &HashMap<Uuid, u8>) -> Result
             return Err(aurora_i18n::tr!("world-appearance-this-action-does-not-change-the-current-outfit").into());
         }
     }
+    if change.folder == cof {
+        drop_coalesced(inv, &mut change.links);
+    }
     normalize_layers(inv, &mut change.links);
     if let Some((_, links)) = &mut change.cof {
+        drop_coalesced(inv, links);
         normalize_layers(inv, links);
     }
     if change.create.is_none()
@@ -810,6 +850,22 @@ pub fn category_plan(
         parent: inv.folders.get(&id).map(|f| f.info.parent).unwrap_or_default(),
         update,
     })
+}
+
+/// A coalesced object (II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS): the simulator
+/// refuses to attach it ("You can't attach multiple objects to one spot").
+pub fn coalesced(it: &InvItem) -> bool {
+    it.asset_type == 6 && it.flags & crate::ui::inventory::OBJECT_HAS_MULTIPLE_ITEMS != 0
+}
+
+/// The Current Outfit never links a coalesced object. The Legacy Viewer links
+/// an object only once it arrives worn (LLAppearanceMgr::wearItemsOnAvatar
+/// sends rez_attachment alone, registerAttachment links), so a refused one
+/// leaves nothing behind; here the COF is written first, and a link left to a
+/// coalesced object would be asked for again at every outfit sync and login,
+/// and count toward the 38 attachments (#1668). A rewrite drops such links.
+fn drop_coalesced(inv: &Inventory, links: &mut Vec<OutfitLink>) {
+    links.retain(|l| l.folder || !inv.items.get(&l.target).is_some_and(coalesced));
 }
 
 fn normalize_layers(inv: &Inventory, links: &mut [OutfitLink]) {
@@ -941,11 +997,21 @@ pub fn sync_commands(inv: &Inventory, agent: Uuid, worn: &HashSet<Uuid>) -> Vec<
 }
 
 /// Explicit attachment requests retain the chosen point and replace/add mode.
-/// They are sent only after the COF update has been acknowledged.
+/// They are sent only after the COF update has been acknowledged. "Add" of a
+/// coalesced object is asked here too: the COF does not link it, so the sync
+/// would not ask for it, and the simulator's refusal is shown once, as the
+/// Legacy Viewer's rez_attachment does.
 pub fn attachments_for_action(inv: &Inventory, agent: Uuid, action: &Action) -> Vec<AttachRequest> {
     let (items, point, replace) = match action {
         Action::WearItem { item, point, replace } => (std::slice::from_ref(item), *point, *replace),
         Action::WearItems { items, point, replace } => (items.as_slice(), *point, *replace),
+        Action::Add(item)
+            if super::inventory::actions::original(inv, *item)
+                .and_then(|id| inv.items.get(&id))
+                .is_some_and(coalesced) =>
+        {
+            (std::slice::from_ref(item), 0, false)
+        }
         _ => return Vec::new(),
     };
     let mut seen = HashSet::new();
@@ -1095,6 +1161,25 @@ pub fn seed_demo(inv: &mut Inventory, agent: Uuid) {
     demo_replace(inv, agent, cof, &current);
 }
 
+/// `AURORA_DEMO_APPEARANCE=broken`: the third outfit and the current
+/// outfit hold a link to a deleted original, answered missing as the grid
+/// would (issue #1441): both still wear, without it.
+pub fn seed_demo_broken(inv: &mut Inventory, agent: Uuid) {
+    let gone = OutfitLink {
+        target: Uuid::from_u128(729),
+        name: aurora_i18n::tr!("world-appearance-deleted-scarf").into(),
+        desc: String::new(),
+        folder: false,
+        inv_type: 18,
+    };
+    for folder in [Uuid::from_u128(704)].into_iter().chain(cof(inv)) {
+        let mut links = folder_links(inv, folder);
+        links.push(gone.clone());
+        demo_replace(inv, agent, folder, &links);
+    }
+    inv.items_missing(vec![gone.target]);
+}
+
 /// `AURORA_DEMO_APPEARANCE=layers…`: two more tattoos worn over the star
 /// tattoo of `seed_demo`, for the layer order of the outfit editor.
 pub fn seed_demo_layers(inv: &mut Inventory, agent: Uuid) {
@@ -1123,6 +1208,43 @@ pub fn seed_demo_layers(inv: &mut Inventory, agent: Uuid) {
         if let Some(link) = links.iter_mut().find(|l| l.target == Uuid::from_u128(id)) {
             link.desc = format!("@{}", 1400 + order);
         }
+    }
+    demo_replace(inv, agent, cof, &links);
+}
+
+/// All wearable icons and ordering in Appearance, with three tattoo layers
+/// and attachments: `AURORA_DEMO_APPEARANCE=wearables[-outfits|-edit]`.
+pub fn seed_demo_wearables(inv: &mut Inventory, agent: Uuid) {
+    seed_demo_layers(inv, agent);
+    let Some(cof) = cof(inv) else { return };
+    let mut links = folder_links(inv, cof);
+    for (kind, name) in wearables().iter().enumerate() {
+        if links.iter().any(|link| {
+            inv.items
+                .get(&link.target)
+                .is_some_and(|it| matches!(it.asset_type, 5 | 13) && it.flags & 0xff == kind as u32)
+        }) {
+            continue;
+        }
+        let item = InvItem {
+            id: Uuid::from_u128(730 + kind as u128),
+            parent: inv.root,
+            name: (*name).into(),
+            asset_type: if kind < 4 { 13 } else { 5 },
+            inv_type: 18,
+            flags: kind as u32,
+            creator: agent,
+            owner: agent,
+            base_mask: 0x7fffffff,
+            owner_mask: 0x7fffffff,
+            ..Default::default()
+        };
+        links.push(item_link(&item));
+        inv.add_items(vec![item]);
+    }
+    if let Some(outfit) = base(inv) {
+        let saved: Vec<_> = links.iter().filter(|link| !link.folder).cloned().collect();
+        demo_replace(inv, agent, outfit, &saved);
     }
     demo_replace(inv, agent, cof, &links);
 }
@@ -1591,6 +1713,95 @@ mod tests {
         );
     }
 
+    /// Issue #1441: a link to a deleted original held every outfit change
+    /// on "still loading" forever.
+    #[test]
+    fn an_outfit_link_to_a_deleted_original_waits_for_the_server_then_is_skipped() {
+        let mut inv = fixture();
+        let outfit = Uuid::from_u128(704);
+        let gone = Uuid::from_u128(723);
+        let original = inv.items.remove(&gone).expect("linked original");
+        assert!(!complete(&inv, outfit), "not read yet: still loading");
+        assert!(plan(&inv, Action::Wear(outfit, false), &HashMap::new()).is_err());
+        assert_eq!(missing_targets(&inv, outfit).collect::<Vec<_>>(), [gone]);
+        inv.items_missing(vec![gone]);
+        assert!(complete(&inv, outfit));
+        assert!(missing_targets(&inv, outfit).next().is_none(), "never asked for again");
+        for action in [
+            Action::Wear(outfit, false),
+            Action::Wear(outfit, true),
+            Action::WearContents {
+                folder: outfit,
+                mode: WearMode::ReplaceOutfit,
+            },
+            Action::RemoveOutfit(outfit),
+        ] {
+            let (change, _) = plan(&inv, action.clone(), &HashMap::new()).unwrap_or_else(|e| panic!("{action:?}: {e}"));
+            assert!(!change.links.iter().any(|l| l.target == gone), "{action:?} skips the broken link");
+        }
+        let (change, _) = plan(&inv, Action::Wear(outfit, false), &HashMap::new()).expect("wear");
+        assert!(
+            change.links.iter().any(|l| l.target == Uuid::from_u128(710)),
+            "the rest of the outfit is worn"
+        );
+        // the original comes back (restored from the trash): no longer broken
+        inv.add_items(vec![original]);
+        assert!(!inv.broken(&gone));
+        let (change, _) = plan(&inv, Action::Wear(outfit, false), &HashMap::new()).expect("wear");
+        assert!(change.links.iter().any(|l| l.target == gone));
+    }
+
+    #[test]
+    fn a_broken_link_in_the_current_outfit_no_longer_blocks_outfit_changes() {
+        let mut inv = fixture();
+        let cof = cof(&inv).expect("COF");
+        let gone = Uuid::from_u128(950);
+        inv.add_items(vec![InvItem {
+            id: Uuid::from_u128(951),
+            parent: cof,
+            name: "Deleted shirt".into(),
+            asset_type: 24,
+            inv_type: 18,
+            asset_id: gone,
+            ..Default::default()
+        }]);
+        assert!(!complete(&inv, cof));
+        assert!(plan(&inv, Action::Wear(Uuid::from_u128(704), false), &HashMap::new()).is_err());
+        inv.items_missing(vec![gone]);
+        assert!(complete(&inv, cof));
+        let clothing: Vec<_> = worn_clothing(&inv).into_iter().map(|(id, _)| id).collect();
+        for action in [
+            Action::Wear(Uuid::from_u128(704), false),
+            Action::Wear(Uuid::from_u128(703), true),
+            Action::RemoveItems(clothing.clone()),
+            Action::Save(Some("Without the shirt".into())),
+        ] {
+            let (change, _) = plan(&inv, action.clone(), &HashMap::new()).unwrap_or_else(|e| panic!("{action:?}: {e}"));
+            assert!(
+                !change.links.iter().any(|l| l.target == gone)
+                    && change.cof.iter().all(|(_, links)| !links.iter().any(|l| l.target == gone)),
+                "{action:?}: the rewritten folders drop the broken link"
+            );
+        }
+    }
+
+    #[test]
+    fn failed_item_reads_are_retried_then_count_as_broken() {
+        let mut inv = fixture();
+        let id = Uuid::from_u128(723);
+        inv.items.remove(&id);
+        for _ in 1..super::super::inventory::ITEM_FETCH_ATTEMPTS {
+            inv.items_failed(&[id]);
+            assert!(!inv.broken(&id), "one failed read proves nothing");
+            assert_eq!(inv.take_item_retries(), HashSet::from([id]));
+            assert!(!complete(&inv, Uuid::from_u128(704)));
+        }
+        inv.items_failed(&[id]);
+        assert!(inv.broken(&id));
+        assert!(inv.take_item_retries().is_empty());
+        assert!(complete(&inv, Uuid::from_u128(704)));
+    }
+
     #[test]
     fn combined_outfits_remove_preserves_body_parts_and_unrelated_items() {
         let inv = fixture();
@@ -1934,6 +2145,53 @@ mod tests {
         assert!(!folder_links(&inv, folder).iter().any(|l| l.target == item));
         assert!(inv.items.contains_key(&item), "original retained");
         assert_eq!(folder_links(&inv, cof(&inv).expect("COF")), current);
+    }
+
+    #[test]
+    fn a_coalesced_object_is_asked_once_and_never_linked_in_the_cof() {
+        let mut inv = fixture();
+        let agent = Uuid::from_u128(1);
+        let (item, linked) = (Uuid::from_u128(723), Uuid::from_u128(717));
+        inv.items.get_mut(&item).expect("object").flags |= crate::ui::inventory::OBJECT_HAS_MULTIPLE_ITEMS;
+        let action = Action::Add(item);
+        let (change, _) = plan(&inv, action.clone(), &HashMap::new()).expect("add");
+        assert!(!change.links.iter().any(|l| l.target == item), "not linked");
+        assert!(change.links.iter().any(|l| l.target == linked), "the outfit stays");
+        // the request still leaves once, for the simulator's refusal
+        let asked = attachments_for_action(&inv, agent, &action);
+        assert_eq!(
+            asked.iter().map(|a| (a.item_id, a.point, a.add)).collect::<Vec<_>>(),
+            [(item, 0, true)]
+        );
+        // an ordinary Add is still asked by the COF sync alone
+        assert!(attachments_for_action(&inv, agent, &Action::Add(linked)).is_empty());
+        demo_mutate(&mut inv, agent, &change).expect("mutation");
+        let asks_for = |inv: &Inventory, id: Uuid| {
+            sync_commands(inv, agent, &HashSet::new())
+                .iter()
+                .any(|c| matches!(c, NetCommand::RezAttachments(items) if items.iter().any(|a| a.item_id == id)))
+        };
+        assert!(!asks_for(&inv, item));
+        assert!(asks_for(&inv, linked));
+    }
+
+    #[test]
+    fn a_link_left_to_a_coalesced_object_is_not_worn_again_and_is_dropped() {
+        let mut inv = fixture();
+        let agent = Uuid::from_u128(1);
+        let stale = Uuid::from_u128(717);
+        let cof = cof(&inv).expect("COF");
+        assert!(folder_links(&inv, cof).iter().any(|l| l.target == stale));
+        inv.items.get_mut(&stale).expect("object").flags |= crate::ui::inventory::OBJECT_HAS_MULTIPLE_ITEMS;
+        assert!(!super::super::outfit::cof_objects(&inv, cof).contains(&stale), "not re-requested");
+        assert!(
+            !sync_commands(&inv, agent, &HashSet::new())
+                .iter()
+                .any(|c| matches!(c, NetCommand::RezAttachments(items) if items.iter().any(|a| a.item_id == stale)))
+        );
+        // the next COF rewrite drops the link, freeing its attachment slot
+        let (change, _) = plan(&inv, Action::Add(Uuid::from_u128(723)), &HashMap::new()).expect("add");
+        assert!(!change.links.iter().any(|l| l.target == stale));
     }
 
     #[test]

@@ -231,6 +231,7 @@ const BEFORE: &[&str] = &[
     "link_previews",
     "keywords",
     "friend_request_prompt",
+    "region_message_prompt",
     // Controls
     "mouse_sensitivity",
     "invert_mouse",
@@ -249,6 +250,7 @@ const BEFORE: &[&str] = &[
     // Colors, network and cache, sound and voice, shortcuts, camera, commands
     "colors",
     "bandwidth_kbps",
+    "download_connections",
     "no_neighbour_regions",
     "cache_size_mb",
     "cache_location",
@@ -347,6 +349,31 @@ fn no_setting_of_the_former_pages_is_lost() {
 }
 
 #[test]
+fn rlva_settings_live_on_their_own_page() {
+    let paths = collected();
+    let rlva = |path: &str| path == "rlva_enabled" || path == "rlva" || path.starts_with("rlva.");
+    let on_rlva: Vec<_> = paths
+        .iter()
+        .filter(|(page, _)| *page == Page::Rlva)
+        .map(|(_, p)| p.as_str())
+        .collect();
+    assert!(on_rlva.contains(&"rlva_enabled"), "the global switch: {on_rlva:?}");
+    assert!(on_rlva.iter().filter(|p| p.starts_with("rlva.")).count() >= 20, "{on_rlva:?}");
+    assert!(on_rlva.iter().all(|p| rlva(p)), "only RLVa on its page: {on_rlva:?}");
+    let elsewhere: Vec<_> = paths.iter().filter(|(page, p)| *page != Page::Rlva && rlva(p)).collect();
+    assert!(elsewhere.is_empty(), "RLVa rows left on another page: {elsewhere:?}");
+    assert!(Page::Rlva.experimental() && !Page::Protections.experimental());
+    let mut s = Settings::default();
+    assert_eq!(counts(&mut s, "RLVa").hits(Page::Protections), 0);
+    s.rlva_enabled = !s.rlva_enabled;
+    s.anti_spam.enabled = !s.anti_spam.enabled;
+    reset_page_settings(Page::Protections, &mut s);
+    assert_ne!(s.rlva_enabled, Settings::default().rlva_enabled, "Protections reset preserves RLVa");
+    reset_page_settings(Page::Rlva, &mut s);
+    assert_eq!(s.rlva_enabled, Settings::default().rlva_enabled);
+}
+
+#[test]
 fn a_setting_has_one_page() {
     let paths = collected();
     for (page, path) in &paths {
@@ -381,6 +408,9 @@ fn a_page_reset_leaves_the_other_pages_alone() {
     s.lookat.head_yaw = 10.0;
     s.username = "kept".into();
     s.inventory.sort.by_date = false;
+    s.auto_accept_inventory = true;
+    s.auto_accept_inventory_chat = false;
+    s.auto_accept_inventory_notify = false;
     s.inventory.received_sort.folders_by_name = true;
     reset_page_settings(Page::Graphics, &mut s);
     let d = Settings::default();
@@ -412,6 +442,8 @@ fn a_page_reset_leaves_the_other_pages_alone() {
     assert_eq!(s.plate_ctrl_click, d.plate_ctrl_click);
     assert_eq!(s.lookat.head_yaw, d.lookat.head_yaw);
     reset_page_settings(Page::Inventory, &mut s);
+    assert!(!s.auto_accept_inventory);
+    assert!(s.auto_accept_inventory_chat && s.auto_accept_inventory_notify);
     assert_eq!(s.inventory.sort, d.inventory.sort);
     assert_eq!(s.inventory.received_sort, d.inventory.received_sort);
     reset_page_settings(Page::Layout, &mut s);
@@ -433,6 +465,26 @@ fn joystick_preferences_reset_device_mapping_buttons_and_both_tunings() {
     s.joystick.direct_zoom = true;
     reset_page_settings(Page::Controls, &mut s);
     assert_eq!(s.joystick, crate::joystick::Settings::default());
+}
+
+#[test]
+fn automatic_flight_preferences_have_separate_controls_and_reset_with_their_page() {
+    let paths = collected();
+    for key in ["automatic_fly", "automatic_land"] {
+        let pages: Vec<_> = paths.iter().filter(|(_, path)| path == key).map(|(page, _)| *page).collect();
+        assert_eq!(pages, [Page::Controls]);
+    }
+    let mut s = Settings {
+        automatic_fly: false,
+        automatic_land: false,
+        fly_after_teleport: true,
+        ..Settings::default()
+    };
+    reset_page_settings(Page::Graphics, &mut s);
+    assert!(!s.automatic_fly && !s.automatic_land);
+    reset_page_settings(Page::Controls, &mut s);
+    assert!(s.automatic_fly && s.automatic_land);
+    assert!(!s.fly_after_teleport);
 }
 
 #[test]
@@ -507,9 +559,13 @@ fn the_search_finds_settings_on_their_pages() {
     assert!(found.hits(Page::Graphics) >= 3, "the shadows' rows: {:?}", found.hits);
     // a command by its name, a shortcut by its key
     assert!(counts(&mut s, "gtp").hits(Page::Commands) >= 1);
-    assert!(counts(&mut s, "Ctrl+I").hits(Page::Shortcuts) >= 1);
+    let inventory = s.keybinds.get(crate::keybinds::Action::Inventory)[0]
+        .as_ref()
+        .expect("inventory shortcut")
+        .label();
+    assert!(counts(&mut s, &inventory).hits(Page::Shortcuts) >= 1);
     assert!(counts(&mut s, "anti-spam").hits(Page::Protections) >= 8);
-    assert!(counts(&mut s, "RLVa").hits(Page::Protections) >= 1);
+    assert!(counts(&mut s, "RLVa").hits(Page::Rlva) >= 1);
     assert!(counts(&mut s, "").hits.is_empty());
     assert!(counts(&mut s, "zzzzzz").hits.is_empty());
 }
@@ -527,6 +583,18 @@ fn the_modified_settings_are_counted_on_their_pages() {
     assert_eq!(c.modified(Page::Chat), 1);
     assert_eq!(c.modified(Page::Protections), 1);
     assert_eq!(c.total_modified(), 4);
+}
+
+#[test]
+fn the_simulator_version_notice_has_a_switch_off_by_default() {
+    let mut s = Settings::default();
+    assert!(!s.sim_version_alert);
+    let query = cx::fold(aurora_i18n::tr!("ui-options-sim-version-alert"));
+    assert!(counts(&mut s, &query).hits(Page::Confirmations) >= 1, "found by the search");
+    assert_eq!(counts(&mut s, "").modified(Page::Confirmations), 0);
+    // turned on: its row is the one that differs from the defaults
+    s.sim_version_alert = true;
+    assert_eq!(counts(&mut s, "").modified(Page::Confirmations), 1);
 }
 
 #[test]
@@ -558,6 +626,10 @@ fn every_page_names_its_tabs() {
     assert_eq!(Page::parse("0"), Some((Page::Graphics, 0)));
     assert_eq!(Page::parse("13"), Some((Page::Aurora, 0)));
     assert_eq!(Page::parse("9"), None, "the former Debug page is the Dev Toolbox");
+    assert_eq!(
+        Page::Graphics.tabs()[5..],
+        [aurora_i18n::tr!("ui-options-smoothness"), aurora_i18n::tr!("region-parcels")]
+    );
 }
 
 /// One frame of the rows of a page's tab, `width` wide, laid out as in the
@@ -706,6 +778,48 @@ fn preference_shapes(
 }
 
 #[test]
+fn graphics_profile_save_has_a_button_face_to_the_right_of_the_list() {
+    for width in [420.0, 700.0, 900.0] {
+        let mut frames = Frames::new();
+        let (mut s, mut st, mut r) = (Settings::default(), OptionsUi::default(), OptionsResult::default());
+        s.graphics_saved
+            .insert("Layout profile".into(), crate::graphics_presets::saved::Saved::capture(&s));
+        crate::graphics_presets::saved::select(&mut s, "Layout profile");
+        let mut shapes = Vec::new();
+        for _ in 0..4 {
+            shapes = preference_shapes(&mut frames, &mut s, &mut st, &mut r, (Page::Graphics, 0, width), Vec::new());
+        }
+        let text_rect = |label: &str| {
+            shapes
+                .iter()
+                .find_map(|shape| match shape {
+                    egui::Shape::Text(t) if t.galley.text() == label => Some(egui::Rect::from_min_size(t.pos, t.galley.size())),
+                    _ => None,
+                })
+                .unwrap_or_else(|| panic!("missing text: {label}"))
+        };
+        let list = text_rect("Layout profile");
+        let save = text_rect(aurora_i18n::tr!("common-save"));
+        let save_as = text_rect(aurora_i18n::tr!("graphics-saved-save-as"));
+        assert!(save.left() > list.right(), "{width}: Save is right of the list");
+        assert!(
+            (save.center().y - list.center().y).abs() < 1.0,
+            "{width}: Save stays on the list's line"
+        );
+        assert!(
+            save_as.left() > save.right() && save_as.right() <= width,
+            "{width}: Save as fits beside Save"
+        );
+        assert!(
+            shapes.iter().any(|shape| matches!(shape, egui::Shape::Rect(face)
+                if face.rect.contains_rect(save.expand(1.0)) && face.rect.height() < 30.0 && face.rect.width() < 160.0
+            )),
+            "{width}: Save has an ordinary padded button face"
+        );
+    }
+}
+
+#[test]
 fn parcel_visibility_lists_show_full_names_and_regions_with_separate_remove_controls() {
     use crate::world::parcel_visibility::Entry;
     fn frame(
@@ -723,7 +837,7 @@ fn parcel_visibility_lists_show_full_names_and_regions_with_separate_remove_cont
             ui.set_width(view.0);
             ui.spacing_mut().item_spacing.y = 0.0;
             let mut cx = Cx::new(ui, p, s, &d, st, &mut r, view.1, "parc");
-            run_page(&mut cx, Page::Graphics, Some(0));
+            run_page(&mut cx, Page::Graphics, Some(6));
             changed |= cx.changed;
         });
         (shapes, changed)
@@ -756,7 +870,16 @@ fn parcel_visibility_lists_show_full_names_and_regions_with_separate_remove_cont
             for _ in 0..4 {
                 shapes = frame(&mut frames, &mut s, &mut st, view, Vec::new()).0;
             }
-            let heading = text(&shapes, aurora_i18n::tr!("parcel-visibility-always-visible")).pos;
+            let heading_label = aurora_i18n::tr!("parcel-visibility-always-visible");
+            let heading = if mode == Mode::Show {
+                let filtering = text(&shapes, &aurora_i18n::tr!("parcel-visibility-filter").to_uppercase()).pos;
+                let scope = text(&shapes, &aurora_i18n::tr!("parcel-visibility-parcels").to_uppercase()).pos;
+                let exceptions = text(&shapes, &heading_label.to_uppercase()).pos;
+                assert!(filtering.y < scope.y && scope.y < exceptions.y, "three separate sections in order");
+                exceptions + egui::vec2(14.0, 0.0)
+            } else {
+                text(&shapes, heading_label).pos
+            };
             let mut remove = None;
             let mut right: Option<f32> = None;
             for entry in &entries {
@@ -1339,6 +1462,9 @@ fn the_accessibility_page_shows_the_settings_of_other_pages() {
         tr!("ui-options-color-vision"),
         tr!("ui-options-chat-bubble-duration"),
         tr!("ui-options-toast-duration"),
+        tr!("ui-options-hover-tips-show"),
+        tr!("ui-options-hover-tips-delay"),
+        tr!("inventory-hover-pictures"),
         tr!("ui-options-reduce-motion"),
         tr!("ui-options-flash-unread"),
         tr!("ui-options-dof-enable"),

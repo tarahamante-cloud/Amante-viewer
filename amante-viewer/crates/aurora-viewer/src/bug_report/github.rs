@@ -504,6 +504,37 @@ mod tests {
     }
 
     #[test]
+    fn pending_connected_and_revoked_states_never_send_automatically() {
+        let (tx, rx) = crossbeam_channel::bounded(2);
+        let mut state = Github::default();
+        state.rx = Some(rx);
+        tx.send(Reply::Code("TEST-CODE".into())).unwrap();
+        state.poll();
+        assert!(state.authorizing());
+        assert!(!state.connected());
+        assert_eq!(state.user_code.as_deref(), Some("TEST-CODE"));
+        state.submit("Not sent".into(), "Still pending".into());
+        assert!(!state.sending);
+
+        tx.send(Reply::Authorized("test-only".into(), Instant::now() + Duration::from_secs(60)))
+            .unwrap();
+        state.poll();
+        assert!(state.connected());
+        assert!(!state.authorizing() && !state.sending);
+        assert!(state.user_code.is_none() && state.created.is_none());
+
+        let (tx, rx) = crossbeam_channel::bounded(1);
+        state.rx = Some(rx);
+        state.sending = true;
+        tx.send(Reply::Failed(Failure::Unauthorized)).unwrap();
+        state.poll();
+        assert!(!state.connected() && !state.sending && !state.authorizing());
+        assert_eq!(state.failure, Some(Failure::Unauthorized));
+        state.submit("Not retried".into(), "Revoked".into());
+        assert!(!state.sending && state.created.is_none());
+    }
+
+    #[test]
     fn browser_roundtrip_and_overlong_body_fallback() {
         let title = "Échec & panne ? #1";
         let body = "Texte privé sélectionné : ça & ceci\nhttps://example.invalid/";

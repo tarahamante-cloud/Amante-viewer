@@ -35,7 +35,7 @@ use bytemuck::{Pod, Zeroable};
 use glam::{Mat4, Vec3, Vec4};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 pub const CASCADES: usize = 3;
 const MAX_LIGHTS: usize = 64;
@@ -171,6 +171,8 @@ struct PostU {
     /// A cut-out photo (cutout.rs): 1 the snapshot, 2 the live view.
     cutout: f32,
     _pad: f32,
+    /// The part of the photo the frame draws ([`photo_part`]).
+    photo_part: [f32; 4],
 }
 
 /// Where `PostU::auto_exposure` sits in the post uniforms.
@@ -1385,7 +1387,8 @@ impl FrameTarget {
 pub(crate) struct Backend {
     device: wgpu::Device,
     queue: wgpu::Queue,
-    surface: wgpu::Surface<'static>,
+    /// Destroyed by hand in `Drop`, unless the device is lost.
+    surface: std::mem::ManuallyDrop<wgpu::Surface<'static>>,
     config: wgpu::SurfaceConfiguration,
     /// The window's size while a photo frame draws at its own size in
     /// `config` (`Capture::Snapshot`); put back by `result`.
@@ -1506,6 +1509,28 @@ pub(crate) struct Backend {
     /// Set by the device-lost callback: the GPU is never waited on again
     /// (device_lost.rs).
     lost: crate::device_lost::DeviceLost,
+    /// Each frame's submission, read by the main thread before the next
+    /// frame reads its input (pacing.rs).
+    gpu_frames: std::sync::Arc<crate::pacing::GpuFrames<wgpu::SubmissionIndex>>,
+}
+
+impl Drop for Backend {
+    /// After a device loss the swapchain image of the last frame never comes
+    /// back: the work that holds it never finishes, and destroying the
+    /// surface panics in wgpu (`release_resources`: "SwapchainAcquireSemaphore
+    /// still in use by a SurfaceTexture", wgpu-hal 30). The session closing
+    /// properly after a "GPU device lost" then ended with a Rust panic
+    /// (#1650). A lost device only closes the viewer, so the surface is left
+    /// to the process, which releases it with the driver's objects.
+    fn drop(&mut self) {
+        if self.lost.get() {
+            log::warn!("GPU device lost: the window surface is left to the process");
+            return;
+        }
+        // SAFETY: dropped once, here, and never used again: the backend is
+        // being dropped.
+        unsafe { std::mem::ManuallyDrop::drop(&mut self.surface) };
+    }
 }
 
 /// What the main thread's `Renderer` creates the backend from.
@@ -1528,6 +1553,8 @@ pub(crate) struct BackendInit {
     pub scene: SceneGpu,
     pub anim_clock: crate::tex_anim::AnimClock,
     pub lost: crate::device_lost::DeviceLost,
+    /// Each frame's submission, for the frame pacing (pacing.rs).
+    pub gpu_frames: std::sync::Arc<crate::pacing::GpuFrames<wgpu::SubmissionIndex>>,
 }
 
 fn skin_layout() -> wgpu::VertexBufferLayout<'static> {
@@ -1969,6 +1996,8 @@ fn reflection_matrix(n: Vec3, d: f32) -> Mat4 {
 struct Impostors {
     layout: wgpu::BindGroupLayout,
     atlas: wgpu::Texture,
+    pages: u32,
+    sprite_capacity: usize,
     bind_group: wgpu::BindGroup,
     scratch: wgpu::Texture,
     scratch_view: wgpu::TextureView,
@@ -1998,7 +2027,7 @@ impl Impostors {
                     visibility: wgpu::ShaderStages::FRAGMENT,
                     ty: wgpu::BindingType::Texture {
                         sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                        view_dimension: wgpu::TextureViewDimension::D2,
+                        view_dimension: wgpu::TextureViewDimension::D2Array,
                         multisampled: false,
                     },
                     count: None,
@@ -2011,42 +2040,8 @@ impl Impostors {
                 },
             ],
         });
-        let size = IMPOSTOR_TILE * IMPOSTOR_TILES_PER_ROW;
-        let atlas = device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("impostor atlas"),
-            size: wgpu::Extent3d {
-                width: size,
-                height: size,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: HDR_FORMAT,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-            view_formats: &[],
-        });
-        let atlas_view = atlas.create_view(&Default::default());
-        let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            label: Some("impostor"),
-            mag_filter: wgpu::FilterMode::Linear,
-            min_filter: wgpu::FilterMode::Linear,
-            ..Default::default()
-        });
-        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("impostor atlas"),
-            layout: &layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 4,
-                    resource: wgpu::BindingResource::TextureView(&atlas_view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 5,
-                    resource: wgpu::BindingResource::Sampler(&sampler),
-                },
-            ],
-        });
+        let atlas = Self::make_atlas(device, 1);
+        let bind_group = Self::bind_atlas(device, &layout, &atlas);
         let tile = wgpu::Extent3d {
             width: IMPOSTOR_TILE,
             height: IMPOSTOR_TILE,
@@ -2086,6 +2081,8 @@ impl Impostors {
         Impostors {
             layout,
             atlas,
+            pages: 1,
+            sprite_capacity: IMPOSTOR_TILES as usize,
             bind_group,
             scratch,
             scratch_view,
@@ -2096,6 +2093,86 @@ impl Impostors {
             sprite,
             sprite_depth,
         }
+    }
+
+    fn make_atlas(device: &wgpu::Device, pages: u32) -> wgpu::Texture {
+        let size = IMPOSTOR_TILE * IMPOSTOR_TILES_PER_ROW;
+        device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("impostor atlas"),
+            size: wgpu::Extent3d {
+                width: size,
+                height: size,
+                depth_or_array_layers: pages,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: HDR_FORMAT,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST | wgpu::TextureUsages::COPY_SRC,
+            view_formats: &[],
+        })
+    }
+
+    fn bind_atlas(device: &wgpu::Device, layout: &wgpu::BindGroupLayout, atlas: &wgpu::Texture) -> wgpu::BindGroup {
+        let view = atlas.create_view(&wgpu::TextureViewDescriptor {
+            dimension: Some(wgpu::TextureViewDimension::D2Array),
+            ..Default::default()
+        });
+        let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+            label: Some("impostor"),
+            mag_filter: wgpu::FilterMode::Linear,
+            min_filter: wgpu::FilterMode::Linear,
+            ..Default::default()
+        });
+        device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("impostor atlas"),
+            layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 4,
+                    resource: wgpu::BindingResource::TextureView(&view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 5,
+                    resource: wgpu::BindingResource::Sampler(&sampler),
+                },
+            ],
+        })
+    }
+
+    /// Add pages only for allocated pictures, at most 128 MiB. Return the
+    /// old image for a GPU copy before any pass samples the enlarged cache.
+    fn prepare(&mut self, device: &wgpu::Device, lists: &DrawLists) -> Option<wgpu::Texture> {
+        let tiles = lists
+            .impostor_sprites
+            .iter()
+            .filter(|s| s.tile & IMPOSTOR_PENDING == 0)
+            .map(|s| s.tile & !IMPOSTOR_FULLBRIGHT)
+            .chain(lists.impostor_captures.iter().map(|c| c.tile))
+            .max()
+            .map_or(0, |tile| tile + 1);
+        let pages = tiles
+            .div_ceil(IMPOSTOR_TILES)
+            .next_power_of_two()
+            .clamp(1, IMPOSTOR_MAX_TILES / IMPOSTOR_TILES);
+        let old = if pages > self.pages {
+            let atlas = Self::make_atlas(device, pages);
+            self.bind_group = Self::bind_atlas(device, &self.layout, &atlas);
+            self.pages = pages;
+            Some(std::mem::replace(&mut self.atlas, atlas))
+        } else {
+            None
+        };
+        if lists.impostor_sprites.len() > self.sprite_capacity {
+            self.sprite_capacity = lists.impostor_sprites.len().next_power_of_two();
+            self.sprites = device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("impostor cards"),
+                size: self.sprite_capacity as u64 * std::mem::size_of::<ImpostorSprite>() as u64,
+                usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
+        }
+        old
     }
 
     fn rebuild_pipelines(
@@ -2230,6 +2307,22 @@ fn whole_proj(proj: Mat4, photo_tile: Mat4) -> Mat4 {
     } else {
         photo_tile.inverse() * proj
     }
+}
+
+/// The part of the whole image a frame draws with `photo_tile` (see
+/// [`whole_proj`]), in fractions of it: left, top, width, height (0, 0, 1,
+/// 1 outside a tiled photo). The glow keeps the whole photo's 512 x 512
+/// texels with it: drawn on a tile's own, its halo shrank with the tile and
+/// stopped at its border, a line along every seam.
+fn photo_part(photo_tile: Mat4) -> [f32; 4] {
+    let (sx, sy) = (photo_tile.x_axis.x, photo_tile.y_axis.y);
+    if photo_tile == Mat4::IDENTITY || sx <= 0.0 || sy <= 0.0 {
+        return [0.0, 0.0, 1.0, 1.0];
+    }
+    // the tile's centre in normalised device coordinates (y up)
+    let (cx, cy) = (-photo_tile.w_axis.x / sx, -photo_tile.w_axis.y / sy);
+    let (w, h) = (1.0 / sx, 1.0 / sy);
+    [(cx + 1.0) * 0.5 - w * 0.5, (1.0 - cy) * 0.5 - h * 0.5, w, h]
 }
 
 /// Whether this frame uses the receiver bias of before
@@ -2367,6 +2460,7 @@ impl Backend {
             scene,
             anim_clock,
             lost,
+            gpu_frames,
         } = init;
         let caps = surface.get_capabilities(&adapter);
         let format = caps
@@ -2783,7 +2877,7 @@ impl Backend {
         let mut r = Backend {
             device,
             queue,
-            surface,
+            surface: std::mem::ManuallyDrop::new(surface),
             config,
             snapshot_window: None,
             surface_srgb,
@@ -2868,6 +2962,7 @@ impl Backend {
             last_inv_vp: Mat4::IDENTITY,
             msaa_supported,
             lost,
+            gpu_frames,
         };
         r.rebuild_bind_groups();
         Ok(r)
@@ -4313,7 +4408,20 @@ impl Backend {
     fn rebuild_targets(&mut self) {
         self.occlusion.invalidate();
         self.depth_pick.scene_changed();
-        let size = crate::rlva::resolution::size((self.config.width, self.config.height), self.rlva_resolution_divisor);
+        let scale = if self.snapshot_window.is_some() {
+            100
+        } else {
+            self.settings.render_scale_percent
+        };
+        let size = crate::rlva::resolution::render_size((self.config.width, self.config.height), self.rlva_resolution_divisor, scale);
+        log::info!(
+            "world resolution: {}x{} (output {}x{}, scale {}%)",
+            size.0,
+            size.1,
+            self.config.width,
+            self.config.height,
+            scale
+        );
         self.targets = Self::make_targets(
             &self.device,
             &self.post_layout,
@@ -4374,6 +4482,7 @@ impl Backend {
         };
         let pipelines_dirty = samples != self.msaa_samples || s.ssr != self.settings.ssr;
         let targets_dirty = pipelines_dirty
+            || s.render_scale_percent != self.settings.render_scale_percent
             || (s.aa == AntiAliasing::Smaa) != (self.settings.aa == AntiAliasing::Smaa)
             || s.ssao.min(1) != self.settings.ssao.min(1)
             || s.ao_method != self.settings.ao_method
@@ -4870,6 +4979,7 @@ impl Backend {
             drawn,
             capture: wanted,
             histogram,
+            input_at,
         } = packet;
         let mut stats = RenderStats::default();
         if let Some(t) = &mut self.timer {
@@ -5410,7 +5520,8 @@ impl Backend {
             u.screen = [r, r, 1.0 / r, 1.0 / r];
             self.queue.write_buffer(&self.refl_buffers[3 + i], 0, bytemuck::bytes_of(&u));
         }
-        let n_sprites = lists.impostor_sprites.len().min(IMPOSTOR_TILES as usize);
+        let old_impostor_atlas = self.impostors.prepare(&self.device, lists);
+        let n_sprites = lists.impostor_sprites.len();
         if n_sprites > 0 {
             self.queue.write_buffer(
                 &self.impostors.sprites,
@@ -5505,6 +5616,7 @@ impl Backend {
                 (true, false) => 2.0,
             },
             _pad: 0.0,
+            photo_part: photo_part(f.photo_tile),
         };
         self.queue.write_buffer(&self.post_buffer, 0, bytemuck::bytes_of(&post));
         if let (true, Some(t)) = (self.contact_now, &self.targets.contact) {
@@ -5885,6 +5997,23 @@ impl Backend {
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("frame") });
+        if let Some(old) = old_impostor_atlas {
+            encoder.copy_texture_to_texture(
+                wgpu::TexelCopyTextureInfo {
+                    texture: &old,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                wgpu::TexelCopyTextureInfo {
+                    texture: &self.impostors.atlas,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                old.size(),
+            );
+        }
 
         let timer_slot = self.timer.as_mut().and_then(|t| t.slot());
         let mut first_pass = true;
@@ -6543,7 +6672,7 @@ impl Backend {
                     origin: wgpu::Origin3d {
                         x: (tile % IMPOSTOR_TILES_PER_ROW) * IMPOSTOR_TILE,
                         y: (tile / IMPOSTOR_TILES_PER_ROW) * IMPOSTOR_TILE,
-                        z: 0,
+                        z: c.tile / IMPOSTOR_TILES,
                     },
                     aspect: wgpu::TextureAspect::All,
                 },
@@ -7254,8 +7383,18 @@ impl Backend {
 
         let draw_huds = lists.hud_view.is_some() && self.hud_depth.is_some() && snapshot.is_none_or(|s| s.huds);
         if world_size != (self.config.width, self.config.height) {
-            if self.rlva_scaled.as_ref().is_none_or(|scaled| scaled.size() != world_size) {
-                self.rlva_scaled = Some(crate::rlva::resolution::Scaled::new(&self.device, self.config.format, world_size));
+            let smooth = self.settings.render_scale_percent < 100 && self.rlva_resolution_divisor <= 1 && snapshot.is_none();
+            if self
+                .rlva_scaled
+                .as_ref()
+                .is_none_or(|scaled| scaled.size() != world_size || scaled.smooth != smooth)
+            {
+                self.rlva_scaled = Some(crate::rlva::resolution::Scaled::new(
+                    &self.device,
+                    self.config.format,
+                    world_size,
+                    smooth,
+                ));
             }
         } else {
             self.rlva_scaled = None;
@@ -7614,7 +7753,15 @@ impl Backend {
             }
         }
         prof.mark("finish");
-        self.queue.submit(upload_cmds.into_iter().chain(extra_cmds));
+        let submission = self.queue.submit(upload_cmds.into_iter().chain(extra_cmds));
+        self.gpu_frames.submitted(index, submission);
+        if self.gpu_frames.enabled {
+            // the news as soon as a poll sees the frame done (the start of
+            // the next frame's job): a GPU that is not the limit does not
+            // hold the main thread until this thread is through a frame
+            let frames = self.gpu_frames.clone();
+            self.queue.on_submitted_work_done(move || frames.finished_through(index));
+        }
         // staging chunks whose copies are now submitted are mapped again
         frame_uploads.after_submit();
         let mut captured = None;
@@ -7666,6 +7813,7 @@ impl Backend {
         if let FrameTarget::Surface(t) = surface_tex {
             self.queue.present(t);
             stats.presented = true;
+            stats.input_ms = input_at.map(|at| at.elapsed().as_secs_f32() * 1000.0);
         }
         self.lost.poll(&self.device);
         // a click answered by now goes back with this frame's result
@@ -7760,6 +7908,43 @@ impl Backend {
         Some((buf, w, h, row))
     }
 
+    /// Frame pacing (pacing.rs), once frame `frame` is presented: wait, at
+    /// most `timeout`, until the GPU has finished the frames before it, and
+    /// tell the main thread, which then reads the input of the next frame.
+    /// Done here, on the thread that submits and presents: the wait holds
+    /// the device's locks.
+    pub fn finish_frames_before(&self, frame: u64, timeout: Duration) {
+        // (the wait runs the callbacks of `on_submitted_work_done` too)
+        if !self.gpu_frames.enabled || self.lost.get() {
+            return;
+        }
+        let Some(last) = frame.checked_sub(1) else {
+            return;
+        };
+        if let Some(index) = self.gpu_frames.before(frame) {
+            let wait = wgpu::PollType::Wait {
+                submission_index: Some(index),
+                timeout: Some(timeout),
+            };
+            match self.device.poll(wait) {
+                Ok(_) => {}
+                // a GPU that fell behind: no news, the main thread's own
+                // bound lets it go on
+                Err(wgpu::PollError::Timeout) => return,
+                Err(e) => log::debug!("frame pacing: {e:?}"),
+            }
+        }
+        self.gpu_frames.finished_through(last);
+    }
+
+    /// Run the callbacks of the GPU work already finished, without waiting:
+    /// the frame pacing's news of the frames done (pacing.rs).
+    pub fn poll_finished(&self) {
+        if self.gpu_frames.enabled {
+            self.lost.poll(&self.device);
+        }
+    }
+
     /// World position of the opaque surface under a pixel of the last frame
     /// drawn (depth prepass read-back; None for the sky). Blocks on the GPU
     /// for one tiny copy: clicks only.
@@ -7783,6 +7968,55 @@ impl Backend {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    #[ignore = "requires a GPU"]
+    fn gpu_impostor_atlas_growth_preserves_pictures_and_separates_pages() {
+        let _gpu = crate::test_gpu::lock();
+        let instance = wgpu::Instance::default();
+        let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions::default())).expect("GPU adapter");
+        let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor::default())).expect("GPU device");
+        let before = Impostors::make_atlas(&device, 1);
+        let after = Impostors::make_atlas(&device, 2);
+        let extent = wgpu::Extent3d {
+            width: 1,
+            height: 1,
+            depth_or_array_layers: 1,
+        };
+        let pixel = [0u8, 60, 0, 56, 0, 52, 0, 60];
+        queue.write_texture(before.as_image_copy(), &pixel, wgpu::TexelCopyBufferLayout::default(), extent);
+        let mut encoder = device.create_command_encoder(&Default::default());
+        encoder.copy_texture_to_texture(before.as_image_copy(), after.as_image_copy(), before.size());
+        let readback = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("impostor atlas test"),
+            size: 512,
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+            mapped_at_creation: false,
+        });
+        for page in 0..2 {
+            encoder.copy_texture_to_buffer(
+                wgpu::TexelCopyTextureInfo {
+                    origin: wgpu::Origin3d { x: 0, y: 0, z: page },
+                    ..after.as_image_copy()
+                },
+                wgpu::TexelCopyBufferInfo {
+                    buffer: &readback,
+                    layout: wgpu::TexelCopyBufferLayout {
+                        offset: page as u64 * 256,
+                        bytes_per_row: Some(256),
+                        rows_per_image: None,
+                    },
+                },
+                extent,
+            );
+        }
+        queue.submit([encoder.finish()]);
+        readback.map_async(wgpu::MapMode::Read, .., |_| {});
+        device.poll(wgpu::PollType::wait_indefinitely()).expect("GPU readback");
+        let data = readback.get_mapped_range(..).expect("mapped");
+        assert_eq!(&data[..8], &pixel, "the existing picture survives atlas growth");
+        assert_eq!(&data[256..264], &[0; 8], "a new page cannot alias the old one");
+    }
 
     #[test]
     fn specular_aa_follows_the_setting_unless_forced_and_alternates_each_second() {
@@ -7963,6 +8197,24 @@ mod tests {
         // the photo's centre, around which the cascades are laid, is
         // outside the tile
         assert!((tile * photo).project_point3(Vec3::new(0.0, 0.0, -10.0)).x < -1.0);
+    }
+
+    /// The glow of a tile reads the whole photo's texels: the tile knows
+    /// where it lies in the photo, from the top left.
+    #[test]
+    fn a_tile_knows_its_part_of_the_photo() {
+        assert_eq!(photo_part(Mat4::IDENTITY), [0.0, 0.0, 1.0, 1.0]);
+        let near = |a: [f32; 4], b: [f32; 4]| a.iter().zip(b).all(|(x, y)| (x - y).abs() < 1e-6);
+        // the right-hand tile of the middle row of a 3 x 3 grid
+        let tile = Mat4::from_cols(Vec4::X * 3.0, Vec4::Y * 3.0, Vec4::Z, Vec4::new(-2.0, 0.0, 0.0, 1.0));
+        assert!(
+            near(photo_part(tile), [2.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0]),
+            "{:?}",
+            photo_part(tile)
+        );
+        // the top left quarter (its centre at -0.5, 0.5)
+        let tile = Mat4::from_cols(Vec4::X * 2.0, Vec4::Y * 2.0, Vec4::Z, Vec4::new(1.0, -1.0, 0.0, 1.0));
+        assert!(near(photo_part(tile), [0.0, 0.0, 0.5, 0.5]), "{:?}", photo_part(tile));
     }
 
     #[test]

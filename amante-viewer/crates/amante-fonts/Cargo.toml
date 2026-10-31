@@ -1,0 +1,13 @@
+[package]
+name = "amante-fonts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+# Also used by egui's renderer: a maintained parser with bounded safe readers.
+skrifa = "0.44.0"
+
+[lints]
+workspace = true

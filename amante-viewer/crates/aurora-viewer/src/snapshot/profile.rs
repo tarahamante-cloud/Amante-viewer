@@ -147,20 +147,62 @@ fn request(http: &reqwest::Client, method: reqwest::Method, url: &str, web: &Web
         .request(method, url)
         .header("Accept", "*/*")
         .header("Content-Type", "application/xml")
-        .header("Cookie", web.openid.as_str())
         .header("User-Agent", web.user_agent.as_str())
         .timeout(TIMEOUT);
-    if let Some(auth) = auth {
-        r = r.header("Cookie", auth);
+    // Storage receives its signed form and PNG, never grid/OpenID cookies.
+    if trusted_profile_destination(&web.profile, url) {
+        r = r.header("Cookie", auth.unwrap_or(&web.openid));
     }
     r
+}
+
+fn trusted_profile_destination(profile: &str, target: &str) -> bool {
+    match (reqwest::Url::parse(profile), reqwest::Url::parse(target)) {
+        (Ok(profile), Ok(target)) => aurora_net::http_security::credential_destination(&profile, &target),
+        _ => false,
+    }
+}
+
+#[cfg(test)]
+mod security_tests {
+    use super::*;
+
+    #[test]
+    fn amante_security_profile_cookies_only_reach_exact_https_origin() {
+        let http = reqwest::Client::new();
+        let web = Web {
+            profile: "https://profile.example.invalid/".into(),
+            openid: "SYNTHETIC_OPENID".into(),
+            user_agent: "test".into(),
+        };
+        let same = request(&http, reqwest::Method::GET, &web.profile, &web, Some("SYNTHETIC_AUTH"))
+            .build()
+            .unwrap();
+        assert_eq!(same.headers()["Cookie"], "SYNTHETIC_AUTH");
+        for url in [
+            "https://storage.example.invalid/upload",
+            "http://profile.example.invalid/",
+            "https://profile.example.invalid:444/",
+            "https://profile.example.invalid.evil/",
+        ] {
+            let request = request(&http, reqwest::Method::POST, url, &web, Some("SYNTHETIC_AUTH"))
+                .build()
+                .unwrap();
+            assert!(!request.headers().contains_key(reqwest::header::COOKIE));
+            assert!(!trusted_profile_destination(&web.profile, url));
+        }
+    }
 }
 
 /// getOpenIDCookieCoro: the web profile with the OpenID cookie, redirects
 /// followed; its Set-Cookie, path stripped, is the auth cookie of the posts.
 pub async fn auth_cookie(web: &Web) -> Result<String, Error> {
+    if !trusted_profile_destination(&web.profile, &web.profile) {
+        return Err(Error::Network);
+    }
     let http = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::limited(10))
+        .https_only(true)
+        .redirect(aurora_net::http_security::login_redirects())
         .build()
         .map_err(|_| Error::Network)?;
     let response = http
@@ -188,8 +230,12 @@ pub async fn auth_cookie(web: &Web) -> Result<String, Error> {
 /// uploadImageCoro: the upload configuration, the form posted to its URL,
 /// then the 303's address.
 pub async fn post(web: &Web, auth: &str, png: Vec<u8>, caption: &str, add_location: bool) -> Result<(), Error> {
+    if !trusted_profile_destination(&web.profile, &web.profile) {
+        return Err(Error::Network);
+    }
     // setFollowRedirects(false): the 303 is read, then followed by hand
     let http = reqwest::Client::builder()
+        .https_only(true)
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .map_err(|_| Error::Network)?;
@@ -227,6 +273,9 @@ pub async fn post(web: &Web, auth: &str, png: Vec<u8>, caption: &str, add_locati
         .filter(|l| !l.is_empty())
         .map(str::to_owned)
         .ok_or(Error::NoRedirect)?;
+    if !trusted_profile_destination(&web.profile, &location) {
+        return Err(Error::NoRedirect);
+    }
     let response = request(&http, reqwest::Method::GET, &location, web, Some(auth))
         .send()
         .await

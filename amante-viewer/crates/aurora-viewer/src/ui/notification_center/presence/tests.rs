@@ -179,6 +179,9 @@ fn status(classic: bool) -> StatusInfo<'static> {
         perf: Box::leak(Box::default()),
         net_loss: 0.0,
         graphics_preset: None,
+        graphics_saved: Vec::new(),
+        fps_cap: true,
+        fps_limit: 120,
         camera_preset: Default::default(),
         interface_hidden: false,
         interface_keys: String::new(),
@@ -351,6 +354,7 @@ fn frames_with(size: Vec2, classic: bool, at: PresencePosition, center: Center) 
             );
             let mut env = ToastEnv {
                 pics: &pics,
+                images: &std::collections::HashMap::new(),
                 emoji: &mut emoji,
                 hidden: false,
                 message_seconds: 30.0,
@@ -465,6 +469,7 @@ impl Clicks {
             self.notif.bell = Some(Rect::from_min_size(Pos2::new(1236.0, 8.0), Vec2::splat(36.0)));
             let mut env = ToastEnv {
                 pics: &pics,
+                images: &std::collections::HashMap::new(),
                 emoji: &mut self.emoji,
                 hidden: false,
                 message_seconds: 30.0,

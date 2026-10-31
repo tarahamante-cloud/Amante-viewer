@@ -90,6 +90,9 @@ pub const STALL_AFTER: Duration = Duration::from_secs(2);
 const STALL_POLL: Duration = Duration::from_millis(50);
 /// How long a frame carrying a capture is waited for.
 const CAPTURE_WAIT: Duration = Duration::from_secs(10);
+/// The longest the frame pacing waits for the GPU (pacing.rs): a frame of
+/// 10 frames per second, well past any frame drawn in a busy region.
+pub(crate) const GPU_WAIT: Duration = Duration::from_millis(100);
 
 /// Interface texture changes kept while the GPU is stalled. Cleared when
 /// dropped with the renderer: egui's debug builds refuse to drop a delta
@@ -194,6 +197,12 @@ pub struct Renderer {
     /// since the last `render` returned.
     last_stats: RenderStats,
     fresh: bool,
+    /// Frame pacing (pacing.rs, on unless AURORA_FRAME_PACING=0): what the
+    /// GPU has finished, as the backend tells it; the last wait.
+    gpu_frames: Arc<crate::pacing::GpuFrames<wgpu::SubmissionIndex>>,
+    gpu_waited: Duration,
+    /// When the frame being built began reading its input.
+    input_at: Option<Instant>,
     spare: Vec<Spent>,
     failed: bool,
     /// The render thread has held a frame past [`STALL_AFTER`]: frames are
@@ -227,7 +236,7 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    /// Create the renderer on the Vulkan backend for the given window, on
+    /// Create the renderer on the native graphics backend for the given window, on
     /// the GPU `gpu` asks for (`adapter_choice::Wanted`: empty for the
     /// automatic choice).
     pub fn new(
@@ -239,7 +248,7 @@ impl Renderer {
     ) -> Result<Renderer, RenderError> {
         let desc = || {
             let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
-            desc.backends = wgpu::Backends::VULKAN;
+            desc.backends = crate::BACKENDS;
             desc.flags = if std::env::var_os("AURORA_GPU_VALIDATION").is_some() {
                 wgpu::InstanceFlags::debugging()
             } else {
@@ -250,13 +259,13 @@ impl Renderer {
         let mut instance = wgpu::Instance::new(desc());
         // ---- the GPU: every adapter listed, then tried in our order
         // (adapter_choice.rs), the next one if one fails to open
-        let mut adapters = pollster::block_on(instance.enumerate_adapters(wgpu::Backends::VULKAN));
+        let mut adapters = pollster::block_on(instance.enumerate_adapters(crate::BACKENDS));
         // Dozen, kept out at start (vulkan_drivers.rs), may be the only
         // Vulkan driver of this PC: let it back in rather than draw nothing
         if adapters.is_empty() && crate::vulkan_drivers::allow_again() {
             log::warn!("GPU: no Vulkan adapter without Dozen (Vulkan on Direct3D 12): trying again with it");
             instance = wgpu::Instance::new(desc());
-            adapters = pollster::block_on(instance.enumerate_adapters(wgpu::Backends::VULKAN));
+            adapters = pollster::block_on(instance.enumerate_adapters(crate::BACKENDS));
         }
         let surface = instance.create_surface(target).map_err(|e| RenderError::Surface(e.to_string()))?;
         let candidates: Vec<crate::adapter_choice::Candidate> = adapters
@@ -280,7 +289,11 @@ impl Renderer {
                 if c.surface { "can present" } else { "cannot present to the window" }
             );
         }
-        let notice = crate::adapter_choice::hint(&candidates);
+        let notice = if cfg!(target_os = "macos") {
+            None
+        } else {
+            crate::adapter_choice::hint(&candidates)
+        };
         if let Some(n) = notice {
             log::warn!("GPU: {}", n.log_line());
         }
@@ -293,7 +306,7 @@ impl Renderer {
             );
         }
         let mut opened = None;
-        let mut failure = RenderError::NoAdapter("no Vulkan adapter can present to the window".into());
+        let mut failure = RenderError::NoAdapter("no native GPU adapter can present to the window".into());
         for (n, &i) in plan.order.iter().enumerate() {
             match open_device(&adapters[i]) {
                 Ok(o) => {
@@ -402,7 +415,11 @@ impl Renderer {
         );
         let anim_clock = crate::tex_anim::AnimClock::new(Instant::now());
         let video_memory = crate::vram::VideoMemoryProbe::new(adapter.clone());
+        let gpu_frames = Arc::new(crate::pacing::GpuFrames::new(crate::pacing::wanted(
+            std::env::var("AURORA_FRAME_PACING").ok().as_deref(),
+        )));
         let backend = Backend::new(BackendInit {
+            gpu_frames: gpu_frames.clone(),
             device: device.clone(),
             queue,
             surface,
@@ -466,6 +483,9 @@ impl Renderer {
             frames: 0,
             last_stats: RenderStats::default(),
             fresh: false,
+            gpu_frames,
+            gpu_waited: Duration::ZERO,
+            input_at: None,
             spare: Vec::new(),
             failed: false,
             stalled: false,
@@ -953,6 +973,9 @@ impl Renderer {
                 ..Default::default()
             };
         }
+        // the back-pressure: the frame before still in the render thread's
+        // hands (the hand-over below finds it free)
+        let free_wait = t0.elapsed();
         if let Some(ui) = ui.as_mut()
             && !self.held_textures.0.is_empty()
         {
@@ -1020,13 +1043,14 @@ impl Renderer {
             drawn: std::mem::take(&mut self.drawn_requests),
             capture,
             histogram: self.histogram_request.take(),
+            input_at: self.input_at.take(),
         };
         self.frames += 1;
         let built = t0.elapsed();
 
         // ---- to the backend
         let mut results: [Option<Box<FrameResult>>; 2] = [None, None];
-        let mut waited = Duration::ZERO;
+        let mut waited = free_wait;
         let mut gone = false;
         match &mut self.host {
             Host::Inline(backend) => results[0] = Some(Box::new(backend.render(packet))),
@@ -1118,7 +1142,42 @@ impl Renderer {
             stats.packet_ms = ms(built);
             stats.cpu_encode_ms += stats.packet_ms;
         }
+        stats.pace_ms = ms(self.gpu_waited);
         stats
+    }
+
+    /// The frame being built begins reading its input now (the start of
+    /// the viewer's frame): its time to the screen is measured from here.
+    pub fn mark_input(&mut self, at: Instant) {
+        self.input_at = Some(at);
+    }
+
+    /// Once a frame is handed over, before the next one reads its input:
+    /// wait until the GPU has finished the frame before it (pacing.rs), at
+    /// most [`GPU_WAIT`]. The time it took (nothing when the GPU is not the
+    /// limit, or with AURORA_FRAME_PACING=0).
+    pub fn wait_for_gpu(&mut self) -> Duration {
+        self.gpu_waited = Duration::ZERO;
+        if !self.gpu_frames.enabled || self.failed || self.stalled || self.lost.get() {
+            return Duration::ZERO;
+        }
+        // the frame handed over last, and the one before it
+        let Some(before) = self.frames.checked_sub(2) else {
+            return Duration::ZERO;
+        };
+        let t = Instant::now();
+        match &self.host {
+            // the render thread waits on the device and sends the news; a
+            // timeout is a GPU that fell behind: the frames go on, the stall
+            // notice is the render thread's (`stalled_for`)
+            Host::Thread { .. } => {
+                self.gpu_frames.wait_finished(before, t + GPU_WAIT);
+            }
+            // alone on the device: the wait is this thread's
+            Host::Inline(backend) => backend.finish_frames_before(before + 1, GPU_WAIT),
+        }
+        self.gpu_waited = t.elapsed();
+        self.gpu_waited
     }
 
     /// Ask for the world position of the opaque surface under a pixel of
@@ -1375,10 +1434,7 @@ fn open_device(adapter: &wgpu::Adapter) -> Result<OpenedDevice, RenderError> {
     if afeat.contains(wgpu::Features::MULTI_DRAW_INDIRECT_COUNT) {
         features |= wgpu::Features::MULTI_DRAW_INDIRECT_COUNT;
     }
-    let max_textures = alim
-        .max_binding_array_elements_per_shader_stage
-        .min(alim.max_sampled_textures_per_shader_stage.saturating_sub(17))
-        .clamp(64, 16384);
+    let max_textures = texture_page_limit(&alim);
     let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
         label: Some("aurora"),
         required_features: features,
@@ -1400,7 +1456,8 @@ fn open_device(adapter: &wgpu::Adapter) -> Result<OpenedDevice, RenderError> {
 }
 
 /// Size of the largest device-local memory heap (the GPU's own VRAM on a
-/// discrete card), read from Vulkan. None on other backends.
+/// discrete card), read from Vulkan.
+#[cfg(not(target_os = "macos"))]
 fn detect_vram_mb(adapter: &wgpu::Adapter) -> Option<u64> {
     use ash::vk;
     // SAFETY: the hal adapter is only borrowed for this call; the physical
@@ -1416,9 +1473,41 @@ fn detect_vram_mb(adapter: &wgpu::Adapter) -> Option<u64> {
         .max()
 }
 
+/// Memory the GPU can use well, read from Metal: the recommended working
+/// set of the device (a share of the unified memory on Apple Silicon), the
+/// figure the Legacy Viewer reads as `kCGLRPVideoMemoryMegabytes`
+/// (indra/llwindow/llopenglview-objc.mm).
+#[cfg(target_os = "macos")]
+fn detect_vram_mb(adapter: &wgpu::Adapter) -> Option<u64> {
+    use objc2_metal::MTLDevice;
+    // SAFETY: the hal adapter is only borrowed for this call; reading a
+    // device property changes no state.
+    let hal = unsafe { adapter.as_hal::<wgpu::hal::api::Metal>() }?;
+    let bytes = hal.raw_device().recommendedMaxWorkingSetSize();
+    (bytes > 0).then_some(bytes / (1024 * 1024))
+}
+
+// Binding-array entries have their own limit; they do not consume the
+// ordinary sampled-texture slots used by frame attachments.
+fn texture_page_limit(limits: &wgpu::Limits) -> u32 {
+    limits.max_binding_array_elements_per_shader_stage.clamp(64, 16384)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bindless_pages_are_not_limited_by_ordinary_texture_slots() {
+        let mut limits = wgpu::Limits {
+            max_sampled_textures_per_shader_stage: 96,
+            max_binding_array_elements_per_shader_stage: 1_000_000,
+            ..Default::default()
+        };
+        assert_eq!(texture_page_limit(&limits), 16384);
+        limits.max_binding_array_elements_per_shader_stage = 512;
+        assert_eq!(texture_page_limit(&limits), 512);
+    }
 
     #[test]
     fn skin_binds_send_only_the_range_asked_for() {

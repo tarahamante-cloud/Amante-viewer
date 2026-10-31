@@ -183,8 +183,6 @@ pub(super) struct Snapshots {
     detail_wait: Option<Instant>,
     /// The wait is over: the next "Take" goes ahead.
     detail_ready: bool,
-    /// The time of day the photo's light shows over the user's.
-    light_time: Option<snapshot::light::HeldTime>,
     /// The world frozen by the photo mode (`SnapshotUi::freeze_world`):
     /// the instant and the shaders' clock it shows.
     world_freeze: Option<snapshot::Hold>,
@@ -256,13 +254,19 @@ struct DemoPhoto {
     /// viewfinder…), the setting itself left alone.
     style: Option<crate::settings::PhotoWindowStyle>,
     /// AURORA_DEMO_SNAPSHOT=viewfinder[-essential|-hidden][-menu|-help|
-    /// -drawer][-mf|-afc][-point][-frozen][-focus|-shoot]: the viewfinder, its
-    /// display, a panel open, its focus mode, and the own avatar focused
-    /// (then the photo taken) at AURORA_DEMO_SNAPSHOT_FRAME.
+    /// -drawer][-mf|-afc][-point][-frozen][-focus|-shoot|-group]: the
+    /// viewfinder, its display, a panel open, its focus mode, and the own
+    /// avatar focused (then the photo taken, or the others in view added)
+    /// at AURORA_DEMO_SNAPSHOT_FRAME.
     viewfinder: Option<DemoViewfinder>,
     /// AURORA_DEMO_SNAPSHOT=light: sunset, a brighter exposure, the clouds
     /// still and the worn lights off.
     light: bool,
+    /// AURORA_DEMO_SNAPSHOT=windlight[-keep]: the library's "Coastal
+    /// Sunset" sky and "Murky Water" with the sun turned low in the east,
+    /// the Light section in view; `-keep` keeps that light (frame 900) and
+    /// closes the window (960).
+    windlight: Option<bool>,
 }
 
 /// What AURORA_DEMO_SNAPSHOT=viewfinder… shows.
@@ -271,10 +275,14 @@ struct DemoViewfinder {
     menu: bool,
     help: bool,
     drawer: bool,
+    light: bool,
     focus_mode: Option<crate::dof::PhotoFocus>,
     point: bool,
     focus: bool,
     shoot: bool,
+    /// After the own avatar's focus, the other avatars in view added to
+    /// it (Shift + click: the group focus).
+    group: bool,
     /// The aperture ring on All sharp (the window's depth of field off).
     sharp: bool,
     /// The camera pad, the self-timer (2 s), AE-L, the controls on hover
@@ -289,6 +297,8 @@ struct DemoViewfinder {
     /// `tilt`, a quarter turn with `tilt90` (the level turns the other
     /// way, the AF frame keeps the head's size).
     tilt: f32,
+    /// The poser opened over the viewfinder (the dock's Poser, #1389).
+    poser: bool,
 }
 
 /// AURORA_DEMO_SNAPSHOT=inventory…: the photo sent to the inventory.
@@ -331,7 +341,6 @@ impl Default for Snapshots {
             message_profile: false,
             detail_wait: None,
             detail_ready: false,
-            light_time: None,
             world_freeze: None,
             free_flying: false,
             free_opened_controls: false,
@@ -816,7 +825,7 @@ impl App {
         if purpose != Purpose::Preview {
             self.world.photo_isolation.set_picking(false);
         }
-        let tiles = snapshot::plan(size, self.photo_max_side(renderer), self.photo_max_pixels(renderer));
+        let tiles = self.photo_tiles(renderer, size);
         let interface = s.interface && snapshot::same_proportions(full, window);
         self.snapshots.job = Some(Job {
             purpose,
@@ -879,6 +888,19 @@ impl App {
         looks::frame_look(&layers, place, compare, false, focus)
     }
 
+    /// How a photo of `size` is drawn (`snapshot::plan`), with the guard
+    /// band its effects need: the bloom and the depth of field (at the blur
+    /// this photo gets, its `max_coc` grows with its height) read the image
+    /// farther than the screen-space passes.
+    fn photo_tiles(&self, renderer: &Renderer, size: (u32, u32)) -> Vec<snapshot::TilePass> {
+        let bloom = if self.settings.bloom { self.settings.bloom_strength } else { 0.0 };
+        let dof = self
+            .photo_dof_max_coc(size.1, renderer.size().1)
+            .map_or(0, aurora_render::dof_tile_reach);
+        let guard = snapshot::TILE_GUARD.max(aurora_render::bloom_tile_reach(bloom)).max(dof);
+        snapshot::plan(size, self.photo_max_side(renderer), self.photo_max_pixels(renderer), guard)
+    }
+
     /// The largest side drawn in one pass: the card's, or in demo
     /// AURORA_DEMO_SNAPSHOT_TILE (to see the tiles and their seams).
     fn photo_max_side(&self, renderer: &Renderer) -> u32 {
@@ -898,15 +920,16 @@ impl App {
         }
     }
 
-    /// The most pixels drawn in one pass: half of the free video memory,
-    /// besides what the window's frame holds.
+    /// The most pixels drawn in one pass (`snapshot::pass_pixels`): half of
+    /// the free video memory, besides what the window's frame holds, and
+    /// never fewer than the window's.
     fn photo_max_pixels(&self, renderer: &Renderer) -> u64 {
         let per_pixel = TARGET_BYTES_PER_PIXEL + TARGET_BYTES_PER_SAMPLE * u64::from(self.msaa_samples(renderer));
         let free = renderer
             .video_memory
             .read(&renderer.device)
             .map_or(DEFAULT_TARGET_BYTES, |m| m.budget.saturating_sub(m.usage) / 2);
-        free / per_pixel
+        snapshot::pass_pixels(free, per_pixel, renderer.size())
     }
 
     /// LLViewerWindow::playSnapshotAnimAndSound: the snapshot animation and
@@ -1410,6 +1433,11 @@ impl App {
             }
             Action::CloseAfford => self.snapshots.short = None,
             Action::PersonalLighting => self.panels.personal_lighting = true,
+            Action::KeepLight => {
+                if self.world.eep.keep_photo() {
+                    self.snapshots.ui.light.env = Default::default();
+                }
+            }
             Action::Controls => {
                 if !self.panels.camera_controls && !self.panels.movement_controls {
                     self.panels.camera_controls = true;
@@ -1717,9 +1745,18 @@ LUT_3D_SIZE {n}
             return (false, false);
         };
         (
-            (v.focus || v.shoot) && self.frame_count == d.frame,
+            (v.focus || v.shoot || v.group) && self.frame_count == d.frame,
             v.shoot && self.frame_count == d.frame + 2,
         )
+    }
+
+    /// The demo adds the other avatars in view to the focus this frame
+    /// (`group`), once the own avatar's has locked.
+    pub(super) fn photo_demo_group(&self) -> bool {
+        self.snapshots
+            .demo
+            .as_ref()
+            .is_some_and(|d| d.viewfinder.as_ref().is_some_and(|v| v.group) && self.frame_count == d.frame + 40)
     }
 
     /// The last photo's card of the viewfinder: its thumbnail, what it
@@ -1783,7 +1820,7 @@ LUT_3D_SIZE {n}
             let inventory = (self.snapshots.ui.destination == Destination::Inventory).then(|| self.photo_inventory_view(window));
             let profile = (self.snapshots.ui.destination == Destination::Profile).then(|| self.photo_profile_view(window));
             let email = (self.snapshots.ui.destination == Destination::Email).then(|| self.photo_email_view(window));
-            let tiles = snapshot::plan(photo, self.photo_max_side(renderer), self.photo_max_pixels(renderer)).len();
+            let tiles = self.photo_tiles(renderer, photo).len();
             let busy = self.photo_busy_line();
             if let Some((_, what)) = &busy {
                 let now = ctx.input(|i| i.time);
@@ -1792,6 +1829,9 @@ LUT_3D_SIZE {n}
             let message = self.snapshots.message.clone();
             let last_saved = self.snapshots.last_saved.clone();
             let gallery = self.snapshots.gallery.clone();
+            // (lent to the drawer's Light section while the viewfinder draws)
+            self.photo_env_lists(ctx);
+            let env_ui = std::mem::take(&mut self.env_ui);
             let view = crate::ui::snapshot::View {
                 window,
                 photo,
@@ -1809,9 +1849,12 @@ LUT_3D_SIZE {n}
                 email,
                 exposure: self.settings.exposure,
                 hdr: self.settings.hdr_emissive,
+                env: env_view(&env_ui, &self.world.eep),
                 back_key: self.settings.keybinds.get(crate::keybinds::Action::ResetCamera)[0].clone(),
             };
             self.viewfinder_ui(ctx, p, projector, renderer, &view);
+            drop(view);
+            self.env_ui = env_ui;
         } else if self.snapshots.ui.full_frame && self.panels.snapshot {
             actions.extend(self.snapshots.ui.full_frame(
                 ctx,
@@ -1826,7 +1869,8 @@ LUT_3D_SIZE {n}
             let profile = (self.snapshots.ui.destination == Destination::Profile).then(|| self.photo_profile_view(window));
             let email = (self.snapshots.ui.destination == Destination::Email).then(|| self.photo_email_view(window));
             let mut state = std::mem::take(&mut self.snapshots.ui);
-            let tiles = snapshot::plan(photo, self.photo_max_side(renderer), self.photo_max_pixels(renderer)).len();
+            self.photo_env_lists(ctx);
+            let tiles = self.photo_tiles(renderer, photo).len();
             let s = &self.snapshots;
             let busy = if let Some(t) = s.detail_wait {
                 let wait = snapshot::quality::DETAIL_WAIT.as_secs_f32();
@@ -1874,6 +1918,7 @@ LUT_3D_SIZE {n}
                 email,
                 exposure: self.settings.exposure,
                 hdr: self.settings.hdr_emissive,
+                env: env_view(&self.env_ui, &self.world.eep),
                 back_key: self.settings.keybinds.get(crate::keybinds::Action::ResetCamera)[0].clone(),
             };
             let mut open = self.panels.snapshot;
@@ -1935,12 +1980,13 @@ LUT_3D_SIZE {n}
                 self.world.photo_isolation.set_picking(false);
             } else if v.preset_form.picking {
                 v.preset_form.picking = false;
-            } else if v.menu || v.help || v.drawer || v.isolate || v.presets {
+            } else if v.menu || v.help || v.drawer || v.isolate || v.presets || v.light {
                 v.menu = false;
                 v.help = false;
                 v.drawer = false;
                 v.isolate = false;
                 v.presets = false;
+                v.light = false;
             } else if self.camera.free().is_some() {
                 self.snapshots.ui.free.on = false;
                 self.photo_free_camera();
@@ -2075,12 +2121,22 @@ LUT_3D_SIZE {n}
             self.snapshots.ui.light = snapshot::light::PhotoLight::default();
         }
         let light = &mut self.snapshots.ui.light;
-        let was = self.snapshots.light_time.is_some();
-        snapshot::light::apply_time(&mut self.snapshots.light_time, &mut light.time, &mut self.panels.time_of_day);
-        if was != self.snapshots.light_time.is_some() {
-            log::info!("photo light: time of day {}", self.panels.time_of_day);
+        // a change made elsewhere, a camera preset or "Keep this light"
+        // took over part of the photo's environment
+        if self.world.eep.take_photo_changed() && self.panels.snapshot {
+            light.env = self.world.eep.photo_choice();
         }
+        self.world.eep.set_photo(light.env);
         self.scene.attached_lights = light.attached_lights;
+    }
+
+    /// The lists of the Light section load like the environment window's.
+    fn photo_env_lists(&mut self, ctx: &egui::Context) {
+        if !self.env_scan {
+            self.env_scan = true;
+            self.env_ui.scan_left = usize::MAX;
+        }
+        self.env_ui.refresh(ctx, &self.world.inventory);
     }
 
     /// The exposure the frame is drawn with: the photo's, else Preferences'.
@@ -2091,11 +2147,6 @@ LUT_3D_SIZE {n}
     /// The photo's light holds the clouds still.
     pub(super) fn photo_clouds_paused(&self) -> bool {
         self.snapshots.ui.light.clouds_paused
-    }
-
-    /// The time of day shown is the photo's, not one to save.
-    pub(super) fn photo_time_held(&self) -> bool {
-        self.snapshots.light_time.is_some()
     }
 
     /// "Photo quality": raised while the window is open and the switch on,
@@ -2210,6 +2261,7 @@ LUT_3D_SIZE {n}
                     menu: has("menu"),
                     help: has("help"),
                     drawer: has("drawer"),
+                    light: has("light"),
                     focus_mode: if has("mf") {
                         Some(crate::dof::PhotoFocus::Manual)
                     } else if has("afc") {
@@ -2220,6 +2272,7 @@ LUT_3D_SIZE {n}
                     point: has("point"),
                     focus: has("focus"),
                     shoot: has("shoot"),
+                    group: has("group"),
                     sharp: has("sharp"),
                     pad: has("pad"),
                     timer: has("timer"),
@@ -2239,6 +2292,7 @@ LUT_3D_SIZE {n}
                     } else {
                         0.0
                     },
+                    poser: has("poser"),
                 }
             });
             let style = if kind == "classic" {
@@ -2262,6 +2316,7 @@ LUT_3D_SIZE {n}
                 prefs_dof: kind == "prefs-dof" || words.contains(&"prefsdof"),
                 quality: kind.ends_with("quality"),
                 light: kind == "light",
+                windlight: kind.starts_with("windlight").then(|| kind == "windlight-keep"),
                 style,
                 viewfinder,
             });
@@ -2292,12 +2347,21 @@ LUT_3D_SIZE {n}
                 self.settings.snapshot.quality = true;
             }
             if demo.light {
-                self.snapshots.ui.light = snapshot::light::PhotoLight {
-                    time: Some(3),
+                let mut light = snapshot::light::PhotoLight {
                     exposure: Some(1.6),
                     clouds_paused: true,
                     attached_lights: false,
+                    ..Default::default()
                 };
+                light.env.set_time(Some(3));
+                self.snapshots.ui.light = light;
+            }
+            if demo.windlight.is_some() {
+                let (sky, water) = crate::demo::env::photo_picks();
+                let env = &mut self.snapshots.ui.light.env;
+                env.pick(crate::world::env_select::SettingsKind::Sky, Some(sky));
+                env.pick(crate::world::env_select::SettingsKind::Water, Some(water));
+                env.sun = Some(crate::ui::environment::rotation_from(80.0, 12.0));
             }
             if demo.dof {
                 self.settings.snapshot.dof = crate::dof::PhotoDof {
@@ -2350,8 +2414,26 @@ LUT_3D_SIZE {n}
                 vf.menu = v.menu;
                 vf.help = v.help;
                 vf.drawer = v.drawer;
-                vf.hinted = v.menu || v.help || v.drawer || vf.looks;
+                vf.light = v.light;
+                vf.hinted = v.menu || v.help || v.drawer || vf.looks || v.light;
+                if v.poser && self.ik_editor.toggle_poser() {
+                    crate::ui::widgets::open_floater(&self.egui_ctx, "poser", &mut self.ik_editor.open);
+                }
             }
+        }
+        // (once the window has its layout)
+        if demo.windlight.is_some() && self.frame_count == 660 {
+            self.snapshots.ui.reveal_light = true;
+        }
+        if demo.windlight == Some(true) {
+            if self.frame_count == 900 {
+                log::info!("demo photo: the photo's light kept");
+                self.photo_action(Action::KeepLight, renderer);
+            }
+            if self.frame_count == 960 {
+                self.panels.snapshot = false;
+            }
+            return;
         }
         if demo.profile {
             if self.frame_count == demo.frame {
@@ -2392,5 +2474,20 @@ LUT_3D_SIZE {n}
             self.snapshots.ui.destination = Destination::Disk;
             self.photo_action(Action::Take, renderer);
         }
+    }
+}
+
+/// The Light section's view of the environment beneath the photo's.
+fn env_view<'a>(
+    env_ui: &'a crate::ui::environment::EnvironmentUi,
+    eep: &crate::world::eep_env::EnvSelector,
+) -> crate::ui::snapshot::EnvView<'a> {
+    let sky = eep.shown_sky().unwrap_or_default();
+    crate::ui::snapshot::EnvView {
+        catalog: env_ui.catalog(),
+        own: eep.local_view(),
+        sun: crate::ui::environment::azimuth_elevation(sky.sun_rotation),
+        locked: eep.rlva_locked,
+        loading: eep.photo_loading(),
     }
 }

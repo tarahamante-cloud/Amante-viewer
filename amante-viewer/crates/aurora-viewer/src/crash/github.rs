@@ -94,11 +94,11 @@ impl Authorization {
     }
 }
 
-fn entry() -> Option<keyring::Entry> {
+fn entry() -> Option<amante_keyring::Entry> {
     if aurora_updater::test_environment().is_some() {
         return None;
     }
-    keyring::Entry::new(SERVICE, ACCOUNT)
+    amante_keyring::entry(SERVICE, ACCOUNT)
         .map_err(|e| log::warn!("credential store unavailable: {e}"))
         .ok()
 }
@@ -123,7 +123,7 @@ fn save(authorization: &Authorization) {
 fn forget() {
     if let Some(entry) = entry()
         && let Err(e) = entry.delete_credential()
-        && !matches!(e, keyring::Error::NoEntry)
+        && !matches!(e, amante_keyring::Error::NoEntry)
     {
         log::warn!("crash report: cannot forget the GitHub authorization: {e}");
     }
@@ -676,6 +676,12 @@ mod tests {
         session.send("t".into(), "b".into());
         assert!(!session.sending && !session.busy());
         session.rx = Some(rx);
+        tx.send(Reply::Code("TEST-CODE".into())).unwrap();
+        session.poll();
+        assert!(session.authorizing() && !session.connected());
+        assert_eq!(session.user_code.as_deref(), Some("TEST-CODE"));
+        session.send("t".into(), "b".into());
+        assert!(!session.sending);
         tx.send(Reply::Authorized(Authorization {
             access: "test-only".into(),
             expires: u64::MAX,
@@ -685,6 +691,7 @@ mod tests {
         .unwrap();
         assert!(session.poll());
         assert!(session.connected() && !session.busy());
+        assert!(session.user_code.is_none() && session.created.is_none());
         let (tx, rx) = crossbeam_channel::bounded(2);
         session.rx = Some(rx);
         session.sending = true;

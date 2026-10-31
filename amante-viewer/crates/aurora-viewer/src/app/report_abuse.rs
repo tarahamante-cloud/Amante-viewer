@@ -244,9 +244,8 @@ impl App {
         let due = self.report_abuse.capture_at.is_some_and(|at| Instant::now() >= at);
         if !due
             || !self.report_abuse.open
-            // Bug report form (disabled, see main.rs):
-            // || self.bug_report.capture_pending
-            // || self.bug_report.capture_requested.is_some()
+            || self.bug_report.capture_pending
+            || self.bug_report.capture_requested.is_some()
             || self.inventory_images.auto_capture_pending
             || self.inventory_images.capturing.is_some()
             || self.scene_capture_pending

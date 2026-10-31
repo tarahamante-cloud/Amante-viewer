@@ -105,11 +105,46 @@ impl Source {
     }
 
     pub fn client(&self) -> Result<Client> {
+        if !self.loopback {
+            crate::authenticated::activation(self)?;
+        }
+        self.http_client()
+    }
+
+    pub(crate) fn is_local(&self) -> bool {
+        self.loopback
+    }
+
+    /// Recheck immediately before handing an already-prepared package to the
+    /// installer. A long-open Restart offer must not outlive its authority.
+    pub fn authorize_install(&self, release: &Release) -> Result<()> {
+        if !self.loopback {
+            crate::authenticated::activation(self)?;
+            release.authentication.as_ref().context("unsigned update offer")?.verify(release)?;
+        }
+        Ok(())
+    }
+
+    /// Only media_pack uses this path. It never enables release discovery or
+    /// executable replacement, which still require `client()`'s update guard.
+    pub(crate) fn media_client(&self) -> Result<Client> {
         ensure!(
-            self.loopback || aurora_version::amante_config::PRODUCTION_UPDATES_READY,
-            "Amante production updates are inactive: owner-controlled endpoints and authenticated release metadata are pending"
+            self.loopback || aurora_version::amante_config::media_distribution_configured(),
+            "Amante media distribution is pending owner configuration"
         );
         self.http_client()
+    }
+
+    pub(crate) fn media_asset_url(&self, tag: &str, name: &str) -> Result<String> {
+        if self.loopback {
+            self.asset_url(tag, name)
+        } else {
+            ensure!(
+                aurora_version::amante_config::media_distribution_configured(),
+                "Amante media distribution is pending owner configuration"
+            );
+            Ok(format!("{}/{tag}/{name}", aurora_version::amante_config::MEDIA_RELEASE_DOWNLOADS))
+        }
     }
 
     fn http_client(&self) -> Result<Client> {
@@ -150,6 +185,9 @@ impl Source {
     }
 
     pub async fn check(&self, current: &str, channel: Channel) -> Result<Option<Release>> {
+        if !self.loopback {
+            return crate::authenticated::check(self, current, channel).await;
+        }
         let client = self.client()?;
         let releases: Vec<GithubRelease> = serde_json::from_slice(&self.bytes(&client, &self.url, 4 * 1024 * 1024).await?)?;
         let Some((v, r)) = releases
@@ -203,6 +241,7 @@ impl Source {
             checksum,
             required,
             maintenance,
+            authentication: None,
         }))
     }
 }
@@ -246,6 +285,7 @@ fn notification_release(releases: Vec<GithubRelease>, current: &str, channel: Ch
         checksum: None,
         required: false,
         maintenance: Default::default(),
+        authentication: None,
     })
 }
 
@@ -253,7 +293,7 @@ pub fn version(value: &str) -> Option<Version> {
     Version::parse(value.strip_prefix('v').unwrap_or(value)).ok()
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, serde::Serialize)]
 pub struct Asset {
     pub name: String,
     pub size: u64,
@@ -283,7 +323,7 @@ struct Policy {
     settings_reset_before: Option<String>,
 }
 
-fn threshold_applies(threshold: Option<&str>, current: &str, latest: &Version) -> Result<bool> {
+pub(crate) fn threshold_applies(threshold: Option<&str>, current: &str, latest: &Version) -> Result<bool> {
     let Some(threshold) = threshold else { return Ok(false) };
     let cutoff = version(threshold).context("invalid maintenance threshold")?;
     ensure!(
@@ -293,7 +333,7 @@ fn threshold_applies(threshold: Option<&str>, current: &str, latest: &Version) -
     Ok(version(current).is_some_and(|installed| installed.cmp_precedence(&cutoff).is_lt()))
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, serde::Serialize)]
 pub struct Release {
     pub tag: String,
     pub version: String,
@@ -303,6 +343,8 @@ pub struct Release {
     pub checksum: Option<Asset>,
     pub required: bool,
     pub maintenance: super::Maintenance,
+    #[serde(skip)]
+    pub authentication: Option<crate::authenticated::Authorization>,
 }
 
 #[cfg(test)]

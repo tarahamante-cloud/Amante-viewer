@@ -141,6 +141,13 @@ pub enum Data {
         /// came without a session id).
         offline: bool,
     },
+    /// A group notice (IM_GROUP_NOTICE): its group, for the insignia and the
+    /// name, and its attachment, offered until saved or declined
+    /// (LLToastGroupNotifyPanel).
+    GroupNotice {
+        group: Uuid,
+        attachment: Option<NoticeAttachment>,
+    },
     Dialog {
         sender: std::net::SocketAddr,
         object: Uuid,
@@ -190,6 +197,12 @@ pub enum Data {
     Delivery {
         object: Uuid,
     },
+    /// A message to the whole region from `from` (GodMessage,
+    /// `region_messages.rs`), received in `region`.
+    RegionMessage {
+        from: Uuid,
+        region: String,
+    },
     /// The restart of the agent's region (RegionRestartMinutes /
     /// RegionRestartSeconds, show_toast="false"): pinned at the top of "To
     /// do" with the live count while the alert counts (`region_restart.rs`).
@@ -204,6 +217,18 @@ pub struct ExperiencePrompt {
     pub name: String,
     /// The source object, blocked by "Block object".
     pub object_name: String,
+}
+
+/// The attachment of a group notice (LLOfferInfo of an IM_GROUP_NOTICE):
+/// the sender and transaction its answer goes to, its name and asset type.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NoticeAttachment {
+    pub from: Uuid,
+    pub tx: Uuid,
+    pub name: String,
+    pub asset_type: u8,
+    /// Saved to the inventory: the notice stays, its offer answered.
+    pub saved: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -276,7 +301,7 @@ impl Notification {
     /// it was about can be opened).
     pub fn history_entry(&self, outcome: Outcome) -> Entry {
         let follow = match &self.data {
-            Data::None => Follow::Restore,
+            Data::None | Data::GroupNotice { .. } | Data::RegionMessage { .. } => Follow::Restore,
             Data::Message { session, .. } => Follow::Conversation(*session),
             Data::Lure { from, .. } => place_link(&self.body).map_or(Follow::Conversation(*from), Follow::Place),
             Data::TeleportRequest { from, .. } | Data::Friend { from, .. } | Data::CallingCard { from, .. } => Follow::Conversation(*from),
@@ -299,10 +324,19 @@ impl Notification {
 
     /// Needs an answer (stays until answered).
     pub fn interactive(&self) -> bool {
-        !matches!(
-            self.data,
-            Data::None | Data::Presence { .. } | Data::Message { .. } | Data::Delivery { .. }
-        )
+        match &self.data {
+            Data::None | Data::Presence { .. } | Data::Message { .. } | Data::Delivery { .. } | Data::RegionMessage { .. } => false,
+            Data::GroupNotice { .. } => self.offered_attachment().is_some(),
+            _ => true,
+        }
+    }
+
+    /// A group notice's attachment still offered (neither saved nor declined).
+    pub fn offered_attachment(&self) -> Option<&NoticeAttachment> {
+        match &self.data {
+            Data::GroupNotice { attachment: Some(a), .. } if !a.saved => Some(a),
+            _ => None,
+        }
     }
 
     /// A scripted object's window waiting for its answer (llDialog,
@@ -338,9 +372,13 @@ impl Notification {
             | Data::Presence { .. }
             | Data::Message { .. }
             | Data::RegionRestart
+            | Data::RegionMessage { .. }
             | Data::CallingCard { .. }
             | Data::Delivery { .. } => false,
             Data::Inventory { object, .. } => object.is_nil(),
+            // closing the notice's toast declines its attachment
+            // (LLToastGroupNotifyPanel::close, IOR_DECLINE)
+            Data::GroupNotice { .. } => self.offered_attachment().is_some(),
             _ => true,
         }
     }
@@ -643,8 +681,28 @@ impl Notifications {
         let Some(pos) = self.list.iter().position(|n| n.id == id) else {
             return (Vec::new(), None);
         };
+        // a notice's attachment saved (LLToastGroupNotifyPanel::onClickAttachment,
+        // IOR_ACCEPT into the folder of its type): the notice and its toast
+        // stay, the attachment shown saved
+        if matches!(r, Response::Accept)
+            && let Data::GroupNotice { attachment: Some(a), .. } = &mut self.list[pos].data
+        {
+            if a.saved {
+                return (Vec::new(), None);
+            }
+            a.saved = true;
+            let folder = folder_for(a.asset_type as i8);
+            return (vec![super::group_data::offer_answer(a.from, a.tx, Some(folder))], None);
+        }
         let n = self.list.remove(pos);
-        self.outcomes.insert(id, outcome_of(&n, &r));
+        let outcome = outcome_of(&n, &r);
+        // Automatic acceptance can answer in the frame that creates the
+        // offer, before take_departures has seen it. Retain its history
+        // snapshot now, so its outcome is consumed on the next collection.
+        if matches!(&n.data, Data::Inventory { .. }) && !n.transient && !self.seen.iter().any(|(seen, _)| *seen == id) {
+            self.seen.push((id, n.history_entry(outcome)));
+        }
+        self.outcomes.insert(id, outcome);
         let mut out = Vec::new();
         let mut url = None;
         let accept = matches!(r, Response::Accept);
@@ -671,6 +729,11 @@ impl Notifications {
                         out.push(inventory_answer(*from, *tx, *task, keep, folder));
                     }
                     Data::Group { group, tx, offline } => out.push(group_answer(*group, *tx, *offline, false)),
+                    Data::GroupNotice { .. } => {
+                        if let Some(a) = n.offered_attachment() {
+                            out.push(super::group_data::offer_answer(a.from, a.tx, None));
+                        }
+                    }
                     Data::Dialog { .. } | Data::TextBox { .. } => {} // ignore = no reply
                     _ => {}
                 }
@@ -785,6 +848,7 @@ pub(super) fn outcome_of(n: &Notification, r: &Response) -> Outcome {
         Response::Dismiss => match &n.data {
             Data::Dialog { .. } | Data::TextBox { .. } => Outcome::Ignored,
             Data::Inventory { object, .. } if !object.is_nil() => Outcome::Kept,
+            Data::GroupNotice { attachment: Some(a), .. } if a.saved => Outcome::Kept,
             _ if n.close_declines() => Outcome::Declined,
             _ => Outcome::Read,
         },

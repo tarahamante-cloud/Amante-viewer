@@ -1,6 +1,6 @@
-//! The bars of Aurora's inventory window: the narrow width's icon tabs and
-//! search row, the explorer's toolbar (where it is, the search with its
-//! Ctrl+F, the filters, the details card or pane, the rights, "New"), the wide
+//! The bars of Aurora's inventory window: the narrow width's icon tabs,
+//! the toolbar (where it is, filters, details, rights, "New", folder controls),
+//! a separate quick/advanced search row with its Ctrl+F hint, the wide
 //! width's filter chips, the line of messages and the status bar. The
 //! sorting, the search field and the preferences are the Legacy Viewer's
 //! (LLPanelMainInventory's gear and view menus), gathered in one "Sort"
@@ -8,7 +8,7 @@
 
 use super::super::view::{Age, Creator, Links, SearchField, types};
 use super::super::*;
-use super::{Layout, rights};
+use super::{Layout, rights, smart_bar};
 use crate::ui::{menu, sheet, widgets};
 use egui::{Color32, Pos2, Rect, Sense, Vec2};
 
@@ -23,6 +23,9 @@ pub const STATUS: f32 = 30.0;
 /// its mode is on).
 fn tool_button(ui: &mut egui::Ui, p: &Palette, icon: &str, tip: &str, lit: bool) -> egui::Response {
     let (rect, response) = ui.allocate_exact_size(Vec2::splat(BAR), Sense::click());
+    #[cfg(test)]
+    ui.ctx()
+        .data_mut(|data| data.insert_temp(egui::Id::unique(("inventory_tool_button", icon)), rect));
     let hot = response.hovered() || response.has_focus();
     if lit || hot {
         let fill = if hot { p.raised.lerp_to_gamma(p.ink, 0.16) } else { p.raised };
@@ -129,6 +132,38 @@ fn search_hint(prefs: &InventoryPreferences, short: bool) -> &'static str {
 /// The search field, `width` wide, taking Ctrl+F for the window; its key
 /// shows inside while it is empty at the wide width.
 fn search(ui: &mut egui::Ui, p: &Palette, inv: &Inventory, st: &mut InventoryUi, prefs: &InventoryPreferences, width: f32, layout: Layout) {
+    // the switch to the advanced search sits inside the width, so the rows'
+    // arithmetic stays theirs
+    let width = (width - BAR - 6.0).max(40.0);
+    let tip = if st.advanced {
+        aurora_i18n::tr!("inventory-search-quick")
+    } else {
+        aurora_i18n::tr!("inventory-search-advanced-tip")
+    };
+    if st.advanced {
+        smart_bar::show(ui, p, st, width);
+    } else {
+        quick_search(ui, p, inv, st, prefs, width, layout);
+    }
+    if tool_button(ui, p, "filters-filled", tip, st.advanced).clicked() {
+        if st.advanced {
+            st.leave_advanced();
+        } else {
+            st.enter_advanced(prefs.search_field);
+        }
+    }
+}
+
+/// The quick search: the plain text field.
+fn quick_search(
+    ui: &mut egui::Ui,
+    p: &Palette,
+    inv: &Inventory,
+    st: &mut InventoryUi,
+    prefs: &InventoryPreferences,
+    width: f32,
+    layout: Layout,
+) {
     let searching = !st.search.trim().is_empty();
     let field = ui
         .scope(|ui| {
@@ -251,6 +286,22 @@ fn sort_menu(ui: &mut egui::Ui, p: &Palette, st: &mut InventoryUi, prefs: &mut I
             }
         }
     });
+    menu::separator(ui, p);
+    // the search's mode: the rules of the advanced search, or the text box
+    if st.advanced {
+        if menu::item(ui, p, "search-filled", aurora_i18n::tr!("inventory-search-quick")) {
+            st.leave_advanced();
+        }
+    } else if menu::item_tip(
+        ui,
+        p,
+        "filters-filled",
+        aurora_i18n::tr!("inventory-search-advanced"),
+        true,
+        aurora_i18n::tr!("inventory-search-advanced-tip"),
+    ) {
+        st.enter_advanced(prefs.search_field);
+    }
     if menu::item(
         ui,
         p,
@@ -289,13 +340,38 @@ fn additional_button(ui: &mut egui::Ui, p: &Palette, st: &mut InventoryUi) {
     }
 }
 
-/// The room `additional_button` takes in a row whose buttons are `gap` apart.
-fn additional_width(st: &InventoryUi, gap: f32) -> f32 {
-    if st.is_main() { BAR + gap } else { 0.0 }
+/// Direct counterparts of LLPanelMainInventory's collapse_btn / expand_btn.
+fn tree_buttons(ui: &mut egui::Ui, p: &Palette, st: &mut InventoryUi) {
+    for (open, icon, tip) in [
+        (
+            false,
+            "chevrons-up",
+            aurora_i18n::tr!("ui-inventory-controls-collapse-displayed-folders"),
+        ),
+        (
+            true,
+            "chevrons-down",
+            aurora_i18n::tr!("ui-inventory-controls-expand-displayed-folders"),
+        ),
+    ] {
+        if tool_button(ui, p, icon, tip, false).clicked() {
+            st.expand_all = Some(open);
+        }
+    }
 }
 
-/// The narrow width's row: the search, the filters, the details card, the
-/// rights, the additional window, Sort, New.
+/// Quick search and its advanced-mode button share a full row below the tools.
+fn search_line(ui: &mut egui::Ui, p: &Palette, inv: &Inventory, st: &mut InventoryUi, prefs: &InventoryPreferences, layout: Layout) {
+    let _row = ui.horizontal(|ui| {
+        ui.spacing_mut().item_spacing.x = 6.0;
+        search(ui, p, inv, st, prefs, ui.available_width(), layout);
+    });
+    #[cfg(test)]
+    ui.ctx()
+        .data_mut(|data| data.insert_temp(egui::Id::unique("inventory_search_row"), _row.response.rect));
+}
+
+/// The narrow width's tools, followed by the search row.
 pub(super) fn search_row(
     ui: &mut egui::Ui,
     p: &Palette,
@@ -305,11 +381,8 @@ pub(super) fn search_row(
     layout: Layout,
     actions: &mut Vec<InvAction>,
 ) {
-    ui.horizontal(|ui| {
+    ui.horizontal_wrapped(|ui| {
         ui.spacing_mut().item_spacing.x = 6.0;
-        let cmt = rights::button_width(ui);
-        let width = (ui.available_width() - 4.0 * (BAR + 6.0) - additional_width(st, 6.0) - cmt - 6.0).max(60.0);
-        search(ui, p, inv, st, prefs, width, layout);
         let lit = st.filters_open || st.filters.active();
         if tool_button(ui, p, "adjustments-horizontal-filled", filters_tip(st), lit).clicked() {
             st.filters_open = !st.filters_open;
@@ -325,7 +398,9 @@ pub(super) fn search_row(
         menu::dropdown(&new, p, egui::PopupCloseBehavior::CloseOnClick, |ui| {
             new_menu(ui, p, inv, st, prefs, layout, actions);
         });
+        tree_buttons(ui, p, st);
     });
+    search_line(ui, p, inv, st, prefs, layout);
 }
 
 /// A button with an icon, a label and a count on the accent at its end
@@ -359,10 +434,7 @@ fn counted_button(ui: &mut egui::Ui, p: &Palette, icon: &str, label: &str, count
     response
 }
 
-/// The explorer's toolbar. Medium: the search, the filters, the details
-/// card, the rights, the columns, the additional window, Sort and New. Wide:
-/// where it is, the search with its key, the filters with their count, the
-/// details pane, the rights, the columns, the additional window and New.
+/// The explorer's tools and breadcrumb, followed by a full-width search row.
 pub(super) fn explorer_row(
     ui: &mut egui::Ui,
     p: &Palette,
@@ -374,7 +446,6 @@ pub(super) fn explorer_row(
 ) {
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 8.0;
-        let cmt = rights::button_width(ui);
         if layout == Layout::Wide {
             let crumbs = (ui.available_width() * 0.32).clamp(140.0, 380.0);
             ui.allocate_ui_with_layout(Vec2::new(crumbs, BAR), egui::Layout::left_to_right(egui::Align::Center), |ui| {
@@ -382,11 +453,6 @@ pub(super) fn explorer_row(
             });
             let new_label = aurora_i18n::tr!("inventory-new");
             let new_w = widgets::action_button_fit(ui, "plus", new_label);
-            let filters_w = 150.0;
-            let width =
-                (ui.available_width() - (BAR + 8.0) - filters_w - (BAR + 8.0) - additional_width(st, 8.0) - cmt - 8.0 - new_w - 8.0 - 8.0)
-                    .max(120.0);
-            search(ui, p, inv, st, prefs, width, layout);
             let count = chip_list(st).len();
             let lit = st.filters_open || count > 0;
             if counted_button(
@@ -414,8 +480,6 @@ pub(super) fn explorer_row(
                 new_menu(ui, p, inv, st, prefs, layout, actions);
             });
         } else {
-            let width = (ui.available_width() - 4.0 * (BAR + 8.0) - additional_width(st, 8.0) - 112.0 - cmt - 8.0).max(120.0);
-            search(ui, p, inv, st, prefs, width, layout);
             let count = chip_list(st).len();
             let lit = st.filters_open || count > 0;
             if counted_button(
@@ -448,7 +512,9 @@ pub(super) fn explorer_row(
                 new_menu(ui, p, inv, st, prefs, layout, actions);
             });
         }
+        tree_buttons(ui, p, st);
     });
+    search_line(ui, p, inv, st, prefs, layout);
 }
 
 /// The name of the shortcut (tab) shown, for where the list is.
@@ -571,9 +637,7 @@ pub(super) fn chip_list(st: &InventoryUi) -> Vec<Chip> {
             text: aurora_i18n::tr!("inventory-chip-links-of").to_owned(),
             remove: |st| {
                 st.links_filter = None;
-                if let Some(filters) = st.saved_filters.take() {
-                    st.filters = filters;
-                }
+                st.restore_saved_filters();
             },
         });
         return chips;
@@ -767,18 +831,7 @@ pub(super) fn chips(ui: &mut egui::Ui, p: &Palette, st: &mut InventoryUi, prefs:
 /// The message to show: a refused change, an operation's progress, its
 /// end, or the folders still loading for a search.
 pub(super) fn message(p: &Palette, st: &InventoryUi) -> Option<(String, Color32)> {
-    let now = std::time::Instant::now();
-    if !st.message.is_empty() {
-        Some((st.message.clone(), p.warn))
-    } else if st.busy() {
-        Some((st.pending_status(now), p.ink))
-    } else if let Some(message) = st.success_notice(now) {
-        Some((message.to_owned(), p.success))
-    } else if st.fetch_all {
-        Some((aurora_i18n::tr!("ui-inventory-search-loading-folders").to_owned(), p.muted))
-    } else {
-        None
-    }
+    st.status_message(p, std::time::Instant::now())
 }
 
 /// The line of a message, with the spinner of an operation.
@@ -833,6 +886,29 @@ pub(super) fn status_bar(ui: &mut egui::Ui, p: &Palette, st: &InventoryUi, explo
 mod tests {
     use super::super::super::view::Filters;
     use super::*;
+
+    #[test]
+    fn aurora_contents_copy_feedback_shows_pending_then_the_expiring_result() {
+        let palette = crate::theme::Theme::default().palette();
+        let request = uuid::Uuid::from_u128(1410);
+        for success in [false, true] {
+            let mut st = InventoryUi::default();
+            st.begin_contents_copy(request, "Requested".into());
+            assert_eq!(message(&palette, &st), Some(("Requested".into(), palette.ink)));
+            st.finish_contents_copy(request, "Result".into(), success, std::time::Instant::now());
+            assert_eq!(
+                message(&palette, &st),
+                Some(("Result".into(), if success { palette.success } else { palette.warn }))
+            );
+            st.finish_contents_copy(
+                request,
+                "Result".into(),
+                success,
+                std::time::Instant::now() - std::time::Duration::from_secs(5),
+            );
+            assert!(message(&palette, &st).is_none());
+        }
+    }
 
     #[test]
     fn restored_menu_feedback_uses_the_success_color_and_disappears_after_expiry() {

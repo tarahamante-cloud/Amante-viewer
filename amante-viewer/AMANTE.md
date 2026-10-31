@@ -33,6 +33,7 @@ security findings, and desktop test gaps must be reported explicitly.
 - [Build evidence and limitations](docs/amante/BUILD_STATUS.md)
 - [Windows build and download instructions](docs/amante/WINDOWS_BUILD.md)
 - [Independent service configuration](docs/amante/CONFIGURATION.md)
+- [Service ownership and multilingual content audit](docs/amante/SERVICE_OWNERSHIP.md)
 - [Human desktop test checklist](docs/amante/DESKTOP_TESTING.md)
 
 The distributed executable is `amante-viewer.exe` on Windows and
@@ -41,8 +42,12 @@ the packaging script gives it the Amante distribution name.
 
 Replit imports the source into its project repository rather than preserving
 a nested `.git` directory. The inventory records the exact upstream blob IDs.
-The public upstream history can be fetched independently; this workspace does
-not claim to be an already-created GitHub-hosted fork.
+The public upstream history can be fetched independently. The owner-authorized
+GitHub fork is https://github.com/tarahamante-cloud/Amante-viewer-native, with
+the native development source on `amante-branding`. GitHub identifies its
+parent as `Aurora-Viewer/Aurora-Viewer`; the development branch preserves the
+recorded baseline as its parent commit. The existing `Amante-viewer` repository
+is retained separately for its existing development downloads.
 
 ## Safety and attribution
 

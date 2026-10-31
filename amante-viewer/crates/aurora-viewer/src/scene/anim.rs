@@ -56,6 +56,28 @@ pub struct Rig {
     pub(crate) skin_points: HashMap<String, (usize, Mat4)>,
 }
 
+/// Joints in depth-first order, parents before children.
+fn depth_first(parent: &[Option<usize>]) -> Vec<usize> {
+    let n = parent.len();
+    let mut children: Vec<Vec<usize>> = vec![Vec::new(); n];
+    let mut roots = Vec::new();
+    for (i, p) in parent.iter().enumerate() {
+        match *p {
+            Some(p) if p < n => children[p].push(i),
+            _ => roots.push(i),
+        }
+    }
+    let mut order = Vec::with_capacity(n);
+    let mut stack: Vec<usize> = roots.into_iter().rev().collect();
+    while let Some(j) = stack.pop() {
+        order.push(j);
+        for c in children[j].iter().rev() {
+            stack.push(*c);
+        }
+    }
+    order
+}
+
 impl Rig {
     pub fn new(sk: &Skeleton) -> Rig {
         let n = sk.joints.len().min(ANCHOR_BASE);
@@ -76,23 +98,7 @@ impl Rig {
             parent_scale.push(j.parent.and_then(|p| sk.joints.get(p)).map(|p| p.scale).unwrap_or(Vec3::ONE));
             scale.push(j.scale);
         }
-        // depth-first order
-        let mut children: Vec<Vec<usize>> = vec![Vec::new(); n];
-        let mut roots = Vec::new();
-        for (i, parent) in parent.iter().enumerate().take(n) {
-            match *parent {
-                Some(p) => children[p].push(i),
-                None => roots.push(i),
-            }
-        }
-        let mut order = Vec::with_capacity(n);
-        let mut stack: Vec<usize> = roots.into_iter().rev().collect();
-        while let Some(j) = stack.pop() {
-            order.push(j);
-            for c in children[j].iter().rev() {
-                stack.push(*c);
-            }
-        }
+        let order = depth_first(&parent);
         let pelvis = names.get("mPelvis").copied().unwrap_or(0);
         let skull = names.get("mSkull").copied();
         let mut joint = skull.or_else(|| names.get("mHead").copied());
@@ -124,6 +130,45 @@ impl Rig {
 
     pub fn len(&self) -> usize {
         self.parent.len()
+    }
+
+    /// LLVOAvatar::initAttachmentPoints (indra/newview/llvoavatar.cpp,
+    /// originally LGPL 2.1): every body attachment point is an
+    /// LLViewerJointAttachment, a joint below its bone that
+    /// LLVOAvatar::getJoint finds by name, so meshes are skinned to it and
+    /// animations key it ("attachment can potentially be animated, needs a
+    /// number"); worn animesh rely on it (#1492). `points`: name, bone, the
+    /// point's position and rotation under it (avatar_lad.xml); unit scale.
+    /// A point on mRoot ("Avatar Center"), which this skeleton has not, is a
+    /// root of its own where mRoot rests (the pelvis's rest position: the
+    /// pelvis is zero under mRoot, LLAvatarAppearance::buildCharacter), so
+    /// it stays put while motions move the pelvis. Added while the palette
+    /// has room below its anchors for them and the identity slot; a name
+    /// the skeleton already has keeps its joint.
+    pub(crate) fn add_attachment_points(&mut self, points: &[(String, Option<usize>, Vec3, Quat)]) {
+        for (name, parent, pos, rot) in points {
+            if self.len() + 1 >= ANCHOR_BASE {
+                break;
+            }
+            if self.names.contains_key(name) || parent.is_some_and(|p| p >= self.len()) {
+                continue;
+            }
+            let j = self.len();
+            self.parent.push(*parent);
+            match parent {
+                Some(_) => self.local_pos.push(*pos),
+                None => self.local_pos.push(self.local_pos[self.pelvis] + *pos),
+            }
+            self.local_rot.push(*rot);
+            self.parent_scale.push(parent.map_or(Vec3::ONE, |p| self.scale[p]));
+            self.scale.push(Vec3::ONE);
+            self.names.insert(name.clone(), j);
+            self.canonical_names.push(name.clone());
+        }
+        self.order = depth_first(&self.parent);
+        let rot = self.local_rot.clone();
+        let world = self.world(&rot, Vec3::ZERO);
+        self.default_world_inv = world.iter().map(|m| m.inverse()).collect();
     }
 
     /// The rig joint a mesh skin joint follows, and the inverse bind to
@@ -627,6 +672,22 @@ fn facing(dir: Vec3) -> Option<Quat> {
 }
 
 impl Controller {
+    /// Dev Toolbox J9: the motions playing, newest first, with their local
+    /// time (s) and blend weight.
+    pub(crate) fn playing(&self, now: Instant) -> Vec<(Uuid, Arc<BoundAnim>, f64, f32)> {
+        self.motions
+            .iter()
+            .map(|m| (m.id, m.anim.clone(), m.local_time(now), m.weight))
+            .collect()
+    }
+
+    /// Dev Toolbox J9: the last frame's local rotations, animated position
+    /// offsets from the rest skeleton (empty before the first), and the
+    /// pelvis's animated position under the root (kept apart).
+    pub(crate) fn held_pose(&self) -> (&[Quat], &[Vec3], Option<Vec3>) {
+        (&self.rot, &self.pos_delta, self.pelvis_offset)
+    }
+
     /// Apply Preferences › Aurora › Animations without restarting live loops.
     /// Enabling catches up to the known phase; disabling keeps the current phase
     /// and uses the Legacy Viewer clock for subsequent starts and pauses.
@@ -658,6 +719,27 @@ impl Controller {
             ..Default::default()
         }
     }
+    /// FSToolsResyncAnimations (indra/newview/llviewermenu.cpp): stop and
+    /// reactivate playing motions locally at one shared instant. Keep the
+    /// receipt signals so the next sync does not undo the explicit restart.
+    /// Stopped motions and completed one-shots must not be resurrected.
+    pub fn resync_animations(&mut self, now: Instant) {
+        let now = if self.synchronized { now } else { self.paused_at.unwrap_or(now) };
+        let preview = self.preview_start;
+        for motion in self
+            .motions
+            .iter_mut()
+            .filter(|m| !m.internal && m.stop.is_none() && !preview.is_some_and(|(target, _)| target.is_none_or(|id| id == m.id)))
+        {
+            motion.activation = now;
+            motion.continuous_activation = now;
+            motion.weight = 0.0;
+            motion.residual = 0.0;
+            motion.recovery = None;
+        }
+        self.last_eval = None;
+    }
+
     /// Forget the held pose (LLVOAvatar::resetSkeleton): a joint no motion
     /// drives keeps the rotation and position the last motion gave it, which
     /// is how an avatar stays deformed after a pose or a mesh animation
@@ -1673,6 +1755,141 @@ mod tests {
         Controller {
             synchronized: true,
             ..Default::default()
+        }
+    }
+
+    #[test]
+    fn resync_aligns_playing_animations_and_survives_unchanged_signals_and_sequences() {
+        let rig = rig();
+        let animation = swing(&rig);
+        let t0 = Instant::now();
+        let at = |s| t0 + Duration::from_secs_f64(s);
+        for (synchronized, control) in [(false, false), (true, false), (false, true), (true, true)] {
+            let mut controllers = Vec::new();
+            for start in [0.0, 0.65] {
+                let mut c = Controller {
+                    synchronized,
+                    control,
+                    ..Default::default()
+                };
+                let playing = [signal(Uuid::from_u128(77), 1, at(start))];
+                c.sync(&playing, at(start), |_| Some(animation.clone()));
+                assert!((c.motions[0].local_time(at(1.0)) - (1.0 - start)).abs() < 1e-6);
+                c.resync_animations(at(1.25));
+                assert!(c.sync(&playing, at(1.5), |_| Some(animation.clone())).is_empty());
+                assert_eq!(c.motions.len(), 1);
+                assert!((c.motions[0].local_time(at(1.5)) - 0.25).abs() < 1e-6);
+                assert_eq!(c.signals[&playing[0].id], playing[0], "receipt clocks are untouched");
+                let next = PlayingAnimation {
+                    sequence: 2,
+                    sequence_start: at(1.6),
+                    ..playing[0]
+                };
+                c.sync(&[next], at(1.75), |_| Some(animation.clone()));
+                assert!((c.motions[0].local_time(at(1.75)) - 0.5).abs() < 1e-6);
+                c.resync_animations(at(1.9));
+                c.sync(&[next], at(2.0), |_| Some(animation.clone()));
+                assert!((c.motions[0].local_time(at(2.0)) - 0.1).abs() < 1e-6);
+                controllers.push(c);
+            }
+            let mut pose = vec![Mat4::IDENTITY.to_cols_array_2d(); PALETTE_JOINTS];
+            let mut elbows = Vec::new();
+            for c in &mut controllers {
+                c.evaluate(&rig, at(2.0), None, &mut pose);
+                elbows.push(c.rot[rig.names["mElbowLeft"]]);
+            }
+            assert!(elbows[0].abs_diff_eq(elbows[1], 1e-6), "avatars now draw the same dance phase");
+        }
+    }
+
+    #[test]
+    fn resync_restarts_a_one_shot_but_leaves_stopped_and_finished_motions_alone() {
+        let rig = rig();
+        let mut bound = BoundAnim::bind(swing(&rig).anim.clone(), &rig);
+        bound.anim.looping = false;
+        bound.anim.duration = 2.0;
+        bound.anim.ease_in = 0.0;
+        bound.anim.ease_out = 0.5;
+        let animation = Arc::new(bound);
+        let t0 = Instant::now();
+        let at = |s| t0 + Duration::from_secs_f64(s);
+        let playing = [signal(Uuid::from_u128(78), 1, t0)];
+        for synchronized in [false, true] {
+            let mut c = Controller {
+                synchronized,
+                ..Default::default()
+            };
+            c.sync(&playing, t0, |_| Some(animation.clone()));
+            c.resync_animations(at(1.0));
+            assert!(c.sync(&playing, at(2.0), |_| Some(animation.clone())).is_empty());
+            assert_eq!(c.sync(&playing, at(2.5), |_| Some(animation.clone())), vec![playing[0].id]);
+            c.resync_animations(at(2.6));
+            assert!(c.sync(&playing, at(3.0), |_| Some(animation.clone())).is_empty());
+            assert!(c.motions.is_empty());
+            c.resync_animations(at(3.25));
+            c.sync(&playing, at(3.5), |_| Some(animation.clone()));
+            assert!(c.motions.is_empty(), "completed signaled motions stay completed");
+        }
+    }
+
+    #[test]
+    fn resync_during_a_pause_resumes_from_the_expected_clock() {
+        let rig = rig();
+        let animation = swing(&rig);
+        let t0 = Instant::now();
+        let at = |s| t0 + Duration::from_secs_f64(s);
+        let playing = [signal(Uuid::from_u128(79), 1, t0)];
+        for synchronized in [false, true] {
+            let mut c = Controller {
+                synchronized,
+                ..Default::default()
+            };
+            c.sync(&playing, t0, |_| Some(animation.clone()));
+            c.set_paused(true, at(0.25));
+            c.resync_animations(at(1.0));
+            c.sync(&playing, at(1.5), |_| Some(animation.clone()));
+            c.set_paused(false, at(1.75));
+            c.sync(&playing, at(2.0), |_| Some(animation.clone()));
+            let expected = if synchronized { 1.0 } else { 0.25 };
+            assert!((c.motions[0].local_time(at(2.0)) - expected).abs() < 1e-6);
+        }
+    }
+
+    #[test]
+    fn resync_keeps_an_explicit_preview_clock() {
+        let rig = rig();
+        let animation = swing(&rig);
+        let t0 = Instant::now();
+        let id = Uuid::from_u128(80);
+        let playing = [signal(id, 1, t0)];
+        let mut c = Controller::default();
+        c.set_preview_clock(Some((Some(id), t0)));
+        c.sync(&playing, t0, |_| Some(animation.clone()));
+        c.resync_animations(t0 + Duration::from_secs(1));
+        c.sync(&playing, t0 + Duration::from_millis(1250), |_| Some(animation.clone()));
+        assert!((c.motions[0].local_time(t0 + Duration::from_millis(1250)) - 1.25).abs() < 1e-6);
+    }
+
+    #[test]
+    fn resync_scene_restarts_all_residents_and_control_avatars_at_one_instant() {
+        let library = Arc::new(super::super::avatar::AvatarLibrary::load());
+        let animation = swing(&library.rig);
+        let mut scene = super::super::Scene::new(std::path::PathBuf::new(), library);
+        let t0 = Instant::now();
+        for i in 0..3 {
+            let start = t0 + Duration::from_millis(i * 200);
+            let mut controller = Controller {
+                control: i == 2,
+                ..Default::default()
+            };
+            controller.sync(&[signal(Uuid::from_u128(81), 1, start)], start, |_| Some(animation.clone()));
+            scene.motions.insert(Uuid::from_u128(u128::from(i) + 1), controller);
+        }
+        let restart = t0 + Duration::from_secs(1);
+        scene.resync_animations(restart);
+        assert_eq!(scene.motions.len(), 3);
+        for controller in scene.motions.values() {
+            assert!((controller.motions[0].local_time(restart + Duration::from_millis(250)) - 0.25).abs() < 1e-6);
         }
     }
 

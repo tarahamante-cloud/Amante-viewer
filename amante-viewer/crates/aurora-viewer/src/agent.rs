@@ -544,17 +544,25 @@ impl AgentState {
     /// Offline demo only: stand in for the simulator's avatar physics so the
     /// controls can be tried without a grid (walk 3.2 m/s, run 5.1 m/s, fly,
     /// jump, terrain following). On a grid the simulator does this.
-    pub fn simulate_locally(&mut self, input: &MoveInput, mouselook: bool, ground: Option<f32>, dt: f32) {
-        self.simulate_flight(input, mouselook, ground, dt, false);
+    pub fn simulate_locally(&mut self, input: &MoveInput, mouselook: bool, ground: Option<f32>, dt: f32, automatic_land: bool) {
+        self.simulate_flight(input, mouselook, ground, dt, false, automatic_land);
     }
 
     /// Optional native-flight stand-in for offline navigation tests. Native
     /// flight retains velocity after release; NUDGE is not a speed limiter.
-    pub fn simulate_native_flight(&mut self, input: &MoveInput, mouselook: bool, ground: Option<f32>, dt: f32) {
-        self.simulate_flight(input, mouselook, ground, dt, true);
+    pub fn simulate_native_flight(&mut self, input: &MoveInput, mouselook: bool, ground: Option<f32>, dt: f32, automatic_land: bool) {
+        self.simulate_flight(input, mouselook, ground, dt, true, automatic_land);
     }
 
-    fn simulate_flight(&mut self, input: &MoveInput, mouselook: bool, ground: Option<f32>, dt: f32, native_flight: bool) {
+    fn simulate_flight(
+        &mut self,
+        input: &MoveInput,
+        mouselook: bool,
+        ground: Option<f32>,
+        dt: f32,
+        native_flight: bool,
+        automatic_land: bool,
+    ) {
         // object center above the floor: half the default body height (SL
         // places the pelvis 0.13 m above it, see Scene::skeleton_of)
         const STAND: f32 = 0.84;
@@ -622,7 +630,7 @@ impl AgentState {
         {
             pos.z = f;
             vz = vz.max(0.0);
-            if self.flying && input.down {
+            if self.flying && input.down && automatic_land {
                 self.flying = false; // landing
             }
         }
@@ -807,6 +815,37 @@ impl AgentState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn automatic_landing_preference_keeps_demo_descent_and_ascent_available() {
+        let down = MoveInput {
+            down: true,
+            ..Default::default()
+        };
+        let up = MoveInput {
+            up: true,
+            ..Default::default()
+        };
+        for native in [false, true] {
+            for automatic_land in [false, true] {
+                let mut agent = AgentState {
+                    flying: true,
+                    server_pos: Vec3::Z * 0.84,
+                    ..Default::default()
+                };
+                for _ in 0..10 {
+                    agent.simulate_flight(&down, false, Some(0.0), 0.1, native, automatic_land);
+                }
+                assert_eq!(agent.flying, !automatic_land);
+                assert_eq!(agent.server_pos.z, 0.84);
+                let flags = agent.control_flags(&down, false);
+                assert_ne!(flags & control::UP_NEG, 0, "descent remains held");
+                assert_eq!(flags & control::FLY != 0, !automatic_land);
+                agent.simulate_flight(&up, false, Some(0.0), 0.1, native, automatic_land);
+                assert!(agent.server_pos.z > 0.84, "jump or ascend remains available");
+            }
+        }
+    }
+
     use super::*;
     use std::time::Duration;
 
@@ -845,6 +884,33 @@ mod tests {
         assert_eq!(AgentState::quickjump_flags(walking, false), walking);
         assert_eq!(AgentState::quickjump_flags(walking, true), walking | control::FINISH_ANIM);
         assert_eq!(AgentState::quickjump_flags(0, true), control::FINISH_ANIM);
+    }
+
+    /// With automatic takeoff off the agent never flies from a held Up, and
+    /// only Quickjump puts FINISH_ANIM in the AgentUpdate: the simulator plays
+    /// the pre-jump and repeats the jump while Up stays held, as with the
+    /// Legacy Viewer's AutomaticFly off (agent_jump only calls moveUp).
+    #[test]
+    fn held_ground_jump_keeps_the_pre_jump_unless_quickjump() {
+        let mut agent = AgentState::default();
+        let now = Instant::now();
+        let input = MoveInput {
+            up: true,
+            forward: true,
+            ..Default::default()
+        };
+        agent.record_jump_input(now);
+        let held = agent.control_flags(&input, false);
+        assert_ne!(held & control::UP_POS, 0, "the simulator keeps the repeated jump input");
+        assert_eq!(held & (control::FLY | control::FINISH_ANIM), 0);
+        assert_eq!(AgentState::quickjump_flags(held, false), held, "pre-jump kept");
+        assert_eq!(AgentState::quickjump_flags(held, true), held | control::FINISH_ANIM);
+        // LLAgent::onAnimStop: no finish while Up is held, so the next jump
+        // keeps its pre-jump; a released tap finishes it and cannot stall.
+        assert_eq!(agent.animation_stop_flags(PRE_JUMP, true, at(now, 0.4)), 0);
+        assert_eq!(agent.animation_stop_flags(PRE_JUMP, false, at(now, 0.4)), control::FINISH_ANIM);
+        // a landing right after a jump never finishes the next pre-jump
+        assert_eq!(agent.animation_stop_flags(LAND, false, at(now, 0.8)), 0);
     }
 
     #[test]
@@ -1034,7 +1100,7 @@ mod tests {
             forward: true,
             ..MoveInput::default()
         };
-        agent.simulate_locally(&forward, false, Some(0.0), 0.1);
+        agent.simulate_locally(&forward, false, Some(0.0), 0.1, true);
         agent.update(&forward, false, 0.1, 5.0);
         near(agent.position, carried);
         agent.on_server_update_at(carried + Vec3::X, Vec3::ZERO, Vec3::ZERO, false, true, at(now, 1.0));

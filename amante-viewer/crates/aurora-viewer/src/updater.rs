@@ -265,7 +265,7 @@ impl Updater {
         if self.busy() {
             return;
         }
-        if !cfg!(windows) || release.archive.is_none() || release.checksum.is_none() {
+        if !cfg!(windows) || release.archive.is_none() || (release.checksum.is_none() && release.authentication.is_none()) {
             self.state = State::Error(Failure::Unsupported);
             self.open = true;
             return;
@@ -315,6 +315,11 @@ impl Updater {
         }
         let Some(work) = self.prepared.take() else { return };
         let Some(release) = &self.release else { return };
+        if self.source.authorize_install(release).is_err() {
+            self.state = State::Error(Failure::Integrity);
+            self.open = true;
+            return;
+        }
         let version = release.version.clone();
         let maintenance = release.maintenance;
         let tx = self.tx.clone();
@@ -347,6 +352,7 @@ mod tests {
         assert!(!updater.open);
         let release = Release {
             maintenance: Default::default(),
+            authentication: None,
             tag: "v99.0.0".into(),
             version: "99.0.0".into(),
             notes: String::new(),
@@ -412,6 +418,7 @@ mod tests {
         updater.state = State::Rollback;
         let release = Release {
             maintenance: Default::default(),
+            authentication: None,
             tag: "v0.3.0".into(),
             version: "0.3.0".into(),
             notes: String::new(),

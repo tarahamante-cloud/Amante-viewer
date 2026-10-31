@@ -1,4 +1,4 @@
-//! Help › About Aurora Viewer. Port of LLFloaterAbout
+//! Help › About Amante Viewer. Port of LLFloaterAbout
 //! (indra/newview/llfloaterabout.cpp, floater_about.xml, the About* strings
 //! of strings.xml, originally LGPL 2.1): the version, then the system
 //! information with "Copy to clipboard", and the licences. Redrawn in the
@@ -112,7 +112,9 @@ pub struct AboutUi {
 /// build between two tags has none).
 pub fn release_notes(version: &str) -> Option<String> {
     let published = !version.is_empty() && !version.contains('+') && version != "0.0.0";
-    published.then(|| format!("{}/releases/tag/v{version}", crate::links::GITHUB))
+    // Source lives in the native fork; existing development releases remain in
+    // the original Amante distribution repository, which is not replaced.
+    published.then(|| format!("{}/tag/v{version}", aurora_updater::feed::NOTIFICATION_PAGE))
 }
 
 /// The text "Copy to clipboard" gives: the version, its release page, then
@@ -259,6 +261,7 @@ fn hero(ui: &mut egui::Ui, p: &Palette, logo: Option<&egui::TextureHandle>) {
         }
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing.y = 4.0;
+
             ui.label(sheet::semibold(ui, aurora_version::APP_NAME, 22.0, p.ink));
             ui.label(
                 RichText::new(aurora_i18n::tr!("ui-login-second-life-client-rust-vulkan"))

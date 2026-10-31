@@ -382,13 +382,12 @@ impl LibraryUi {
                 );
                 foot.show(ui, |ui| {
                     let description = window.description.get_or_insert_with(|| item.desc.clone());
-                    let response = ui.add_enabled(
-                        material_editor::can_edit(world, &item),
-                        egui::TextEdit::singleline(description)
+                    let response = crate::ui::widgets::text_field(ui, material_editor::can_edit(world, &item), description, |b, ui| {
+                        egui::TextEdit::singleline(b)
                             .hint_text(aurora_i18n::tr!("common-description"))
                             .char_limit(127)
-                            .desired_width(ui.available_width()),
-                    );
+                            .desired_width(ui.available_width())
+                    });
                     if response.lost_focus() && *description != item.desc && material_editor::can_edit(world, &item) {
                         actions.push(Action::Change(Mutation {
                             operations: vec![Operation::Patch {
@@ -476,12 +475,11 @@ impl LibraryUi {
                 widgets::Modal::new(egui::Id::unique(("material_close", item.id))).show(ctx, |ui| {
                     ui.label(aurora_i18n::tr!("ui-inventory-dialogs-this-document-has-unsaved-changes"));
                     ui.horizontal(|ui| {
-                        if ui
-                            .add_enabled(
-                                material_editor::can_edit(world, &item) && editor.dirty() && editor.saving.is_none(),
-                                egui::Button::new(aurora_i18n::tr!("common-save")),
-                            )
-                            .clicked()
+                        if widgets::default_button(ui.add_enabled(
+                            material_editor::can_edit(world, &item) && editor.dirty() && editor.saving.is_none(),
+                            egui::Button::new(aurora_i18n::tr!("common-save")),
+                        ))
+                        .clicked()
                         {
                             editor.close_after_save = true;
                             editor.confirm_close = false;

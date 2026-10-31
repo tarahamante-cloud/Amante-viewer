@@ -372,13 +372,12 @@ impl Recovery {
         ui.add_space(10.0);
         ui.label(RichText::new(aurora_i18n::tr!("crash-description")).size(12.5).color(p.muted));
         ui.add_space(3.0);
-        ui.add_enabled(
-            !busy,
-            egui::TextEdit::multiline(&mut self.sending.description)
+        crate::ui::widgets::text_field(ui, !busy, &mut self.sending.description, |b, _| {
+            egui::TextEdit::multiline(b)
                 .desired_rows(3)
                 .char_limit(2000)
-                .desired_width(f32::INFINITY),
-        );
+                .desired_width(f32::INFINITY)
+        });
         ui.add_space(6.0);
         ui.add_enabled_ui(!busy, |ui| {
             ui.horizontal_wrapped(|ui| {
@@ -547,7 +546,10 @@ impl Recovery {
             .ok_or_else(|| anyhow::anyhow!("missing recovery input"))?
             .take_egui_input(&window);
         let context = self.context.clone();
-        let output = context.run_ui(raw, |ui| self.content(ui, event_loop));
+        let mut output = context.run_ui(raw, |ui| self.content(ui, event_loop));
+        output.platform_output.commands.retain(
+            |command| !matches!(command, egui::OutputCommand::OpenUrl(url) if !aurora_version::privacy::external_web_url(&url.url)),
+        );
         self.input
             .as_mut()
             .ok_or_else(|| anyhow::anyhow!("missing recovery input"))?
@@ -617,7 +619,7 @@ impl ApplicationHandler for Recovery {
             };
             let window = Arc::new(
                 event_loop.create_window(
-                    Window::default_attributes()
+                    crate::cli::with_desktop_id(Window::default_attributes())
                         .with_title(title)
                         .with_inner_size(winit::dpi::LogicalSize::new(840.0, 610.0))
                         .with_min_inner_size(winit::dpi::LogicalSize::new(700.0, 500.0)),

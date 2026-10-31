@@ -437,6 +437,11 @@ impl SearchUi {
     }
 
     /// The web page that has the keyboard, if any.
+    pub fn web_has_focus(&self) -> bool {
+        self.tab() == Tab::Web && self.web.focused && self.web.running()
+    }
+
+    /// The web page that has the keyboard, if any.
     pub fn focused_web(&mut self) -> Option<&mut aurora_media::MediaPlugin> {
         (self.tab() == Tab::Web && self.web.focused)
             .then(|| self.web.plugin_mut())
@@ -670,7 +675,9 @@ impl SearchUi {
                             saved = true;
                             go = true;
                         }
-                        let field = ui.add_enabled(*on, egui::TextEdit::singleline(text).desired_width(54.0).char_limit(9));
+                        let field = crate::ui::widgets::text_field(ui, *on, text, |b, _| {
+                            egui::TextEdit::singleline(b).desired_width(54.0).char_limit(9)
+                        });
                         if field.changed() {
                             text.retain(|ch| ch.is_ascii_digit());
                         }

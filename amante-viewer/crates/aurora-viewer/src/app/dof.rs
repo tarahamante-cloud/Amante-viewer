@@ -20,6 +20,24 @@ fn demo_lens() -> Option<(f32, f32, bool)> {
 }
 
 impl App {
+    /// The largest blur, in pixels, of a photo `height` pixels high taken
+    /// now from a window `window_height` pixels high: None when no depth of
+    /// field may be drawn (the lens `dof_frame` gives, without its
+    /// conditions of the moment).
+    pub(super) fn photo_dof_max_coc(&self, height: u32, window_height: u32) -> Option<f32> {
+        let s = if self.demo && demo_lens().is_some() {
+            dof::Settings {
+                enabled: true,
+                ..self.settings.dof.clone()
+            }
+        } else if self.panels.snapshot {
+            self.settings.snapshot.dof.applied(&self.settings.dof).0
+        } else {
+            self.settings.dof.clone()
+        };
+        s.enabled.then(|| dof::lens(&s, 1.0, 1.0, height, window_height, false).max_coc)
+    }
+
     /// The lens of this frame, None when the effect is off (or in edit mode
     /// without RenderDepthOfFieldInEditMode). `fov_y` is the vertical field
     /// of view of the image, `height` its height (a photo's), `window_height`
@@ -71,12 +89,17 @@ impl App {
             return None;
         }
         // the viewfinder's AF-S: the lens where its hunt has it (the image
-        // pumps through the focus like a camera's), no transition of its own
+        // pumps through the focus like a camera's), no transition of its own;
+        // a group focus keeps its zone sharp, from its nearest face to its
+        // farthest (`snapshot::viewfinder::Zone`)
         let viewfinder = self.viewfinder_on() && photo.enabled;
         if viewfinder && photo.focus == crate::dof::PhotoFocus::Click {
             let d = self.snapshots.vf.af.distance();
             self.dof_focus.set(d);
-            return Some(dof::lens(&s, d, fov_y, height, window_height, false));
+            let (near, far) = self.snapshots.vf.zone.map_or((d, d), |z| z.at(d));
+            let mut lens = dof::lens(&s, near, fov_y, height, window_height, false);
+            lens.focus_far = far;
+            return Some(lens);
         }
         let eye = self.camera.position;
         let at = self.camera.target - self.camera.position;

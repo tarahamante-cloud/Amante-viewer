@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "product": "amante-viewer",
+  "version": 1,
+  "expires": 0,
+  "root_threshold": 1,
+  "release_threshold": 1,
+  "root_keys": {},
+  "release_keys": {}
+}

@@ -1,6 +1,52 @@
 # Windows validation record
 
-## Latest automated branding build — desktop validation pending
+## Latest checked package: update-notification regression corrected
+
+The failed run shown in the user's screenshot is **#12**, run
+[40870771402](https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40870771402),
+source `61144881cee64ef66c149a2dbb8ac5ae959603fd`. Linux and the Windows
+application/package jobs passed. The Windows viewer test
+`ui::update::tests::required_offer_has_no_skip_or_later_and_escape_cannot_close_it`
+failed with `forbidden choice: Later`; the viewer result was 5,086 passed,
+one failed and nine ignored. This was a real required-update UI regression,
+not a Windows compiler or packaging failure.
+
+The owner's newer source already contains the correction:
+the notification-only `State::Offer` branch is selected only when `!required`.
+Required offers therefore retain their existing non-dismissible behavior.
+The original test was retained, not skipped or weakened.
+
+All three jobs passed in the newer **#13**, run
+[40882122452](https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40882122452),
+source `824d7dd8fb179673c49efd50a984de6d1e3f512e`. The historical failed
+run remains red; rerunning its old source would not apply the fix.
+
+| Evidence level | Verified result / limitation |
+|---|---|
+| Source | Exact packaged revision checked out separately; immutable baseline has 8,643 files, 8,521 unchanged, 122 modified, none missing/untracked and no original assets changed |
+| Linux build | Complete root workflow job passed |
+| Windows build / package | Complete native x64 release and extracted CLI/resource/license verification passed on Windows NT 10.0.26100.0 |
+| Windows offline harness | 6,099 passed, zero failed, 30 ignored across 16 executables; compilation passed on a 17,174,360,064-byte runner |
+| Viewer harness | 5,088 passed, zero failed, nine ignored; the exact previously failing required-offer test reports `ok` |
+| Profile / updater fixtures | Credential-namespace isolation and local rollback/profile-preservation fixtures passed; actual Windows keyring/profile and graphical update/relaunch remain unverified |
+| Distribution | Independently downloaded original ZIP, matching checksum sidecar; 32 archive entries; x64 `amante-viewer.exe` is 164,994,560 bytes |
+| Per-area matrix | All 1,996 source/build/package rows bind to this exact revision and ZIP; every interactive desktop-runtime field remains `not runtime-tested` |
+| Desktop / live grids | Not exercised or claimed; use the human desktop checklist, offline first, with live-grid testing optional and human-only |
+
+- Package: `Amante-Viewer-v0.0.0+17.g824d7dd8f-windows-x64.zip`.
+- Inner ZIP SHA-256:
+  `a3bba77864a54b31ad09715e792d6d7bdcbba4028ba4c1c3da027d37a75dc4fb`.
+- Package artifact: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40882122452/artifacts/12903241830>.
+- Test artifact: <https://github.com/tarahamante-cloud/Amante-viewer/actions/runs/40882122452/artifacts/12901539675>.
+
+These receipts were checked against an exact checkout of the owner's packaged
+source, not assumed from this workspace's independently evolving source tree.
+The older packages and scan reports below concern their own exact checksums;
+they are not malware-scan evidence for this new package. This remains an
+unsigned development ZIP, not an authenticated release or safety certification.
+Do not bypass a browser or antivirus block.
+
+## Earlier verified branding build — desktop validation pending
 
 The user requested Amante across every product-owned landing screen, menu and
 other visible surface after confirming the direct download worked. Source now

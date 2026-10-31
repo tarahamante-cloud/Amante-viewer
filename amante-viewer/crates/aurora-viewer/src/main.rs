@@ -11,13 +11,7 @@ mod atomic_file;
 mod autopilot;
 mod autoreplace;
 mod blender_live;
-// Bug report form, disabled for now: "Report a bug" (login screen, top bar,
-// crash window) opens GitHub's issue chooser in the browser instead
-// (`links::NEW_ISSUE`). Its code stays in the tree, out of the build
-// (`bug_report/`, `ui/bug_report.rs`, `app/bug_report.rs`,
-// `crash/report.rs`): to bring it back, uncomment every line marked "Bug
-// report form (disabled, see main.rs)".
-// mod bug_report;
+mod bug_report;
 mod build;
 mod cache;
 mod cache_location;
@@ -61,13 +55,17 @@ mod login_accounts;
 mod login_places;
 mod login_wait;
 mod lsl_keywords;
+#[cfg(target_os = "macos")]
+mod mac_quit;
 mod machine_id;
 mod media;
 mod movement;
+mod net_adapters;
 mod net_profile;
 mod overlay_hooks;
 mod own_motion;
 mod physics_editor;
+mod raw_mouse;
 mod report_abuse;
 mod scene;
 mod screen_rate;
@@ -192,7 +190,11 @@ fn run_viewer() -> anyhow::Result<()> {
         .thread_name(|i| format!("aurora-worker-{i}"))
         .build_global();
 
-    let event_loop = winit::event_loop::EventLoop::new()?;
+    let mut event_loop = winit::event_loop::EventLoop::builder();
+    // the absolute positions of remote desktops made motions (raw_mouse.rs)
+    #[cfg(windows)]
+    raw_mouse::install(&mut event_loop);
+    let event_loop = event_loop.build()?;
     event_loop.set_control_flow(winit::event_loop::ControlFlow::Poll);
     // the cache folder of this run, before anything uses it
     cache_location::init();

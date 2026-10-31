@@ -370,6 +370,28 @@ pub fn notice_bucket(bucket: &[u8]) -> Option<NoticeBucket> {
     })
 }
 
+/// A notice kept while we were offline (ReadOfflineMsgs) names its group in
+/// the entry's `asset_id` and its attachment as text, "asset type|wearable
+/// type|name", empty without one (the `aux_id` branch of process_improved_im,
+/// llimprocessing.cpp, originally LGPL 2.1). It comes back here in the form
+/// of a live notice's bucket, so that one parser reads both.
+pub fn notice_bucket_from_offline(group: Uuid, text: &[u8]) -> Vec<u8> {
+    let text = String::from_utf8_lossy(text);
+    let text = text.trim_end_matches('\0');
+    // has_inventory = binary_bucket_size > 1
+    let mut parts = text.split('|');
+    let attachment = (!text.is_empty()).then(|| {
+        let asset_type = parts.next().and_then(|t| t.trim().parse::<i32>().ok()).unwrap_or(0);
+        parts.next();
+        (asset_type as u8, parts.next().unwrap_or_default())
+    });
+    let mut out = vec![u8::from(attachment.is_some()), attachment.map_or(0, |a| a.0)];
+    out.extend_from_slice(group.as_bytes());
+    out.extend_from_slice(attachment.map_or("", |a| a.1).as_bytes());
+    out.push(0);
+    out
+}
+
 /// "subject|message" of a notice (the first "|" splits them).
 pub fn notice_text(message: &str) -> (String, String) {
     match message.split_once('|') {
@@ -384,8 +406,10 @@ pub fn notice_text(message: &str) -> (String, String) {
 pub fn notice_to_send(subject: &str, message: &str, item: Option<(Uuid, Uuid)>) -> (String, Vec<u8>) {
     let text = format!("{subject}|{message}");
     let bucket = match item {
-        // the serialized map, without its terminating null
-        Some((item, owner)) => aurora_llsd::to_xml(&llsd_map! { "item_id" => item, "owner_id" => owner }),
+        // send_group_notice (indra/newview/llviewermessage.cpp) uses
+        // LLSDSerialize's format header, without a terminating null. The
+        // HTTP XML declaration alone is rejected as inventory by the sim.
+        Some((item, owner)) => aurora_llsd::to_serialized_xml(&llsd_map! { "item_id" => item, "owner_id" => owner }),
         // EMPTY_BINARY_BUCKET
         None => vec![0],
     };
@@ -835,6 +859,13 @@ mod tests {
         let mut open = b.clone();
         open.pop();
         assert!(notice_bucket(&open).is_none(), "not terminated");
+        // an offline notice: the group from the entry, the attachment as text
+        let n = notice_bucket(&notice_bucket_from_offline(group, b"6|0|Texture kit\0")).expect("offline bucket");
+        assert!(n.has_inventory);
+        assert_eq!((n.asset_type, n.group, n.item_name.as_str()), (6, group, "Texture kit"));
+        let n = notice_bucket(&notice_bucket_from_offline(group, b"\0")).expect("offline bucket");
+        assert!(!n.has_inventory);
+        assert_eq!((n.group, n.item_name.as_str()), (group, ""));
         assert_eq!(notice_text("Hi|Body|more"), ("Hi".into(), "Body|more".into()));
         assert_eq!(notice_text("Hi"), ("Hi".into(), String::new()));
         let (text, bucket) = notice_to_send("Hi", "Body", None);
@@ -843,6 +874,26 @@ mod tests {
         let v = aurora_llsd::from_xml(&bucket).expect("llsd");
         assert_eq!(v["item_id"].as_uuid(), Uuid::from_u128(1));
         assert_eq!(v["owner_id"].as_uuid(), Uuid::from_u128(2));
+    }
+
+    #[test]
+    fn notice_attachment_matches_legacy_serialized_xml() {
+        // send_group_notice uses LLSDSerialize::serialize, not the HTTP XML
+        // formatter. The simulator dispatches on this first line.
+        let (text, bucket) = notice_to_send("Workshop", "Bring the kit.|Thanks", Some((Uuid::from_u128(1), Uuid::from_u128(2))));
+        let expected = concat!(
+            "<? LLSD/XML ?>\n",
+            "<llsd><map>",
+            "<key>item_id</key><uuid>00000000-0000-0000-0000-000000000001</uuid>",
+            "<key>owner_id</key><uuid>00000000-0000-0000-0000-000000000002</uuid>",
+            "</map></llsd>\n",
+        );
+        assert_eq!(text, "Workshop|Bring the kit.|Thanks");
+        assert_eq!(
+            bucket,
+            expected.as_bytes(),
+            "match LLSDSerialize's header, UUID types and transmitted length"
+        );
     }
 
     #[test]

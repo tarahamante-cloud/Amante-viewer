@@ -78,21 +78,12 @@ pub struct SystemFont {
 /// Family name and "is regular" flag read from the font's name table.
 fn font_family(path: &std::path::Path) -> Option<(String, bool)> {
     let data = std::fs::read(path).ok()?;
-    let face = ttf_parser::Face::parse(&data, 0).ok()?;
-    let mut family = None;
-    let mut sub = None;
-    for name in face.names() {
-        let is_en = name.language_id == 0x0409 || !name.is_unicode() || name.platform_id == ttf_parser::PlatformId::Unicode;
-        match name.name_id {
-            // typographic family/subfamily first, legacy ones as fallback
-            16 if is_en => family = name.to_string().or(family),
-            1 if family.is_none() && is_en => family = name.to_string(),
-            17 if is_en => sub = name.to_string().or(sub),
-            2 if sub.is_none() && is_en => sub = name.to_string(),
-            _ => {}
-        }
-    }
-    let regular = !face.is_bold() && !face.is_italic() && face.weight().to_number() >= 350 && face.weight().to_number() <= 450;
+    let face = amante_fonts::Face::parse(&data, 0).ok()?;
+    // Fontations prefers English, then a Unicode name, then the first available
+    // localized name. Typographic family/subfamily still take precedence.
+    let family = face.name(16).or_else(|| face.name(1));
+    let sub = face.name(17).or_else(|| face.name(2));
+    let regular = !face.is_bold() && !face.is_italic() && (350..=450).contains(&face.weight());
     let sub_ok = sub.as_deref().is_none_or(|s| {
         let s = s.to_lowercase();
         s == "regular" || s == "normal" || s == "book" || s == "roman"
@@ -172,17 +163,18 @@ pub fn system_fonts() -> Vec<SystemFont> {
 /// center of egui's text row (ascender..descender), so labels line up with
 /// icons and boxes whatever the font metrics.
 fn optical_center_offset(font: &[u8]) -> f32 {
-    let Ok(face) = ttf_parser::Face::parse(font, 0) else {
+    let Ok(face) = amante_fonts::Face::parse(font, 0) else {
         return 0.0;
     };
-    let upm = face.units_per_em() as f32;
+    let metrics = face.metrics();
+    let upm = f32::from(metrics.units_per_em);
     if upm <= 0.0 {
         return 0.0;
     }
-    let ascent = face.ascender() as f32;
-    let descent = face.descender() as f32; // negative
-    let cap = face.capital_height().map(|v| v as f32).unwrap_or(ascent * 0.7);
-    let x = face.x_height().map(|v| v as f32).unwrap_or(cap * 0.72);
+    let ascent = metrics.ascent;
+    let descent = metrics.descent; // negative
+    let cap = metrics.cap_height.unwrap_or(ascent * 0.7);
+    let x = metrics.x_height.unwrap_or(cap * 0.72);
     let row_center = (ascent + descent) * 0.5; // above the baseline
     let optical = (cap + x) * 0.25; // above the baseline
     // text sitting low (row center above the optical center) moves up
@@ -315,8 +307,7 @@ pub fn has_semibold(ctx: &egui::Context) -> bool {
 }
 
 fn has_weight_axis(font: &[u8]) -> bool {
-    let wght = ttf_parser::Tag::from_bytes(b"wght");
-    ttf_parser::Face::parse(font, 0).is_ok_and(|face| face.variation_axes().into_iter().any(|axis| axis.tag == wght))
+    amante_fonts::Face::parse(font, 0).is_ok_and(|face| face.has_weight_axis())
 }
 
 /// `primary` first for proportional text and after egui's text fonts for
@@ -326,7 +317,7 @@ fn has_weight_axis(font: &[u8]) -> bool {
 fn definitions(mut primary: egui::FontData, system: &[fallback::SystemFace]) -> egui::FontDefinitions {
     primary.tweak.y_offset_factor = optical_center_offset(primary.bytes());
     let shift = primary.tweak.y_offset_factor;
-    let row = ttf_parser::Face::parse(primary.bytes(), 0)
+    let row = amante_fonts::Face::parse(primary.bytes(), 0)
         .ok()
         .and_then(|face| fallback::RowMetrics::of(&face));
     let mut defs = egui::FontDefinitions::default();
@@ -356,7 +347,7 @@ fn definitions(mut primary: egui::FontData, system: &[fallback::SystemFace]) -> 
 /// One of the embedded interface fonts, or egui's own fallbacks.
 #[cfg(test)]
 fn embedded_has(c: char) -> bool {
-    let has = |font: &[u8]| ttf_parser::Face::parse(font, 0).is_ok_and(|face| face.glyph_index(c).is_some());
+    let has = |font: &[u8]| amante_fonts::Face::parse(font, 0).is_ok_and(|face| face.glyph_index(c).is_some());
     let defs = egui::FontDefinitions::default();
     let fallbacks = defs.families.get(&egui::FontFamily::Proportional).into_iter().flatten();
     BUILTINS.iter().any(|b| has(b.regular) || has(b.semibold))
@@ -683,7 +674,7 @@ mod tests {
     fn every_embedded_face_draws_latin_vietnamese_greek_and_cyrillic() {
         for b in &BUILTINS {
             for (weight, ttf) in [("regular", b.regular), ("semi-bold", b.semibold)] {
-                let face = ttf_parser::Face::parse(ttf, 0).expect("embedded font");
+                let face = amante_fonts::Face::parse(ttf, 0).expect("embedded font");
                 for (script, text) in &SCRIPTS[..4] {
                     let lacking: String = text
                         .chars()
@@ -754,7 +745,7 @@ mod tests {
         // (OpenDyslexic's Bold, declared 800: it has no lighter emphasis
         // weight)
         for b in &BUILTINS {
-            let weight = |ttf| ttf_parser::Face::parse(ttf, 0).expect("embedded font").weight().to_number();
+            let weight = |ttf| amante_fonts::Face::parse(ttf, 0).expect("embedded font").weight();
             let family = |ttf| font_family_name(ttf).expect("family name");
             assert_eq!(weight(b.regular), 400, "{}", b.name);
             let heaviest = if b.name == OPEN_DYSLEXIC { 800 } else { 600 };
@@ -780,14 +771,8 @@ mod tests {
 
     /// Typographic family name of an embedded face (name ID 16, else 1).
     fn font_family_name(ttf: &[u8]) -> Option<String> {
-        let face = ttf_parser::Face::parse(ttf, 0).ok()?;
-        let name = |id| {
-            face.names()
-                .into_iter()
-                .find(|n| n.name_id == id && n.is_unicode())
-                .and_then(|n| n.to_string())
-        };
-        name(16).or_else(|| name(1))
+        let face = amante_fonts::Face::parse(ttf, 0).ok()?;
+        face.name(16).or_else(|| face.name(1))
     }
 
     #[test]

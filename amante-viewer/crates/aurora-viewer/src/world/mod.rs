@@ -3,6 +3,7 @@
 pub mod animation_log;
 pub mod anti_spam;
 pub mod appearance;
+pub mod attachment_inventory;
 pub mod attention;
 pub mod blocking;
 pub mod body;
@@ -19,6 +20,7 @@ pub mod derender;
 pub mod edit_echo;
 pub mod eep;
 pub mod eep_env;
+pub mod eep_photo;
 pub mod env;
 pub mod env_apply;
 pub mod env_day_edit;
@@ -73,6 +75,7 @@ pub mod radar;
 pub mod received_items;
 pub mod recent;
 pub mod region_alerts;
+pub mod region_messages;
 pub mod region_restart;
 pub mod rig_graph;
 pub mod rig_targets;
@@ -98,6 +101,8 @@ pub mod worldmap;
 mod automated_chat_tests;
 #[cfg(test)]
 mod flash_tests;
+#[cfg(test)]
+mod group_notice_tests;
 #[cfg(test)]
 mod toasts_tests;
 
@@ -402,6 +407,9 @@ pub struct World {
     /// A parcel owner or an estate manager froze us (ViewerFrozenMessage):
     /// shown on the navigation bar while it lasts.
     pub frozen: bool,
+    /// What the simulator killed while the photo mode held the world still
+    /// (`freeze_motion`): each object's key and id, removed on thaw.
+    held_kills: Vec<(ObjKey, Uuid)>,
     /// Interface sounds to play (drained by the app).
     pub ui_sounds: Vec<UiSound>,
     /// Conversation messages received (their sound depends on the IM modes).
@@ -451,6 +459,7 @@ pub struct World {
     inventory_background: inventory::background::BackgroundFetch,
     /// Inventory changes outside the inventory window (`take_inventory_edits`).
     inventory_edits: Vec<aurora_net::inventory::operations::Mutation>,
+    pub attachment_inventory: attachment_inventory::AttachmentInventory,
     pub received_items: received_items::ReceivedItems,
     /// Playing animations per avatar / animesh.
     pub animations: HashMap<Uuid, Vec<PlayingAnimation>>,
@@ -708,6 +717,7 @@ impl World {
             environment_answers: Vec::new(),
             health: 100.0,
             frozen: false,
+            held_kills: Vec::new(),
             social: social::Social::default(),
             contact_sets: Default::default(),
             recent: Default::default(),
@@ -731,6 +741,7 @@ impl World {
             inventory_cache: None,
             inventory_background: Default::default(),
             inventory_edits: Vec::new(),
+            attachment_inventory: Default::default(),
             received_items: Default::default(),
             animations: HashMap::new(),
             ao_pose: None,
@@ -1190,6 +1201,7 @@ impl World {
             return Vec::new();
         }
         self.inventory_background.start(&self.inventory);
+        self.inventory.repair_lost_hierarchy();
         self.inventory_background.pump(&mut self.inventory, self.agent_id)
     }
 
@@ -1311,6 +1323,102 @@ impl World {
         self.objects.damp_seats(now, dt as f32, selected);
     }
 
+    /// The objects the simulator killed (process_kill_object,
+    /// indra/newview/llviewermessage.cpp, originally LGPL 2.1).
+    fn kill_objects(&mut self, handle: RegionHandle, local_ids: &[u32]) {
+        let land_watches = self.land.watches(handle);
+        let mut land_changed = false;
+        for &id in local_ids {
+            let key = ObjKey {
+                region: handle,
+                local_id: id,
+            };
+            if self.kill_is_ignored(&key) {
+                continue;
+            }
+            self.derender.forget_key(&key);
+            land_changed |= land_watches
+                && self
+                    .objects
+                    .index_of(&key)
+                    .and_then(|i| self.objects.get(i))
+                    .is_some_and(|o| !o.is_avatar());
+            if let Some(i) = self.objects.index_of(&key) {
+                self.unregister_attachment(i);
+                // (who sits on it stays, with what it wears: the
+                // simulator does not send them again)
+                self.get_off_linkset(i);
+                let subtree = self.objects.subtree(i);
+                for &child in &subtree {
+                    if let Some(source) = self.objects.get(child).map(|o| o.full_id) {
+                        self.scripted_camera.clear(source);
+                        self.stop_motion_from_source(source);
+                    }
+                }
+                // (an avatar leaving, an object deleted or taken, a
+                // worn item taken off)
+                self.objects.killed.push(subtree);
+            }
+            self.objects.remove(&key);
+            // a cache hit replays the cached ones, a full update comes with them
+            self.gltf_overrides.remove(&key);
+        }
+        self.forget_gone_look_ats();
+        if land_changed {
+            self.land.objects_changed(handle, Instant::now());
+        }
+    }
+
+    /// While the photo mode holds the world still (issue #1154), what the
+    /// simulator kills stays drawn until the thaw, like the moves it
+    /// reports (`ObjectStore::hold_poses`): a derezzed prop, a temporary
+    /// object or an avatar leaving does not spoil the shot being lined up.
+    /// What the user does goes at once: what our avatar wears (an
+    /// attachment taken off) and the objects we own (deleted or taken).
+    /// The Legacy Viewer's FreezeTime still removes them: a visible
+    /// difference asked for by the testers. Returns the kills to apply now.
+    fn hold_kills(&mut self, handle: RegionHandle, local_ids: Vec<u32>) -> Vec<u32> {
+        if !self.objects.holds_poses() {
+            return local_ids;
+        }
+        let own = self.objects.index_of_uuid(&self.agent_id);
+        let mut now = Vec::new();
+        for id in local_ids {
+            let key = ObjKey {
+                region: handle,
+                local_id: id,
+            };
+            let held = self.objects.index_of(&key).and_then(|idx| {
+                let o = self.objects.get(idx)?;
+                // (UpdateFlags tells it in every update; the owner only
+                // comes with a sound or particles)
+                let ours = o.update_flags & crate::ui::context::flags::OBJECT_YOU_OWNER != 0
+                    || o.owner_id == self.agent_id
+                    || own.is_some_and(|own| self.hangs_from(idx, own));
+                (!ours).then_some(o.full_id)
+            });
+            match held {
+                Some(full_id) => self.held_kills.push((key, full_id)),
+                None => now.push(id),
+            }
+        }
+        now
+    }
+
+    /// `idx` is `ancestor` or hangs from it (a prim of what an avatar wears).
+    fn hangs_from(&self, mut idx: usize, ancestor: usize) -> bool {
+        for _ in 0..64 {
+            if idx == ancestor {
+                return true;
+            }
+            match self.objects.get(idx).and_then(|o| self.objects.parent_of(o)) {
+                Some(p) => idx = p,
+                None => return false,
+            }
+        }
+        false
+    }
+
     /// Freeze the world at `at` for a photo, or thaw it (issue #1154,
     /// LLFloater360Capture::freezeWorld, indra/newview/llfloater360capture.cpp,
     /// originally LGPL 2.1): the objects and the avatars that move keep their
@@ -1318,6 +1426,22 @@ impl World {
     pub fn freeze_motion(&mut self, at: Option<Instant>) {
         let Some(at) = at else {
             self.objects.release_poses();
+            // what left meanwhile goes now, unless its key went to another
+            // object since (a new rez, or the same avatar back at another key)
+            let kills = std::mem::take(&mut self.held_kills);
+            if !kills.is_empty() {
+                log::info!("world thawed: {} objects killed meanwhile removed", kills.len());
+            }
+            for (key, id) in kills {
+                if self
+                    .objects
+                    .index_of(&key)
+                    .and_then(|i| self.objects.get(i))
+                    .is_some_and(|o| o.full_id == id)
+                {
+                    self.kill_objects(key.region, &[key.local_id]);
+                }
+            }
             return;
         };
         let own = self
@@ -1607,6 +1731,34 @@ impl World {
         aurora_net::NetCommand::UpdateProfile { target, data }
     }
 
+    /// Save a group's identity (the group window): our copy follows before
+    /// the command is sent, as LLPanelGroupGeneral::apply changes
+    /// LLGroupMgr's data before sendUpdateGroupInfo, which expects no reply.
+    pub fn save_group_info(&mut self, group: Uuid, info: aurora_net::groups::GroupInfo) {
+        if let Some(g) = self.search.groups.get_mut(&group) {
+            g.charter.clone_from(&info.charter);
+            g.show_in_list = info.show_in_list;
+            g.insignia = info.insignia;
+            g.membership_fee = info.membership_fee;
+            g.open_enrollment = info.open_enrollment;
+            g.allow_publish = info.allow_publish;
+            g.mature_publish = info.mature_publish;
+        }
+        self.follow_group_insignia(group, info.insignia);
+        self.group_data.update_info(group, info);
+    }
+
+    /// A group's insignia, known from its profile or saved by us: our
+    /// membership (conversations, group lists) and the profiles' group
+    /// lists show it, not the one of the login's AgentGroupDataUpdate (the
+    /// Legacy Viewer's group icons read LLGroupMgr's latest data).
+    fn follow_group_insignia(&mut self, group: Uuid, insignia: Uuid) {
+        if let Some(g) = self.groups.groups.iter_mut().find(|g| g.id == group) {
+            g.insignia = insignia;
+        }
+        self.profiles.group_insignia(group, insignia);
+    }
+
     pub fn system_message(&mut self, text: impl Into<String>) {
         self.system_notice(text, notice_topics::Topic::Info);
     }
@@ -1823,7 +1975,10 @@ impl World {
     /// purpose (a detach sent by the resident, a script or RLVa).
     pub fn note_outfit_command(&mut self, command: &aurora_net::NetCommand) {
         match command {
-            aurora_net::NetCommand::DetachAttachments(items) => self.outfit.on_detach_requested(items),
+            aurora_net::NetCommand::DetachAttachments(items) => {
+                self.outfit.on_detach_requested(items);
+                self.attachment_inventory.detaching(items);
+            }
             aurora_net::NetCommand::DetachObject { handle, local_id } => {
                 if let Some(item) = self
                     .objects
@@ -1835,6 +1990,7 @@ impl World {
                     .and_then(|o| o.attachment_item_id())
                 {
                     self.outfit.on_detach_requested(&[item]);
+                    self.attachment_inventory.detaching(&[item]);
                 }
             }
             _ => {}
@@ -1979,6 +2135,7 @@ impl World {
                 self.aliases_synced = u64::MAX;
                 self.sync_contact_aliases();
                 self.inventory = inventory::Inventory::from_login(&l.raw);
+                self.inventory.owner = self.agent_id;
                 self.inventory_background = Default::default();
                 // read off the main thread; until `poll_inventory_cache`
                 // applies it, folder requests wait (the root's included)
@@ -1996,6 +2153,14 @@ impl World {
                 if self.set_main_region(handle) {
                     // no agent update before the new region completes the move
                     self.movement_complete = false;
+                    // LLViewerParcelMgr::onTeleportFinished: the new region's
+                    // parcel is awaited; the one left must not lend its rules
+                    // (flight, build, the bar's icons) in the meantime. The
+                    // session sends it after this event, never before.
+                    if self.parcel.take().is_some() {
+                        log::info!("agent parcel: cleared, region {handle:x} entered");
+                    }
+                    self.parcel_name.clear();
                 }
                 // back in a region left moments ago: its objects first, its
                 // simulator only sends what changed since
@@ -2289,47 +2454,8 @@ impl World {
                 None
             }
             NetEvent::ObjectsKilled { handle, local_ids } => {
-                let land_watches = self.land.watches(handle);
-                let mut land_changed = false;
-                for id in local_ids {
-                    let key = ObjKey {
-                        region: handle,
-                        local_id: id,
-                    };
-                    if self.kill_is_ignored(&key) {
-                        continue;
-                    }
-                    self.derender.forget_key(&key);
-                    land_changed |= land_watches
-                        && self
-                            .objects
-                            .index_of(&key)
-                            .and_then(|i| self.objects.get(i))
-                            .is_some_and(|o| !o.is_avatar());
-                    if let Some(i) = self.objects.index_of(&key) {
-                        self.unregister_attachment(i);
-                        // (who sits on it stays, with what it wears: the
-                        // simulator does not send them again)
-                        self.get_off_linkset(i);
-                        let subtree = self.objects.subtree(i);
-                        for &child in &subtree {
-                            if let Some(source) = self.objects.get(child).map(|o| o.full_id) {
-                                self.scripted_camera.clear(source);
-                                self.stop_motion_from_source(source);
-                            }
-                        }
-                        // (an avatar leaving, an object deleted or taken, a
-                        // worn item taken off)
-                        self.objects.killed.push(subtree);
-                    }
-                    self.objects.remove(&key);
-                    // a cache hit replays the cached ones, a full update comes with them
-                    self.gltf_overrides.remove(&key);
-                }
-                self.forget_gone_look_ats();
-                if land_changed {
-                    self.land.objects_changed(handle, Instant::now());
-                }
+                let local_ids = self.hold_kills(handle, local_ids);
+                self.kill_objects(handle, &local_ids);
                 None
             }
             NetEvent::GltfOverrides { handle, local_id, sides } => {
@@ -3075,6 +3201,20 @@ impl World {
                 None
             }
             NetEvent::AgentParcel(info) => {
+                // one line per parcel entered, or when its flight rule changes
+                let fly = info.flags & aurora_net::parcel_flags::ALLOW_FLY != 0;
+                if self
+                    .parcel
+                    .as_ref()
+                    .is_none_or(|p| p.local_id != info.local_id || (p.flags & aurora_net::parcel_flags::ALLOW_FLY != 0) != fly)
+                {
+                    log::info!(
+                        "agent parcel: local id {} in region {:x}, flight {}",
+                        info.local_id,
+                        self.main_region.unwrap_or(0),
+                        if fly { "allowed" } else { "forbidden" }
+                    );
+                }
                 self.parcel_name = info.name.clone();
                 if !info.is_group_owned {
                     self.social.want_name(info.owner_id);
@@ -3234,6 +3374,7 @@ impl World {
                 Some(ev)
             }
             NetEvent::GroupProfile(g) => {
+                self.follow_group_insignia(g.id, g.insignia);
                 self.search.groups.insert(g.id, *g);
                 self.search.refresh_group_counts(&self.group_data);
                 self.refresh_task_inventory_offers();
@@ -3313,6 +3454,29 @@ impl World {
                 self.inventory.add_items(items);
                 None
             }
+            NetEvent::AttachmentInventoryItems(items) => {
+                self.inventory.add_attachment_items(items);
+                None
+            }
+            NetEvent::InventoryOrphansFetched { request, owner, result } => {
+                if owner == self.agent_id && self.inventory_background.on_orphans_reply(request, result.is_ok()) {
+                    match result {
+                        Ok(contents) => {
+                            self.inventory.server_updated(contents.folders, Vec::new());
+                            self.inventory.repair_lost_folders();
+                            let (attachments, orphans): (Vec<_>, Vec<_>) = contents.items.into_iter().partition(|item| {
+                                self.worn_attachment(&item.id).and_then(|i| self.objects.get(i)).is_some_and(|o| {
+                                    o.attachment_point() != 0 && !temp_attachments::is_temp_attachment(o.full_id, Some(item.id))
+                                })
+                            });
+                            self.inventory.add_attachment_items(attachments);
+                            self.inventory.add_orphan_items(orphans);
+                        }
+                        Err(reason) => log::warn!("lost inventory recovery failed: {reason}"),
+                    }
+                }
+                None
+            }
             NetEvent::AttachmentAssetSaved(item) => {
                 if self.rlva.enabled() {
                     self.rlva.watchdog.saved(item, Instant::now());
@@ -3346,6 +3510,12 @@ impl World {
             }
             NetEvent::InventoryItemsFailed { items } => {
                 log::warn!("{} inventory items could not be fetched", items.len());
+                self.inventory.items_failed(&items);
+                None
+            }
+            NetEvent::InventoryItemsMissing { items } => {
+                log::warn!("{} inventory items do not exist (broken links)", items.len());
+                self.inventory.items_missing(items);
                 None
             }
             NetEvent::AppearanceRequestResult {
@@ -3597,6 +3767,14 @@ impl World {
     }
 
     fn on_im(&mut self, mut im: InstantMessage) {
+        // a message to the whole region, before the rules of conversations
+        // (region_messages.rs)
+        if region_messages::is_region_message(&im) {
+            if !self.anti_spam_im(&im) {
+                self.on_region_message(&im);
+            }
+            return;
+        }
         if self.im_blocked(&im) {
             return;
         }
@@ -3753,9 +3931,12 @@ impl World {
                     },
                 );
             }
-            d::TASK_INVENTORY_OFFERED => self.on_task_inventory_offer(im, &from),
+            d::TASK_INVENTORY_OFFERED => {
+                if self.on_task_inventory_offer(im, &from) {
+                    return true;
+                }
+            }
             d::INVENTORY_OFFERED => {
-                self.ui_sounds.push(UiSound::InventoryOffer);
                 let asset_type = im.binary_bucket.first().map(|b| *b as i8).unwrap_or(-1);
                 // A resident's offer is in our inventory before we answer:
                 // prefetch it (inventory_offer_handler, llimprocessing.cpp),
@@ -3790,10 +3971,12 @@ impl World {
                         task_offer: None,
                     },
                 );
-                self.on_inventory_offer_card(im, &from, asset_type, entry);
-                if !self.rlva_inventory_offer(im, entry) {
-                    self.received_items.offer(im, entry);
+                n.link_name(entry, from.clone(), notifications::NameTarget::Avatar(im.from_agent_id));
+                if self.receive_inventory_offer(im, entry) {
+                    return true;
                 }
+                self.ui_sounds.push(UiSound::InventoryOffer);
+                self.on_inventory_offer_card(im, &from, asset_type, entry);
             }
             // FSShowJoinedGroupInvitations (FIRE-20385): an invitation to a
             // group we are already in is dropped unless asked for
@@ -3815,12 +3998,7 @@ impl World {
             }
             d::GROUP_NOTICE => {
                 self.ui_sounds.push(UiSound::GroupNotice);
-                // "subject|message"
-                let (subject, body) = im
-                    .message
-                    .split_once('|')
-                    .unwrap_or((aurora_i18n::tr!("common-group-notice"), im.message.as_str()));
-                n.push(Kind::Group, format!("{from} : {subject}"), body.to_owned(), Data::None);
+                self.push_group_notice(im, &from);
             }
             d::FRIENDSHIP_ACCEPTED => {
                 self.social.form_friendship(im.from_agent_id);
@@ -3897,6 +4075,58 @@ impl World {
         };
         self.ask_attention(attention::Cause::Message, notice);
         true
+    }
+
+    /// A group notice received (IM_GROUP_NOTICE, process_improved_im in
+    /// indra/newview/llimprocessing.cpp and LLToastGroupNotifyPanel,
+    /// originally LGPL 2.1): titled by its group and subject, its sender
+    /// first in the text ("Sent by"), the group's insignia beside it and its
+    /// attachment offered on the card. A notice whose bucket cannot be read
+    /// still shows, titled by its sender as before.
+    fn push_group_notice(&mut self, im: &InstantMessage, from: &str) {
+        use notifications::{Data, Kind, NameTarget, NoticeAttachment};
+        // "subject|message"
+        let (subject, body) = im
+            .message
+            .split_once('|')
+            .unwrap_or((aurora_i18n::tr!("common-group-notice"), im.message.as_str()));
+        let bucket = aurora_net::groups::notice_bucket(&im.binary_bucket);
+        if bucket.is_none() {
+            log::warn!("group notice: malformed binary bucket");
+        }
+        let group = bucket.as_ref().map(|b| b.group).filter(|g| !g.is_nil());
+        let group_name = group.and_then(|g| {
+            self.groups
+                .group(&g)
+                .map(|m| m.name.clone())
+                .or_else(|| self.search.groups.get(&g).map(|s| s.name.clone()))
+                .filter(|name| !name.is_empty())
+        });
+        let title = format!("{} : {subject}", group_name.as_deref().unwrap_or(from));
+        let sent_by = aurora_i18n::tr!("world-mod-group-notice-sent-by", sender = from.to_string());
+        let text = if body.is_empty() { sent_by } else { format!("{sent_by}\n{body}") };
+        let data = match (group, &bucket) {
+            (Some(group), Some(b)) => Data::GroupNotice {
+                group,
+                attachment: b.has_inventory.then(|| NoticeAttachment {
+                    from: im.from_agent_id,
+                    tx: im.session_id,
+                    name: b.item_name.clone(),
+                    asset_type: b.asset_type,
+                    saved: false,
+                }),
+            },
+            _ => Data::None,
+        };
+        let id = self.notifications.push(Kind::Group, title, text, data);
+        if let (Some(group), Some(name)) = (group, group_name) {
+            self.notifications.link_name(id, name, NameTarget::Group(group));
+        }
+        // the sender, unless the notice came under the group's own id
+        if Some(im.from_agent_id) != group {
+            self.notifications
+                .link_name(id, im.from_name.clone(), NameTarget::Avatar(im.from_agent_id));
+        }
     }
 
     /// "Save to inventory" of a notice's attachment: into the system folder
@@ -4140,10 +4370,14 @@ impl World {
             _ => None,
         };
         // ShowInInventory: what a kept offer gives is shown in the inventory
-        let kept = match self.notifications.list.iter().find(|n| n.id == id).map(|n| &n.data) {
-            Some(notifications::Data::Inventory { object, task, .. }) if matches!(r, notifications::Response::Accept) => {
-                Some((*object, *task))
-            }
+        let kept = match self.notifications.list.iter().find(|n| n.id == id) {
+            Some(notifications::Notification {
+                data: notifications::Data::Inventory { object, task, .. },
+                ..
+            }) if matches!(r, notifications::Response::Accept) => Some((*object, *task)),
+            // a notice's attachment: what the server adds next
+            // (LLOpenTaskGroupOffer)
+            Some(n) if matches!(r, notifications::Response::Accept) && n.offered_attachment().is_some() => Some((Uuid::nil(), true)),
             _ => None,
         };
         // a resident's offer: its card in the conversation takes the answer
@@ -4231,6 +4465,9 @@ impl World {
         // LGPL 2.1): temporary attachments have no inventory item, but their
         // root and linked scripts still own motions that must be stopped.
         self.stop_linkset_motions(idx);
+        if let Some(item) = item {
+            self.attachment_inventory.detached(item);
+        }
         if let Some(item) = item
             && self.outfit.keeps_cof_link(item)
         {
@@ -5151,6 +5388,54 @@ mod motion_tests {
             object,
             properties: vec![(12, 1.0), (21, f32::from(u8::from(locked)))],
         });
+    }
+
+    #[test]
+    fn the_frozen_world_keeps_what_others_derez_until_the_thaw() {
+        let (mut world, me, handle) = fixture();
+        let mut prop = me.clone();
+        prop.full_id = Uuid::from_u128(970);
+        prop.local_id = 970;
+        prop.parent_id = 0;
+        prop.owner_id = Uuid::from_u128(971);
+        prop.update_flags = 0;
+        prop.pcode = aurora_prim::params::LL_PCODE_VOLUME;
+        let mut reused = prop.clone();
+        reused.full_id = Uuid::from_u128(972);
+        reused.local_id = 972;
+        let mut mine = prop.clone();
+        mine.full_id = Uuid::from_u128(973);
+        mine.local_id = 973;
+        mine.update_flags = crate::ui::context::flags::OBJECT_YOU_OWNER;
+        let mut worn = prop.clone();
+        worn.full_id = Uuid::from_u128(974);
+        worn.local_id = 974;
+        worn.parent_id = me.local_id;
+        world.apply(NetEvent::ObjectUpdates {
+            handle,
+            objects: vec![me.clone(), prop.clone(), reused.clone(), mine.clone(), worn.clone()],
+        });
+        let present = |world: &World, id: u128| world.objects.index_of_uuid(&Uuid::from_u128(id)).is_some();
+        world.freeze_motion(Some(Instant::now()));
+        world.apply(NetEvent::ObjectsKilled {
+            handle,
+            local_ids: vec![970, 972, 973, 974],
+        });
+        // what the user does goes at once, the rest is held
+        assert!(present(&world, 970) && present(&world, 972));
+        assert!(!present(&world, 973) && !present(&world, 974));
+        assert!(world.objects.killed.iter().flatten().count() >= 2);
+        // a new object at a held key is not the one that left
+        let mut newcomer = reused.clone();
+        newcomer.full_id = Uuid::from_u128(975);
+        world.apply(NetEvent::ObjectUpdates {
+            handle,
+            objects: vec![newcomer],
+        });
+        world.freeze_motion(None);
+        assert!(!present(&world, 970));
+        assert!(present(&world, 975));
+        assert!(world.held_kills.is_empty());
     }
 
     #[test]
@@ -7608,5 +7893,90 @@ mod motion_tests {
         );
         assert_eq!(world.agent.wanted_lead(), Vec3::ZERO);
         assert_eq!(world.agent.predicted_position(), stood);
+    }
+}
+
+#[cfg(test)]
+mod group_insignia_tests {
+    use super::*;
+
+    fn membership(id: Uuid, insignia: Uuid) -> aurora_net::GroupMembership {
+        aurora_net::GroupMembership {
+            id,
+            name: "Group".into(),
+            insignia,
+            powers: 0,
+            accept_notices: true,
+            list_in_profile: true,
+            contribution: 0,
+        }
+    }
+
+    /// A new insignia saved from the group window shows at once in our
+    /// group lists, conversations and profile, not after a relog.
+    #[test]
+    fn a_saved_insignia_is_shown_at_once() {
+        let mut world = World::new(Arc::new(AvatarLibrary::load()));
+        let (group, old, new) = (Uuid::from_u128(1), Uuid::from_u128(2), Uuid::from_u128(3));
+        world.agent_id = Uuid::from_u128(9);
+        world.groups.groups.push(membership(group, old));
+        world.profiles.insert(aurora_net::AvatarProfile {
+            id: world.agent_id,
+            groups: vec![aurora_net::profile::ProfileGroup {
+                id: group,
+                name: "Group".into(),
+                insignia: old,
+            }],
+            ..Default::default()
+        });
+        world.apply(NetEvent::GroupProfile(Box::new(aurora_net::search::GroupProfile {
+            id: group,
+            insignia: old,
+            charter: "Old".into(),
+            ..Default::default()
+        })));
+        world.save_group_info(
+            group,
+            aurora_net::groups::GroupInfo {
+                charter: "New".into(),
+                insignia: new,
+                ..Default::default()
+            },
+        );
+        assert_eq!(world.groups.group(&group).map(|g| g.insignia), Some(new));
+        assert_eq!(
+            world.search.groups.get(&group).map(|g| (g.insignia, g.charter.as_str())),
+            Some((new, "New"))
+        );
+        assert_eq!(world.profiles.get(&world.agent_id).map(|p| p.groups[0].insignia), Some(new));
+        assert!(
+            world
+                .group_data
+                .out
+                .iter()
+                .any(|c| matches!(c, aurora_net::NetCommand::UpdateGroupInfo { group: g, info } if *g == group && info.insignia == new))
+        );
+    }
+
+    /// Changed by another officer: the group's profile, read again, brings
+    /// it to our membership.
+    #[test]
+    fn a_group_profile_reply_brings_the_new_insignia() {
+        let mut world = World::new(Arc::new(AvatarLibrary::load()));
+        let (group, old, new) = (Uuid::from_u128(1), Uuid::from_u128(2), Uuid::from_u128(3));
+        world.groups.groups.push(membership(group, old));
+        world.apply(NetEvent::GroupProfile(Box::new(aurora_net::search::GroupProfile {
+            id: group,
+            insignia: new,
+            ..Default::default()
+        })));
+        assert_eq!(world.groups.group(&group).map(|g| g.insignia), Some(new));
+        // removed: the group glyph
+        world.apply(NetEvent::GroupProfile(Box::new(aurora_net::search::GroupProfile {
+            id: group,
+            insignia: Uuid::nil(),
+            ..Default::default()
+        })));
+        assert_eq!(world.groups.group(&group).map(|g| g.insignia), Some(Uuid::nil()));
     }
 }
