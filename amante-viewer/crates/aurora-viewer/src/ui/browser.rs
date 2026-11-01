@@ -3,7 +3,7 @@
 //! pages such as Search and Marketplace.
 
 use super::web_view::WebView;
-use super::widgets::Floater;
+use super::widgets::{self, Floater};
 use aurora_media::{BrowserSettings, MediaPlugin, PluginPaths};
 use egui::Vec2;
 
@@ -88,7 +88,7 @@ impl BrowserUi {
             if let Some(error) = &self.address_error {
                 ui.colored_label(p.danger, error);
             }
-            ui.separator();
+            widgets::divider(ui, p);
 
             if self.web.loading {
                 ui.label("Loading page…");
