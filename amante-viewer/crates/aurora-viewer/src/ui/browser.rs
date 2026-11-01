@@ -66,7 +66,7 @@ impl BrowserUi {
                 }
                 let address = ui.add(
                     egui::TextEdit::singleline(&mut self.address)
-                        .id(egui::Id::new("browser_address"))
+                        .id(egui::Id::unique("browser_address"))
                         .hint_text("Enter a website address (https:// or http://)")
                         .desired_width(f32::INFINITY),
                 );
