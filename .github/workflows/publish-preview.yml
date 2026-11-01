@@ -56,16 +56,24 @@ jobs:
 
           version="${package_name#Amante-Viewer-v}"
           version="${version%-windows-x64.zip}"
-          public_name="Amante-Viewer-preview-$short_commit-windows-x64.zip"
+          release_version="${version%%+*}"
+          [[ "$release_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          compatibility_name="Amante-Viewer-v$release_version-windows-x64.zip"
+          public_name="Amante-Viewer-Alpha-windows-x64.zip"
+          if [[ "$package_name" != "$compatibility_name" ]]; then
+            cp "package/$package_name" "package/$compatibility_name"
+          fi
           cp "package/$package_name" "package/$public_name"
           (
             cd package
+            sha256sum "$compatibility_name" > "$compatibility_name.sha256"
             sha256sum "$public_name" > "$public_name.sha256"
           )
           {
             echo "COMMIT=$commit" >> "$GITHUB_ENV"
-            echo "VERSION=$version" >> "$GITHUB_ENV"
-            echo "RELEASE_TAG=preview-v$version" >> "$GITHUB_ENV"
+            echo "VERSION=$release_version" >> "$GITHUB_ENV"
+            echo "RELEASE_TAG=v$release_version" >> "$GITHUB_ENV"
+            echo "COMPATIBILITY_NAME=$compatibility_name" >> "$GITHUB_ENV"
             echo "PUBLIC_NAME=$public_name" >> "$GITHUB_ENV"
           }
 
@@ -75,14 +83,14 @@ jobs:
           set -euo pipefail
           repo="$GITHUB_REPOSITORY"
           gh release create "$RELEASE_TAG" \
+            "package/$COMPATIBILITY_NAME" \
+            "package/$COMPATIBILITY_NAME.sha256" \
             "package/$PUBLIC_NAME" \
             "package/$PUBLIC_NAME.sha256" \
             --repo "$repo" \
             --target "$COMMIT" \
-            --title "Amante Viewer v$VERSION — Preview" \
-            --notes "Windows x64 preview built from commit $COMMIT. The public download does not require a GitHub sign-in. Verify the accompanying SHA-256 checksum before installing." \
-            --prerelease \
-            --latest=false
+            --title "Amante Viewer Alpha" \
+            --notes "Alpha family test build v$VERSION, built from commit $COMMIT. This is early preview software, not a final release. The login-screen updater only announces available releases; it does not automatically install or replace files. The public Windows x64 download does not require a GitHub sign-in. Verify the accompanying SHA-256 checksum before installing."
 
           release_url="https://github.com/$repo/releases/tag/$RELEASE_TAG"
           echo "Published $release_url" >> "$GITHUB_STEP_SUMMARY"

@@ -717,6 +717,8 @@ pub struct App {
     places_ui: ui::places::PlacesUi,
     /// "Search".
     search_ui: ui::search::SearchUi,
+    /// Standalone, private in-world Chromium browser.
+    browser_ui: ui::browser::BrowserUi,
     /// AURORA_DEMO_PLACE=repere|historique, opened once logged in.
     demo_place: Option<crate::world::place_details::Source>,
     /// AURORA_DEMO_STREAM: objects and textures arriving in waves.
@@ -1416,6 +1418,7 @@ impl App {
             place_ui: Default::default(),
             places_ui: Default::default(),
             search_ui: Default::default(),
+            browser_ui: Default::default(),
             place_images: Default::default(),
             demo_place: None,
             stream_demo: None,
@@ -2585,6 +2588,7 @@ impl App {
         // the search window's browser and its page, opened with the session
         // that ends here
         self.search_ui = Default::default();
+        self.browser_ui = Default::default();
         self.panels.search = false;
         self.save_local_environment();
         self.env_ui = Default::default();
@@ -6694,6 +6698,7 @@ impl App {
         let web_or_popup = self.media.focus.is_some()
             || self.profile_ui.focused_web().is_some()
             || self.search_ui.focused_web().is_some()
+            || self.browser_ui.focused_web().is_some()
             || egui::Popup::is_any_open(&self.egui_ctx);
         let typing = typing || web_or_popup;
         let (kb, m) = (&self.settings.keybinds, self.mods());
@@ -11914,6 +11919,11 @@ impl App {
             BarAction::BlenderLive => {
                 ui::widgets::open_floater(&self.egui_ctx, "blender_live", &mut self.blender_live.open);
             }
+            BarAction::ToggleFriendsOnly => {
+                self.settings.complexity_mode = if self.settings.complexity_mode == 2 { 0 } else { 2 };
+                self.settings.save();
+            }
+            BarAction::WebBrowser => self.browser_ui.toggle(),
             BarAction::EditParticles => self.open_particle_editor(),
             BarAction::ShowHuds(visible) => self.set_show_huds(visible),
             BarAction::HudZoom(zoom) => self.world.hud_zoom = zoom.clamp(0.1, 1.0),
@@ -13785,6 +13795,8 @@ impl App {
                 // (LLFloaterGridStatus::checkGridStatusRSS, hasCommand)
                 self.grid_status_listed = toolbar_settings.location("gridstatus", bar_layout).is_some();
                 self.toolbar_ui.islands = !classic_bars;
+                self.toolbar_ui.friends_only_active = self.settings.complexity_mode == 2;
+                self.toolbar_ui.webbrowser_active = self.browser_ui.open;
                 self.chat_ui.keep_focus = self.settings.chat_keep_focus;
                 if chrome.top {
                     let top_row = ui::bars::Row {
@@ -14063,7 +14075,11 @@ impl App {
                     };
                     // Focused web/media pages already received the native
                     // keys; their history must not also change world objects.
-                    if self.media.focus.is_none() && self.profile_ui.focused_web().is_none() && self.search_ui.focused_web().is_none() {
+                    if self.media.focus.is_none()
+                        && self.profile_ui.focused_web().is_none()
+                        && self.search_ui.focused_web().is_none()
+                        && self.browser_ui.focused_web().is_none()
+                    {
                         contents_actions.extend(ui::object_actions::contents_shortcuts(
                             &ctx,
                             &self.interactions,
@@ -15445,6 +15461,7 @@ impl App {
                 let group_acts = self.group_profile_ui.show(&ctx, &mut c, &group_env);
                 self.panels.search = open;
                 self.apply_search_actions(&ctx, search_acts);
+                self.browser_ui.show(&ctx, &p, paths.as_ref(), &browser);
                 self.apply_group_actions(&ctx, group_acts);
                 let wanted = self.group_profile_ui.dialogs(&ctx, &p, &mut self.world, &self.ui_images);
                 self.place_images.extend(wanted);
@@ -18200,6 +18217,7 @@ impl ApplicationHandler for App {
             && !self.exit_prompt.open
             && self.profile_ui.focused_web().is_none()
             && self.search_ui.focused_web().is_none()
+            && self.browser_ui.focused_web().is_none()
             && self.media.focus.is_none();
         // the hidden cursor the camera holds is the tool's (cursor_hold.rs):
         // it never hovers, clicks or scrolls the windows (#1343)
@@ -18420,6 +18438,7 @@ impl ApplicationHandler for App {
                         && !mods.alt
                         && self.profile_ui.focused_web().is_none()
                         && self.search_ui.focused_web().is_none()
+                        && self.browser_ui.focused_web().is_none()
                         && self.media.focus.is_none()
                         && let Some(key) = gesture_key
                         && let Some(id) = self
@@ -18433,7 +18452,10 @@ impl ApplicationHandler for App {
                     // a profile's web page that was clicked gets the keyboard
                     let web = match self.profile_ui.focused_web() {
                         Some(p) => Some(p),
-                        None => self.search_ui.focused_web(),
+                        None => match self.search_ui.focused_web() {
+                            Some(p) => Some(p),
+                            None => self.browser_ui.focused_web(),
+                        },
                     };
                     let web_focused = web.is_some();
                     if !typing && let Some(p) = web {

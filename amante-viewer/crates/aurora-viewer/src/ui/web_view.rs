@@ -84,6 +84,7 @@ impl WebView {
         if self.url != url {
             self.url = url.to_owned();
             self.nav_pending = true;
+            self.failed = None;
         }
     }
 
@@ -128,7 +129,15 @@ impl WebView {
     /// were followed inside the page).
     pub fn navigate_again(&mut self, url: &str) {
         self.url = url.to_owned();
+        self.location = url.to_owned();
         self.nav_pending = true;
+        self.failed = None;
+    }
+
+    /// Retry a page after the media plugin pack is installed or repaired.
+    pub fn retry(&mut self) {
+        self.failed = None;
+        self.nav_pending = !self.url.is_empty();
     }
 
     /// Draw the page in `size` points (starting the browser if needed).

@@ -14,6 +14,7 @@ pub mod bars;
 pub mod beacons;
 pub mod bidi;
 pub mod blacklist;
+pub mod browser;
 pub mod bug_report;
 pub mod bumps;
 pub mod buy_currency;

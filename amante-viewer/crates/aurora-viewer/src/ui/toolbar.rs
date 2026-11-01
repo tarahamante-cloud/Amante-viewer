@@ -218,6 +218,10 @@ pub struct ToolbarUi {
     pub movelock_active: bool,
     pub movement_active: bool,
     pub water_walk_active: bool,
+    /// Whether avatar visibility is restricted to friends.
+    pub friends_only_active: bool,
+    /// Whether the private in-world browser is open.
+    pub webbrowser_active: bool,
     pub movelock_status: String,
     /// The violet of the Grid status button's flash (0: none), given by
     /// the app on a new entry of the grid's status feed.

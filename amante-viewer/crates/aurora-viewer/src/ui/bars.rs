@@ -47,6 +47,10 @@ pub enum BarAction {
     ImportStreamList,
     ExportStreamList,
     BlenderLive,
+    /// Toggle graphics visibility to friends only.
+    ToggleFriendsOnly,
+    /// Open or close the embedded Chromium browser.
+    WebBrowser,
     ShowHuds(bool),
     HudZoom(f32),
     #[default]
@@ -2105,6 +2109,8 @@ pub fn run_command(ctx: &egui::Context, cmd: &str, panels: &mut Panels) -> BarAc
         "worldmap" => toggle("worldmap", &mut panels.world_map),
         "places" => toggle("places", &mut panels.places),
         "search" => toggle(super::search::WINDOW, &mut panels.search),
+        "RFO" => return BarAction::ToggleFriendsOnly,
+        "webbrowser" => return BarAction::WebBrowser,
         "areasearch" => toggle(super::area_search::WINDOW, &mut panels.area_search),
         "soundexplorer" => toggle(super::sound_explorer::WINDOW, &mut panels.sound_explorer),
         "assetblacklist" => toggle(super::blacklist::WINDOW, &mut panels.asset_blacklist),
@@ -2877,6 +2883,10 @@ pub(crate) fn toolbar_row(
             toolbar.movement_active
         } else if b.command == "water_walk" {
             toolbar.water_walk_active
+        } else if b.command == "RFO" {
+            toolbar.friends_only_active
+        } else if b.command == "webbrowser" {
+            toolbar.webbrowser_active
         } else {
             command_active(&b.command, panels, row.flying, row.seated, row.mouselook)
         };

@@ -42,7 +42,11 @@ public_setting!(RELEASE_PAGE, "AMANTE_RELEASE_PAGE");
 public_setting!(RELEASE_DOWNLOADS, "AMANTE_RELEASE_DOWNLOADS");
 // Separate from executable updates. The pack is pinned by size and SHA-256 in
 // aurora-updater; publishing a viewer feed must not implicitly enable plugins.
-public_setting!(MEDIA_RELEASE_DOWNLOADS, "AMANTE_MEDIA_RELEASE_DOWNLOADS");
+public_setting!(
+    MEDIA_RELEASE_DOWNLOADS,
+    "AMANTE_MEDIA_RELEASE_DOWNLOADS",
+    "https://github.com/tarahamante-cloud/Amante-viewer-native/releases/download"
+);
 
 /// Intentionally false until the owner pins usable PUBLIC keys in the updater's
 /// compiled trust-root.json and reviews signing custody and release activation.
@@ -132,6 +136,8 @@ mod tests {
     #[test]
     fn amante_security_media_requires_an_independent_owner_destination() {
         assert!(media_destination("https://github.com/example/amante-media/releases/download"));
+        assert!(media_distribution_configured());
+        assert!(MEDIA_RELEASE_DOWNLOADS.starts_with("https://github.com/tarahamante-cloud/Amante-viewer-native/releases/download"));
         for url in [
             "",
             "https://github.com/Aurora-Viewer/Aurora-Viewer/releases/download",
