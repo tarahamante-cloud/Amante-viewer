@@ -2,7 +2,7 @@
 //! window title ("Amante Viewer <version> (Dev)"): cargo only exposes `debug` /
 //! `release` (PROFILE), while the profile's target directory names the
 //! custom ones (`debugging`, `ci`). On Windows it also embeds the resources
-//! of aurora-viewer.exe: its icon and its version block.
+//! of amante-viewer.exe: its icon and its version block.
 
 use std::path::Path;
 
@@ -97,6 +97,6 @@ fn windows_resources() {
         .set_version_info(winresource::VersionInfo::FILEVERSION, packed);
     // the viewer only: the test binaries of this crate need no resources
     if let Err(error) = res.compile_for("aurora-viewer") {
-        panic!("Cannot embed the icon and version of aurora-viewer.exe (rc.exe of the Windows SDK): {error}");
+        panic!("Cannot embed the icon and version of amante-viewer.exe (rc.exe of the Windows SDK): {error}");
     }
 }

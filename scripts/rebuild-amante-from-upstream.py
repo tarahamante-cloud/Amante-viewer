@@ -81,7 +81,7 @@ for directory in ["crates/aurora-viewer", "crates/aurora-version", "crates/auror
         text = path.read_text()
         changed = text.replace("Aurora Viewer", "Amante Viewer").replace("AuroraViewer/", "AmanteViewer/")
         if path.name != "build_support.rs":
-            changed = changed.replace('"aurora-viewer.exe"', '"amante-viewer.exe"')
+            changed = changed.replace("aurora-viewer.exe", "amante-viewer.exe")
         if directory == "crates/aurora-updater":
             changed = changed.replace("Aurora-Viewer-", "Amante-Viewer-")
         if changed != text:

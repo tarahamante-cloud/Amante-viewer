@@ -44,7 +44,7 @@ pub const KNOWN: &[Hook] = &[
     Hook {
         file: "RTSSHooks64.dll",
         program: "RivaTuner Statistics Server (MSI Afterburner's on-screen display)",
-        advice: "if the image is lost, add aurora-viewer.exe to RivaTuner with Application detection level None",
+        advice: "if the image is lost, add amante-viewer.exe to RivaTuner with Application detection level None",
     },
     Hook {
         file: "graphics-hook64.dll",

@@ -683,8 +683,8 @@ mod tests {
     #[test]
     fn command_program() {
         assert_eq!(
-            super::win::command_exe(r#""C:\Viewers\Aurora\aurora-viewer.exe" -url "%1""#),
-            Some(std::path::PathBuf::from(r"C:\Viewers\Aurora\aurora-viewer.exe"))
+            super::win::command_exe(r#""C:\Viewers\Aurora\amante-viewer.exe" -url "%1""#),
+            Some(std::path::PathBuf::from(r"C:\Viewers\Aurora\amante-viewer.exe"))
         );
         assert_eq!(
             super::win::command_exe(r#"C:\Viewer\viewer.exe -url "%1""#),
