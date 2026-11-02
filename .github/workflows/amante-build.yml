@@ -36,10 +36,11 @@ jobs:
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev dbus gnome-keyring vulkan-tools unzip
-          # Pin the headless Vulkan test driver and verify the downloaded archive.
-          # SwiftShader passes the upstream terrain filtering reference test;
-          # this changes only the CI test adapter, never the viewer or renderer.
+          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev dbus gnome-keyring mesa-vulkan-drivers vulkan-tools unzip
+          # Use Mesa for the renderer suite; keep SwiftShader for its one
+          # precision-sensitive terrain reference test. No tests are omitted.
+          icd="$(find /usr/share/vulkan/icd.d -maxdepth 1 -name 'lvp_icd*.json' -print -quit)"
+          test -n "$icd"
           swiftshader="$RUNNER_TEMP/swiftshader"
           archive="$RUNNER_TEMP/swiftshader-ubuntu-24.04-x64.zip"
           mkdir -p "$swiftshader"
@@ -61,11 +62,15 @@ jobs:
           runtime="$RUNNER_TEMP/amante-xdg"
           mkdir -p "$runtime"
           chmod 700 "$runtime"
-          echo "VK_DRIVER_FILES=$swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
-          echo "VK_ICD_FILENAMES=$swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
-          echo "LD_LIBRARY_PATH=$swiftshader:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+          echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
+          echo "AMANTE_SWIFTSHADER_ICD=$swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
+          echo "AMANTE_SWIFTSHADER_LIBDIR=$swiftshader" >> "$GITHUB_ENV"
           echo "XDG_RUNTIME_DIR=$runtime" >> "$GITHUB_ENV"
-          VK_DRIVER_FILES="$swiftshader/vk_swiftshader_icd.json" VK_ICD_FILENAMES="$swiftshader/vk_swiftshader_icd.json" LD_LIBRARY_PATH="$swiftshader:$LD_LIBRARY_PATH" XDG_RUNTIME_DIR="$runtime" vulkaninfo --summary
+          VK_DRIVER_FILES="$icd" VK_ICD_FILENAMES="$icd" XDG_RUNTIME_DIR="$runtime" vulkaninfo --summary | tee "$RUNNER_TEMP/lavapipe-vulkaninfo.txt"
+          grep -qi llvmpipe "$RUNNER_TEMP/lavapipe-vulkaninfo.txt"
+          VK_DRIVER_FILES="$swiftshader/vk_swiftshader_icd.json" VK_ICD_FILENAMES="$swiftshader/vk_swiftshader_icd.json" LD_LIBRARY_PATH="$swiftshader${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" XDG_RUNTIME_DIR="$runtime" vulkaninfo --summary | tee "$RUNNER_TEMP/swiftshader-vulkaninfo.txt"
+          grep -qi swiftshader "$RUNNER_TEMP/swiftshader-vulkaninfo.txt"
           rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
           rustup override set 1.99.1
       - name: Formatting and upstream offline regression tests
@@ -77,7 +82,14 @@ jobs:
           cargo clippy --profile ci --workspace --all-targets --locked -- -D warnings -A dead_code
           # The complete viewer test executable exceeds small runners' memory.
           # Compile-check it above; retain/run network + updater fixtures here.
-          cargo test --profile ci --workspace --exclude aurora-viewer --locked
+          cargo test --profile ci --workspace --exclude aurora-viewer --exclude aurora-render --locked
+          # Lavapipe runs the complete renderer suite except the strict terrain
+          # interpolation reference, which is run with SwiftShader below.
+          cargo test --profile ci --locked -p aurora-render --lib -- --skip terrain_tests::pbr_terrain_samples_all_layers_maps_and_triplanar_normals_on_gpu
+          VK_DRIVER_FILES="$AMANTE_SWIFTSHADER_ICD" \
+            VK_ICD_FILENAMES="$AMANTE_SWIFTSHADER_ICD" \
+            LD_LIBRARY_PATH="$AMANTE_SWIFTSHADER_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+            cargo test --profile ci --locked -p aurora-render --lib -- --exact terrain_tests::pbr_terrain_samples_all_layers_maps_and_triplanar_normals_on_gpu
           cargo test --profile ci --locked -p aurora-i18n
           cargo test --profile ci --workspace --locked --test updates
           bash ../scripts/test-native-credentials.sh
