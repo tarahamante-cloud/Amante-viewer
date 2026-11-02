@@ -36,18 +36,36 @@ jobs:
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev dbus gnome-keyring mesa-vulkan-drivers vulkan-tools
-          # Headless GPU regression tests need full Vulkan depth-texture support.
-          # Do not silently fall back to the runner's limited OpenGL backend.
-          icd="$(find /usr/share/vulkan/icd.d -maxdepth 1 -name 'lvp_icd*.json' -print -quit)"
-          test -n "$icd"
+          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev dbus gnome-keyring vulkan-tools unzip
+          # Pin the headless Vulkan test driver and verify the downloaded archive.
+          # SwiftShader passes the upstream terrain filtering reference test;
+          # this changes only the CI test adapter, never the viewer or renderer.
+          swiftshader="$RUNNER_TEMP/swiftshader"
+          archive="$RUNNER_TEMP/swiftshader-ubuntu-24.04-x64.zip"
+          mkdir -p "$swiftshader"
+          curl --fail --location --silent --show-error \
+            https://github.com/NcStudios/VulkanCI/releases/download/v1.3/swiftshader-ubuntu-24.04-x64.zip \
+            --output "$archive"
+          echo "a04e4921802a004e6f2278d2df1fc894379b8ea7358c15e6d0bea5f79e51372d  $archive" | sha256sum --check
+          unzip -q "$archive" -d "$swiftshader"
+          test -f "$swiftshader/libvk_swiftshader.so"
+          cat > "$swiftshader/vk_swiftshader_icd.json" <<EOF
+          {
+            "file_format_version": "1.0.0",
+            "ICD": {
+              "library_path": "$swiftshader/libvk_swiftshader.so",
+              "api_version": "1.0.5"
+            }
+          }
+          EOF
           runtime="$RUNNER_TEMP/amante-xdg"
           mkdir -p "$runtime"
           chmod 700 "$runtime"
-          echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
-          echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
+          echo "VK_DRIVER_FILES=$swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$swiftshader:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
           echo "XDG_RUNTIME_DIR=$runtime" >> "$GITHUB_ENV"
-          VK_DRIVER_FILES="$icd" VK_ICD_FILENAMES="$icd" XDG_RUNTIME_DIR="$runtime" vulkaninfo --summary
+          VK_DRIVER_FILES="$swiftshader/vk_swiftshader_icd.json" VK_ICD_FILENAMES="$swiftshader/vk_swiftshader_icd.json" LD_LIBRARY_PATH="$swiftshader:$LD_LIBRARY_PATH" XDG_RUNTIME_DIR="$runtime" vulkaninfo --summary
           rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
           rustup override set 1.99.1
       - name: Formatting and upstream offline regression tests
