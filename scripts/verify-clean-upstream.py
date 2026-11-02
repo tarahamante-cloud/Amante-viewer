@@ -13,14 +13,30 @@ protected = [
     "crates/aurora-viewer/src/wearable_editor/",
 ]
 original = 0
+
+
+def matches(data, expected):
+    if hashlib.sha256(data).hexdigest() == expected:
+        return True
+    # Git's Windows checkout converts text to CRLF. Permit that conversion
+    # only, never arbitrary whitespace changes or binary normalization.
+    if b"\r\n" not in data or b"\0" in data:
+        return False
+    try:
+        data.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest() == expected
+
+
 for name, hashes in manifest["files"].items():
     data = (root / name).read_bytes()
-    assert hashlib.sha256(data).hexdigest() == hashes["amante"], f"Changed import: {name}"
+    assert matches(data, hashes["amante"]), f"Changed import: {name}"
     if name in ("Cargo.lock", "Cargo.toml") or any(name.startswith(p) for p in protected):
         assert hashes["amante"] == hashes["upstream"], f"Runtime differs from Aurora: {name}"
         original += 1
 for name, expected in manifest["added"].items():
-    assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, f"Changed branding asset: {name}"
+    assert matches((root / name).read_bytes(), expected), f"Changed branding asset: {name}"
 if "--require-tracked" in sys.argv:
     tracked = set(subprocess.check_output(["git", "-C", str(root), "ls-files", "-z", "."]).decode().split("\0"))
     expected = set(manifest["files"]) | set(manifest["added"]) | {"amante-upstream-manifest.json"}
