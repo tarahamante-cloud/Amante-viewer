@@ -197,8 +197,8 @@ fn serve(name: &str, ready: &crossbeam_channel::Sender<bool>, links: &crossbeam_
 mod bus {
     use super::{MAX_URL, Receiver};
     use crossbeam_channel::Sender;
-    use zbus::blocking::Connection;
     use zbus::fdo::{RequestNameFlags, RequestNameReply};
+    use zbus::{Connection, block_on};
 
     const PATH: &str = "/org/aurora_viewer/AuroraViewer";
     const INTERFACE: &str = "org.aurora_viewer.AuroraViewer";
@@ -258,7 +258,7 @@ mod bus {
     /// An owner that does not answer (stopped, frozen, shutting down) must
     /// not keep a launch waiting; the tests give a loaded CI runner longer.
     pub(super) fn hand_off_to(name: &str, url: &str, timeout: std::time::Duration) -> bool {
-        let bus = match zbus::blocking::connection::Builder::session().and_then(|b| b.method_timeout(timeout).build()) {
+        let bus = match block_on(zbus::connection::Builder::session().method_timeout(timeout).build()) {
             Ok(bus) => bus,
             Err(e) => {
                 eprintln!("startup links: no session bus ({e})");
@@ -266,7 +266,7 @@ mod bus {
             }
         };
         // no service file names it: without an owner the call fails at once
-        match bus.call_method(Some(name), PATH, Some(INTERFACE), "GoSLURL", &(url,)) {
+        match block_on(bus.call_method(Some(name), PATH, Some(INTERFACE), "GoSLURL", &(url,))) {
             Ok(_) => true,
             Err(zbus::Error::MethodError(error, ..)) if error.as_str() == "org.freedesktop.DBus.Error.ServiceUnknown" => false,
             Err(e) => {
@@ -285,18 +285,18 @@ mod bus {
 
     pub(super) fn listen_as(name: String) -> Option<Receiver<String>> {
         let (tx, rx) = crossbeam_channel::unbounded();
-        let bus = match Connection::session() {
+        let bus = match block_on(Connection::session()) {
             Ok(bus) => bus,
             Err(e) => {
                 log::warn!("startup links: no session bus ({e})");
                 return None;
             }
         };
-        if let Err(e) = bus.object_server().at(PATH, Links(tx)) {
+        if let Err(e) = block_on(bus.object_server().at(PATH, Links(tx))) {
             log::warn!("startup links: {e}");
             return None;
         }
-        match bus.request_name_with_flags(name.as_str(), RequestNameFlags::DoNotQueue.into()) {
+        match block_on(bus.request_name_with_flags(name.as_str(), RequestNameFlags::DO_NOT_QUEUE)) {
             Ok(RequestNameReply::PrimaryOwner | RequestNameReply::AlreadyOwner) => {
                 *OWNER.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some((bus, name));
                 Some(rx)
@@ -319,7 +319,7 @@ mod bus {
         let Some((bus, name)) = OWNER.lock().unwrap_or_else(std::sync::PoisonError::into_inner).take() else {
             return;
         };
-        if let Err(e) = bus.release_name(name.as_str()) {
+        if let Err(e) = block_on(bus.release_name(name.as_str())) {
             log::warn!("startup links: name not released ({e})");
         }
     }
@@ -348,7 +348,7 @@ mod tests {
     #[test]
     fn closing_viewer_refuses_links() {
         use super::bus::{hand_off_to, listen_as, release};
-        if zbus::blocking::Connection::session().is_err() {
+        if zbus::block_on(zbus::Connection::session()).is_err() {
             eprintln!("no session bus: skipped");
             return;
         }

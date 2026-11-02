@@ -169,10 +169,10 @@ fn markup_escape(text: &str) -> String {
 #[cfg(target_os = "linux")]
 mod freedesktop {
     use super::{Receiver, Sender, Toast, icon_file, markup_escape};
+    use futures_util::StreamExt;
     use std::collections::{HashMap, VecDeque};
     use std::sync::{Arc, Mutex, PoisonError};
-    use zbus::blocking::{Connection, Proxy};
-    use zbus::zvariant::Value;
+    use zbus::{Connection, Proxy, Variant as Value, block_on};
 
     const DEST: &str = "org.freedesktop.Notifications";
     const PATH: &str = "/org/freedesktop/Notifications";
@@ -188,7 +188,10 @@ mod freedesktop {
     type Pending = Arc<Mutex<VecDeque<(u32, u64)>>>;
 
     pub(super) fn run(rx: Receiver<Toast>, clicks: Sender<u64>) {
-        let proxy = match Connection::session().and_then(|bus| Proxy::new_owned(bus, DEST, PATH, DEST)) {
+        let proxy = match block_on(async {
+            let bus = Connection::session().await?;
+            Proxy::new_owned(bus, DEST, PATH, DEST).await
+        }) {
             Ok(p) => p,
             Err(e) => {
                 log::warn!("system notifications: no session bus ({e})");
@@ -198,11 +201,13 @@ mod freedesktop {
         // Read once for the session: a server started (or replaced by one
         // with `actions`) after the viewer gets no click handling until the
         // next start.
-        let caps: Vec<String> = proxy.call("GetCapabilities", &()).unwrap_or_else(|e| {
+        let caps: Vec<String> = block_on(proxy.call("GetCapabilities", &())).unwrap_or_else(|e| {
             log::warn!("system notifications: no notification service ({e})");
             Vec::new()
         });
-        if let Ok((name, vendor, version, spec)) = proxy.call::<_, _, (String, String, String, String)>("GetServerInformation", &()) {
+        if let Ok((name, vendor, version, spec)) =
+            block_on(proxy.call::<_, _, (String, String, String, String)>("GetServerInformation", &()))
+        {
             log::info!("system notifications: {name} {version} ({vendor}, spec {spec}), capabilities {caps:?}");
         }
         let markup = caps.iter().any(|c| c == "body-markup");
@@ -229,7 +234,7 @@ mod freedesktop {
                 hints,
                 -1i32,
             );
-            match proxy.call::<_, _, u32>("Notify", &args) {
+            match block_on(proxy.call::<_, _, u32>("Notify", &args)) {
                 Ok(server_id) if actions => {
                     let mut p = pending.lock().unwrap_or_else(PoisonError::into_inner);
                     p.push_back((server_id, toast.id));
@@ -257,7 +262,7 @@ mod freedesktop {
     /// a close forgets the notice. The subscription is made before the
     /// first notice, so no click is missed.
     fn listen(proxy: &Proxy<'static>, pending: Pending, clicks: Sender<u64>) {
-        let signals = match proxy.receive_all_signals() {
+        let mut signals = match block_on(proxy.receive_all_signals()) {
             Ok(s) => s,
             Err(e) => {
                 log::warn!("system notifications: clicks not followed ({e})");
@@ -265,7 +270,7 @@ mod freedesktop {
             }
         };
         let spawned = std::thread::Builder::new().name("system-notify-clicks".into()).spawn(move || {
-            for msg in signals {
+            while let Some(msg) = block_on(signals.next()) {
                 let header = msg.header();
                 let Some(member) = header.member() else { continue };
                 let body = msg.body();

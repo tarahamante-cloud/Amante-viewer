@@ -31,10 +31,12 @@ jobs:
           fetch-depth: 0
       - name: Verify clean upstream runtime and branding inventory
         run: python3 ../scripts/verify-clean-upstream.py . --require-tracked
+      - name: Verify dependency security exception stays narrow
+        run: python3 ../scripts/test-clean-upstream-security.py
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev
+          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev dbus gnome-keyring
           rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
           rustup override set 1.99.1
       - name: Formatting and upstream offline regression tests
@@ -49,6 +51,7 @@ jobs:
           cargo test --profile ci --workspace --exclude aurora-viewer --locked
           cargo test --profile ci --locked -p aurora-i18n
           cargo test --profile ci --workspace --locked --test updates
+          bash ../scripts/test-native-credentials.sh
       - name: Build native Linux viewer without signing in
         env:
           CARGO_BUILD_JOBS: "2"

@@ -23,7 +23,7 @@
     },
     "Cargo.lock": {
       "upstream": "6ac0368010e27221e2ee35274b1949155eec9e8096dc622b901e3b74dcc3e962",
-      "amante": "6ac0368010e27221e2ee35274b1949155eec9e8096dc622b901e3b74dcc3e962"
+      "amante": "75f78e7542f0f9bf1b7fc42ea99b241901048b325fc6d02f644558e142898638"
     },
     "Cargo.toml": {
       "upstream": "bc9da10531f7ae9bf627ddc0eff7907350732e82b08ead09fc36bf7ec65109b6",
@@ -35327,7 +35327,7 @@
     }
   },
   "added": {
-    "AMANTE.md": "a0c76cdd38883ee663e86405d9d7f19837e7fa716067c112e00a947bd219a8f5",
+    "AMANTE.md": "2fd76d5f8ae2fffeb5c9b189711e1a18780305ad957d1e9c66ae810b0b5176d8",
     "assets/branding/amante-crest-icon.png": "e37250488896e309661bc9e936e3f8526284fa37ac89d46c1646c0c8ff4f4132"
   }
 }

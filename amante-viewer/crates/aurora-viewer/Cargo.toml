@@ -36,7 +36,7 @@ directories = "6.0.0"
 # experimental: only makes egui::theme public (the text fields' size, theme.rs)
 egui = { version = "0.37.0", features = ["experimental", "monochrome_emoji_fonts", "persistence"] }
 egui-wgpu = "0.37.0"
-egui-winit = "0.37.0"
+egui-winit = { version = "0.37.0", default-features = false, features = ["clipboard", "links", "wayland", "x11"] }
 emojis = "0.9.0"
 # imported Hunspell dictionaries in their own SET encoding (spelling.rs);
 # MIT / Apache-2.0
@@ -71,7 +71,8 @@ sha2 = "0.11.0"
 # spell checking of the text fields with Hunspell dictionaries (spelling.rs);
 # pure Rust, MPL-2.0
 spellbook = "0.4.2"
-ttf-parser = "0.25.1"
+# Maintained fontations parser, shared with egui; includes color emoji bitmaps.
+amante-fonts = { version = "0.1.0", path = "../amante-fonts" }
 # Right-to-left text in reading order (ui/bidi.rs): the Unicode Bidirectional
 # Algorithm (unicode-rs, already in the tree through url) and its mirrored
 # brackets (RazrFalcon, of rustybuzz), MIT/Apache-2.0.
@@ -79,7 +80,9 @@ unicode-bidi = "0.3.18"
 unicode-bidi-mirroring = "0.4.0"
 uuid = { version = "1.27.0", features = ["v4"] }
 wgpu = "30.0.1"
-winit = "0.30"
+# Keep Wayland window titles/decorations, using FreeType rather than the
+# unmaintained ttf-parser/ab_glyph path. Windows/macOS backends are unchanged.
+winit = { version = "0.30", default-features = false, features = ["rwh_06", "x11", "wayland", "wayland-dlopen", "wayland-csd-adwaita-crossfont"] }
 ron = "0.12.2"
 flate2 = "1.1.10"
 zip = { version = "9.0.1", default-features = false, features = ["deflate-flate2"] }
@@ -115,7 +118,9 @@ libmimalloc-sys = "=0.1.47"
 # remembered login password and the GitHub authorization of crash reports
 # (Windows Credential Manager, macOS Keychain, Secret Service on Linux)
 [dependencies.keyring]
-version = "4"
+package = "amante-credentials"
+version = "0.1.0"
+path = "../amante-credentials"
 
 [target.'cfg(windows)'.dependencies]
 # Already used by egui-winit (MIT/Apache-2.0); add a file offer alongside
@@ -142,7 +147,8 @@ objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std"
 [target.'cfg(target_os = "linux")'.dependencies]
 # The freedesktop notification service (system_notify.rs), over the session
 # bus; already in the tree through keyring's Secret Service store
-zbus = "5.19.0"
+zbus = "6.2.1"
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
 # The keyboard layout (keybinds/layout/linux.rs): the XKB keymap of the
 # Wayland compositor or the X server. All three already in the tree through
 # winit, with its features (MIT, MIT / Apache-2.0, MIT)

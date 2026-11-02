@@ -1,0 +1,45 @@
+{
+  "upstream": "b21e5c27880176978d4a301220645c2830fef3a9",
+  "files": {
+    "scripts/package.ps1": {
+      "base": "abf1263a24e25ce00112e34d269132a7e50cf38a0e7550fcbd61e8f5612765c8",
+      "sha256": "aa31ba15c2c7417b184186de33ef6833ca2e6a95bff8134a28db0c5d49d535c9"
+    },
+    "Cargo.lock": {
+      "base": "75f78e7542f0f9bf1b7fc42ea99b241901048b325fc6d02f644558e142898638",
+      "sha256": "51854ca287fcb94156b49ee29ea26c51666ac604270c937397ef0b3ebda58016"
+    },
+    "crates/aurora-viewer/Cargo.toml": {
+      "base": "6196c47e28270bdfe9f2f2866fa0bc055af3474392fa1926988024c84976eef5",
+      "sha256": "0df0cf5384ebb3b8070bb09323a64a78b3175fe82b3642f2ba82be63d6432747"
+    },
+    "crates/aurora-viewer/src/ui/emoji.rs": {
+      "base": "7613049d11ef97572b18113264ff845e29c579470f8331359f78df46b95f4c8c",
+      "sha256": "d6b7b6bd09006b644d3c841d20cd702bcec581a739b4297ae21f1215de29f6b1"
+    },
+    "crates/aurora-viewer/src/ui/fonts.rs": {
+      "base": "ca23549c28a3b8095c485d542389f2d35a81eae5175dd9c24554a648b6fddb93",
+      "sha256": "5aee5d25f1c0cb9d552eb90e6a573dca2c66f0717e30d40b10593e4ee5d84432"
+    },
+    "crates/aurora-viewer/src/ui/fonts/fallback.rs": {
+      "base": "a25f08d81156cfda58657f8359aad0e03d4f4860dc0c57968b84028d1579b123",
+      "sha256": "62728406e2138ac65bef22cbe0c5e1cccf13e750cf67944bbc392bafc65a04c6"
+    },
+    "crates/aurora-viewer/src/system_notify.rs": {
+      "base": "c31f85f42d0ef396fd80cb83d331b7f47eeddd3e103f1302134ac1a143c68e4a",
+      "sha256": "0b46c00dc9d02cb38298c25a096e25ed7ecceb9595a968a00f1b27202be11bf9"
+    },
+    "crates/aurora-viewer/src/slurl_handoff.rs": {
+      "base": "1fed08142113f5d1a5cec6cebdb34a5a603681a72c05c7f5fb43b35f50a3f9c5",
+      "sha256": "8aea6771f35cd44e8dda2cd09185fafded8143151153e1dc3f0ed7f4d56511f7"
+    }
+  },
+  "added": {
+    "crates/amante-fonts/Cargo.toml": "bf5500319deb4aeab1f5fc083c4b8ba0222c4f27e6e2abfa60c753b042c4cf35",
+    "crates/amante-fonts/src/lib.rs": "3ddee1203b05f73b12f4aa1af596b7a94accbb264ec5974cdb06be25e84574ef",
+    "crates/amante-credentials/Cargo.toml": "1fc099966b8bae2f5fb989271287cbef758720bf55be4f78a0f96aff9db93b00",
+    "crates/amante-credentials/src/lib.rs": "ce92c7827d60e8a699e4b4cd6a48d745270beb836f102f1268e1b4ccff6dd1ec",
+    "crates/amante-credentials/tests/native_store.rs": "6fc541054c7fd39d79cd29ac124a27c4b4ef55a60b5d67c20a4ae768e1a05d5d",
+    "crates/amante-credentials/tests/linux_bus.rs": "c02132259ea74cf05b6fd8d8b5e3754fad640c0a198a3032e34e1dcec4b2b94a"
+  }
+}

@@ -36,7 +36,7 @@ Get-ChildItem -LiteralPath $dictionaries -Directory -ErrorAction Stop | ForEach-
         Copy-Item -LiteralPath $license -Destination (Join-Path $dictionariesOut "$($_.Name)-LICENSE.txt") -ErrorAction Stop
     }
 }
-$docs = 'LICENSE', 'NOTICE.md', 'README.md', 'AMANTE.md', 'amante-upstream-manifest.json' | ForEach-Object { Join-Path $Source $_ }
+$docs = 'LICENSE', 'NOTICE.md', 'README.md', 'AMANTE.md', 'amante-upstream-manifest.json', 'amante-security-manifest.json' | ForEach-Object { Join-Path $Source $_ }
 Copy-Item -LiteralPath $docs -Destination $Out -ErrorAction Stop
 # Linux (an executable without extension): the desktop entry and its icon,
 # named after the viewer's Wayland app_id / X11 WM_CLASS (cli.rs DESKTOP_ID)
