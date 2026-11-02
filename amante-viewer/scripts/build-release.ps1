@@ -22,7 +22,7 @@ param([int]$Pr)
 $p = Get-AuroraPaths
 $rel = Join-Path $p.Root 'RELEASE'
 $src = Join-Path $rel 'src'
-$out = Join-Path $rel 'Amante-Viewer'
+$out = Join-Path $rel 'Aurora-Viewer'
 New-Item -ItemType Directory -Force -Path $rel -ErrorAction Stop | Out-Null
 
 # Double-click launcher (build-release.bat 42 builds PR 42). It runs the
@@ -129,5 +129,5 @@ if (Test-Path -LiteralPath $out) { Remove-Item -LiteralPath $out -Recurse -Force
 ) | Set-Content -LiteralPath (Join-Path $out 'version.txt') -Encoding UTF8 -ErrorAction Stop
 
 Write-Host ""
-Write-Host "Ready in $([math]::Floor($sw.Elapsed.TotalMinutes)) min $($sw.Elapsed.Seconds) s: $out\amante-viewer.exe" -ForegroundColor Green
+Write-Host "Ready in $([math]::Floor($sw.Elapsed.TotalMinutes)) min $($sw.Elapsed.Seconds) s: $out\aurora-viewer.exe" -ForegroundColor Green
 Write-Host "Double-click $bat to rebuild (build-release.bat 42: PR 42)."

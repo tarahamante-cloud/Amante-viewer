@@ -29,9 +29,8 @@ const MAX_CACHE: u64 = 4 * MAX_DOWNLOAD as u64;
 const FALLBACK: &str = "en";
 /// The news files of the repository when this viewer was built.
 const BUILTIN: &[(&str, &str)] = &[
-    ("en", include_str!("../../../../news/amante/en.md")),
-    ("fr", include_str!("../../../../news/amante/fr.md")),
-    ("ja", include_str!("../../../../news/amante/ja.md")),
+    ("en", include_str!("../../../../news/en.md")),
+    ("fr", include_str!("../../../../news/fr.md")),
 ];
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -475,8 +474,8 @@ mod tests {
             ("http://localhost:8123/news/", "http://localhost:8123/news/", true),
             ("http://[::1]:8123/news", "http://[::1]:8123/news/", true),
             (
-                " https://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer/feat/actualites-md/news ",
-                "https://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer/feat/actualites-md/news/",
+                " https://raw.githubusercontent.com/Aurora-Viewer/Aurora-Viewer/feat/actualites-md/news ",
+                "https://raw.githubusercontent.com/Aurora-Viewer/Aurora-Viewer/feat/actualites-md/news/",
                 false,
             ),
         ] {
@@ -501,10 +500,7 @@ mod tests {
         ] {
             assert!(Source::test(address).is_none(), "{address}");
         }
-        assert!(
-            crate::links::NEWS_FEED.is_empty()
-                || (crate::links::NEWS_FEED.starts_with(crate::links::RAW_FILES) && crate::links::NEWS_FEED.ends_with('/'))
-        );
+        assert!(crate::links::NEWS_FEED.starts_with(crate::links::RAW_FILES) && crate::links::NEWS_FEED.ends_with('/'));
     }
 
     #[test]

@@ -35,7 +35,7 @@ function Invoke-ReleaseViewer {
     Write-Color '  Built in RELEASE\; your local changes are not included.' muted
     & (Join-Path $Paths.Repo 'scripts\build-release.ps1')
     if ($LASTEXITCODE -eq 0 -and (Read-YesNo 'Start this viewer?')) {
-        Start-Viewer (Join-Path $Paths.Release 'Amante-Viewer\amante-viewer.exe') 'Release'
+        Start-Viewer (Join-Path $Paths.Release 'Aurora-Viewer\aurora-viewer.exe') 'Release'
     }
 }
 

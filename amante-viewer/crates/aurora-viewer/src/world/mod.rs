@@ -21,6 +21,7 @@ pub mod edit_echo;
 pub mod eep;
 pub mod eep_env;
 pub mod eep_photo;
+pub mod eep_push;
 pub mod env;
 pub mod env_apply;
 pub mod env_day_edit;
@@ -53,6 +54,7 @@ pub mod maturity;
 pub mod motion;
 pub mod mutes;
 pub mod names;
+pub mod night_sky;
 pub mod notice_topics;
 pub mod notification_history;
 pub mod notifications;
@@ -61,6 +63,7 @@ pub mod objects;
 pub mod open_ims;
 pub mod outfit;
 pub mod outfit_folders;
+pub mod outfit_paste;
 pub mod parcel_visibility;
 pub mod parked;
 pub mod particle_filters;
@@ -180,12 +183,12 @@ impl ChatKind {
         matches!(self, ChatKind::Own(_))
     }
 
-    /// How loud a resident's line was said, ours included (LLChat's
+    /// How loud a resident's or object's line was said, ours included (LLChat's
     /// mChatType): whispered and shouted lines read the same whoever said
     /// them (FSChatHistory::appendMessage).
     pub fn volume(self) -> Option<ChatType> {
         match self {
-            ChatKind::Local(t) | ChatKind::Own(t) => Some(t),
+            ChatKind::Local(t) | ChatKind::Own(t) | ChatKind::Object(t) => Some(t),
             _ => None,
         }
     }
@@ -277,6 +280,9 @@ pub enum LocalAssetRequest {
 pub struct World {
     /// mScreen's Y scale (LLVOAvatarSelf::updateCharacter).
     pub hud_aspect: f32,
+    /// Where the HUDs are laid out in the window (left, top, right, bottom
+    /// pixels; `None`: the whole window). `hud_aspect` is its aspect.
+    pub hud_area: Option<[f32; 4]>,
     /// HUD zoom is local to the current session (LLAgentCamera).
     pub hud_zoom: f32,
     pub hud_scales: hud_scale::HudScales,
@@ -640,6 +646,7 @@ impl World {
     pub fn new(avatar_lib: Arc<AvatarLibrary>) -> World {
         World {
             hud_aspect: 1.0,
+            hud_area: None,
             hud_zoom: 1.0,
             hud_scales: Default::default(),
             hud_locks: Default::default(),
@@ -997,6 +1004,11 @@ impl World {
             return false;
         }
         self.region_left = old;
+        // LLEnvironment::onRegionChange: experience environments do not
+        // survive a teleport or a region crossing
+        if old.is_some() {
+            self.eep.clear_experience(Uuid::nil(), eep_env::TRANSITION_DEFAULT);
+        }
         self.objects.clear_material_previews();
         self.inventory_retried.clear();
         if let Some(old) = old {
@@ -1960,7 +1972,7 @@ impl World {
             .as_ref()
             .is_some_and(|l| l.raw["login-flags"].at(0)["ever_logged_in"].as_str() == "N");
         let inputs = outfit::OutfitInputs {
-            worn: self.worn_attachment_items(),
+            worn: self.outfit_attachment_items(),
             received_cof_version: self.appearance_cof_version(&self.agent_id),
             inventory: &mut self.inventory,
             agent: self.agent_id,
@@ -2764,6 +2776,13 @@ impl World {
             NetEvent::ScriptDialog {
                 object_id, object_name, ..
             } if self.object_blocked(&object_id, &object_name) => None,
+            // RLVa @sendchat (LLScriptHandler::processNotification,
+            // llnotificationscripthandler.cpp): a dialog or text box whose
+            // answer would be said on public chat is not shown at all.
+            NetEvent::ScriptDialog { channel: 0, .. } if self.rlva.has("sendchat") => {
+                self.system_notice(aurora_i18n::tr!("rlva-blocked-script-dialog"), notice_topics::Topic::Warning);
+                None
+            }
             // process_script_question drops only the questions of a blocked
             // object (LLMuteList::isMuted(taskid)): not those of a blocked
             // owner, nor on any other condition (no click needed, object out
@@ -2889,6 +2908,13 @@ impl World {
             }
             NetEvent::ExperiencePermission { experience, result, .. } => {
                 self.experiences.permission(experience, result);
+                for (experience, transition) in std::mem::take(&mut self.experiences.env_clears) {
+                    self.eep.clear_experience(experience, transition);
+                }
+                None
+            }
+            NetEvent::ExperienceEnvironment { experience, message } => {
+                self.eep.push_experience(experience, &message);
                 None
             }
             NetEvent::GroupExperiences { group, ids } => {
@@ -3019,6 +3045,9 @@ impl World {
             } => {
                 let answer = eep::EnvAnswer::from_llsd(&environment);
                 let parcel_id = answer.parcel_id;
+                for w in eep::water_out_of_range(&environment) {
+                    log::info!("water values out of the Legacy ranges, clamped: {w:?}");
+                }
                 match answer.day.as_ref().filter(|d| d.is_valid()) {
                     Some(d) => {
                         log::info!(
@@ -3039,6 +3068,22 @@ impl World {
                                 s.blue_horizon,
                                 s.haze_horizon,
                                 s.haze_density
+                            );
+                        }
+                        // the region's water (in the Legacy ranges; the
+                        // values it sent out of them are logged on reading):
+                        // what a report of odd water needs
+                        if let Some(w) = d.water.first().map(|k| &k.1) {
+                            log::info!(
+                                "water: fog {:?} density {} underwater mod {} fresnel scale {} offset {} blur {} normal scale {:?} normal map {}",
+                                w.fog_color,
+                                w.fog_density,
+                                w.underwater_fog_mod,
+                                w.fresnel_scale,
+                                w.fresnel_offset,
+                                w.blur_multiplier,
+                                w.normal_scale,
+                                w.normal_map
                             );
                         }
                     }
@@ -4497,6 +4542,13 @@ impl World {
             // FIRE-2731 (on_avatar_name_cache_notify)
             self.ui_sounds
                 .push(if online { UiSound::FriendOnline } else { UiSound::FriendOffline });
+            // the line of an open conversation with them, so a message is not
+            // written to someone who just left
+            // (LLIMModel::proccessOnlineOfflineNotification, llimview.cpp):
+            // never opens one
+            if self.social.has_session(&id) {
+                self.session_system(id, n.clone());
+            }
             // the toast of LLNotificationTipHandler (ChatOnlineNotification),
             // never during login, in do not disturb nor for a blocked resident
             if self.notifications.toasts.presence && self.notifications.started && !self.status.dnd && !self.mutes.is_muted_id(&id) {
@@ -5195,6 +5247,33 @@ mod parcel_voice_tests {
         world.parcel = None;
         world.apply(event(7, 42, true, Some(true)));
         assert!(world.parcel.is_none(), "voice alone cannot locate the agent parcel");
+    }
+}
+
+#[cfg(test)]
+mod experience_environment_tests {
+    use super::*;
+
+    /// LLEnvironment::onRegionChange: a pushed environment stays in its
+    /// region and goes with a teleport or a crossing.
+    #[test]
+    fn a_pushed_environment_does_not_survive_a_region_change() {
+        let mut world = World::new(Arc::new(AvatarLibrary::load()));
+        world.set_main_region(7);
+        world.apply(NetEvent::ExperienceEnvironment {
+            experience: Uuid::from_u128(9),
+            message: aurora_llsd::llsd_map! {
+                "action" => "PushPartialEnvironment",
+                "action_data" => aurora_llsd::llsd_map! {
+                    "settings" => aurora_llsd::llsd_map! { "sky" => aurora_llsd::llsd_map! { "gamma" => 3.0 } },
+                },
+            },
+        });
+        assert_eq!(world.eep.pushing_experiences(), vec![Uuid::from_u128(9)]);
+        world.set_main_region(7);
+        assert_eq!(world.eep.pushing_experiences().len(), 1, "the same region keeps it");
+        world.set_main_region(8);
+        assert!(world.eep.pushing_experiences().is_empty());
     }
 }
 

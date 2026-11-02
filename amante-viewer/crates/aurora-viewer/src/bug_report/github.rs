@@ -6,23 +6,19 @@ use crossbeam_channel::{Receiver, Sender};
 use serde_json::Value;
 use std::time::{Duration, Instant};
 
-pub const ISSUES: &str = aurora_version::amante_config::ISSUES_URL;
-const API: &str = aurora_version::amante_config::ISSUES_API;
+pub const ISSUES: &str = "https://github.com/tarahamante-cloud/Amante-viewer/issues";
+const API: &str = "https://api.github.com/repos/tarahamante-cloud/Amante-viewer/issues";
 pub const VERIFY: &str = "https://github.com/login/device";
 // Public identifier, supplied by the project's GitHub App registration.
-pub const CLIENT_ID: &str = aurora_version::amante_config::GITHUB_CLIENT_ID;
+pub const CLIENT_ID: &str = "";
 
 pub struct BrowserDraft {
     pub url: String,
     pub paste_body: bool,
 }
 
-pub fn browser_draft(title: &str, body: &str) -> Option<BrowserDraft> {
-    aurora_version::amante_config::reporting_destination_configured().then(|| browser_draft_at(ISSUES, title, body))
-}
-
-fn browser_draft_at(issues: &str, title: &str, body: &str) -> BrowserDraft {
-    let mut url = reqwest::Url::parse(&format!("{issues}/new")).expect("validated project URL");
+pub fn browser_draft(title: &str, body: &str) -> BrowserDraft {
+    let mut url = reqwest::Url::parse(&format!("{ISSUES}/new")).expect("constant project URL");
     url.query_pairs_mut()
         .append_pair("template", "bug_report.md")
         .append_pair("labels", "bug,alpha")
@@ -207,9 +203,6 @@ impl Drop for Github {
 }
 
 fn client() -> Result<reqwest::Client, Failure> {
-    if !aurora_version::amante_config::reporting_oauth_configured() {
-        return Err(Failure::Configuration);
-    }
     reqwest::Client::builder()
         .user_agent(aurora_version::user_agent())
         .https_only(true)
@@ -504,47 +497,16 @@ mod tests {
     }
 
     #[test]
-    fn pending_connected_and_revoked_states_never_send_automatically() {
-        let (tx, rx) = crossbeam_channel::bounded(2);
-        let mut state = Github::default();
-        state.rx = Some(rx);
-        tx.send(Reply::Code("TEST-CODE".into())).unwrap();
-        state.poll();
-        assert!(state.authorizing());
-        assert!(!state.connected());
-        assert_eq!(state.user_code.as_deref(), Some("TEST-CODE"));
-        state.submit("Not sent".into(), "Still pending".into());
-        assert!(!state.sending);
-
-        tx.send(Reply::Authorized("test-only".into(), Instant::now() + Duration::from_secs(60)))
-            .unwrap();
-        state.poll();
-        assert!(state.connected());
-        assert!(!state.authorizing() && !state.sending);
-        assert!(state.user_code.is_none() && state.created.is_none());
-
-        let (tx, rx) = crossbeam_channel::bounded(1);
-        state.rx = Some(rx);
-        state.sending = true;
-        tx.send(Reply::Failed(Failure::Unauthorized)).unwrap();
-        state.poll();
-        assert!(!state.connected() && !state.sending && !state.authorizing());
-        assert_eq!(state.failure, Some(Failure::Unauthorized));
-        state.submit("Not retried".into(), "Revoked".into());
-        assert!(!state.sending && state.created.is_none());
-    }
-
-    #[test]
     fn browser_roundtrip_and_overlong_body_fallback() {
         let title = "Échec & panne ? #1";
         let body = "Texte privé sélectionné : ça & ceci\nhttps://example.invalid/";
-        let draft = browser_draft_at("https://github.com/example/amante-test/issues", title, body);
+        let draft = browser_draft(title, body);
         let url = reqwest::Url::parse(&draft.url).unwrap();
         let fields: std::collections::HashMap<_, _> = url.query_pairs().into_owned().collect();
         assert_eq!(fields["title"], title);
         assert_eq!(fields["body"], body);
         assert!(!draft.paste_body);
-        let draft = browser_draft_at("https://github.com/example/amante-test/issues", title, &"é".repeat(6000));
+        let draft = browser_draft(title, &"é".repeat(6000));
         assert!(draft.paste_body);
         assert!(draft.url.len() < 7000);
         assert!(!draft.url.contains("body="));

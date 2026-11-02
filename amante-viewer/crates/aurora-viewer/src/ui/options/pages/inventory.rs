@@ -29,6 +29,7 @@ pub fn page(cx: &mut Cx) {
         );
         // the order of the Received tab, chosen in its own preferences
         cx.track(&field!(inventory.received_sort));
+        cx.track(&field!(inventory.recent_sort));
     });
     cx.group(tr!("common-display"), |cx| {
         cx.toggle(tr!("ui-inventory-controls-show-library"), "", &field!(inventory.show_library));
@@ -116,5 +117,13 @@ pub fn page(cx: &mut Cx) {
             cx.s.received_items_since = crate::ui::inventory::view::now();
         }
         cx.track(&field!(received_items_since));
+    });
+    cx.group(tr!("import-window-title"), |cx| {
+        cx.choice(
+            tr!("import-entry-point"),
+            tr!("import-entry-point-help"),
+            &field!(imports.icon_bar),
+            &[(false, tr!("import-entry-window"), false), (true, tr!("import-icon-bar"), false)],
+        );
     });
 }

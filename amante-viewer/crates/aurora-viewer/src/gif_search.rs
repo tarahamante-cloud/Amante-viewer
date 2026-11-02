@@ -734,7 +734,7 @@ pub mod demo {
                 Gif {
                     provider,
                     id,
-                    title: format!("Amante demo {}", n % 100),
+                    title: format!("Aurora demo {}", n % 100),
                     thumb: media(provider, n, "small"),
                     thumb_size: [100, 75 + (n % 3) * 15],
                     send: media(provider, n, "send"),

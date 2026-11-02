@@ -677,7 +677,7 @@ impl App {
         let mut out = String::new();
         let _ = writeln!(
             out,
-            "Amante {} (commit {}, {} build)",
+            "Aurora {} (commit {}, {} build)",
             aurora_version::version(),
             aurora_version::commit(),
             env!("AURORA_BUILD_PROFILE")

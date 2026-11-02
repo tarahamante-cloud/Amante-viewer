@@ -113,6 +113,7 @@ fn scene_gpu(
     textures: &TextureTable,
     geometry: &GeometryArena,
     palettes: &wgpu::Buffer,
+    prev_palettes: &wgpu::Buffer,
     skin_binds: &wgpu::Buffer,
     bind_generation: u64,
 ) -> SceneGpu {
@@ -120,6 +121,8 @@ fn scene_gpu(
         records: records.buffer.clone(),
         palettes: palettes.clone(),
         skin_binds: skin_binds.clone(),
+        prev_models: records.prev_models.clone(),
+        prev_palettes: prev_palettes.clone(),
         records_key: (records.generation, bind_generation),
         faces: records.faces.buffer().clone(),
         face_count: records.faces.len(),
@@ -138,6 +141,9 @@ pub struct Renderer {
     /// Where the backend runs. First field: dropped first, so the render
     /// thread has left before the scene's stores go.
     host: Host,
+    vr: Arc<crate::vr_control::Control>,
+    #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+    _xr_graphics: Option<crate::xr_device::Graphics>,
     pub device: wgpu::Device,
     pub info: GpuInfo,
     pub geometry: GeometryArena,
@@ -156,6 +162,13 @@ pub struct Renderer {
     /// Queue writes of the frame being built (writes.rs).
     writes: GpuWrites,
     palette_buffer: wgpu::Buffer,
+    /// The palettes as the last frame drew them (the motion vectors): the
+    /// renderer copies `palette_buffer` into it at the end of each frame
+    /// (`motion_history.rs`). The same size, unless video memory was full
+    /// when the palettes grew.
+    prev_palette_buffer: wgpu::Buffer,
+    /// The next frame starts the motion history again (`cut_motion_history`).
+    motion_cut: bool,
     /// Palette bytes written since the last frame (AURORA_PROFILE).
     palettes_uploaded: u64,
     /// Bytes of vertices deformed in place this frame (profile).
@@ -175,6 +188,7 @@ pub struct Renderer {
     msaa_supported: Vec<u32>,
     /// The surface can be read back (captures).
     can_capture: bool,
+    output_format: wgpu::TextureFormat,
     /// Texture animation clock (tex_anim.rs), shared with the backend.
     anim_clock: crate::tex_anim::AnimClock,
     /// Inverse view-projection of the last frame built (cursor rays).
@@ -203,6 +217,10 @@ pub struct Renderer {
     gpu_waited: Duration,
     /// When the frame being built began reading its input.
     input_at: Option<Instant>,
+    /// The same for the pacing's gate (`input_at` leaves with the packet),
+    /// and the gate: whether the GPU alone sets the pace (pacing.rs).
+    frame_began: Option<Instant>,
+    pace_gate: crate::pacing::Gate,
     spare: Vec<Spent>,
     failed: bool,
     /// The render thread has held a frame past [`STALL_AFTER`]: frames are
@@ -224,6 +242,12 @@ pub struct Renderer {
     /// The answer to the last photo: its image (width, height, RGBA8), or
     /// None when it could not be drawn.
     pub snapshot: Option<Option<(u32, u32, Vec<u8>)>>,
+    /// The photo asked left with a frame the GPU had not finished within
+    /// `CAPTURE_WAIT`: its answer comes with a later frame, which does not
+    /// draw it again (a second answer would be taken for the next part).
+    snapshot_sent: bool,
+    /// That photo was given up (`drop_snapshot`): its answer is not kept.
+    snapshot_dropped: bool,
     /// Count the luminance histogram of the next frame shown at that
     /// exposure (asked each frame the photo viewfinder shows it).
     pub histogram_request: Option<f32>,
@@ -246,6 +270,7 @@ impl Renderer {
         vsync: bool,
         gpu: &str,
     ) -> Result<Renderer, RenderError> {
+        crate::start_progress::enter(crate::start_progress::Phase::GpuDevice);
         let desc = || {
             let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
             desc.backends = crate::BACKENDS;
@@ -256,6 +281,22 @@ impl Renderer {
             };
             desc
         };
+        #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+        let xr_graphics = match crate::xr_device::Graphics::new(desc().flags) {
+            Ok(graphics) => Some(graphics),
+            Err(e) => {
+                log::info!("OpenXR initialization unavailable: {e}");
+                if std::env::var_os("AURORA_DEMO_XR_DEVICE").is_some() || std::env::var_os("AURORA_DEMO_XR_WORLD").is_some() {
+                    return Err(RenderError::Device(e.to_string()));
+                }
+                None
+            }
+        };
+        #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+        let mut instance = xr_graphics
+            .as_ref()
+            .map_or_else(|| wgpu::Instance::new(desc()), |g| g.instance.clone());
+        #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
         let mut instance = wgpu::Instance::new(desc());
         // ---- the GPU: every adapter listed, then tried in our order
         // (adapter_choice.rs), the next one if one fails to open
@@ -308,7 +349,11 @@ impl Renderer {
         let mut opened = None;
         let mut failure = RenderError::NoAdapter("no native GPU adapter can present to the window".into());
         for (n, &i) in plan.order.iter().enumerate() {
-            match open_device(&adapters[i]) {
+            #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+            let opened_device = open_device(&adapters[i], xr_graphics.as_ref());
+            #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
+            let opened_device = open_device(&adapters[i]);
+            match opened_device {
                 Ok(o) => {
                     let why = match (n, plan.reason) {
                         (0, crate::adapter_choice::Reason::Wanted) => "the one asked for (AURORA_GPU or Preferences › Graphics)",
@@ -372,6 +417,7 @@ impl Renderer {
             wgpu::DeviceLostReason::Destroyed => log::info!("GPU device released: {message}"),
             _ => {
                 on_lost.set();
+                crate::pipeline_cache::device_lost();
                 log::error!("GPU device lost ({reason:?}): {message}");
             }
         });
@@ -401,6 +447,7 @@ impl Renderer {
         let records = RecordStore::new(&device);
         let cull = CullTables::new(&device);
         let palette_buffer = Self::make_palette_buffer(&device, 64 * 160);
+        let prev_palette_buffer = device.create_buffer(&Self::prev_palette_desc(64 * 160));
         let skin_bind_buffer = Self::make_skin_bind_buffer(&device, 256);
         // staging memory of the streamed uploads, created once here
         let uploads = UploadQueue::new(&device, info.integrated || info.vram_mb.is_some_and(|mb| mb < 4096));
@@ -415,14 +462,27 @@ impl Renderer {
         );
         let anim_clock = crate::tex_anim::AnimClock::new(Instant::now());
         let video_memory = crate::vram::VideoMemoryProbe::new(adapter.clone());
-        let gpu_frames = Arc::new(crate::pacing::GpuFrames::new(crate::pacing::wanted(
-            std::env::var("AURORA_FRAME_PACING").ok().as_deref(),
-        )));
+        let pacing = std::env::var("AURORA_FRAME_PACING").ok();
+        let gpu_frames = Arc::new(crate::pacing::GpuFrames::new(crate::pacing::wanted(pacing.as_deref())));
+        let pace_gate = crate::pacing::Gate::new(crate::pacing::always(pacing.as_deref()));
+        #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+        let vr = Arc::new(crate::vr_control::Control::new(xr_graphics.is_some()));
+        #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
+        let vr = Arc::new(crate::vr_control::Control::new(false));
+        // the compiled pipelines of the earlier starts (pipeline_cache.rs),
+        // before the first one is made
+        crate::pipeline_cache::open(&device, &ainfo);
+        crate::start_progress::enter(crate::start_progress::Phase::Pipelines);
         let backend = Backend::new(BackendInit {
+            vr: vr.clone(),
             gpu_frames: gpu_frames.clone(),
             device: device.clone(),
             queue,
-            surface,
+            surface: Arc::new(surface),
+            external: false,
+            output_format: None,
+            #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+            xr: xr_graphics.as_ref().map(|g| g.binding()),
             adapter,
             width,
             height,
@@ -431,12 +491,22 @@ impl Renderer {
             adapter_specific,
             gpu_cull,
             tex_layout: textures.layout.clone(),
-            scene: scene_gpu(&records, &cull, &textures, &geometry, &palette_buffer, &skin_bind_buffer, 0),
+            scene: scene_gpu(
+                &records,
+                &cull,
+                &textures,
+                &geometry,
+                &palette_buffer,
+                &prev_palette_buffer,
+                &skin_bind_buffer,
+                0,
+            ),
             anim_clock,
             lost: lost.clone(),
         })?;
         let msaa_supported = backend.msaa_supported().to_vec();
         let can_capture = backend.can_capture();
+        let output_format = backend.output_format();
         let host = Host::new(backend, thread_wanted(std::env::var("AURORA_RENDER_THREAD").ok().as_deref()));
         log::info!(
             "renderer: {}",
@@ -446,8 +516,13 @@ impl Renderer {
                 "frames drawn on the main thread (AURORA_RENDER_THREAD=0)"
             }
         );
+        crate::start_progress::enter(crate::start_progress::Phase::Ready);
+        crate::pipeline_cache::log_start();
         Ok(Renderer {
             host,
+            vr,
+            #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+            _xr_graphics: xr_graphics,
             device,
             info,
             geometry,
@@ -459,6 +534,8 @@ impl Renderer {
             cull,
             writes,
             palette_buffer,
+            prev_palette_buffer,
+            motion_cut: false,
             palettes_uploaded: 0,
             vertices_uploaded: 0,
             geometry_uploaded: 0,
@@ -470,6 +547,7 @@ impl Renderer {
             settings: RenderSettings::default(),
             msaa_supported,
             can_capture,
+            output_format,
             anim_clock,
             last_inv_vp: Mat4::IDENTITY,
             last_view: Mat4::IDENTITY,
@@ -486,6 +564,8 @@ impl Renderer {
             gpu_frames,
             gpu_waited: Duration::ZERO,
             input_at: None,
+            frame_began: None,
+            pace_gate,
             spare: Vec::new(),
             failed: false,
             stalled: false,
@@ -495,6 +575,8 @@ impl Renderer {
             captured: None,
             snapshot_request: None,
             snapshot: None,
+            snapshot_sent: false,
+            snapshot_dropped: false,
             histogram_request: None,
             histogram: None,
             lost,
@@ -513,6 +595,7 @@ impl Renderer {
             &self.textures,
             &self.geometry,
             &self.palette_buffer,
+            &self.prev_palette_buffer,
             &self.skin_bind_buffer,
             self.bind_generation,
         )
@@ -598,9 +681,45 @@ impl Renderer {
         wgpu::BufferDescriptor {
             label: Some("joint palettes"),
             size: (matrices.max(1) * 64) as u64,
+            // COPY_SRC: the previous palettes are copied from it
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::COPY_SRC,
+            mapped_at_creation: false,
+        }
+    }
+
+    fn prev_palette_desc(matrices: usize) -> wgpu::BufferDescriptor<'static> {
+        wgpu::BufferDescriptor {
+            label: Some("previous joint palettes"),
+            size: (matrices.max(1) * 64) as u64,
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         }
+    }
+
+    /// Palette slots given to new skeletons, after this frame's palette
+    /// uploads: each is written whole, as its pose and as its previous
+    /// pose, or it would seem to come from the last owner's (or from
+    /// nothing).
+    pub fn seed_palette_slots(&mut self, mats: &[[[f32; 4]; 4]], slots: &[usize], per: usize) {
+        let fits = mats.len().min(self.palette_buffer.size() as usize / 64);
+        let prev_fits = fits.min(self.prev_palette_buffer.size() as usize / 64);
+        for &slot in slots {
+            let a = slot * per;
+            for (buffer, end) in [(&self.palette_buffer, fits), (&self.prev_palette_buffer, prev_fits)] {
+                let b = ((slot + 1) * per).min(end);
+                if a < b {
+                    self.writes.write_buffer(buffer, (a * 64) as u64, bytemuck::cast_slice(&mats[a..b]));
+                }
+            }
+        }
+    }
+
+    /// The next frame has no motion: the scene moved as a whole (a new main
+    /// region shifts every position), so last frame's matrices are not
+    /// where this frame's things came from. The renderer takes the current
+    /// ones as the previous ones before drawing it.
+    pub fn cut_motion_history(&mut self) {
+        self.motion_cut = true;
     }
 
     /// Upload joint palettes (column-major matrices). Indices referenced by
@@ -618,6 +737,14 @@ impl Renderer {
             if let Some(b) = self.grow_table(&Self::palette_desc(n)) {
                 self.palette_buffer = b;
                 self.bind_generation += 1;
+                // (the whole set is written below: the previous palettes
+                // start from it, no skeleton moves in this frame)
+                match crate::gpu_alloc::try_buffer(&self.device, &Self::prev_palette_desc(n)) {
+                    Ok(prev) => self.prev_palette_buffer = prev,
+                    Err(e) => log::warn!("previous joint palettes not grown ({e}): the skeletons past them get no motion"),
+                }
+                let prev = &mats[..mats.len().min(self.prev_palette_buffer.size() as usize / 64)];
+                self.writes.write_buffer(&self.prev_palette_buffer, 0, bytemuck::cast_slice(prev));
             }
         }
         let mats = &mats[..mats.len().min(self.palette_buffer.size() as usize / 64)];
@@ -766,6 +893,13 @@ impl Renderer {
         }
     }
 
+    /// Give up the photo asked: not drawn, or its answer not kept when its
+    /// frame is still on the GPU.
+    pub fn drop_snapshot(&mut self) {
+        self.snapshot_request = None;
+        self.snapshot_dropped = self.snapshot_sent;
+    }
+
     /// Apply quality settings: pipelines and targets are rebuilt by the
     /// backend with the next frame, only when needed.
     pub fn apply_settings(&mut self, s: RenderSettings) {
@@ -787,6 +921,13 @@ impl Renderer {
     /// reported it with the last frame it finished (None before the first).
     pub fn present_mode(&self) -> Option<wgpu::PresentMode> {
         self.last_stats.present_mode
+    }
+
+    /// The last frame the backend finished was drawn with the settings last
+    /// applied: false while the pipelines for new MSAA samples or SSR compile
+    /// on their worker (#1746), and until the backend has seen them.
+    pub fn settings_applied(&self) -> bool {
+        self.last_stats.settings == Some(self.settings)
     }
 
     // ------------------------------------------------------------ resources
@@ -905,8 +1046,13 @@ impl Renderer {
             self.drawn_answers.drain(..self.drawn_answers.len() - KEPT);
         }
         self.cull.last = r.cull;
-        if r.snapshot {
+        if r.snapshot && std::mem::take(&mut self.snapshot_dropped) {
+            // the answer of a photo given up: a photo asked since is drawn
+            // with the next frame
+            self.snapshot_sent = false;
+        } else if r.snapshot {
             self.snapshot_request = None;
+            self.snapshot_sent = false;
             self.snapshot = Some(r.captured);
         } else if let Some(c) = r.captured {
             self.captured = Some(c);
@@ -941,7 +1087,61 @@ impl Renderer {
     /// returns at once, with the statistics of that frame before; without,
     /// the frame is drawn here. A frame that carries a capture is waited
     /// for: `captured` holds it when this returns.
+    pub fn vr_state(&self) -> crate::VrState {
+        self.vr.state()
+    }
+    pub fn vr_engaged(&self) -> bool {
+        self.vr.state().engaged()
+    }
+    pub fn set_vr_enabled(&self, on: bool) -> bool {
+        self.vr.request(on)
+    }
+
     pub fn render(&mut self, params: FrameParams, lists: &DrawLists, ui: Option<crate::EguiFrame>) -> RenderStats {
+        self.render_output(params, lists, ui, None)
+    }
+
+    /// Draw a frame into a caller-owned texture instead of presenting the window.
+    /// The target must belong to this renderer's device and match its output size
+    /// and format. The texture stays alive until the render worker has submitted
+    /// the frame; this call alone is not a GPU completion or OpenXR release fence.
+    /// No egui shapes are drawn. World draw lists, including HUDs, are supplied
+    /// by the caller. Each independent view needs its own rendering history;
+    /// alternating eyes through this renderer would mix temporal state.
+    pub fn render_to_texture(&mut self, params: FrameParams, lists: &DrawLists, texture: wgpu::Texture) -> RenderStats {
+        self.render_output(params, lists, None, Some(texture))
+    }
+
+    /// Offline integration check of the complete world pass into an owned
+    /// texture. Used only on a requested demo capture, not every frame.
+    pub fn render_world_texture_capture(&mut self, params: FrameParams, lists: &DrawLists) -> RenderStats {
+        let texture = self.device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("world output integration capture"),
+            size: wgpu::Extent3d {
+                width: self.size.0,
+                height: self.size.1,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: self.output_format,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::TEXTURE_BINDING,
+            view_formats: &[],
+        });
+        let mut world = DrawLists::default();
+        world.copy_from(lists);
+        world.strip_viewer_overlays();
+        self.render_to_texture(params, &world, texture)
+    }
+
+    fn render_output(
+        &mut self,
+        params: FrameParams,
+        lists: &DrawLists,
+        ui: Option<crate::EguiFrame>,
+        output: Option<wgpu::Texture>,
+    ) -> RenderStats {
         let t0 = Instant::now();
         let mut ui = ui;
         if self.demo_lost == Some(self.frames) && !self.lost.get() {
@@ -956,6 +1156,8 @@ impl Renderer {
             if self.snapshot_request.take().is_some() {
                 self.snapshot = Some(None);
             }
+            self.snapshot_sent = false;
+            self.snapshot_dropped = false;
             return RenderStats {
                 render_thread: self.host.threaded(),
                 ..Default::default()
@@ -1016,8 +1218,10 @@ impl Renderer {
         let mut spent = self.spare.pop().unwrap_or_default();
         std::mem::swap(&mut self.writes, &mut spent.writes);
         spent.lists.copy_from(lists);
-        // a photo first: the other captures wait for the next frame
+        // a photo first: the other captures wait for the next frame (and
+        // for the answer of a photo still on the GPU)
         let capture = match self.snapshot_request {
+            Some(_) if self.snapshot_sent => None,
             Some(s) => Some(crate::packet::Capture::Snapshot(s)),
             None => capture_for(self.capture_scene, self.capture_request, self.can_capture),
         };
@@ -1025,6 +1229,7 @@ impl Renderer {
         self.last_view = params.view;
         let index = self.frames;
         let packet = FramePacket {
+            output,
             index,
             writes: spent.writes,
             uploads,
@@ -1043,6 +1248,7 @@ impl Renderer {
             drawn: std::mem::take(&mut self.drawn_requests),
             capture,
             histogram: self.histogram_request.take(),
+            motion_cut: std::mem::take(&mut self.motion_cut),
             input_at: self.input_at.take(),
         };
         self.frames += 1;
@@ -1057,7 +1263,9 @@ impl Renderer {
             Host::Thread { owner, .. } => {
                 match owner.submit(Job::Frame(Box::new(packet))) {
                     Ok(s) => {
-                        waited = s.waited;
+                        // (added to the wait before the packet: replaced,
+                        // the back-pressure counted as the packet's work)
+                        waited += s.waited;
                         if let Some(Done::Frame(r)) = s.previous {
                             results[0] = Some(r);
                         }
@@ -1075,7 +1283,11 @@ impl Renderer {
                             }
                             results[1] = Some(r);
                         }
-                        Ok(_) => {}
+                        Ok(_) => {
+                            if matches!(capture, Some(crate::packet::Capture::Snapshot(_))) {
+                                self.snapshot_sent = true;
+                            }
+                        }
                         Err(_) => gone = true,
                     }
                     waited += t.elapsed();
@@ -1092,7 +1304,8 @@ impl Renderer {
         // ---- statistics: the stores' side is this frame's, the backend's
         // side that of the last frame it finished (counted once)
         let main = stats;
-        if std::mem::take(&mut self.fresh) {
+        let fresh = std::mem::take(&mut self.fresh);
+        if fresh {
             stats = self.last_stats;
         } else {
             // no result since the last call (first frame, frame after a
@@ -1100,6 +1313,7 @@ impl Renderer {
             // counted twice
             stats = RenderStats {
                 gpu_ms: self.last_stats.gpu_ms,
+                gpu_pixels: self.last_stats.gpu_pixels,
                 gpu_elements: self.last_stats.gpu_elements,
                 shadow: ShadowStats {
                     gpu_ms: self.last_stats.shadow.gpu_ms,
@@ -1109,6 +1323,7 @@ impl Renderer {
                 gpu_ssao: self.last_stats.gpu_ssao,
                 gpu_contact: self.last_stats.gpu_contact,
                 gpu_bloom: self.last_stats.gpu_bloom,
+                gpu_effects: self.last_stats.gpu_effects,
                 occluded: self.last_stats.occluded,
                 visible_objects: self.last_stats.visible_objects,
                 gpu_cull: self.last_stats.gpu_cull,
@@ -1143,6 +1358,16 @@ impl Renderer {
             stats.cpu_encode_ms += stats.packet_ms;
         }
         stats.pace_ms = ms(self.gpu_waited);
+        // the pacing's gate (pacing.rs): this frame's main-thread time, from
+        // its input to the hand-over, without the back-pressure; the render
+        // thread's and the GPU's of the last frame finished, the swapchain
+        // wait left out (the GPU's pace, not work)
+        if fresh && let Some(began) = self.frame_began.take() {
+            let main = ms(began.elapsed().saturating_sub(waited));
+            let render = stats.thread_ms - stats.cpu_phases[0];
+            let on = self.pace_gate.update(main, render, stats.gpu_ms);
+            self.gpu_frames.set_active(on);
+        }
         stats
     }
 
@@ -1150,6 +1375,7 @@ impl Renderer {
     /// the viewer's frame): its time to the screen is measured from here.
     pub fn mark_input(&mut self, at: Instant) {
         self.input_at = Some(at);
+        self.frame_began = Some(at);
     }
 
     /// Once a frame is handed over, before the next one reads its input:
@@ -1158,7 +1384,7 @@ impl Renderer {
     /// limit, or with AURORA_FRAME_PACING=0).
     pub fn wait_for_gpu(&mut self) -> Duration {
         self.gpu_waited = Duration::ZERO;
-        if !self.gpu_frames.enabled || self.failed || self.stalled || self.lost.get() {
+        if !self.gpu_frames.active() || self.failed || self.stalled || self.lost.get() {
             return Duration::ZERO;
         }
         // the frame handed over last, and the one before it
@@ -1374,9 +1600,27 @@ struct OpenedDevice {
     max_textures: u32,
 }
 
+/// The blocks of video memory wgpu's allocator carves resources out of
+/// (its `Performance` hint: 128 to 256 MB). Anything larger gets a block of
+/// its own, given back to the driver the moment it is destroyed; a smaller
+/// one only once its whole block is empty. With 16 MB blocks every render
+/// target of a 4K window (16 to 64 MB each) has its own: when they shrink
+/// (a window behind past its budget pauses its 3D drawing, #1808; a resize)
+/// the driver gets their memory back at once. Demo crowd at 3840 x 2054:
+/// the driver counted 2,585 MB for 1,772 MB of resources, 2,250 MB with
+/// 16 MB blocks, and 2,640 MB against 1,385 MB once the 3D drawing paused;
+/// the render thread's resource writes took 0.04 ms more a frame. Texture
+/// pages have memory of their own (dedicated.rs), so the cost of a new
+/// block under the allocator's lock, which ruled out 64 MB blocks for them,
+/// no longer falls on the pages.
+const MEMORY_BLOCK: u64 = 16 << 20;
+
 /// Open `adapter` with the features the renderer needs and the optional
 /// ones it has; an error when it lacks a needed one or the device fails.
-fn open_device(adapter: &wgpu::Adapter) -> Result<OpenedDevice, RenderError> {
+fn open_device(
+    adapter: &wgpu::Adapter,
+    #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))] xr: Option<&crate::xr_device::Graphics>,
+) -> Result<OpenedDevice, RenderError> {
     let afeat = adapter.features();
     let alim = adapter.limits();
     let bindless_feats =
@@ -1392,6 +1636,18 @@ fn open_device(adapter: &wgpu::Adapter) -> Result<OpenedDevice, RenderError> {
         features |= wgpu::Features::INDIRECT_FIRST_INSTANCE;
     } else {
         return Err(RenderError::Device("INDIRECT_FIRST_INSTANCE unsupported".into()));
+    }
+    // The fragment stage of the world passes reads five storage buffers
+    // (the frame group's 9, 16 and 24, the night sky's stars in stars.rs;
+    // the records; the texture pages), one more than wgpu's downlevel
+    // minimum. Drivers with descriptor indexing give far more: say so here
+    // rather than fail when the pipelines are made.
+    const FRAGMENT_STORAGE_BUFFERS: u32 = 5;
+    if alim.max_storage_buffers_per_shader_stage < FRAGMENT_STORAGE_BUFFERS {
+        return Err(RenderError::Device(format!(
+            "the GPU driver allows {} storage buffers per shader stage, {FRAGMENT_STORAGE_BUFFERS} are needed",
+            alim.max_storage_buffers_per_shader_stage
+        )));
     }
     let timestamps = afeat.contains(wgpu::Features::TIMESTAMP_QUERY);
     if timestamps {
@@ -1434,16 +1690,29 @@ fn open_device(adapter: &wgpu::Adapter) -> Result<OpenedDevice, RenderError> {
     if afeat.contains(wgpu::Features::MULTI_DRAW_INDIRECT_COUNT) {
         features |= wgpu::Features::MULTI_DRAW_INDIRECT_COUNT;
     }
+    // Aurora's own pipeline cache on disk (pipeline_cache.rs)
+    features |= crate::pipeline_cache::feature(afeat);
     let max_textures = texture_page_limit(&alim);
-    let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
+    let descriptor = wgpu::DeviceDescriptor {
         label: Some("aurora"),
         required_features: features,
         required_limits: alim.clone(),
         experimental_features: wgpu::ExperimentalFeatures::disabled(),
-        memory_hints: wgpu::MemoryHints::Performance,
+        memory_hints: wgpu::MemoryHints::Manual {
+            suballocated_device_memory_block_size: MEMORY_BLOCK..MEMORY_BLOCK,
+        },
         trace: wgpu::Trace::Off,
-    }))
-    .map_err(|e| RenderError::Device(e.to_string()))?;
+    };
+    #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+    let (device, queue) = if let Some(xr) = xr {
+        let graphics = xr.open(adapter, &descriptor).map_err(|e| RenderError::Device(e.to_string()))?;
+        log::info!("OpenXR-compatible viewer graphics device: {}", adapter.get_info().name);
+        graphics
+    } else {
+        pollster::block_on(adapter.request_device(&descriptor)).map_err(|e| RenderError::Device(e.to_string()))?
+    };
+    #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
+    let (device, queue) = pollster::block_on(adapter.request_device(&descriptor)).map_err(|e| RenderError::Device(e.to_string()))?;
     Ok(OpenedDevice {
         device,
         queue,

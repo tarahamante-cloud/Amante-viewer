@@ -2,12 +2,6 @@
 //! Like LLVersionInfo (indra/newview/llversioninfo.cpp), every consumer
 //! reads the same build information. Aurora's release tag is authoritative.
 
-/// Public product identity; the internal Cargo package names stay compatible.
-pub const APP_NAME: &str = "Amante Viewer";
-
-pub mod amante_config;
-pub mod privacy;
-
 /// Release tag without `v`, with commit distance/hash metadata between tags.
 pub const fn version() -> &'static str {
     env!("AURORA_COMPILED_VERSION")

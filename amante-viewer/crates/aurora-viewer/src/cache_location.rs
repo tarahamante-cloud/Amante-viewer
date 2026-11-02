@@ -14,7 +14,7 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 /// The viewer's folder inside the chosen one.
-pub const ROOT_NAME: &str = "AmanteViewerCache";
+pub const ROOT_NAME: &str = "AuroraViewerCache";
 /// The cache used by the last run (in the settings folder).
 const MARKER: &str = "cache_location.txt";
 
@@ -55,6 +55,7 @@ pub fn init() {
     log::info!("cache folder: {}", now.display());
     let marker = crate::settings::config_dir().join(MARKER);
     let last = std::fs::read_to_string(&marker).ok().map(|s| PathBuf::from(s.trim()));
+    let unchanged = last.as_deref() == Some(now.as_path());
     if let Some(last) = last.filter(|l| !l.as_os_str().is_empty() && *l != now)
         && is_ours(&last)
     {
@@ -67,10 +68,15 @@ pub fn init() {
             }
         });
     }
+    // written on the disk (a marker emptied by a reset forgot the folder,
+    // #1809), only when it changes: this runs before the window shows
+    if unchanged {
+        return;
+    }
     if let Some(dir) = marker.parent() {
         let _ = std::fs::create_dir_all(dir);
     }
-    if let Err(e) = std::fs::write(&marker, now.to_string_lossy().as_bytes()) {
+    if let Err(e) = crate::atomic_file::write(&marker, now.to_string_lossy().as_bytes()) {
         log::warn!("cache folder marker not written: {e}");
     }
 }

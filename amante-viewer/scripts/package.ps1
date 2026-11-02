@@ -18,8 +18,6 @@ param(
 )
 
 New-Item -ItemType Directory -Force -Path (Join-Path $Out 'assets/emoji') -ErrorAction Stop | Out-Null
-# Keep the internal Cargo target for upstream compatibility; distributions
-# always expose Amante's own executable name.
 $binaryName = if ([IO.Path]::GetExtension($Exe) -eq '.exe') { 'amante-viewer.exe' } else { 'amante-viewer' }
 Copy-Item -LiteralPath $Exe -Destination (Join-Path $Out $binaryName) -ErrorAction Stop
 # The emoji font is inside the exe; its licence ships, and the assets folder
@@ -38,17 +36,17 @@ Get-ChildItem -LiteralPath $dictionaries -Directory -ErrorAction Stop | ForEach-
         Copy-Item -LiteralPath $license -Destination (Join-Path $dictionariesOut "$($_.Name)-LICENSE.txt") -ErrorAction Stop
     }
 }
-$docs = 'LICENSE', 'NOTICE.md', 'AMANTE.md' | ForEach-Object { Join-Path $Source $_ }
+$docs = 'LICENSE', 'NOTICE.md', 'README.md', 'AMANTE.md', 'amante-upstream-manifest.json' | ForEach-Object { Join-Path $Source $_ }
 Copy-Item -LiteralPath $docs -Destination $Out -ErrorAction Stop
-
-$rtcLicenses = Join-Path $Out 'licenses/rtc-crypto'
-New-Item -ItemType Directory -Force -Path $rtcLicenses -ErrorAction Stop | Out-Null
-foreach ($name in @('LICENSE-MIT', 'LICENSE-APACHE', 'AMANTE-PATCH.md')) {
-    Copy-Item -LiteralPath (Join-Path $Source "vendor/rtc-crypto/$name") -Destination $rtcLicenses -ErrorAction Stop
+# Linux (an executable without extension): the desktop entry and its icon,
+# named after the viewer's Wayland app_id / X11 WM_CLASS (cli.rs DESKTOP_ID)
+# so the desktop matches the window to them. docs/LINUX.md installs them.
+# (macOS has its own bundle: package-macos.ps1; $IsMacOS is unset, so
+# false, in Windows PowerShell 5.1.)
+if (-not [IO.Path]::GetExtension($Exe) -and -not $IsMacOS) {
+    Copy-Item -LiteralPath (Join-Path $Source 'packaging/linux/aurora-viewer.desktop') -Destination $Out -ErrorAction Stop
+    Copy-Item -LiteralPath (Join-Path $Source 'assets/branding/aurora-logo.svg') -Destination (Join-Path $Out 'aurora-viewer.svg') -ErrorAction Stop
 }
-Copy-Item -LiteralPath (Join-Path $Source 'docs/amante/README.md') -Destination (Join-Path $Out 'README.md') -ErrorAction Stop
-New-Item -ItemType Directory -Force -Path (Join-Path $Out 'docs') -ErrorAction Stop | Out-Null
-Copy-Item -LiteralPath (Join-Path $Source 'docs/amante') -Destination (Join-Path $Out 'docs') -Recurse -ErrorAction Stop
 $taskExePath = (Resolve-Path -LiteralPath $Exe).Path
 $taskVersion = (& $taskExePath --version | Out-String).Trim() -replace '^Amante Viewer ', ''
 if ($LASTEXITCODE -ne 0 -or $taskVersion -notmatch '^\d+\.\d+\.\d+([+-][0-9A-Za-z.+-]+)?$') { throw 'Invalid package version.' }

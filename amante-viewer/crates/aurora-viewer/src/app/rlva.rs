@@ -294,11 +294,11 @@ impl App {
                 self.request_user_teleport(
                     NetCommand::TeleportToRegion {
                         request,
-                        name: "Amante Deferred Demo".into(),
+                        name: "Aurora Deferred Demo".into(),
                         position: Vec3::new(128.0, 128.0, 30.0),
                         look_at: Vec3::X,
                     },
-                    "Amante Deferred Demo".into(),
+                    "Aurora Deferred Demo".into(),
                     true,
                 );
                 "@tploc=n".to_owned()

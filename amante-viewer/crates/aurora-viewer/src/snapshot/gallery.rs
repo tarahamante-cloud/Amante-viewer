@@ -64,7 +64,7 @@ pub fn reveal(folder: &Path, file: Option<&Path>) {
 /// Explorer's `/select,"<file>"`, written as it reads it: given as one
 /// argument, the standard quoting wraps the whole of it in quotes, which
 /// Explorer misreads when the path holds a space (the pictures folder's
-/// "Aurora Viewer") and opens another folder instead.
+/// "Amante Viewer") and opens another folder instead.
 #[cfg(windows)]
 fn select_arg(cmd: &mut std::process::Command, file: &Path) {
     use std::os::windows::process::CommandExt;

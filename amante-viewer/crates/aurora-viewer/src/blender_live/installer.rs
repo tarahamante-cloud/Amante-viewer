@@ -316,7 +316,7 @@ fn install_selected(executable: &Path, mut run: impl FnMut(&Path, bool) -> Resul
 }
 
 fn remembered_paths() -> Option<PathBuf> {
-    directories::ProjectDirs::from("org", "Amante", "AmanteViewer").map(|d| d.config_dir().join("blender-installations.json"))
+    directories::ProjectDirs::from("org", "Aurora", "AuroraViewer").map(|d| d.config_dir().join("blender-installations.json"))
 }
 
 fn remember_selected(executable: &Path) -> Result<(), String> {

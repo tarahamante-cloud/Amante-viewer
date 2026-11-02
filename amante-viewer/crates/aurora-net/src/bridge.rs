@@ -293,7 +293,7 @@ fn transport_failure(error: reqwest::Error) -> String {
     // A reqwest error can contain the private URL. Only classify its flags;
     // never format it, its source chain or the HTTP response body.
     let kind = if error.is_timeout() { "timeout" } else { "connection" };
-    log::warn!("Amante bridge: HTTP {kind} failure");
+    log::warn!("Aurora bridge: HTTP {kind} failure");
     if error.is_timeout() {
         aurora_i18n::tr!("bridge-request-timeout").into()
     } else {
@@ -311,7 +311,7 @@ pub fn unreachable(error: &str) -> bool {
 /// "unavailable": any other 404 is the simulator's, for an HTTP-in URL that
 /// no longer exists (the worn bridge left the region, or the region restarted).
 fn gone_failure() -> String {
-    log::info!("Amante bridge: HTTP-in URL gone (HTTP 404)");
+    log::info!("Aurora bridge: HTTP-in URL gone (HTTP 404)");
     aurora_i18n::tr!("bridge-request-gone").into()
 }
 
@@ -336,10 +336,20 @@ fn http() -> Result<&'static reqwest::Client, String> {
     static HTTP: OnceLock<Result<reqwest::Client, ()>> = OnceLock::new();
     let http = HTTP
         .get_or_init(|| {
-            // Keep Linden's CA, full hostname verification, and the existing
-            // refusal to redirect a private bridge token.
-            crate::http_security::simulator_client()
+            // Same simulator trust as NetClient::new / Firestorm llcorehttp:
+            // Linden's CA is required, and simulator certificates need not
+            // match the individual simhost name. Keep certificate-chain
+            // verification and forbid redirects carrying the bridge token.
+            let mut roots: Vec<_> = webpki_root_certs::TLS_SERVER_ROOT_CERTS
+                .iter()
+                .filter_map(|cert| reqwest::Certificate::from_der(cert.as_ref()).ok())
+                .collect();
+            roots.extend(reqwest::Certificate::from_pem_bundle(include_bytes!("../lindenlab.pem")).map_err(|_| ())?);
+            reqwest::Client::builder()
+                .user_agent(aurora_version::user_agent())
                 .redirect(reqwest::redirect::Policy::none())
+                .tls_certs_only(roots)
+                .tls_danger_accept_invalid_hostnames(true)
                 .timeout(Duration::from_secs(8))
                 .build()
                 .map_err(|_| ())
@@ -384,7 +394,7 @@ pub async fn send(command: Command) -> Result<Ack, String> {
         if status == 404 {
             return Err(gone_failure());
         }
-        log::warn!("Amante bridge: HTTP status {status}");
+        log::warn!("Aurora bridge: HTTP status {status}");
         return Err(aurora_i18n::tr!("bridge-request-http", status = status.to_string()));
     }
     let mut bytes = Vec::new();

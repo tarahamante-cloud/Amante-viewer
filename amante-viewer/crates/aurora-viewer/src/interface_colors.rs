@@ -20,9 +20,8 @@
 //! Readability: the colours are moved in lightness, never refused, until
 //! text and muted text read 4.5:1 against the panel (WCAG AA), the dim
 //! text and the accent 3:1 (non-text); the page says when it happened.
-//! `on_accent` keeps the skin's text while it reads at least as well on
-//! the new accent as on the skin's own; otherwise select a readable dark
-//! or light alternative, including for skins with dark accent text.
+//! `on_accent` is the skin's (white) while it reads at least as well on
+//! the new accent as on the skin's own, else the skin's navy.
 //!
 //! The state colours (danger, success, warn, amber, rose) and the links'
 //! teal keep their hue but move in lightness, like the text, to read 4.5:1
@@ -208,21 +207,15 @@ pub fn derive(skin: Palette, colors: &InterfaceColors) -> (Palette, Adjusted) {
     (p, adjusted)
 }
 
-/// Text on the accent: preserve the skin's text when readable. A skin can
-/// have dark text AND a dark background, so those alone are not sufficient
-/// fallbacks for arbitrary user-selected accent colors.
+/// Text on the accent: the skin's while it reads at least as well as on
+/// the skin's own accent (up to 4.5:1), else the better of it and navy.
 fn on_accent(skin: &Palette, accent: Color32) -> Color32 {
     let need = TEXT.min(contrast(skin.on_accent, skin.violet));
-    for candidate in [skin.on_accent, skin.navy, Color32::WHITE, Color32::BLACK] {
-        if contrast(candidate, accent) >= need {
-            return candidate;
-        }
-    }
-    // For opaque sRGB accents, black or white always reaches 4.5:1.
-    if contrast(Color32::WHITE, accent) >= contrast(Color32::BLACK, accent) {
-        Color32::WHITE
+    let light = contrast(skin.on_accent, accent);
+    if light >= need || light >= contrast(skin.navy, accent) {
+        skin.on_accent
     } else {
-        Color32::BLACK
+        skin.navy
     }
 }
 
@@ -247,9 +240,7 @@ impl Turn {
     fn on(&self, base: Color32) -> Color32 {
         let [l, c, h] = lch(lab(base));
         let (c, h) = (c * self.chroma, h + self.hue);
-        // Absolute white/black has no hue. A very pale copper highlight moved
-        // to a lighter accent can otherwise clip to white and lose its family.
-        rgb([(l + self.dl).clamp(0.02, 0.98), c * h.cos(), c * h.sin()])
+        rgb([l + self.dl, c * h.cos(), c * h.sin()])
     }
 }
 

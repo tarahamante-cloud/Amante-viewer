@@ -31,7 +31,7 @@ pub enum State {
     Rollback,
 }
 enum Event {
-    Checked(Result<Option<Box<Release>>, Failure>),
+    Checked(Result<Option<Release>, Failure>),
     Progress(Progress),
     Prepared(Result<Workspace, Failure>),
     Handoff(Result<(), Failure>),
@@ -42,7 +42,6 @@ pub struct Updater {
     pub release: Option<Release>,
     pub open: bool,
     pub enabled: bool,
-    notification_only: bool,
     source: Source,
     /// The releases followed (Preferences); a change checks again at once.
     channel: Channel,
@@ -58,12 +57,11 @@ pub struct Updater {
 pub fn checks_enabled() -> bool {
     std::env::var_os("AURORA_DEMO").is_none()
         && (aurora_updater::test_environment().is_some()
-            || (env!("AURORA_BUILD_PROFILE") == "release"
-                && (!aurora_version::amante_config::PRODUCTION_UPDATES_READY || published_version(aurora_version::version()))))
+            || (env!("AURORA_BUILD_PROFILE") == "release" && published_version(aurora_version::version())))
 }
 
-/// Executable replacement is restricted to published versions. Notification-only
-/// checks also support development downloads, including the first Amante build.
+/// A version the Release workflow published: a stable one, or a beta. A
+/// development build (Git distance and commit after the tag) never updates.
 fn published_version(version: &str) -> bool {
     aurora_updater::feed::version(version).is_some_and(|v| Channel::Beta.accepts(&v))
 }
@@ -73,7 +71,6 @@ impl Updater {
         let (tx, rx) = crossbeam_channel::unbounded();
         let test = aurora_updater::test_environment();
         let enabled = checks_enabled();
-        let notification_only = test.is_none() && !aurora_version::amante_config::PRODUCTION_UPDATES_READY;
         let rollback = std::env::var_os("AURORA_UPDATE_ROLLBACK").is_some();
         let source = test.map(|t| t.source.clone()).unwrap_or_default();
         let mut this = Self {
@@ -81,7 +78,6 @@ impl Updater {
             release: None,
             open: rollback,
             enabled,
-            notification_only,
             source,
             channel,
             tx,
@@ -105,9 +101,6 @@ impl Updater {
 
     pub fn busy(&self) -> bool {
         matches!(self.state, State::Checking | State::Downloading(_) | State::Handoff)
-    }
-    pub fn notification_only(&self) -> bool {
-        self.notification_only
     }
     pub fn required(&self) -> bool {
         self.release.as_ref().is_some_and(|r| r.required)
@@ -133,7 +126,7 @@ impl Updater {
             return;
         }
         self.manual = manual;
-        self.policy_pending = !self.notification_only;
+        self.policy_pending = true;
         if manual {
             self.rollback_notice = false;
         }
@@ -143,24 +136,15 @@ impl Updater {
         let source = self.source.clone();
         let channel = self.channel;
         let tx = self.tx.clone();
-        let notification_only = self.notification_only;
         runtime.spawn(async move {
-            let result = async {
-                tokio::time::timeout(std::time::Duration::from_secs(8), async {
-                    if notification_only {
-                        aurora_updater::feed::check_notification(aurora_version::version(), channel).await
-                    } else {
-                        source.check(aurora_version::version(), channel).await
-                    }
-                })
-                .await?
-            }
-            .await
-            .map_err(|e: anyhow::Error| {
-                log::warn!("release check: {e:#}");
-                Failure::Network
-            });
-            let _ = tx.send(Event::Checked(result.map(|release| release.map(Box::new))));
+            let result =
+                async { tokio::time::timeout(std::time::Duration::from_secs(8), source.check(aurora_version::version(), channel)).await? }
+                    .await
+                    .map_err(|e: anyhow::Error| {
+                        log::warn!("release check: {e:#}");
+                        Failure::Network
+                    });
+            let _ = tx.send(Event::Checked(result));
         });
     }
 
@@ -183,7 +167,7 @@ impl Updater {
             match event {
                 Event::Checked(Ok(release)) => {
                     self.policy_pending = false;
-                    self.release = release.map(|release| *release);
+                    self.release = release;
                     self.state = if self.release.is_some() { State::Offer } else { State::Current };
                     if let Some(r) = &self.release {
                         info.version = VersionState::Available {
@@ -191,13 +175,7 @@ impl Updater {
                             url: String::new(),
                         };
                         self.open = should_offer(r.required, self.manual, settings.update_mode, &settings.ignored_update, &r.tag);
-                        if !self.notification_only
-                            && self.open
-                            && !self.manual
-                            && !self.rollback_notice
-                            && !r.required
-                            && settings.update_mode == Mode::Automatic
-                        {
+                        if self.open && !self.manual && !self.rollback_notice && !r.required && settings.update_mode == Mode::Automatic {
                             self.download(runtime);
                         }
                     } else {
@@ -258,14 +236,11 @@ impl Updater {
     }
 
     pub fn download(&mut self, runtime: &tokio::runtime::Handle) {
-        if self.notification_only {
-            return;
-        }
         let Some(release) = self.release.clone() else { return };
         if self.busy() {
             return;
         }
-        if !cfg!(windows) || release.archive.is_none() || (release.checksum.is_none() && release.authentication.is_none()) {
+        if !cfg!(windows) || release.archive.is_none() || release.checksum.is_none() {
             self.state = State::Error(Failure::Unsupported);
             self.open = true;
             return;
@@ -310,16 +285,8 @@ impl Updater {
         self.cancel.cancel();
     }
     pub fn restart(&mut self) {
-        if self.notification_only {
-            return;
-        }
         let Some(work) = self.prepared.take() else { return };
         let Some(release) = &self.release else { return };
-        if self.source.authorize_install(release).is_err() {
-            self.state = State::Error(Failure::Integrity);
-            self.open = true;
-            return;
-        }
         let version = release.version.clone();
         let maintenance = release.maintenance;
         let tx = self.tx.clone();
@@ -341,40 +308,6 @@ fn should_offer(required: bool, manual: bool, mode: Mode, ignored: &str, tag: &s
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn notification_checks_never_block_login_or_automatically_download() {
-        let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("runtime");
-        let mut updater = Updater::new(rt.handle(), Channel::Stable);
-        updater.enabled = true;
-        updater.notification_only = true;
-        updater.check(rt.handle(), false);
-        assert!(!updater.blocks_login());
-        assert!(!updater.open);
-        let release = Release {
-            maintenance: Default::default(),
-            authentication: None,
-            tag: "v99.0.0".into(),
-            version: "99.0.0".into(),
-            notes: String::new(),
-            url: format!("{}/tag/v99.0.0", aurora_updater::feed::NOTIFICATION_PAGE),
-            archive: None,
-            checksum: None,
-            required: false,
-        };
-        updater.tx.send(Event::Checked(Ok(Some(Box::new(release))))).expect("result");
-        let settings = Settings {
-            update_mode: Mode::Automatic,
-            ..Default::default()
-        };
-        updater.poll(&settings, &mut LoginInfo::preview_release("0.3.0"), rt.handle());
-        assert!(updater.open && matches!(updater.state, State::Offer));
-        updater.download(rt.handle());
-        updater.restart();
-        assert!(matches!(updater.state, State::Offer));
-        assert!(updater.prepared.is_none());
-        assert!(!updater.blocks_login());
-    }
-
     #[test]
     fn skipped_version_manual_check_and_required_policy() {
         assert!(!should_offer(false, false, Mode::Ask, "v0.3.0", "v0.3.0"));
@@ -418,7 +351,6 @@ mod tests {
         updater.state = State::Rollback;
         let release = Release {
             maintenance: Default::default(),
-            authentication: None,
             tag: "v0.3.0".into(),
             version: "0.3.0".into(),
             notes: String::new(),
@@ -427,7 +359,7 @@ mod tests {
             checksum: None,
             required: true,
         };
-        updater.tx.send(Event::Checked(Ok(Some(Box::new(release))))).expect("result");
+        updater.tx.send(Event::Checked(Ok(Some(release)))).expect("result");
         let settings = Settings {
             update_mode: Mode::Disabled,
             ignored_update: "v0.3.0".into(),

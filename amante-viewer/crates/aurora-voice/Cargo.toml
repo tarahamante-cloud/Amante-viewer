@@ -30,9 +30,6 @@ uuid = { version = "1.27.0", features = ["v4"] }
 webrtc = "0.21.0"
 
 [dev-dependencies]
-# Exercise the same patched provider implementations used by WebRTC against
-# upstream's reusable cryptographic vectors on both supported backends.
-rtc-crypto = { version = "0.21.1", default-features = false, features = ["test-support", "crypto-ring", "crypto-aws-lc-rs"] }
 # Independent Opus decoder used by the tests to check what we send.
 opus-decoder = "0.1.1"
 

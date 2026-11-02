@@ -282,6 +282,7 @@ const FILLED: &[(&str, &[u8])] = svg_list!(
     "device-desktop",
     "device-floppy",
     "device-gamepad",
+    "device-vision-pro",
     "credit-card",
     "device-speaker",
     "device-tv",
@@ -467,10 +468,12 @@ const FILLED: &[(&str, &[u8])] = svg_list!(
     "zoom-scan",
 );
 
+/// Brand SVGs (white wolf silhouette of assets/branding/), drawn untinted or tinted.
+const BRAND_SVGS: &[(&str, &[u8])] = &[];
+
 /// Raster images kept as PNG (brand logo).
 const PNGS: &[(&str, &[u8])] = &[
-    // Keep the legacy key for existing layouts and skin overrides.
-    ("wolf", include_bytes!("../../assets/amante-crest-icon.png")),
+    ("wolf", include_bytes!("../../../../assets/branding/amante-crest-icon.png")),
     ("phoenix_18", include_bytes!("../../assets/icons/phoenix_18.png")),
 ];
 
@@ -844,7 +847,6 @@ impl Icons {
                 None => log::warn!("icon {name}: invalid SVG"),
             }
         }
-
         for (name, bytes) in INVENTORY_LINKS {
             if let Some(ci) = rasterize_mask(bytes, RASTER_PX, true) {
                 map.insert((*name).to_owned(), ctx.load_texture(*name, ci, opts));
@@ -852,9 +854,13 @@ impl Icons {
                 log::warn!("icon {name}: invalid shortcut SVG");
             }
         }
+        for (name, bytes) in BRAND_SVGS {
+            if let Some(ci) = rasterize_svg(bytes, BRAND_RASTER_PX).map(center_on_content) {
+                map.insert((*name).to_owned(), ctx.load_texture(*name, ci, opts));
+            }
+        }
         for (name, bytes) in PNGS {
             if let Some(ci) = decode_png(bytes) {
-                let ci = if *name == "wolf" { center_on_content(ci) } else { ci };
                 map.insert((*name).to_owned(), ctx.load_texture(*name, ci, opts));
             }
         }

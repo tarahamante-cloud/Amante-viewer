@@ -559,13 +559,8 @@ pub fn show(
                     super::aurora_bg::radial_glow(&painter, r.center(), 150.0, p.violet, 0.42);
                 }
                 ui.add_space(2.0);
-
-                ui.label(RichText::new(aurora_version::APP_NAME).size(34.0).strong().color(p.ink));
-                ui.label(
-                    RichText::new(aurora_i18n::tr!("ui-login-second-life-client-rust-vulkan"))
-                        .size(13.0)
-                        .color(p.violet_pale),
-                );
+                ui.label(RichText::new("Amante Viewer").size(34.0).strong().color(p.ink));
+                ui.label(RichText::new(client_tagline()).size(13.0).color(p.violet_pale));
                 ui.add_space(18.0);
             });
             login_card = card(ui, p, 24, true, |ui| {

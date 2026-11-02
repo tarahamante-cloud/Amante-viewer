@@ -14,6 +14,6 @@ if ($Tag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.
 $path = (Resolve-Path -LiteralPath $Exe -ErrorAction Stop).Path
 $reported = (& $path --version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0) { throw "The viewer could not report its version (code $LASTEXITCODE)." }
-$expected = "Amante Viewer $($Tag.Substring(1))"
+$expected = "Aurora Viewer $($Tag.Substring(1))"
 if ($reported -cne $expected) { throw "Built version mismatch: expected '$expected', got '$reported'." }
 Write-Host "Version verified: $reported"

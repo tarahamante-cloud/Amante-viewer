@@ -215,7 +215,7 @@ mod tests {
 
     #[test]
     fn well_formed_file() {
-        let text = "<!-- How to edit this file:\n## 2020-01-01 — Example, not a news item\n-->\n\n# Aurora Viewer news\n\n\
+        let text = "<!-- How to edit this file:\n## 2020-01-01 — Example, not a news item\n-->\n\n# Amante Viewer news\n\n\
             ## 2026-10-08 — Second item\nFirst line,\nsecond line.\n\nSecond paragraph.\n[Read more](https://example.org/second)\n\n\
             ---\n\n## 2026-09-30 - First item\nOnly one line.\n";
         assert_eq!(

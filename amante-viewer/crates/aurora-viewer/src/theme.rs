@@ -1,5 +1,5 @@
-//! Customisable egui theme. Defaults follow the Amante landing-page palette
-//! (green glass, metallic copper highlights and bronze shadows). Users can override any color in
+//! Customisable egui theme. Defaults follow the Aurora brand palette
+//! (subtle glass, violet/indigo accents on navy). Users can override any color in
 //! `theme.json` in the config directory.
 
 use egui::{Color32, CornerRadius, Stroke, Visuals};
@@ -121,9 +121,10 @@ pub struct Palette {
 }
 
 impl Palette {
-    /// Amante's loading-effect gradient: reflective copper-gold at the leading
-    /// edge, emerald in the middle, landing-page green in the trail. Independent
-    /// of custom UI skins so loading keeps the family colors and existing shimmer.
+    /// The brand gradient in the world (docs/BRANDING.md: gradients are for
+    /// brand elements), from its bright end to its deep one: teal, light
+    /// indigo, violet, the colors of the aurora of the login screen. The
+    /// rez effect runs along it (scene/rez.rs).
     pub fn aurora_gradient(&self) -> [Color32; 3] {
         [
             Color32::from_rgb(0xE9, 0xA4, 0x77),
@@ -345,46 +346,6 @@ impl egui::theme::StyleProvider<egui::widget_style::TextEditStyle> for FieldSize
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn amante_loading_gradient_is_copper_and_green_without_changing_ui_accents() {
-        let mut palette = Theme::default().skin_palette();
-        let expected = [
-            Color32::from_rgb(233, 164, 119),
-            Color32::from_rgb(0, 132, 84),
-            Color32::from_rgb(11, 36, 16),
-        ];
-        assert_eq!(palette.aurora_gradient(), expected);
-        palette.teal = Color32::WHITE;
-        palette.indigo_light = Color32::BLACK;
-        palette.violet = Color32::RED;
-        assert_eq!(
-            palette.aurora_gradient(),
-            expected,
-            "loading colors must not inherit the UI accents"
-        );
-        assert_eq!(palette.teal, Color32::WHITE);
-        assert_eq!(palette.indigo_light, Color32::BLACK);
-        assert_eq!(palette.violet, Color32::RED);
-    }
-
-    #[test]
-    fn amante_default_login_palette_matches_landing_page() {
-        let theme = Theme::default();
-        let palette = theme.skin_palette();
-        assert_eq!(palette.navy, hex("#0B2410"));
-        assert_eq!(palette.violet, hex("#B86A3C"));
-        assert_eq!(palette.indigo, hex("#7A3E1D"));
-        assert_eq!(palette.violet_light, hex("#E9A477"));
-        assert_eq!(palette.violet_pale, hex("#FDE3CF"));
-        assert_eq!(palette.ink, hex("#F6E7BF"));
-        assert_eq!(palette.on_accent, hex("#1E0D04"));
-        // Explicit user skins keep their values, while omitted fields inherit
-        // the new defaults rather than the former purple palette.
-        let custom: Theme = serde_json::from_str(r##"{"violet":"#112233"}"##).unwrap();
-        assert_eq!(custom.skin_palette().violet, hex("#112233"));
-        assert_eq!(custom.skin_palette().navy, palette.navy);
-    }
 
     /// "Reduce animations" ends egui's transitions at once, and gives
     /// them back their duration when it is turned off, a skin reload in

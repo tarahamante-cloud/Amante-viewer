@@ -33,7 +33,6 @@ jobs:
             "$run_json" >/dev/null
 
           commit="$(jq -r '.head_sha' "$run_json")"
-          short_commit="${commit:0:7}"
           gh api "repos/$repo/actions/runs/$RUN_ID/artifacts" > "$artifact_json"
           artifact_id="$(jq -er \
             '[.artifacts[] | select(.name == "Amante-Viewer-windows-x64" and .expired == false)] | sort_by(.created_at) | last | .id' \
@@ -70,12 +69,12 @@ jobs:
             sha256sum "$public_name" > "$public_name.sha256"
           )
           {
-            echo "COMMIT=$commit" >> "$GITHUB_ENV"
-            echo "VERSION=$release_version" >> "$GITHUB_ENV"
-            echo "RELEASE_TAG=v$release_version" >> "$GITHUB_ENV"
-            echo "COMPATIBILITY_NAME=$compatibility_name" >> "$GITHUB_ENV"
-            echo "PUBLIC_NAME=$public_name" >> "$GITHUB_ENV"
-          }
+            echo "COMMIT=$commit"
+            echo "VERSION=$release_version"
+            echo "RELEASE_TAG=v$release_version"
+            echo "COMPATIBILITY_NAME=$compatibility_name"
+            echo "PUBLIC_NAME=$public_name"
+          } >> "$GITHUB_ENV"
 
       - name: Publish the verified Windows preview
         shell: bash
@@ -90,7 +89,7 @@ jobs:
             --repo "$repo" \
             --target "$COMMIT" \
             --title "Amante Viewer Alpha" \
-            --notes "Alpha family test build v$VERSION, built from commit $COMMIT. This is early preview software, not a final release. The login-screen updater only announces available releases; it does not automatically install or replace files. The public Windows x64 download does not require a GitHub sign-in. Verify the accompanying SHA-256 checksum before installing."
+            --notes "Alpha family test build v$VERSION, built from commit $COMMIT. Clean rebuild from Aurora Viewer b21e5c27880176978d4a301220645c2830fef3a9 with Amante branding and owner configuration. Rendering, textures, cache, networking, clothing and dependencies match that upstream snapshot; previous Amante-only functional patches are not included. This is early preview software, not a final release. The public Windows x64 download does not require a GitHub sign-in. Build and offline tests are not proof of rendering in a logged-in Second Life session. Verify the accompanying SHA-256 checksum before installing."
 
           release_url="https://github.com/$repo/releases/tag/$RELEASE_TAG"
           echo "Published $release_url" >> "$GITHUB_STEP_SUMMARY"

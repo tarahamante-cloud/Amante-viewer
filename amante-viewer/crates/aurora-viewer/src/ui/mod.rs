@@ -11,12 +11,13 @@ pub mod avatar_picker;
 pub mod avatar_render_settings;
 pub mod backdrop;
 pub mod bars;
-pub mod beacons;
 pub mod bidi;
 pub mod blacklist;
-pub mod browser;
-pub mod bug_report;
 pub mod bumps;
+pub mod sound_explorer;
+// Bug report form (disabled, see main.rs):
+// pub mod bug_report;
+pub mod beacons;
 pub mod buy_currency;
 pub mod buy_land;
 pub mod call_invite;
@@ -110,7 +111,6 @@ pub mod sky_beacons;
 pub mod snap;
 pub mod snapshot;
 pub mod sound_cues;
-pub mod sound_explorer;
 pub(crate) mod spelling;
 pub mod staff;
 pub mod stream_title;
@@ -185,7 +185,7 @@ pub struct Panels {
     pub bumps: bool,
     /// "Grid status" (Help menu, toolbar): the grid's incidents.
     pub grid_status: bool,
-    /// "About Aurora Viewer" (Help menu): the version, the system
+    /// "About Amante Viewer" (Help menu): the version, the system
     /// information and the licences.
     pub about: bool,
     /// World › Stream title (kept in `audio.stream_title_window`), and its

@@ -267,7 +267,7 @@ pub(super) fn build(c: &mut Catalog, inv: &Inventory, id: Uuid, st: &InventoryUi
     if inv
         .folders
         .get(&id)
-        .is_some_and(|folder| matches!(folder.info.name.as_str(), "Amante AO" | "#AO"))
+        .is_some_and(|folder| matches!(folder.info.name.as_str(), "Aurora AO" | "#AO"))
         || all
     {
         c.add(
@@ -466,7 +466,14 @@ pub(super) fn build(c: &mut Catalog, inv: &Inventory, id: Uuid, st: &InventoryUi
                     point,
                 }];
             }
+            // RLVa greys what a lock forbids, as LLObjectBridge and
+            // LLWearableBridge::buildContextMenu do with ERlvWearMask.
+            let unlocked = selected.iter().all(|item| {
+                let wear = facts.rlva.wear(inv, item.id, point);
+                if replace_items { wear.replace } else { wear.add }
+            });
             let enabled = wearable
+                && unlocked
                 && if key.starts_with("attach:") {
                     objects
                 } else if key == "add" {

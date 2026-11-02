@@ -29,7 +29,7 @@ pub struct Sample {
 pub const SAMPLES: &[Sample] = &[
     // the characters of the report (#127): a title wrapped in Georgian "hearts"
     Sample {
-        title: "ღAmante Friendღ",
+        title: "ღAurora Friendღ",
         display_name: "ნინო ღ Նարե",
         chat: "Georgian ქართული ღ · Armenian Հայերեն",
     },

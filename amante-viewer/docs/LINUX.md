@@ -140,7 +140,8 @@ your desktop (GNOME, KDE and other GLib desktops read such paths).
 ## Not on Linux yet
 
 - Automatic installation of updates (above).
-- The crash report window.
+- The crash window right after a crash: it opens at the next launch
+  instead, and a native crash (a signal) leaves no trace in it.
 
 ## Building from source
 
@@ -161,3 +162,11 @@ Rust from [rustup.rs](https://rustup.rs).
 
 See [Reporting bugs](BUG_REPORTING.md), and say that you are on Linux, with
 your distribution and graphics card.
+
+## Experimental VR scene viewing
+
+See the cross-platform [VR setup and limitations](VR.md) guide. Linux uses the
+native Vulkan/OpenXR path; start WiVRn and connect the headset before launching
+Aurora. Quest 3 / WiVRn 26.9 / RTX 3090 is the human-validated configuration.
+The guide covers toolbar entry, Esc restoration, recording, dependencies and
+viewing-only limitations, plus Windows and experimental macOS setup.

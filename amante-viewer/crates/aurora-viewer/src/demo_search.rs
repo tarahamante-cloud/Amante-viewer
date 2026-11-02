@@ -55,7 +55,7 @@ pub fn group_named(name: &str) -> bool {
 /// (name, members) of the demo groups; the first two are the demo's own.
 fn groups() -> Vec<(Uuid, String, i32)> {
     vec![
-        (DEMO_GROUP1, "Amante Builders".to_owned(), 1248),
+        (DEMO_GROUP1, "Aurora Builders".to_owned(), 1248),
         (DEMO_GROUP2, aurora_i18n::tr!("demo-northern-wolves").to_owned(), 86),
         (id(GROUP, 3), "Nordheim Sailing Club".to_owned(), 412),
         (id(GROUP, 4), "Boreal Photographers".to_owned(), 2731),
@@ -66,7 +66,7 @@ fn groups() -> Vec<(Uuid, String, i32)> {
 
 /// (name, hour offset, flags) of the demo events.
 const EVENTS: [(&str, u32, u32); 6] = [
-    ("Amante Jazz Night", 0, event_flags::NONE),
+    ("Aurora Jazz Night", 0, event_flags::NONE),
     ("Nordheim Regatta", 2, event_flags::NONE),
     ("Boreal Photo Walk", 5, event_flags::NONE),
     ("Pixel Boutique Fashion Show", 8, event_flags::MATURE),
@@ -81,7 +81,7 @@ fn classifieds() -> Vec<(String, i32)> {
         ("Pixel Boutique".to_owned(), 1200),
         ("Nordheim Rentals".to_owned(), 300),
         ("Boreal Lagoon Club".to_owned(), 75),
-        ("Amante Skyboxes".to_owned(), 150),
+        ("Aurora Skyboxes".to_owned(), 150),
     ]
 }
 

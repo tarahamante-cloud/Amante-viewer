@@ -1,4 +1,4 @@
-//! AURORA_DEMO_ABOUT=info|licences[:end]: Help › About Aurora Viewer opens
+//! AURORA_DEMO_ABOUT=info|licences[:end]: Help › About Amante Viewer opens
 //! on its Info tab (the demo region's simulator, the computer read in the
 //! background) or on its Licences tab; `:end` scrolls the tab to its end.
 

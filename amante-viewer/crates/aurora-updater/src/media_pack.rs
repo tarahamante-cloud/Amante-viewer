@@ -31,9 +31,9 @@ pub struct Pack {
 /// `media-plugins-<version>`, one archive per system.
 #[cfg(not(any(target_os = "linux", target_os = "macos")))]
 pub const PACK: Pack = Pack {
-    version: "2",
-    size: 252_643_199,
-    sha256: "5b9e3f61a234ad6b3b4fa002e3d084f74e5e162380485f3543731be80e27e305",
+    version: "1",
+    size: 252_643_186,
+    sha256: "eb2c9c70bcf87df6d987ad38efca83e38a6f2d934fdbc1d00fceb1d20ea1c93e",
 };
 #[cfg(target_os = "linux")]
 pub const PACK: Pack = Pack {
@@ -205,9 +205,9 @@ pub async fn install(
     let stage = Stage::new(root).map_err(|e| failure(Failure::Filesystem, e))?;
     let folder = pack.folder();
     let url = source
-        .media_asset_url(&pack.tag(), &format!("{folder}.zip"))
+        .asset_url(&pack.tag(), &format!("{folder}.zip"))
         .map_err(|e| failure(Failure::Network, e))?;
-    let client = source.media_client().map_err(|e| failure(Failure::Unsupported, e))?;
+    let client = source.client().map_err(|e| failure(Failure::Network, e))?;
     let archive = stage.0.join("download.zip");
     let fetch = Fetch {
         url: &url,

@@ -1,4 +1,4 @@
-//! Aurora Viewer — a Second Life client in Rust (wgpu / Vulkan).
+//! Amante Viewer — a Second Life client in Rust (wgpu / Vulkan).
 
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
@@ -11,7 +11,13 @@ mod atomic_file;
 mod autopilot;
 mod autoreplace;
 mod blender_live;
-mod bug_report;
+// Bug report form, disabled for now: "Report a bug" (login screen, top bar,
+// crash window) opens GitHub's issue chooser in the browser instead
+// (`links::NEW_ISSUE`). Its code stays in the tree, out of the build
+// (`bug_report/`, `ui/bug_report.rs`, `app/bug_report.rs`,
+// `crash/report.rs`): to bring it back, uncomment every line marked "Bug
+// report form (disabled, see main.rs)".
+// mod bug_report;
 mod build;
 mod cache;
 mod cache_location;
@@ -203,8 +209,30 @@ fn run_viewer() -> anyhow::Result<()> {
     let _ = std::thread::Builder::new()
         .name("aurora-web-profile".into())
         .spawn(move || media::private_profile::sweep(&private_profiles));
+    // the browser profiles of the earlier runs: set aside before the first
+    // browser starts, deleted in the background (cef_cache.rs)
+    let browser_cache = media::browser_cache(&settings::cache_dir());
+    media::cef_cache::set_aside(&browser_cache);
+    let _ = std::thread::Builder::new()
+        .name("aurora-web-cache".into())
+        .spawn(move || media::cef_cache::purge(&browser_cache));
+    // the browser profiles of the earlier builds, kept in the wrong folder
+    #[cfg(unix)]
+    {
+        let cache = settings::cache_dir();
+        let _ = std::thread::Builder::new()
+            .name("aurora-web-misplaced".into())
+            .spawn(move || media::remove_misplaced_cache(&cache));
+    }
     let mut app = app::App::new()?;
     let result = event_loop.run_app(app.as_mut());
+    // later launches no longer hand their link to this closing viewer
+    slurl_handoff::release();
+    // the pipelines compiled since the last save (made after the start:
+    // another anti-aliasing, the photo passes…)
+    aurora_render::pipeline_cache::flush(std::time::Duration::from_secs(2));
+    // a save asked on a way out other than `shutdown` (settings/saver.rs)
+    settings::Settings::wait_saved(std::time::Duration::from_secs(5));
     // the browsers stop with the app; their private profiles are removed
     // while the plugins let go of their files
     drop(app);

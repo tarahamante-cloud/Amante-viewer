@@ -19,10 +19,9 @@ MAX_REPLY = 8 * 1024 * 1024 + 4096
 
 def wire_snapshot(snapshot, features):
     if "static-meshes" not in features and any(mesh.get("joints") == [] for mesh in snapshot.get("meshes", [])):
-        raise ValueError("Update Amante Viewer to preview non-rigged meshes")
+        raise ValueError("Update Aurora Viewer to preview non-rigged meshes")
     if not {"object-links", "source-ids"}.issubset(features) and any(mesh.get("link") for mesh in snapshot.get("meshes", [])):
-
-        raise ValueError("Update Amante Viewer to preview linked objects")
+        raise ValueError("Update Aurora Viewer to preview linked objects")
     if "meshes" not in snapshot:
         return snapshot
     meshes = snapshot["meshes"]
@@ -85,7 +84,7 @@ def _encode(snapshot, hello):
     if len(raw) <= limit:
         return raw
     raise SnapshotSizeError("This object exceeds the LiveMesh transfer limit; reduce its geometry or textures" if compressed else
-                            "Update Amante Viewer to preview this large object")
+                            "Update Aurora Viewer to preview this large object")
 
 
 def _subset(snapshot, meshes):
@@ -149,7 +148,6 @@ class Client:
         self._import = None
         self._import_received = 0.0
         self._import_result = None
-
         self._status = "Connecting to Aurora…"
         self._issues = (None, {})
         self._thread = threading.Thread(target=self._run, name="Aurora Live", daemon=True)
@@ -248,10 +246,10 @@ class Client:
     def _line(stream):
         line = stream.readline(MAX_REPLY + 1)
         if not line or len(line) > MAX_REPLY or not line.endswith(b"\n"):
-            raise ValueError("Invalid Amante response")
+            raise ValueError("Invalid Aurora response")
         value = json.loads(line)
         if not isinstance(value, dict):
-            raise ValueError("Invalid Amante response")
+            raise ValueError("Invalid Aurora response")
         return value
 
     def _run(self):
@@ -268,12 +266,11 @@ class Client:
                     with connection.makefile("rb") as reader:
                         hello = self._line(reader)
                         if hello.get("protocol") != 1 or not hello.get("joints"):
-                            raise ValueError("Incompatible Amante protocol")
+                            raise ValueError("Incompatible Aurora protocol")
                         if "pbr-materials" not in hello.get("features", []):
-                            raise ValueError("Update Amante Viewer to use live PBR materials")
+                            raise ValueError("Update Aurora Viewer to use live PBR materials")
                         with self._lock:
                             self._rest_axes = hello.get("rest_axes", {})
-
                             self._features = frozenset(hello.get("features", []))
                         self._set_status("Connected to Aurora", hello["joints"])
                         if "shape-transfer" in hello.get("features", []):
@@ -323,7 +320,7 @@ class Client:
                                 if reply.get("ok"):
                                     self._set_status("Connected · revision {}".format(sent))
                                 else:
-                                    self._set_status("Amante: " + str(reply.get("error", "Snapshot rejected")))
+                                    self._set_status("Aurora: " + str(reply.get("error", "Snapshot rejected")))
                                     if reply.get("retry"):
                                         sent = None
                                         self._stop.wait(0.5)
@@ -333,7 +330,6 @@ class Client:
                                 connection.sendall(b"\0\0\0\0")
                                 self._reply(reader)
                                 heartbeat = time.monotonic()
-
             except (OSError, ValueError, TypeError, OverflowError, struct.error) as error:
                 self._set_status("Waiting for Aurora: " + str(error), ())
                 self._stop.wait(1.0)

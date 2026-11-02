@@ -54,6 +54,8 @@ GPL-3.0-or-later as described above.
 | Roboto, Regular and Medium, version 3.011 (googlefonts/roboto-3-classic, hinted) | `crates/aurora-viewer/assets/fonts/` | SIL Open Font License 1.1 ([LICENSE-Roboto.txt](crates/aurora-viewer/assets/fonts/LICENSE-Roboto.txt)) |
 | OpenDyslexic, Regular and Bold, version 0.910.12 — Copyright 2012-2019 Abbie Gonzalez, Reserved Font Name OpenDyslexic (antijingoist/opendyslexic, release `v0.91.12`, unmodified) | `crates/aurora-viewer/assets/fonts/` | SIL Open Font License 1.1 ([LICENSE-OpenDyslexic.txt](crates/aurora-viewer/assets/fonts/LICENSE-OpenDyslexic.txt)) |
 | Noto Color Emoji font, version 2.057 — Copyright 2022 Google Inc. (googlefonts/noto-emoji, tag `v2026-09-24-unicode18_0`, built into the executable) | `assets/emoji/` | SIL Open Font License 1.1 ([LICENSE-OFL.txt](assets/emoji/LICENSE-OFL.txt)) |
+| MIT KEMAR HRTF measurements, diffuse-field equalized set — Copyright 1994 MIT Media Laboratory, by Bill Gardner and Keith Martin (https://sound.media.mit.edu/resources/KEMAR.html: "provided free with no restrictions on use, provided the authors are cited"); turned into minimum-phase filters by `scripts/generate-hrtf.py` (built into the executable; origin, citation and changes in [README.md](assets/hrtf/README.md)) | `assets/hrtf/kemar.bin` | Free use with credit to the authors (their terms, quoted in the README) |
+| HYG star database v4.4 — David Nash (astronexus, https://codeberg.org/astronexus/hyg); the stars of magnitude 6.5 and brighter, rounded to fixed point by `scripts/generate-star-catalog.py` (built into the executable; origin and changes in [README.md](assets/stars/README.md)) | `assets/stars/stars.bin` | CC BY-SA 4.0 ([LICENSE-HYG.md](assets/stars/LICENSE-HYG.md)); the derived table is shared under the same licence |
 | Aurora wolf logo and silhouette | `assets/branding/` | Part of Aurora Viewer, GPL-3.0-or-later |
 | Photo filters of the Second Life viewer `indra/newview/app_settings/filters` (the 30 XML files unchanged, from the Legacy Viewer's sources at commit `8ffe7065`), made by Linden Lab | `crates/aurora-render/src/looks/legacy/` (built into the executable) | Originally LGPL 2.1, distributed here under GPL-3.0-or-later as described above |
 | LSL keyword names, signatures and help from Firestorm `indra/newview/app_settings/keywords_lsl_default.xml` | `crates/aurora-viewer/assets/lsl/keywords.json`, `reference.json` | Originally LGPL 2.1, distributed here under GPL-3.0-or-later as described above |
@@ -90,15 +92,6 @@ the pack does not include.
 
 The crates used by Aurora Viewer (see `Cargo.lock`) are under licenses
 compatible with the GPL version 3 (mostly MIT and/or Apache-2.0).
-
-Amante includes a locally patched copy of webrtc-rs `rtc-crypto` 0.21.1 in
-`vendor/rtc-crypto`, Copyright Rain Liu and the webrtc-rs contributors, under
-MIT OR Apache-2.0. Both upstream license texts are retained in that directory.
-`AMANTE-PATCH.md` identifies the upstream revision and dependency-only patch.
-Font metadata and emoji bitmap extraction use the Fontations `skrifa` crate
-(MIT OR Apache-2.0); Linux window-title fonts use Crossfont and its system
-FreeType/Fontconfig libraries. Native credential storage uses the maintained
-keyring-core platform-store crates (MIT OR Apache-2.0).
 
 ## HIDAPI
 

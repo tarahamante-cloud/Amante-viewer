@@ -78,12 +78,21 @@ pub struct SystemFont {
 /// Family name and "is regular" flag read from the font's name table.
 fn font_family(path: &std::path::Path) -> Option<(String, bool)> {
     let data = std::fs::read(path).ok()?;
-    let face = amante_fonts::Face::parse(&data, 0).ok()?;
-    // Fontations prefers English, then a Unicode name, then the first available
-    // localized name. Typographic family/subfamily still take precedence.
-    let family = face.name(16).or_else(|| face.name(1));
-    let sub = face.name(17).or_else(|| face.name(2));
-    let regular = !face.is_bold() && !face.is_italic() && (350..=450).contains(&face.weight());
+    let face = ttf_parser::Face::parse(&data, 0).ok()?;
+    let mut family = None;
+    let mut sub = None;
+    for name in face.names() {
+        let is_en = name.language_id == 0x0409 || !name.is_unicode() || name.platform_id == ttf_parser::PlatformId::Unicode;
+        match name.name_id {
+            // typographic family/subfamily first, legacy ones as fallback
+            16 if is_en => family = name.to_string().or(family),
+            1 if family.is_none() && is_en => family = name.to_string(),
+            17 if is_en => sub = name.to_string().or(sub),
+            2 if sub.is_none() && is_en => sub = name.to_string(),
+            _ => {}
+        }
+    }
+    let regular = !face.is_bold() && !face.is_italic() && face.weight().to_number() >= 350 && face.weight().to_number() <= 450;
     let sub_ok = sub.as_deref().is_none_or(|s| {
         let s = s.to_lowercase();
         s == "regular" || s == "normal" || s == "book" || s == "roman"
@@ -163,18 +172,17 @@ pub fn system_fonts() -> Vec<SystemFont> {
 /// center of egui's text row (ascender..descender), so labels line up with
 /// icons and boxes whatever the font metrics.
 fn optical_center_offset(font: &[u8]) -> f32 {
-    let Ok(face) = amante_fonts::Face::parse(font, 0) else {
+    let Ok(face) = ttf_parser::Face::parse(font, 0) else {
         return 0.0;
     };
-    let metrics = face.metrics();
-    let upm = f32::from(metrics.units_per_em);
+    let upm = face.units_per_em() as f32;
     if upm <= 0.0 {
         return 0.0;
     }
-    let ascent = metrics.ascent;
-    let descent = metrics.descent; // negative
-    let cap = metrics.cap_height.unwrap_or(ascent * 0.7);
-    let x = metrics.x_height.unwrap_or(cap * 0.72);
+    let ascent = face.ascender() as f32;
+    let descent = face.descender() as f32; // negative
+    let cap = face.capital_height().map(|v| v as f32).unwrap_or(ascent * 0.7);
+    let x = face.x_height().map(|v| v as f32).unwrap_or(cap * 0.72);
     let row_center = (ascent + descent) * 0.5; // above the baseline
     let optical = (cap + x) * 0.25; // above the baseline
     // text sitting low (row center above the optical center) moves up
@@ -215,6 +223,28 @@ pub fn set_scale(ctx: &egui::Context, scale: f32) {
         data.get_temp::<Arc<egui::FontDefinitions>>(egui::Id::unique(DEFINITIONS_ID))
     });
     install(ctx, definitions.as_deref().cloned().unwrap_or_default());
+}
+
+const CHAT_ID: &str = "aurora-chat-text-ratio";
+
+/// Size the conversations' text on their own (Preferences › Chat › Text
+/// size): `chat_scale` replaces the interface's `text_scale` for them, the
+/// skin's scale kept. The faces stay scaled for the interface, so the
+/// conversations ask `chat_size` for every size they draw.
+pub fn set_chat_scale(ctx: &egui::Context, chat_scale: f32, text_scale: f32) {
+    let ratio = chat_ratio(chat_scale, text_scale);
+    ctx.data_mut(|data| data.insert_temp(egui::Id::unique(CHAT_ID), ratio));
+}
+
+fn chat_ratio(chat_scale: f32, text_scale: f32) -> f32 {
+    let ratio = chat_scale / text_scale;
+    if ratio.is_finite() && ratio > 0.0 { ratio } else { 1.0 }
+}
+
+/// A text size of the conversations, once the faces' scale is applied
+/// the size the chat's own text size asks for.
+pub fn chat_size(ctx: &egui::Context, size: f32) -> f32 {
+    size * ctx.data(|data| data.get_temp(egui::Id::unique(CHAT_ID))).unwrap_or(1.0)
 }
 
 /// Keep the unscaled faces so live changes never compound their scale and
@@ -299,6 +329,44 @@ pub fn semibold_format(family: &egui::FontFamily, size: f32, color: egui::Color3
     format
 }
 
+/// Emphasis shared by plain text, emoji runs and laid-out chat cards.
+/// `RichText::strong` changes the colour only; weight needs our font face
+/// and the variable-font axis, as in `semibold_format`.
+#[derive(Clone, Copy, Default)]
+pub(crate) struct TextEmphasis {
+    pub italics: bool,
+    pub strong: bool,
+}
+
+impl From<bool> for TextEmphasis {
+    fn from(italics: bool) -> Self {
+        Self { italics, strong: false }
+    }
+}
+
+impl TextEmphasis {
+    pub fn rich_text(self, ctx: &egui::Context, text: impl Into<String>, size: f32, color: egui::Color32) -> egui::RichText {
+        let mut text = egui::RichText::new(text).size(size).color(color);
+        if self.strong {
+            text = text.family(semibold(ctx)).variation(b"wght", 600.0);
+        }
+        if self.italics {
+            text = text.italics();
+        }
+        text
+    }
+
+    pub fn format(self, ctx: &egui::Context, size: f32, color: egui::Color32) -> egui::TextFormat {
+        let mut format = if self.strong {
+            semibold_format(&semibold(ctx), size, color)
+        } else {
+            egui::TextFormat::simple(egui::FontId::proportional(size), color)
+        };
+        format.italics = self.italics;
+        format
+    }
+}
+
 /// Does `semibold_format` draw heavier than the regular text? Yes with an
 /// embedded font or a variable system font; a static system font draws its
 /// semi-bold texts with its regular face.
@@ -307,7 +375,8 @@ pub fn has_semibold(ctx: &egui::Context) -> bool {
 }
 
 fn has_weight_axis(font: &[u8]) -> bool {
-    amante_fonts::Face::parse(font, 0).is_ok_and(|face| face.has_weight_axis())
+    let wght = ttf_parser::Tag::from_bytes(b"wght");
+    ttf_parser::Face::parse(font, 0).is_ok_and(|face| face.variation_axes().into_iter().any(|axis| axis.tag == wght))
 }
 
 /// `primary` first for proportional text and after egui's text fonts for
@@ -317,7 +386,7 @@ fn has_weight_axis(font: &[u8]) -> bool {
 fn definitions(mut primary: egui::FontData, system: &[fallback::SystemFace]) -> egui::FontDefinitions {
     primary.tweak.y_offset_factor = optical_center_offset(primary.bytes());
     let shift = primary.tweak.y_offset_factor;
-    let row = amante_fonts::Face::parse(primary.bytes(), 0)
+    let row = ttf_parser::Face::parse(primary.bytes(), 0)
         .ok()
         .and_then(|face| fallback::RowMetrics::of(&face));
     let mut defs = egui::FontDefinitions::default();
@@ -347,7 +416,7 @@ fn definitions(mut primary: egui::FontData, system: &[fallback::SystemFace]) -> 
 /// One of the embedded interface fonts, or egui's own fallbacks.
 #[cfg(test)]
 fn embedded_has(c: char) -> bool {
-    let has = |font: &[u8]| amante_fonts::Face::parse(font, 0).is_ok_and(|face| face.glyph_index(c).is_some());
+    let has = |font: &[u8]| ttf_parser::Face::parse(font, 0).is_ok_and(|face| face.glyph_index(c).is_some());
     let defs = egui::FontDefinitions::default();
     let fallbacks = defs.families.get(&egui::FontFamily::Proportional).into_iter().flatten();
     BUILTINS.iter().any(|b| has(b.regular) || has(b.semibold))
@@ -461,6 +530,39 @@ mod tests {
         assert_eq!(egui::TextStyle::Body.resolve(&ctx.style_of(ctx.theme())).size, size);
         let (scaled, _) = measure(&ctx, family, size, f32::INFINITY);
         assert!((scaled.x / base.x - 1.32).abs() < 0.03);
+    }
+
+    #[test]
+    fn chat_text_follows_its_own_size_whatever_the_interface_text_size() {
+        let ctx = egui::Context::default();
+        let mut theme = crate::theme::Theme::default();
+        theme.apply(&ctx, 1.0);
+        install(&ctx, definitions_for(INTER, &[]));
+        let family = egui::FontFamily::Proportional;
+        // no chat size set yet: the conversations draw as the interface
+        assert_eq!(chat_size(&ctx, 13.5), 13.5);
+        let (base, _) = measure(&ctx, family.clone(), 13.5, f32::INFINITY);
+        // the same chat text at 1.5×, the interface's text small or large
+        for text in [0.8, 1.0, 2.0] {
+            theme.apply(&ctx, text);
+            set_chat_scale(&ctx, 1.5, text);
+            let (chat, _) = measure(&ctx, family.clone(), chat_size(&ctx, 13.5), f32::INFINITY);
+            assert!((chat.x / base.x - 1.5).abs() < 0.03, "text {text}: {}", chat.x / base.x);
+        }
+        // the skin's own scale stays on the chat too
+        theme.font_scale = 1.2;
+        theme.apply(&ctx, 2.0);
+        set_chat_scale(&ctx, 1.0, 2.0);
+        let (chat, _) = measure(&ctx, family, chat_size(&ctx, 13.5), f32::INFINITY);
+        assert!((chat.x / base.x - 1.2).abs() < 0.03);
+    }
+
+    #[test]
+    fn chat_ratio_never_breaks_the_text() {
+        assert_eq!(chat_ratio(1.5, 1.0), 1.5);
+        assert_eq!(chat_ratio(1.0, 2.0), 0.5);
+        assert_eq!(chat_ratio(1.0, 0.0), 1.0);
+        assert_eq!(chat_ratio(f32::NAN, 1.0), 1.0);
     }
 
     #[test]
@@ -674,7 +776,7 @@ mod tests {
     fn every_embedded_face_draws_latin_vietnamese_greek_and_cyrillic() {
         for b in &BUILTINS {
             for (weight, ttf) in [("regular", b.regular), ("semi-bold", b.semibold)] {
-                let face = amante_fonts::Face::parse(ttf, 0).expect("embedded font");
+                let face = ttf_parser::Face::parse(ttf, 0).expect("embedded font");
                 for (script, text) in &SCRIPTS[..4] {
                     let lacking: String = text
                         .chars()
@@ -745,7 +847,7 @@ mod tests {
         // (OpenDyslexic's Bold, declared 800: it has no lighter emphasis
         // weight)
         for b in &BUILTINS {
-            let weight = |ttf| amante_fonts::Face::parse(ttf, 0).expect("embedded font").weight();
+            let weight = |ttf| ttf_parser::Face::parse(ttf, 0).expect("embedded font").weight().to_number();
             let family = |ttf| font_family_name(ttf).expect("family name");
             assert_eq!(weight(b.regular), 400, "{}", b.name);
             let heaviest = if b.name == OPEN_DYSLEXIC { 800 } else { 600 };
@@ -771,8 +873,14 @@ mod tests {
 
     /// Typographic family name of an embedded face (name ID 16, else 1).
     fn font_family_name(ttf: &[u8]) -> Option<String> {
-        let face = amante_fonts::Face::parse(ttf, 0).ok()?;
-        face.name(16).or_else(|| face.name(1))
+        let face = ttf_parser::Face::parse(ttf, 0).ok()?;
+        let name = |id| {
+            face.names()
+                .into_iter()
+                .find(|n| n.name_id == id && n.is_unicode())
+                .and_then(|n| n.to_string())
+        };
+        name(16).or_else(|| name(1))
     }
 
     #[test]

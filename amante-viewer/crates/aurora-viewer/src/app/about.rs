@@ -1,4 +1,4 @@
-//! The app's side of Help › About Aurora Viewer (`ui/about.rs`): the
+//! The app's side of Help › About Amante Viewer (`ui/about.rs`): the
 //! information LLFloaterAbout::getInfo gathers (indra/newview/
 //! llfloaterabout.cpp, originally LGPL 2.1) — the viewer, the computer,
 //! the graphics, where we are and the link — read from the app while the

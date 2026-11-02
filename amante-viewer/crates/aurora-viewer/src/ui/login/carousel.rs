@@ -209,15 +209,10 @@ pub fn show(
                         if let Some(logo) = logo {
                             ui.add(
                                 egui::Image::new(logo)
-                                    .fit_to_exact_size(Vec2::splat((if screen.height() < 800.0 { 64.0 } else { 96.0 }) * layout.scale)),
+                                    .fit_to_exact_size(Vec2::splat((if screen.height() < 800.0 { 32.0 } else { 64.0 }) * layout.scale)),
                             );
                         }
-                        ui.label(
-                            RichText::new(aurora_version::APP_NAME)
-                                .size(28.0 * layout.text_scale)
-                                .strong()
-                                .color(p.ink),
-                        );
+                        ui.label(RichText::new("Amante Viewer").size(28.0 * layout.text_scale).strong().color(p.ink));
                         ui.label(
                             RichText::new(crate::ui::login::client_tagline())
                                 .size(13.0 * layout.text_scale)

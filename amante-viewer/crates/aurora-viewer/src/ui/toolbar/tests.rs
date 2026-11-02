@@ -39,41 +39,6 @@ fn toolbar_moves_in_both_directions_without_duplicates_or_noop_saves() {
 }
 
 #[test]
-fn top_toolbar_commands_move_between_bars_and_persist() {
-    let layout = layout();
-    let mut settings = ToolbarSettings::default();
-    let mut state = ToolbarUi {
-        pending: Some(Edit::Insert(Bar::Top, button("friends"), 0)),
-        ..Default::default()
-    };
-    assert!(state.commit(&layout, &mut settings));
-    assert_eq!(commands(&settings.top), ["friends"]);
-    assert_eq!(settings.location("friends", &layout), Some(Bar::Top));
-
-    // Moving a command to the bottom removes its top copy.
-    state.pending = Some(Edit::Insert(Bar::Bottom, button("friends"), 0));
-    assert!(state.commit(&layout, &mut settings));
-    assert!(settings.top.is_empty());
-    assert_eq!(settings.location("friends", &layout), Some(Bar::Bottom));
-
-    state.pending = Some(Edit::Insert(Bar::Top, button("friends"), 0));
-    assert!(state.commit(&layout, &mut settings));
-    settings.top_style = BarStyle {
-        mode: Some(ButtonMode::IconsWithText),
-        ..Default::default()
-    };
-    let saved: ToolbarSettings = serde_json::from_str(&serde_json::to_string(&settings).expect("serialize")).expect("reload");
-    assert_eq!(commands(&saved.top), ["friends"]);
-    assert_eq!(saved.location("friends", &layout), Some(Bar::Top));
-    assert_eq!(saved.style(Bar::Top), settings.top_style);
-
-    state.pending = Some(Edit::Restore);
-    assert!(state.commit(&layout, &mut settings));
-    assert!(settings.top.is_empty());
-    assert_eq!(settings.style(Bar::Top), BarStyle::default());
-}
-
-#[test]
 fn toolbar_persistence_preserves_custom_icons_empty_layout_and_skin_fallback() {
     let mut layout = layout();
     let mut settings = ToolbarSettings::default();
@@ -177,7 +142,10 @@ fn toolbar_layout_and_lock_are_shared_across_accounts_after_restart() {
 #[test]
 fn water_mode_toolbar_buttons_are_opt_in_and_preserve_saved_placements() {
     let layout = Layout::default();
-    let mut toolbar = ToolbarSettings::default();
+    let mut toolbar = ToolbarSettings {
+        vr_button_migrated: true,
+        ..Default::default()
+    };
     let mut state = ToolbarUi::default();
     for command in ["movement", "water_walk"] {
         assert!(toolbar.location(command, &layout).is_none(), "absent from defaults: {command}");
@@ -245,7 +213,11 @@ fn toolbar_migration_uses_the_first_connected_accounts_layout_not_another_accoun
     let common = restored.toolbar.as_ref().expect("migrated toolbar");
     assert_eq!(
         common.buttons(&layout()).iter().map(|b| b.command.as_str()).collect::<Vec<_>>(),
-        ["inventory"]
+        if cfg!(any(target_os = "linux", target_os = "windows", target_os = "macos")) {
+            vec!["inventory", "vr_view"]
+        } else {
+            vec!["inventory"]
+        }
     );
     assert!(common.locked);
     assert!(!restored.migrate_toolbar(first));
@@ -637,7 +609,7 @@ fn commands(list: &[ToolButton]) -> Vec<&str> {
 
 /// LLToolBarView keeps a command in one toolbar: dropped in another it
 /// moves there; removed, it leaves the one it was in; Clear all empties
-/// the four, Restore defaults brings the skin's bottom toolbar back with
+/// the three, Restore defaults brings the skin's bottom toolbar back with
 /// empty side ones and the looks' defaults (loadDefaultToolbars).
 #[test]
 fn toolbar_commands_stand_in_one_of_three_toolbars() {
@@ -743,12 +715,11 @@ fn toolbar_styles_follow_each_look_until_chosen_and_survive_a_restart() {
 
 /// A file edited by hand with a command twice keeps its first place.
 #[test]
-fn toolbar_sanitize_keeps_each_command_once_over_all_four_toolbars() {
+fn toolbar_sanitize_keeps_each_command_once_over_the_three_toolbars() {
     let mut settings = ToolbarSettings {
         buttons: Some(vec![button("people"), button("people"), button("inventory")]),
         left: vec![button("inventory"), button("radar"), button("")],
         right: vec![button("radar"), button("search")],
-        top: vec![button("search"), button("home")],
         ..Default::default()
     };
     settings.sanitize();
@@ -756,22 +727,21 @@ fn toolbar_sanitize_keeps_each_command_once_over_all_four_toolbars() {
     assert_eq!(commands(settings.buttons(&layout)), ["people", "inventory"]);
     assert_eq!(commands(&settings.left), ["radar"]);
     assert_eq!(commands(&settings.right), ["search"]);
-    assert_eq!(commands(&settings.top), ["home"]);
 }
 
-/// The window lists Firestorm's toybox (its 66 commands) and Aurora's own
-/// three, each once, with an embedded icon and a label in both languages;
+/// The window lists the Legacy Viewer commands and Aurora additions, each
+/// once, with an embedded icon and localized labels;
 /// what Aurora runs does something, what it cannot run yet does nothing.
 #[test]
 fn toolbar_catalogue_holds_firestorm_commands_and_runs_the_ready_ones() {
     let skin = Layout::default();
     let all = catalogue(&skin);
-    assert_eq!(all.len(), 73);
-    assert_eq!(COMMANDS.len(), 73);
+    assert_eq!(all.len(), 74);
+    assert_eq!(COMMANDS.len(), 74);
     let mut ids: Vec<_> = COMMANDS.iter().map(|c| c.id).collect();
     ids.sort_unstable();
     ids.dedup();
-    assert_eq!(ids.len(), 73, "each command once");
+    assert_eq!(ids.len(), 74, "each command once");
     assert!(ready("texture_library"));
     assert!(ready("movelock") && ready("move_lock") && ready("movement") && ready("water_walk"));
     assert_eq!(catalogue::find("move_lock").map(|c| c.id), Some("movelock"));
@@ -877,4 +847,49 @@ fn toolbar_drop_anywhere_on_the_window_removes_the_button() {
         assert_eq!(bench.saves, 1, "islands {islands}");
         assert_eq!(bench.settings.location("people", &layout()), None);
     }
+}
+
+#[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+#[test]
+fn vr_toolbar_migration_preserves_customization_and_manual_removal() {
+    let mut settings = ToolbarSettings {
+        buttons: Some(vec![button("inventory"), button("view"), button("preferences")]),
+        ..Default::default()
+    };
+    assert!(settings.migrate_vr_button());
+    let commands: Vec<_> = settings
+        .buttons
+        .as_ref()
+        .expect("custom toolbar")
+        .iter()
+        .map(|b| b.command.as_str())
+        .collect();
+    assert_eq!(commands, ["inventory", "view", "vr_view", "preferences"]);
+    settings
+        .buttons
+        .as_mut()
+        .expect("custom toolbar")
+        .retain(|b| b.command != "vr_view");
+    assert!(!settings.migrate_vr_button());
+    assert!(
+        !settings
+            .buttons
+            .as_ref()
+            .expect("custom toolbar")
+            .iter()
+            .any(|b| b.command == "vr_view")
+    );
+    let mut empty = ToolbarSettings {
+        buttons: Some(vec![]),
+        ..Default::default()
+    };
+    empty.migrate_vr_button();
+    assert!(empty.buttons.expect("explicit empty toolbar").is_empty());
+    let mut side = ToolbarSettings {
+        buttons: Some(vec![button("view")]),
+        left: vec![button("vr_view")],
+        ..Default::default()
+    };
+    side.migrate_vr_button();
+    assert_eq!(side.buttons.expect("custom toolbar").len(), 1);
 }

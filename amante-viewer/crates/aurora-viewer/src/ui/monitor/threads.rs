@@ -36,8 +36,13 @@ fn role(group: &str) -> &'static str {
     }
 }
 
-/// A Windows thread priority (`THREAD_PRIORITY_*`) in words.
-fn priority(p: Option<i32>) -> &'static str {
+/// A thread priority in words: Windows' levels (`THREAD_PRIORITY_*`); on
+/// Linux the nice value itself (-20 to 19, higher gives way), whose
+/// weights do not map onto Windows' levels.
+fn priority(p: Option<i32>) -> std::borrow::Cow<'static, str> {
+    if cfg!(target_os = "linux") {
+        return p.map_or("–".into(), |n| tr!("monitor-priority-nice", value = i64::from(n)).into());
+    }
     match p {
         Some(-15) => tr!("monitor-priority-idle"),
         Some(-2) => tr!("monitor-priority-lowest"),
@@ -48,6 +53,7 @@ fn priority(p: Option<i32>) -> &'static str {
         Some(15) => tr!("monitor-priority-time-critical"),
         _ => "–",
     }
+    .into()
 }
 
 pub(super) fn show(ui: &mut egui::Ui, p: &Palette, s: &Snapshot) {
@@ -91,7 +97,7 @@ pub(super) fn show(ui: &mut egui::Ui, p: &Palette, s: &Snapshot) {
             draw::card(ui, p, |ui| {
                 draw::card_title(ui, p, tr!("monitor-processes-title"), tr!("monitor-processes-units"));
                 let own = f64::from(cpu.process) * cpu.cores as f64;
-                process_row(ui, p, "Amante", own, s.memory.map(|mem| mem.working_set as f64));
+                process_row(ui, p, "Aurora", own, s.memory.map(|mem| mem.working_set as f64));
                 for (proc_, usage) in &s.attribution.media {
                     let one_core = usage.get(Column::Cpu).map_or(0.0, |v| v * cpu.cores as f64);
                     process_row(ui, p, &format!("SLPlugin · {}", proc_.label), one_core, usage.get(Column::Ram));
@@ -141,7 +147,7 @@ pub(super) fn show(ui: &mut egui::Ui, p: &Palette, s: &Snapshot) {
                         "–".into()
                     };
                     draw::cell_text(ui, r[3], cy, &busy, true, p.muted, draw::BODY);
-                    draw::cell_text(ui, r[4], cy, priority(g.priority), false, p.muted, draw::BODY);
+                    draw::cell_text(ui, r[4], cy, &priority(g.priority), false, p.muted, draw::BODY);
                     draw::cell_text(ui, r[5], cy, role(&g.group), false, p.muted, draw::BODY);
                 }
             });

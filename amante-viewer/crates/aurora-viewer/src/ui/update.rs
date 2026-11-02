@@ -294,8 +294,6 @@ pub fn show_real(
                 ui.label(
                     RichText::new(if required {
                         aurora_i18n::tr!("update-required")
-                    } else if updater.notification_only() {
-                        aurora_i18n::tr!("amante-update-intro")
                     } else {
                         aurora_i18n::tr!("update-intro")
                     })
@@ -370,27 +368,11 @@ pub fn show_real(
                 _ => {}
             }
             ui.add_space(8.0);
-            if let Some(release) = &updater.release
-                && !updater.notification_only()
-            {
+            if let Some(release) = &updater.release {
                 maintenance_summary(ui, p, release.maintenance);
             }
             ui.add_space(BEFORE_BUTTONS);
             match updater.state {
-                State::Offer if updater.notification_only() && !required => {
-                    ui.horizontal(|ui| {
-                        let size = Vec2::new((width - 10.0) / 2.0, 34.0);
-                        if flat_button_sized(ui, p, aurora_i18n::tr!("update-later"), size).clicked() {
-                            updater.open = false;
-                        }
-                        if primary_button_sized(ui, p, aurora_i18n::tr!("amante-update-download"), size).clicked() {
-                            if let Some(release) = &updater.release {
-                                ctx.open_url(egui::OpenUrl::new_tab(&release.url));
-                            }
-                            updater.open = false;
-                        }
-                    });
-                }
                 State::Offer => {
                     ui.horizontal(|ui| {
                         let size = Vec2::new((width - 20.0) / if required { 2.0 } else { 3.0 }, 34.0);
@@ -429,22 +411,11 @@ pub fn show_real(
                     }
                 }
                 State::Error(_) | State::Rollback => {
-                    let url = updater.release.as_ref().map_or(
-                        if updater.notification_only() {
-                            aurora_updater::feed::NOTIFICATION_PAGE
-                        } else {
-                            aurora_updater::feed::RELEASE_PAGE
-                        },
-                        |r| r.url.as_str(),
-                    );
-                    if ui
-                        .add_enabled_ui(!url.is_empty(), |ui| {
-                            flat_button_sized(ui, p, aurora_i18n::tr!("update-open-release"), Vec2::new(width, 34.0))
-                        })
-                        .inner
-                        .on_disabled_hover_text(aurora_i18n::tr!("amante-updates-config"))
-                        .clicked()
-                    {
+                    let url = updater
+                        .release
+                        .as_ref()
+                        .map_or(aurora_updater::feed::RELEASE_PAGE, |r| r.url.as_str());
+                    if flat_button_sized(ui, p, aurora_i18n::tr!("update-open-release"), Vec2::new(width, 34.0)).clicked() {
                         ctx.open_url(egui::OpenUrl::new_tab(url));
                     }
                     if flat_button_sized(
@@ -615,7 +586,6 @@ mod tests {
         let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("runtime");
         let mut updater = crate::updater::Updater::new(runtime.handle(), aurora_updater::feed::Channel::Stable);
         updater.release = Some(aurora_updater::feed::Release {
-            authentication: None,
             tag: "v0.3.0".into(),
             version: "0.3.0".into(),
             notes: "Synthetic notes".into(),

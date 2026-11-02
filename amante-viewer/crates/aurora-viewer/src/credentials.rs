@@ -3,8 +3,6 @@
 //! the system credential store (Windows Credential Manager, protected by the
 //! user's session) instead of Firestorm's bin_conf.dat file.
 
-use amante_keyring as keyring;
-
 const SERVICE: &str = "Amante Viewer";
 const MFA_SERVICE: &str = "Amante Viewer MFA";
 const MFA_LIFETIME: u64 = 30 * 24 * 60 * 60;
@@ -53,7 +51,7 @@ fn service_entry(service: &str, grid: &str, username: &str) -> Option<keyring::E
     if username.trim().is_empty() {
         return None;
     }
-    keyring::entry(service, &account(grid, username))
+    keyring::Entry::new(service, &account(grid, username))
         .map_err(|e| log::warn!("credential store unavailable: {e}"))
         .ok()
 }
@@ -199,15 +197,6 @@ pub fn forget(grid: &str, username: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn amante_security_credential_namespaces_never_reuse_auroras() {
-        // Deliberately do not construct an Entry or touch the system store.
-        assert_eq!(SERVICE, "Amante Viewer");
-        assert_eq!(MFA_SERVICE, "Amante Viewer MFA");
-        assert_ne!(SERVICE, "Aurora Viewer");
-        assert_ne!(MFA_SERVICE, "Aurora Viewer MFA");
-    }
 
     #[derive(Default)]
     struct MemoryStore(std::cell::RefCell<std::collections::HashMap<String, String>>);

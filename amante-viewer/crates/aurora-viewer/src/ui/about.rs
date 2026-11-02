@@ -112,9 +112,7 @@ pub struct AboutUi {
 /// build between two tags has none).
 pub fn release_notes(version: &str) -> Option<String> {
     let published = !version.is_empty() && !version.contains('+') && version != "0.0.0";
-    // Source lives in the native fork; existing development releases remain in
-    // the original Amante distribution repository, which is not replaced.
-    published.then(|| format!("{}/tag/v{version}", aurora_updater::feed::NOTIFICATION_PAGE))
+    published.then(|| format!("{}/releases/tag/v{version}", crate::links::GITHUB))
 }
 
 /// The text "Copy to clipboard" gives: the version, its release page, then
@@ -261,13 +259,8 @@ fn hero(ui: &mut egui::Ui, p: &Palette, logo: Option<&egui::TextureHandle>) {
         }
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing.y = 4.0;
-
-            ui.label(sheet::semibold(ui, aurora_version::APP_NAME, 22.0, p.ink));
-            ui.label(
-                RichText::new(aurora_i18n::tr!("ui-login-second-life-client-rust-vulkan"))
-                    .size(12.0)
-                    .color(p.violet_pale),
-            );
+            ui.label(sheet::semibold(ui, "Amante Viewer", 22.0, p.ink));
+            ui.label(RichText::new(crate::ui::login::client_tagline()).size(12.0).color(p.violet_pale));
             ui.add_space(4.0);
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing = Vec2::new(6.0, 6.0);
@@ -434,7 +427,7 @@ mod tests {
     fn release_notes_only_for_a_published_version() {
         assert_eq!(
             release_notes("0.7.0").as_deref(),
-            Some("https://github.com/tarahamante-cloud/Amante-viewer/releases/tag/v0.7.0")
+            Some("https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.7.0")
         );
         assert_eq!(release_notes("0.7.0+3.gabcdef123"), None);
         assert_eq!(release_notes("0.0.0"), None);

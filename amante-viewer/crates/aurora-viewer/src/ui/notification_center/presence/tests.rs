@@ -140,6 +140,7 @@ fn status(classic: bool) -> StatusInfo<'static> {
         tp_back: None,
         tp_forward: None,
         tp_session: Default::default(),
+        landmarks: Default::default(),
         maturity: "",
         position: glam::Vec3::new(132.0, 126.0, 33.0),
         fps: 60.0,
@@ -242,8 +243,6 @@ fn frames_with(size: Vec2, classic: bool, at: PresencePosition, center: Center) 
     let mut list = Notifications::default();
     let mut history = crate::world::notification_history::History::default();
     let mut emoji = crate::ui::emoji::Emoji::load();
-    let mut mic = bars::MicButton::default();
-    let favorites = bars::favorites::View::default();
     let pics = std::collections::HashMap::new();
     let mut world = crate::world::World::new(std::sync::Arc::new(crate::scene::avatar::AvatarLibrary::load()));
     // six chat lines, some of them wrapping: the most the chat shows
@@ -275,29 +274,11 @@ fn frames_with(size: Vec2, classic: bool, at: PresencePosition, center: Center) 
         };
         let mut out = ctx.run_ui(input, |ui| {
             root = ui.scope_id();
-            let top_row = bars::Row {
-                unread: 0,
-                latest_unread: None,
-                flash: 0.0,
-                flying: false,
-                seated: false,
-                mouselook: false,
-                ao_active: false,
-                locked: toolbar_settings.locked,
-                favorites: &favorites,
-                bar: crate::ui::toolbar::Bar::Top,
-                style: toolbar_settings
-                    .style(crate::ui::toolbar::Bar::Top)
-                    .resolve(crate::ui::toolbar::Bar::Top, !classic),
-                editing: false,
-            };
             bars::top_bars(
                 ui,
                 &p,
                 &icons,
                 &skin,
-                &mut toolbar,
-                &toolbar_settings,
                 &mut panels,
                 &st,
                 &mut audio,
@@ -308,8 +289,6 @@ fn frames_with(size: Vec2, classic: bool, at: PresencePosition, center: Center) 
                     aurora: true,
                     ..Default::default()
                 },
-                &mut mic,
-                &top_row,
             );
             let (_, _, bottom_top, _) = bars::bottom_bar(
                 ui,
@@ -327,11 +306,11 @@ fn frames_with(size: Vec2, classic: bool, at: PresencePosition, center: Center) 
                 false,
                 false,
                 &mut 0.0,
-                &mut mic,
+                &mut bars::MicButton::default(),
                 false,
                 !classic,
                 Some(&mut emoji),
-                &favorites,
+                &bars::favorites::View::default(),
             );
             // the room the bars leave, as App reports it
             let area = crate::ui::layout::bars_room(ui.available_rect_before_wrap(), bottom_top, classic);

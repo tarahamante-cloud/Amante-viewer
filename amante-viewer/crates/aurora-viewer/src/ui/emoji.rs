@@ -63,7 +63,7 @@ enum Glyph {
 }
 
 pub struct Emoji {
-    face: Option<amante_fonts::Face<'static>>,
+    face: Option<ttf_parser::Face<'static>>,
     /// By code point and full size (the font's bitmap) or not.
     glyphs: HashMap<(char, bool), Glyph>,
     /// Per-category list of code points that exist in the font.
@@ -167,7 +167,7 @@ impl Emoji {
     pub fn load() -> Emoji {
         // The font asked for (to compare another one), else the built-in one.
         let asked = std::env::var_os("AURORA_EMOJI_FONT");
-        let parse = |bytes: &'static [u8], name: &str| match amante_fonts::Face::parse(bytes, 0) {
+        let parse = |bytes: &'static [u8], name: &str| match ttf_parser::Face::parse(bytes, 0) {
             Ok(f) => {
                 log::info!("emoji font: {name}");
                 Some(f)
@@ -230,8 +230,9 @@ impl Emoji {
         let face = self.face.as_ref()?;
         let decoded = face
             .glyph_index(c)
-            .and_then(|gid| face.png_glyph(gid, 128))
-            .and_then(|png| image::load_from_memory(png).ok())
+            .and_then(|gid| face.glyph_raster_image(gid, 128))
+            .filter(|img| img.format == ttf_parser::RasterImageFormat::PNG)
+            .and_then(|img| image::load_from_memory(img.data).ok())
             .map(|img| {
                 let img = if full {
                     img.to_rgba8()
@@ -281,12 +282,17 @@ impl Emoji {
 
     /// Text with color emoji inline (wraps like a label). The text stays
     /// selectable for copying, like Firestorm's read-only chat editors.
-    pub fn rich_text(&mut self, ui: &mut egui::Ui, text: &str, size: f32, color: egui::Color32, italics: bool) {
+    pub fn rich_text(
+        &mut self,
+        ui: &mut egui::Ui,
+        text: &str,
+        size: f32,
+        color: egui::Color32,
+        emphasis: impl Into<super::fonts::TextEmphasis>,
+    ) {
+        let emphasis = emphasis.into();
         if !self.available() || !text.chars().any(|c| self.has(c)) {
-            let mut rt = egui::RichText::new(text).size(size).color(color);
-            if italics {
-                rt = rt.italics();
-            }
+            let rt = emphasis.rich_text(ui.ctx(), text, size, color);
             // (in a conversation, its selection is the conversation's; a
             // text read from the right starts at the right edge)
             if super::bidi::rtl_paragraph(text) {
@@ -297,12 +303,19 @@ impl Emoji {
             return;
         }
         let rtl = super::bidi::rtl_paragraph(text);
-        text_rows_in(ui, size, rtl, |ui| self.inline(ui, text, size, color, italics));
+        text_rows_in(ui, size, rtl, |ui| self.inline(ui, text, size, color, emphasis));
     }
 
     /// Text with color emoji added to the current (wrapping) layout.
-    pub fn inline(&mut self, ui: &mut egui::Ui, text: &str, size: f32, color: egui::Color32, italics: bool) {
-        self.inline_marked(ui, text, size, color, italics, None);
+    pub fn inline(
+        &mut self,
+        ui: &mut egui::Ui,
+        text: &str,
+        size: f32,
+        color: egui::Color32,
+        emphasis: impl Into<super::fonts::TextEmphasis>,
+    ) {
+        self.inline_marked(ui, text, size, color, emphasis, None);
     }
 
     /// `inline`, on a background when one is given (a search match).
@@ -312,16 +325,14 @@ impl Emoji {
         text: &str,
         size: f32,
         color: egui::Color32,
-        italics: bool,
+        emphasis: impl Into<super::fonts::TextEmphasis>,
         background: Option<egui::Color32>,
     ) {
+        let emphasis = emphasis.into();
         let mut run = String::new();
         let flush = |ui: &mut egui::Ui, run: &mut String| {
             if !run.is_empty() {
-                let mut rt = egui::RichText::new(std::mem::take(run)).size(size).color(color);
-                if italics {
-                    rt = rt.italics();
-                }
+                let mut rt = emphasis.rich_text(ui.ctx(), std::mem::take(run), size, color);
                 if let Some(bg) = background {
                     rt = rt.background_color(bg);
                 }

@@ -489,15 +489,13 @@ impl Recovery {
                 let browser = aurora_i18n::tr!("crash-open-browser");
                 if !busy
                     && ui
-                        .add_enabled_ui(
-                            described && aurora_version::amante_config::reporting_destination_configured(),
-                            |ui| widgets::action_button(ui, p, "external-link-filled", browser, ActionKind::Flat, big),
-                        )
+                        .add_enabled_ui(described, |ui| {
+                            widgets::action_button(ui, p, "external-link-filled", browser, ActionKind::Flat, big)
+                        })
                         .inner
-                        .on_disabled_hover_text(aurora_i18n::tr!("bug-github-config"))
                         .clicked()
-                    && let Some((url, with_body)) = super::github::browser_url(&self.summary.title, &body)
                 {
+                    let (url, with_body) = super::github::browser_url(&self.summary.title, &body);
                     if !with_body {
                         ui.ctx().copy_text(body.clone());
                     }
@@ -546,10 +544,7 @@ impl Recovery {
             .ok_or_else(|| anyhow::anyhow!("missing recovery input"))?
             .take_egui_input(&window);
         let context = self.context.clone();
-        let mut output = context.run_ui(raw, |ui| self.content(ui, event_loop));
-        output.platform_output.commands.retain(
-            |command| !matches!(command, egui::OutputCommand::OpenUrl(url) if !aurora_version::privacy::external_web_url(&url.url)),
-        );
+        let output = context.run_ui(raw, |ui| self.content(ui, event_loop));
         self.input
             .as_mut()
             .ok_or_else(|| anyhow::anyhow!("missing recovery input"))?
@@ -676,6 +671,17 @@ impl ApplicationHandler for Recovery {
             self.error = Some(error.to_string());
             event_loop.exit();
         }
+    }
+
+    /// As the viewer's own window does (app.rs): egui-winit's state and the
+    /// window go while the event loop, and with it the Wayland connection,
+    /// still lives. Dropped after `run_app`, the clipboard's objects were
+    /// destroyed on a closed connection and closing this window ended in a
+    /// segmentation fault on Wayland, before `acknowledged` was written.
+    fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
+        self.input = None;
+        self.surface = None;
+        self.window = None;
     }
 
     fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {

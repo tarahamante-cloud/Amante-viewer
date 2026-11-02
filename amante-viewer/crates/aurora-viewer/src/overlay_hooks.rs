@@ -34,12 +34,12 @@ pub const KNOWN: &[Hook] = &[
     Hook {
         file: "DiscordHook64.dll",
         program: "Discord (in-game overlay or Go Live capture)",
-        advice: "if the window turns white while the world's sound plays, turn off Discord's in-game overlay for Amante (Discord › User Settings › Game Overlay, or the game's entry in Registered Games)",
+        advice: "if the window turns white while the world's sound plays, turn off Discord's in-game overlay for Aurora (Discord › User Settings › Game Overlay, or the game's entry in Registered Games)",
     },
     Hook {
         file: "GameOverlayRenderer64.dll",
         program: "Steam overlay",
-        advice: "if the image is lost, turn off the Steam overlay for Amante",
+        advice: "if the image is lost, turn off the Steam overlay for Aurora",
     },
     Hook {
         file: "RTSSHooks64.dll",
@@ -170,7 +170,7 @@ mod tests {
     #[test]
     fn each_hook_is_reported_once_when_it_arrives() {
         let mut seen = Vec::new();
-        let before: Vec<String> = ["aurora-viewer.exe", "ntdll.dll"].map(String::from).into();
+        let before: Vec<String> = ["amante-viewer.exe", "ntdll.dll"].map(String::from).into();
         assert!(arrived(&mut seen, &before).is_empty());
         let mut later = before.clone();
         later.push("DiscordHook64.dll".into());

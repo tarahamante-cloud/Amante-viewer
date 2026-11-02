@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub const SL_MAIN_GRID: &str = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
 pub const SL_BETA_GRID: &str = "https://login.aditi.lindenlab.com/cgi-bin/login.cgi";
 
-pub const CHANNEL: &str = aurora_version::APP_NAME;
+pub const CHANNEL: &str = "Aurora Viewer";
 
 #[derive(Debug, Clone)]
 pub enum StartLocation {
@@ -29,7 +29,7 @@ impl StartLocation {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct LoginRequest {
     pub login_uri: String,
     /// "First Last" or a single username (last name "Resident").
@@ -46,14 +46,6 @@ pub struct LoginRequest {
     pub id0: String,
     /// How the previous session of this account ended.
     pub last_exec: LastExec,
-}
-
-impl std::fmt::Debug for LoginRequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("LoginRequest")
-            .field("credentials", &"[redacted]")
-            .finish_non_exhaustive()
-    }
 }
 
 /// What the login server is told of the previous run (lllogininstance.cpp
@@ -85,7 +77,7 @@ impl Default for LastExec {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct LoginResponse {
     pub agent_id: Uuid,
     pub session_id: Uuid,
@@ -106,15 +98,6 @@ pub struct LoginResponse {
     pub inventory_root: Uuid,
     pub mfa_hash: Option<String>,
     pub raw: Llsd,
-}
-
-impl std::fmt::Debug for LoginResponse {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // raw contains arbitrary server fields, including reusable secrets.
-        f.debug_struct("LoginResponse")
-            .field("session", &"[redacted]")
-            .finish_non_exhaustive()
-    }
 }
 
 impl LoginResponse {
@@ -345,24 +328,19 @@ fn parse_success(v: Llsd) -> Result<LoginResponse, LoginError> {
 
 /// Perform the login exchange, following "indeterminate" redirects.
 pub async fn login(http: &reqwest::Client, req: &LoginRequest) -> Result<LoginResponse, LoginError> {
-    let denied = || LoginError::Malformed(aurora_i18n::tr!("login-untrusted-destination"));
-    let initial = reqwest::Url::parse(&req.login_uri).map_err(|_| denied())?;
-    if !crate::http_security::credential_destination(&initial, &initial) {
-        return Err(denied());
-    }
-    let mut uri = initial.clone();
+    let mut uri = req.login_uri.clone();
     let mut method = "login_to_simulator".to_owned();
     for _attempt in 0..5 {
         let body = xmlrpc::build_call(&method, &build_params(req));
         let resp = http
-            .post(uri.clone())
+            .post(&uri)
             .header("Content-Type", "text/xml")
             .body(body)
             .send()
             .await
-            .map_err(|e| LoginError::Http(e.without_url().to_string()))?;
+            .map_err(|e| LoginError::Http(e.to_string()))?;
         let status = resp.status();
-        let bytes = resp.bytes().await.map_err(|e| LoginError::Http(e.without_url().to_string()))?;
+        let bytes = resp.bytes().await.map_err(|e| LoginError::Http(e.to_string()))?;
         if !status.is_success() {
             return Err(LoginError::Http(format!("HTTP {status}")));
         }
@@ -374,11 +352,7 @@ pub async fn login(http: &reqwest::Client, req: &LoginRequest) -> Result<LoginRe
                 if next.is_empty() {
                     return Err(LoginError::Malformed("indeterminate without next_url"));
                 }
-                let next = reqwest::Url::parse(next).map_err(|_| denied())?;
-                if !crate::http_security::credential_destination(&initial, &next) {
-                    return Err(denied());
-                }
-                uri = next;
+                uri = next.to_owned();
                 let m = v["next_method"].as_str();
                 if !m.is_empty() {
                     method = m.to_owned();

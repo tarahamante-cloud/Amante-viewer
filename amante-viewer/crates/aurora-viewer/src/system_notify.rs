@@ -177,7 +177,7 @@ mod freedesktop {
     const DEST: &str = "org.freedesktop.Notifications";
     const PATH: &str = "/org/freedesktop/Notifications";
     /// The application name the server groups the notices by.
-    const APP_NAME: &str = "Aurora Viewer";
+    const APP_NAME: &str = "Amante Viewer";
     /// The desktop entry's id (`aurora-viewer.desktop`), from which a server
     /// takes the name and icon it shows and its per-application rules.
     const DESKTOP_ENTRY: &str = "aurora-viewer";
@@ -316,7 +316,7 @@ mod win {
     use windows::core::{HSTRING, IInspectable, PCWSTR, Ref};
 
     /// The application's identity for Windows' notifications.
-    const AUMID: &str = "Amante.Viewer";
+    const AUMID: &str = "Aurora.Viewer";
     /// Notifications kept alive for their click handler.
     const KEEP: usize = 32;
 

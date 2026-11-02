@@ -1,59 +1,9 @@
-# Amante Viewer
+# Amante Viewer Alpha — clean upstream rebuild
 
-This is a native desktop fork of Aurora Viewer, not a web replacement.
-All upstream crates, native components, assets, tools, and platform files are
-retained. Internal `aurora-*` crate names and compatibility identifiers are not
-renamed merely for appearance.
+Based on Aurora Viewer commit `b21e5c27880176978d4a301220645c2830fef3a9`.
 
-## Immutable upstream baseline
+The runtime is upstream Aurora with Amante name, crest, palette, product directories, owner links and package identity. The previous Amante-specific renderer, texture, clothing, browser, toolbar and dependency changes are not included.
 
-- Repository: https://github.com/Aurora-Viewer/Aurora-Viewer
-- Branch: `main`
-- Commit: `d555fb677004bee8fd9e7f12b0e33a8978e77d4c`
-- Commit subject: `feat(inventory): default hover actions to Add (#1377)`
-- Declared submodules: none.
-- Git LFS tracked files: none.
-- License: GPL-3.0-or-later; upstream `LICENSE` and `NOTICE.md` are retained.
+LICENSE and NOTICE.md retain Aurora and third-party attribution. The source manifest records every original and branded file hash.
 
-The source inventory is captured from this commit's immutable Git objects in
-`docs/amante/upstream-inventory.json` before application edits. It includes
-every tracked file and blob identity, UI source modules, menu call sites,
-settings declarations, keybindings/toolbar declarations, and locale keys.
-Its source-preservation status is **not** a claim that the features have been
-run or tested.
-
-## Delivery status
-
-Development is in progress. Do not distribute this checkout as a completed,
-security-validated Amante release. Build results, outstanding configuration,
-security findings, and desktop test gaps must be reported explicitly.
-
-- [Feature/source parity evidence](docs/amante/FEATURE_PARITY.md)
-- [Security fixes and unresolved findings](docs/amante/SECURITY.md)
-- [Build evidence and limitations](docs/amante/BUILD_STATUS.md)
-- [Windows build and download instructions](docs/amante/WINDOWS_BUILD.md)
-- [Independent service configuration](docs/amante/CONFIGURATION.md)
-- [Service ownership and multilingual content audit](docs/amante/SERVICE_OWNERSHIP.md)
-- [Human desktop test checklist](docs/amante/DESKTOP_TESTING.md)
-
-The distributed executable is `amante-viewer.exe` on Windows and
-`amante-viewer` on Linux. Cargo's internal `aurora-viewer` target is retained;
-the packaging script gives it the Amante distribution name.
-
-Replit imports the source into its project repository rather than preserving
-a nested `.git` directory. The inventory records the exact upstream blob IDs.
-The public upstream history can be fetched independently. The owner-authorized
-GitHub fork is https://github.com/tarahamante-cloud/Amante-viewer-native, with
-the native development source on `amante-branding`. GitHub identifies its
-parent as `Aurora-Viewer/Aurora-Viewer`; the development branch preserves the
-recorded baseline as its parent commit. The existing `Amante-viewer` repository
-is retained separately for its existing development downloads.
-
-## Safety and attribution
-
-- Never use real grid credentials in automated tests or connect automated
-  tests to a live grid.
-- Keep upstream authorship, license notices, and accurate technical references.
-- A downloadable CI package is not evidence of desktop runtime correctness.
-- Release feeds and reporting services must not send Amante users or reports
-  to Aurora's infrastructure.
+This clean Alpha uses its own fresh profile and cache, so it does not import settings or cached textures from earlier Amante builds. Add your account again on first launch. No old credentials, profiles or user caches are deleted. Reports and updates use the Amante repository. Direct OAuth reporting is unconfigured rather than using Aurora's app. Existing user skins remain user choices. Native build/test checks do not prove texture loading in a live Second Life session.

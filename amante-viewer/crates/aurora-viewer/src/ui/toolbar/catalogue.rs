@@ -19,7 +19,7 @@ pub struct Command {
 }
 
 macro_rules! commands {
-    ($( $id:literal, $icon:literal, $key:literal, $ready:literal; )*) => {
+    ($( $id:literal, $icon:literal, $key:literal, $ready:expr; )*) => {
         &[$(Command { id: $id, icon: $icon, key: $key, ready: $ready },)*]
     };
 }
@@ -32,6 +32,7 @@ pub const COMMANDS: &[Command] = commands![
     "speak", "Command_Speak_Icon", "ui-skin-speak", true;
     "move", "Command_Move_Icon", "controls-movement-title", true;
     "view", "video-filled", "controls-camera-title", true;
+    "vr_view", "device-vision-pro-filled", "vr-view", cfg!(any(target_os = "linux", target_os = "windows", target_os = "macos"));
     "mouselook", "Command_View_Icon", "common-mouselook-m", true;
     "people", "Command_People_Icon", "common-people", true;
     "friends", "Command_People_Icon", "common-friends", true;
@@ -76,11 +77,11 @@ pub const COMMANDS: &[Command] = commands![
     "poser", "wand", "toolbar-command-poser", true;
     "flickr", "brand-flickr", "toolbar-command-flickr", false;
     "primfeed", "rss", "toolbar-command-primfeed", false;
-    "RFO", "user-check", "toolbar-command-friends-only", true;
+    "RFO", "user-check", "toolbar-command-friends-only", false;
     "gridstatus", "building-broadcast-tower-filled", "toolbar-command-grid-status", true;
     "voice", "Command_Voice_Icon", "toolbar-command-voice", false;
     "quickprefs", "adjustments-filled", "toolbar-command-quickprefs", false;
-    "webbrowser", "world-filled", "toolbar-command-web-browser", true;
+    "webbrowser", "world-filled", "toolbar-command-web-browser", false;
     "defaultchatbar", "message-filled", "toolbar-command-chat-bar", false;
     "areasearch", "zoom-scan-filled", "toolbar-command-area-search", true;
     "settings_debug", "terminal-2", "toolbar-command-debug-settings", false;

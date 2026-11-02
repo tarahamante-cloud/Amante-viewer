@@ -10,6 +10,7 @@ pub mod dock;
 pub mod favorites;
 mod graphics;
 pub mod islands;
+mod location_suggest;
 mod place;
 pub mod side;
 pub(crate) mod sizing;
@@ -24,6 +25,7 @@ use egui::{Color32, RichText, Vec2};
 
 #[derive(Default)]
 pub enum BarAction {
+    ToggleVr,
     IkEdit,
     Poser,
     /// Build › Edit particles (Object.EditParticles).
@@ -47,10 +49,6 @@ pub enum BarAction {
     ImportStreamList,
     ExportStreamList,
     BlenderLive,
-    /// Toggle graphics visibility to friends only.
-    ToggleFriendsOnly,
-    /// Open or close the embedded Chromium browser.
-    WebBrowser,
     ShowHuds(bool),
     HudZoom(f32),
     #[default]
@@ -88,6 +86,15 @@ pub enum BarAction {
     VoicePrefs,
     /// Location typed or pasted in the navigation bar (SLURL, Region/x/y/z...).
     TeleportTo(String),
+    /// A landmark chosen in the location field's suggestions, by its asset.
+    TeleportLandmark(uuid::Uuid),
+    /// A place of the teleport history chosen in the location field's
+    /// suggestions (teleportViaLocation: the history does not move).
+    TeleportPlace {
+        region: String,
+        handle: aurora_net::RegionHandle,
+        position: glam::Vec3,
+    },
     /// Communicate > Online status changed.
     SetStatus(crate::world::status::StatusModes),
     /// Open the chat preferences (automatic responses).
@@ -186,6 +193,8 @@ pub struct StatusInfo<'a> {
     pub tp_forward: Option<String>,
     /// Every place of the session, for the arrows' list.
     pub tp_session: crate::world::tphistory::Session<'a>,
+    /// The landmarks the location field suggests by name.
+    pub landmarks: std::sync::Arc<[crate::world::landmarks::Named]>,
     pub maturity: &'a str,
     pub position: glam::Vec3,
     pub fps: f32,
@@ -337,115 +346,6 @@ fn bar_frame(p: &Palette) -> egui::Frame {
 /// a regular pitch whatever they draw.
 const TOP_SLOT: Vec2 = Vec2::new(22.0, 20.0);
 const TOP_ICON: f32 = 16.0;
-
-/// Width reserved for the place/SLURL island or field before top commands
-/// start narrowing it.
-const TOP_PLACE_MIN: f32 = 128.0;
-const TOP_TOOLBAR_GAP: f32 = 4.0;
-
-/// The top command row is capped so a long custom toolbar never takes over
-/// the navigation field or the place island.
-fn top_toolbar_width(
-    ctx: &egui::Context,
-    buttons: &[crate::ui::skin::ToolButton],
-    style: super::toolbar::Style,
-    available: f32,
-    editing: bool,
-) -> f32 {
-    if buttons.is_empty() && !editing {
-        return 0.0;
-    }
-    let max = (available - TOP_PLACE_MIN).max(0.0).min(available * 0.35);
-    if max < 22.0 {
-        return 0.0;
-    }
-    if buttons.is_empty() {
-        return max.min(32.0);
-    }
-    let natural: Vec<f32> = buttons
-        .iter()
-        .map(|b| natural_width(ctx, b, style.mode, 28.0, 16.0, DOCK_MIC_W))
-        .collect();
-    let labelled = style.mode != super::toolbar::ButtonMode::IconsOnly;
-    let gap = TOP_TOOLBAR_GAP;
-    let fit = sizing::fit(&natural, style.sizing, labelled, max, gap, 22.0);
-    (fit.iter().sum::<f32>() + gap * (fit.len().saturating_sub(1)) as f32).min(max)
-}
-
-/// Draw a configurable horizontal command bar inside an allocated top slot.
-#[allow(clippy::too_many_arguments)]
-fn top_toolbar(
-    ui: &mut egui::Ui,
-    p: &Palette,
-    icons: &Icons,
-    layout: &Layout,
-    toolbar: &mut super::toolbar::ToolbarUi,
-    settings: &super::toolbar::ToolbarSettings,
-    panels: &mut Panels,
-    mic: &mut MicButton,
-    row: &Row<'_>,
-    width: f32,
-    height: f32,
-    dock: bool,
-    action: &mut BarAction,
-) {
-    let (rect, target) = ui.allocate_exact_size(Vec2::new(width.max(1.0), height), egui::Sense::click());
-    toolbar.context(&target, p, row.bar, row.style, None, row.locked);
-    let content_rect = if dock { rect.shrink2(Vec2::splat(islands::PAD)) } else { rect };
-    let button_height = content_rect.height().max(1.0);
-    let mut child = ui.new_child(
-        egui::UiBuilder::new()
-            .max_rect(content_rect)
-            .layout(egui::Layout::left_to_right(egui::Align::Center)),
-    );
-    child.set_clip_rect(content_rect);
-    child.spacing_mut().item_spacing.x = TOP_TOOLBAR_GAP;
-
-    let buttons = settings.bar(super::toolbar::Bar::Top, layout);
-    let labelled = row.style.mode != super::toolbar::ButtonMode::IconsOnly;
-    let square = if dock { islands::SLOT } else { TOP_SLOT.x };
-    let natural: Vec<f32> = buttons
-        .iter()
-        .map(|b| natural_width(ui.ctx(), b, row.style.mode, square, TOP_ICON, DOCK_MIC_W))
-        .collect();
-    let widths = sizing::fit(&natural, row.style.sizing, labelled, content_rect.width(), TOP_TOOLBAR_GAP, 22.0);
-    let width_by_command: std::collections::HashMap<_, _> = buttons
-        .iter()
-        .map(|button| button.command.as_str())
-        .zip(widths.iter().copied())
-        .collect();
-    let used = widths.iter().sum::<f32>() + TOP_TOOLBAR_GAP * (widths.len().saturating_sub(1)) as f32;
-    let lead = sizing::place(row.style.align, content_rect.left(), content_rect.right(), used) - content_rect.left();
-    let mut rects = Vec::new();
-    egui::ScrollArea::horizontal()
-        .id_salt("toolbar_top_scroll")
-        .auto_shrink([false, false])
-        .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysHidden)
-        .max_height(button_height)
-        .show(&mut child, |scroll| {
-            scroll.set_min_height(button_height);
-            scroll.horizontal(|scroll| {
-                scroll.spacing_mut().item_spacing.x = TOP_TOOLBAR_GAP;
-                if lead > 0.0 {
-                    scroll.add_space(lead);
-                }
-                let look = |button: &crate::ui::skin::ToolButton| {
-                    let width = width_by_command.get(button.command.as_str()).copied().unwrap_or(square);
-                    ButtonLook {
-                        size: Vec2::new(width, button_height),
-                        icon: TOP_ICON.min(button_height - 6.0),
-                        dock,
-                        mode: row.style.mode,
-                        left: labelled,
-                        opens: egui::RectAlign::BOTTOM_START,
-                        editing: row.editing,
-                    }
-                };
-                rects = toolbar_row(scroll, p, icons, buttons, look, toolbar, panels, mic, row, action);
-            });
-        });
-    toolbar.drop_bar(&target, super::toolbar::Bar::Top, &rects, p, row.locked);
-}
 
 fn icon_button_response(ui: &mut egui::Ui, p: &Palette, icons: &Icons, icon: &str, tip: &str, size: f32) -> egui::Response {
     let (rect, resp) = ui.allocate_exact_size(TOP_SLOT, egui::Sense::click());
@@ -900,7 +800,11 @@ fn main_menus(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusIn
             }
             for (zoom, icon, label) in [
                 (1.0, "restore", aurora_i18n::tr!("ui-bars-normal-size")),
-                ((st.hud_zoom / 1.2).max(0.1), "zoom-out-filled", aurora_i18n::tr!("common-collapse")),
+                (
+                    (st.hud_zoom / 1.2).max(0.1),
+                    "zoom-out-filled",
+                    aurora_i18n::tr!("ui-bars-zoom-out"),
+                ),
                 ((st.hud_zoom * 1.2).min(1.0), "zoom-in-filled", aurora_i18n::tr!("ui-bars-zoom-in")),
             ] {
                 if menu::item(ui, p, icon, label) {
@@ -1687,8 +1591,9 @@ fn voice_light(ui: &mut egui::Ui, p: &Palette, icons: &Icons, light: crate::voic
 /// Region (x, y, z)"; a click turns it into the SLURL of the position,
 /// selected and ready to copy; typing or pasting a place then Enter
 /// teleports there; Escape or a click elsewhere restores the location.
-fn location_field(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, loc: &str, slurl: &str, w: f32) -> Option<BarAction> {
+fn location_field(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, st: &StatusInfo, loc: &str, w: f32) -> Option<BarAction> {
     let id = egui::Id::unique("nav_location_edit");
+    let slurl = st.slurl.as_str();
     let Some(text) = panels.nav_edit.as_mut() else {
         // exactly the text width (truncated when too long): the maturity badge
         // stays right after the location
@@ -1715,7 +1620,23 @@ fn location_field(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, loc: &str
             panels.nav_edit = Some(slurl.to_owned());
             panels.nav_edit_new = true;
         }
+        // AURORA_DEMO_BARS=legacy,locations: a place being typed
+        if demo::get().locations && ui.ctx().cumulative_frame_nr() == location_suggest::DEMO_FRAME {
+            panels.nav_edit = Some(location_suggest::DEMO_TYPED.to_owned());
+            panels.nav_edit_new = true;
+        }
         return None;
+    };
+    // the landmarks and places the typed text names: none for the SLURL
+    // the field opens with, nor with the location hidden
+    let (list_id, picker_key) = (id.with("suggestions"), id.with("picker"));
+    let mut picker = location_suggest::Picker::load(ui.ctx(), picker_key);
+    picker.refresh(&st.landmarks, st.tp_session.items, text, !st.location_hidden && *text != slurl);
+    // the arrows and Enter go to the list before the field takes them
+    let (mut take, moved) = if !panels.nav_edit_new && ui.memory(|m| m.has_focus(id)) {
+        picker.keys(ui, id)
+    } else {
+        (None, false)
     };
     let resp = ui.add(
         egui::TextEdit::singleline(text)
@@ -1743,6 +1664,24 @@ fn location_field(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, loc: &str
         ui.ctx().request_repaint();
         return None;
     }
+    picker.refresh(&st.landmarks, st.tp_session.items, text, !st.location_hidden && *text != slurl);
+    if !picker.list().is_empty()
+        && let Some(i) = location_suggest::list_area(ui, p, list_id, resp.rect, picker.list(), picker.chosen(), moved)
+    {
+        take = picker.list().get(i).cloned();
+    }
+    let has_list = !picker.list().is_empty();
+    picker.store(ui.ctx(), picker_key);
+    if let Some(s) = take {
+        panels.nav_edit = None;
+        ui.memory_mut(|m| m.surrender_focus(id));
+        return Some(s.action());
+    }
+    // a press on the list takes the field's focus: the list stays until
+    // the click lands on a row
+    let on_list = has_list
+        && ui.ctx().pointer_interact_pos().and_then(|pos| ui.ctx().layer_id_at(pos))
+            == Some(egui::LayerId::new(egui::Order::Foreground, list_id));
     let enter = resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
     let escape = ui.input(|i| i.key_pressed(egui::Key::Escape));
     if enter {
@@ -1751,7 +1690,7 @@ fn location_field(ui: &mut egui::Ui, p: &Palette, panels: &mut Panels, loc: &str
         if !typed.trim().is_empty() {
             return Some(BarAction::TeleportTo(typed));
         }
-    } else if escape || !resp.has_focus() {
+    } else if escape || (!resp.has_focus() && !on_list) {
         // Escape or a click elsewhere: back to the location as it was
         panels.nav_edit = None;
         ui.memory_mut(|m| m.surrender_focus(id));
@@ -1793,8 +1732,6 @@ pub fn top_bars(
     p: &Palette,
     icons: &Icons,
     layout: &Layout,
-    toolbar: &mut super::toolbar::ToolbarUi,
-    toolbar_settings: &super::toolbar::ToolbarSettings,
     panels: &mut Panels,
     st: &StatusInfo,
     audio: &mut crate::settings::AudioSettings,
@@ -1802,27 +1739,9 @@ pub fn top_bars(
     media: super::audio::MediaState,
     notif: &mut super::notifications::NotifUi,
     bell: BellState,
-    mic: &mut MicButton,
-    top_row: &Row<'_>,
 ) -> (BarAction, super::audio::AudioAction) {
     if !st.classic_bars {
-        return islands::top(
-            ui,
-            p,
-            icons,
-            layout,
-            toolbar,
-            toolbar_settings,
-            panels,
-            st,
-            audio,
-            audio_ui,
-            media,
-            notif,
-            bell,
-            mic,
-            top_row,
-        );
+        return islands::top(ui, p, icons, panels, st, audio, audio_ui, media, notif, bell);
     }
     let mut action = BarAction::None;
     let mut audio_action = super::audio::AudioAction::None;
@@ -1838,9 +1757,9 @@ pub fn top_bars(
                 ui.set_min_width(ui.available_width());
                 ui.spacing_mut().item_spacing.x = 4.0;
                 ui.style_mut().visuals.button_frame = false;
-                // Amante crest menu: preserve all existing menu actions.
+                // Aurora menu (white wolf): Me, Communicate, World, Build, Contents, Advanced, Help
                 if let Some(t) = icons.get("wolf") {
-                    let img = egui::Image::new(t).fit_to_exact_size(Vec2::new(24.0, 24.0));
+                    let img = egui::Image::new(t).fit_to_exact_size(Vec2::new(18.0, 18.0)).tint(p.ink);
                     menu::button(ui, p, egui::Button::image(img), |ui| {
                         menu::searchable(ui, p, |ui| main_menus(ui, p, panels, st, &mut action, true));
                     })
@@ -1969,33 +1888,6 @@ pub fn top_bars(
                             state_chip(ui, p, text);
                         }
                     }
-                    let top_buttons = toolbar_settings.bar(super::toolbar::Bar::Top, layout);
-                    let toolbar_width = top_toolbar_width(
-                        ui.ctx(),
-                        top_buttons,
-                        top_row.style,
-                        ui.available_width(),
-                        toolbar.open && !toolbar_settings.locked,
-                    );
-                    if toolbar_width > 0.0 {
-                        ui.add_space(TOP_TOOLBAR_GAP);
-                        top_toolbar(
-                            ui,
-                            p,
-                            icons,
-                            layout,
-                            toolbar,
-                            toolbar_settings,
-                            panels,
-                            mic,
-                            top_row,
-                            toolbar_width,
-                            layout.nav_bar_height.min(22.0),
-                            false,
-                            &mut action,
-                        );
-                        ui.add_space(TOP_TOOLBAR_GAP);
-                    }
                     ui.add_space(4.0);
                     egui::Frame::new()
                         .fill(p.field)
@@ -2055,7 +1947,7 @@ pub fn top_bars(
                                 };
                                 let w = (ui.available_width() - 24.0 - STAR_W - icons_w).max(40.0);
                                 ui.allocate_ui(Vec2::new(w, 18.0), |ui| {
-                                    if let Some(a) = location_field(ui, p, panels, &loc, &st.slurl, w) {
+                                    if let Some(a) = location_field(ui, p, panels, st, &loc, w) {
                                         action = a;
                                     }
                                 });
@@ -2109,8 +2001,6 @@ pub fn run_command(ctx: &egui::Context, cmd: &str, panels: &mut Panels) -> BarAc
         "worldmap" => toggle("worldmap", &mut panels.world_map),
         "places" => toggle("places", &mut panels.places),
         "search" => toggle(super::search::WINDOW, &mut panels.search),
-        "RFO" => return BarAction::ToggleFriendsOnly,
-        "webbrowser" => return BarAction::WebBrowser,
         "areasearch" => toggle(super::area_search::WINDOW, &mut panels.area_search),
         "soundexplorer" => toggle(super::sound_explorer::WINDOW, &mut panels.sound_explorer),
         "assetblacklist" => toggle(super::blacklist::WINDOW, &mut panels.asset_blacklist),
@@ -2156,6 +2046,7 @@ pub fn run_command(ctx: &egui::Context, cmd: &str, panels: &mut Panels) -> BarAc
         "marketplacelistings" => return BarAction::MarketplaceListings,
         "stop_animations" => return BarAction::StopAnimations,
         "resync_animations" => return BarAction::ResyncAnimations,
+        "vr_view" => return BarAction::ToggleVr,
         "immersive" => return BarAction::ToggleImmersive,
         _ => {}
     }
@@ -2883,10 +2774,10 @@ pub(crate) fn toolbar_row(
             toolbar.movement_active
         } else if b.command == "water_walk" {
             toolbar.water_walk_active
-        } else if b.command == "RFO" {
-            toolbar.friends_only_active
-        } else if b.command == "webbrowser" {
-            toolbar.webbrowser_active
+        } else if b.command == "vr_view" {
+            ui.ctx()
+                .data(|data| data.get_temp::<bool>(egui::Id::unique("vr-active")))
+                .unwrap_or(false)
         } else {
             command_active(&b.command, panels, row.flying, row.seated, row.mouselook)
         };

@@ -1,18 +1,19 @@
 # Amante Viewer
 
-Amante is a native Windows and Linux viewer for Second Life and compatible
-grids. Its landing screens, menus, tools, settings and help use the Amante name.
+Amante Alpha is a native Windows viewer for Second Life, rebuilt from a clean
+Aurora Viewer snapshot with the Amante name, family crest and green/copper palette.
 
-- [Windows downloads and checksums](amante-viewer/docs/amante/WINDOWS_VALIDATION.md)
-- [Getting started](amante-viewer/docs/amante/README.md)
-- [Windows prerequisites](amante-viewer/docs/amante/WINDOWS_BUILD.md)
-- [Source and feature inventory](amante-viewer/docs/amante/FEATURE_PARITY.md)
-- [Configuration and service status](amante-viewer/docs/amante/CONFIGURATION.md)
+- [Windows downloads and checksums](https://github.com/tarahamante-cloud/Amante-viewer/releases)
+- [Clean rebuild and configuration](amante-viewer/AMANTE.md)
+- [Complete upstream/branding source inventory](amante-viewer/amante-upstream-manifest.json)
+- [Upstream documentation](amante-viewer/README.md)
 
 These are unsigned development builds, not a security-certified release.
 Download the actual versioned ZIP and verify its published SHA-256. New source
 changes do not change an already downloaded executable; install the newly
-built ZIP to get updated branding.
+built ZIP to get changes. Offline tests do not verify live Second Life rendering.
+Previous Amante-only texture, dependency, clothing, browser, toolbar and updater
+patches have been discarded; those systems now use upstream code.
 
 ## Credits and compatibility
 

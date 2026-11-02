@@ -846,7 +846,7 @@ mod tests {
     #[test]
     fn numbers_and_latin_words_keep_their_order_in_arabic() {
         assert_eq!(shown(&job("عدد 123 مرحبا"), Base::Auto), ["[*مرحبا][ 123 ][*عدد]"]);
-        assert_eq!(shown(&job("انا Aurora Viewer"), Base::Auto), ["[Aurora Viewer ][*انا]"]);
+        assert_eq!(shown(&job("انا Amante Viewer"), Base::Auto), ["[Amante Viewer ][*انا]"]);
         // Arabic-Indic digits: one section each, so that none is reversed
         assert_eq!(shown(&job("١٢٣"), Base::Auto), ["[١][٢][٣]"]);
     }

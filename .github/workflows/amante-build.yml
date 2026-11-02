@@ -11,17 +11,6 @@ on:
 permissions:
   contents: read
 
-# Public, compile-time owner settings. Empty reporting variables use the
-# approved Amante defaults in amante_config.rs, never upstream. Never put tokens here.
-env:
-  AMANTE_ISSUES_URL: ${{ vars.AMANTE_ISSUES_URL }}
-  AMANTE_ISSUES_API: ${{ vars.AMANTE_ISSUES_API }}
-  AMANTE_GITHUB_CLIENT_ID: ${{ vars.AMANTE_GITHUB_CLIENT_ID }}
-  AMANTE_RELEASES_API: ${{ vars.AMANTE_RELEASES_API }}
-  AMANTE_RELEASE_PAGE: ${{ vars.AMANTE_RELEASE_PAGE }}
-  AMANTE_RELEASE_DOWNLOADS: ${{ vars.AMANTE_RELEASE_DOWNLOADS }}
-  AMANTE_MEDIA_RELEASE_DOWNLOADS: ${{ vars.AMANTE_MEDIA_RELEASE_DOWNLOADS }}
-
 concurrency:
   group: amante-build-${{ github.ref }}
   cancel-in-progress: true
@@ -38,10 +27,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Verify all immutable baseline files are tracked
-        run: |
-          node --test ../scripts/verify-viewer-preservation.test.mjs
-          node ../scripts/verify-viewer-preservation.mjs --require-tracked
+      - name: Verify clean upstream runtime and branding inventory
+        run: python3 ../scripts/verify-clean-upstream.py . --require-tracked
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update
@@ -57,10 +44,8 @@ jobs:
           cargo clippy --profile ci --workspace --all-targets --locked -- -D warnings -A dead_code
           # The complete viewer test executable exceeds small runners' memory.
           # Compile-check it above; retain/run network + updater fixtures here.
-          cargo test --profile ci --workspace --exclude aurora-viewer --locked amante_security
+          cargo test --profile ci --workspace --exclude aurora-viewer --locked
           cargo test --profile ci --locked -p aurora-i18n
-          cargo test --profile ci --locked -p amante-reporting-tests
-          cargo test --profile ci --locked -p amante-fonts -p amante-keyring
           cargo test --profile ci --workspace --locked --test updates
       - name: Build native Linux viewer without signing in
         env:
@@ -83,8 +68,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Verify all immutable baseline files are tracked
-        run: node ../scripts/verify-viewer-preservation.mjs --require-tracked
+      - name: Verify clean upstream runtime and branding inventory
+        run: python ../scripts/verify-clean-upstream.py . --require-tracked
       - name: Build complete native Windows x64 viewer
         run: |
           rustup toolchain install 1.99.1 --profile minimal
@@ -105,9 +90,8 @@ jobs:
           Compress-Archive -LiteralPath $folder -DestinationPath $zip -Force
           $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           [IO.File]::WriteAllText("$zip.sha256", "$hash  $name.zip`n", [Text.UTF8Encoding]::new($false))
-          ./scripts/verify-windows-package.ps1 -Zip $zip -Evidence ../generated-artifacts/windows-package-verification.json
-          node ../scripts/verify-viewer-preservation.mjs --require-tracked ../generated-artifacts/windows-package-verification.json
-          Copy-Item docs/amante/feature-parity.csv ../generated-artifacts/windows-feature-parity.csv
+          ../scripts/verify-clean-windows-package.ps1 -Zip $zip -Evidence ../generated-artifacts/windows-package-verification.json
+          Copy-Item amante-upstream-manifest.json ../generated-artifacts/source-preservation.json
       - name: Downloadable Windows build, not a published release
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -116,7 +100,6 @@ jobs:
             generated-artifacts/*.zip
             generated-artifacts/*.sha256
             generated-artifacts/windows-package-verification.json
-            generated-artifacts/windows-feature-parity.csv
             generated-artifacts/source-preservation.json
           if-no-files-found: error
           retention-days: 14
@@ -137,15 +120,15 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Verify all immutable baseline files are tracked
-        run: node ../scripts/verify-viewer-preservation.mjs --require-tracked
+      - name: Verify clean upstream runtime and branding inventory
+        run: python ../scripts/verify-clean-upstream.py . --require-tracked
       - name: Full offline native unit and integration harness
         run: |
           rustup toolchain install 1.99.1 --profile minimal
           if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed.' }
           rustup override set 1.99.1
           if ($LASTEXITCODE -ne 0) { throw 'Rust selection failed.' }
-          ./scripts/test-windows-offline.ps1 -Out ../generated-artifacts/windows-tests
+          ../scripts/test-clean-windows-offline.ps1 -Out ../generated-artifacts/windows-tests
       - name: Preserve actual harness results, including failures
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
