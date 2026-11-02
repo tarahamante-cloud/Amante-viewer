@@ -379,7 +379,14 @@ pub fn plan(inv: &Inventory, action: Action, worn: &HashMap<Uuid, u8>) -> Result
         ));
     }
     let cof = cof(inv).ok_or(aurora_i18n::tr!("world-appearance-the-current-outfit-folder-is-unavailable"))?;
-    require_complete(inv, cof)?;
+    // An individual Wear/Add preserves unresolved COF links. Requiring every
+    // old original to load first makes an unrelated broken link block all
+    // clothing changes indefinitely. The folder itself must still be fetched:
+    // slamming a partial COF could remove clothing and required body parts.
+    let individual_wear = matches!(action, Action::Add(_) | Action::WearItem { .. } | Action::WearItems { .. });
+    if !individual_wear || !loaded(inv, cof) {
+        require_complete(inv, cof)?;
+    }
     // the rewritten COF drops its broken links
     warn_broken(inv, cof);
     let mut current = usable_links(inv, cof);
@@ -1497,6 +1504,81 @@ mod tests {
         let mut inv = Inventory::default();
         seed_demo(&mut inv, Uuid::from_u128(1));
         inv
+    }
+
+    #[test]
+    fn individual_wear_preserves_unresolved_current_outfit_links() {
+        let mut inv = fixture();
+        let cof = cof(&inv).expect("COF");
+        let mut garment = inv.items[&worn_clothing(&inv)[0].0].clone();
+        garment.id = Uuid::from_u128(999);
+        let garment_id = garment.id;
+        inv.items.insert(garment_id, garment);
+        let unresolved = folder_links(&inv, cof)
+            .into_iter()
+            .find(|link| inv.items.get(&link.target).is_some_and(|item| item.asset_type == 6))
+            .expect("existing attachment link");
+        inv.items.remove(&unresolved.target);
+        assert!(!complete(&inv, cof));
+        let worn = HashMap::from([(unresolved.target, 5)]);
+
+        for action in [
+            Action::Add(garment_id),
+            Action::WearItem {
+                item: garment_id,
+                replace: true,
+                point: 0,
+            },
+            Action::WearItem {
+                item: garment_id,
+                replace: false,
+                point: 0,
+            },
+            Action::WearItems {
+                items: vec![garment_id],
+                replace: true,
+                point: 0,
+            },
+        ] {
+            let before = folder_links(&inv, cof);
+            let (change, sync) = plan(&inv, action, &worn).expect("wear despite an unresolved old link");
+            assert!(sync, "the confirmed outfit change must request new server bakes");
+            assert!(change.links.iter().any(|link| link.target == garment_id));
+            assert!(change.links.contains(&unresolved), "an unresolved worn attachment must stay linked");
+            for link in before
+                .iter()
+                .filter(|link| inv.items.get(&link.target).is_some_and(|item| item.asset_type == 13))
+            {
+                assert!(change.links.contains(link), "required body parts must survive");
+            }
+            assert_eq!(folder_links(&inv, cof), before, "planning must not optimistically change inventory");
+        }
+        assert!(
+            plan(&inv, Action::Save(None), &worn).is_err(),
+            "operations needing the full outfit must still wait for its originals"
+        );
+    }
+
+    #[test]
+    fn individual_wear_never_slams_an_unfetched_current_outfit() {
+        let mut inv = fixture();
+        let garment = worn_clothing(&inv)[0].0;
+        let cof = cof(&inv).expect("COF");
+        inv.folders.get_mut(&cof).expect("COF folder").state = FetchState::Unknown;
+        let before = folder_links(&inv, cof);
+        assert!(
+            plan(
+                &inv,
+                Action::WearItem {
+                    item: garment,
+                    replace: true,
+                    point: 0
+                },
+                &HashMap::new()
+            )
+            .is_err()
+        );
+        assert_eq!(folder_links(&inv, cof), before);
     }
 
     #[test]
