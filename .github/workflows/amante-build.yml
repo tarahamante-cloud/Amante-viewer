@@ -36,7 +36,18 @@ jobs:
       - name: Install native Linux prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev dbus gnome-keyring
+          sudo apt-get install -y cmake clang pkg-config libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev libfreetype6-dev libfontconfig1-dev dbus gnome-keyring mesa-vulkan-drivers vulkan-tools
+          # Headless GPU regression tests need full Vulkan depth-texture support.
+          # Do not silently fall back to the runner's limited OpenGL backend.
+          icd="$(find /usr/share/vulkan/icd.d -maxdepth 1 -name 'lvp_icd*.json' -print -quit)"
+          test -n "$icd"
+          runtime="$RUNNER_TEMP/amante-xdg"
+          mkdir -p "$runtime"
+          chmod 700 "$runtime"
+          echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
+          echo "XDG_RUNTIME_DIR=$runtime" >> "$GITHUB_ENV"
+          VK_DRIVER_FILES="$icd" VK_ICD_FILENAMES="$icd" XDG_RUNTIME_DIR="$runtime" vulkaninfo --summary
           rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
           rustup override set 1.99.1
       - name: Formatting and upstream offline regression tests
