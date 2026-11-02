@@ -51,7 +51,7 @@ impl Default for Theme {
             field: "#071B0D".into(),
             raised: "#20452C".into(),
             violet_light: "#E9A477".into(),
-            violet_pale: "#FDE3CF".into(),
+            violet_pale: "#F4C69E".into(),
             ink: "#F6E7BF".into(),
             muted: "#C5BBA5".into(),
             // Also the offline-status color: retain its distinct slate hue so
@@ -66,7 +66,7 @@ impl Default for Theme {
             warn: "#FB923C".into(),
             danger_dim: "#A85252".into(),
             indigo_light: "#D48A5A".into(),
-            on_accent: "#1E0D04".into(),
+            on_accent: "#FFF7EB".into(),
             panel_alpha: 230,
             button_radius: 5,
             window_radius: 3,

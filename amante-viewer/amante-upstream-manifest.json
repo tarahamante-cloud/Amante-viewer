@@ -1231,7 +1231,7 @@
     },
     "crates/aurora-viewer/src/theme.rs": {
       "upstream": "8b72c37993b79326c353dfeccc3f005989e642e6477c19515d9c3a5b3ae1ba46",
-      "amante": "932eb23a2c855c1075d548b01c56e7d1a33719b12fa699a5fd4a85c77d1a54a7"
+      "amante": "2971de9e252ad3b04eb1a465d4fcf8f0e9ac455585760647a91360a4a592bcb7"
     },
     "crates/aurora-viewer/src/tolerant.rs": {
       "upstream": "fc376474984be38bbcc32cdb06d4a4ebff2cce8e74e35eb209aa02695c0be536",
@@ -2747,7 +2747,7 @@
     },
     "crates/aurora-viewer/src/ui/about.rs": {
       "upstream": "ccad86b8f610c9b7b9f948846130ce87027a247e93f6dc3d0d6125f394b46d02",
-      "amante": "6bc33efde3fd94ba20f15cc34e67d5622d8483278488680a55b25dcb13851b04"
+      "amante": "7a9b42334a158d357e8d85011a9b333658a39ed0d0c85f44ba124b324aa87c40"
     },
     "crates/aurora-viewer/src/ui/animation_explorer.rs": {
       "upstream": "e782de7a3084d7b1d59c504f13dbd6d68a2400839d87a88c3aa3245acbc40dd7",
@@ -3047,7 +3047,7 @@
     },
     "crates/aurora-viewer/src/ui/news.rs": {
       "upstream": "a60b90737b4eeed26def3555c91ffce4d0eff043e42a3956d79ba6d9dec75517",
-      "amante": "08eb58174e34690834f79f3505bd8f346f407a797fa5b23bb3a9cf6854e871e4"
+      "amante": "223dfdbe3ea351a2eb3431812f7ce63271fb37b74de5b70cc4d45fe902ce8ba2"
     },
     "crates/aurora-viewer/src/ui/notification_center.rs": {
       "upstream": "3ba3c0e4bfd898d67b1d12a77905fccf9c0b7609f72bb7623e6428e5700e08b3",

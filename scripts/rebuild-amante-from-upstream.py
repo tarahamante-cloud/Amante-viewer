@@ -51,6 +51,10 @@ brand_files = {
     "assets/branding/aurora.ico": brand_asset("assets/branding/amante.ico", "assets/branding/aurora.ico"),
 }
 old_theme = (branding / "crates/aurora-viewer/src/theme.rs").read_text()
+# Preserve upstream hue/contrast invariants: pale copper must not clip to
+# white when remapped, and accent text must oppose the dark surface pole.
+old_theme = old_theme.replace('violet_pale: "#FDE3CF"', 'violet_pale: "#F4C69E"')
+old_theme = old_theme.replace('on_accent: "#1E0D04"', 'on_accent: "#FFF7EB"')
 old_loading = (branding / "crates/aurora-viewer/src/ui/loading.rs").read_text()
 crest_start = old_loading.index("    // Large, centered crest")
 crest_end = old_loading.index("    // brand, top left", crest_start)
@@ -135,6 +139,8 @@ for relative in [
     "crates/aurora-viewer/src/links.rs",
     "crates/aurora-viewer/src/bug_report/github.rs",
     "crates/aurora-viewer/src/crash/github.rs",
+    "crates/aurora-viewer/src/ui/about.rs",
+    "crates/aurora-viewer/src/ui/news.rs",
 ]:
     path = destination / relative
     text = path.read_text().replace("Aurora-Viewer/Aurora-Viewer", OWNER)

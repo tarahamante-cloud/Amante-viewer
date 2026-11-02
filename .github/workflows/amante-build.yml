@@ -13,7 +13,9 @@ permissions:
 
 concurrency:
   group: amante-build-${{ github.ref }}
-  cancel-in-progress: true
+  # Preserve an almost-finished native build and its cache while a corrected
+  # candidate queues behind it; publication still requires every check.
+  cancel-in-progress: false
 
 jobs:
   linux:

@@ -474,8 +474,8 @@ mod tests {
             ("http://localhost:8123/news/", "http://localhost:8123/news/", true),
             ("http://[::1]:8123/news", "http://[::1]:8123/news/", true),
             (
-                " https://raw.githubusercontent.com/Aurora-Viewer/Aurora-Viewer/feat/actualites-md/news ",
-                "https://raw.githubusercontent.com/Aurora-Viewer/Aurora-Viewer/feat/actualites-md/news/",
+                " https://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer/feat/actualites-md/news ",
+                "https://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer/feat/actualites-md/news/",
                 false,
             ),
         ] {
@@ -492,10 +492,10 @@ mod tests {
             "http://127.0.0.1.example.org/",
             "http://user:secret@127.0.0.1/",
             "http://127.0.0.1/?next=https://example.org",
-            "http://raw.githubusercontent.com/Aurora-Viewer/Aurora-Viewer/main/news/",
+            "http://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer/main/news/",
             "https://raw.githubusercontent.com/Somebody/Aurora-Viewer/main/news/",
-            "https://raw.githubusercontent.com/Aurora-Viewer/Aurora-Viewer/../../Somebody/Else/main/",
-            "https://raw.githubusercontent.com.example.org/Aurora-Viewer/Aurora-Viewer/main/news/",
+            "https://raw.githubusercontent.com/tarahamante-cloud/Amante-viewer/../../Somebody/Else/main/",
+            "https://raw.githubusercontent.com.example.org/tarahamante-cloud/Amante-viewer/main/news/",
             "file:///C:/news/",
         ] {
             assert!(Source::test(address).is_none(), "{address}");
