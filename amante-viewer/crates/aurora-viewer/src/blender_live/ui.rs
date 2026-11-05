@@ -71,6 +71,14 @@ fn connection(live: &mut Live, ui: &mut egui::Ui, p: &crate::theme::Palette, can
             start = true;
         }
     });
+    if let Some(server) = &live.server {
+        ui.label("Pair Blender with this session code in Connection settings:");
+        ui.add(egui::Label::new(egui::RichText::new(&server.pairing_code).monospace()).selectable(true));
+        if ui.button("Copy pairing code").clicked() {
+            ui.ctx().copy_text(server.pairing_code.clone());
+        }
+        ui.small("Keep this code private. Stopping live mode invalidates it.");
+    }
     shape_controls(live, ui, p);
     object_list(live, ui, p, can_upload);
     object_controls(live, ui, p);

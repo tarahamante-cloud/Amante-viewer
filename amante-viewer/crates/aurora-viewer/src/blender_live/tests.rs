@@ -941,15 +941,69 @@ fn blender_live_attachment_namespace_survives_rekey_without_colliding_with_simul
 }
 
 #[test]
+fn amante_security_blender_unpaired_clients_cannot_disclose_rig_or_consume_controls() {
+    use std::io::Read;
+    let listener = std::net::TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).expect("port");
+    let port = listener.local_addr().unwrap().port();
+    let code = amante_local_ipc::pairing::new_code();
+    let shared = transport::start_listener(
+        listener,
+        code.clone(),
+        supported(),
+        Default::default(),
+        egui::Context::default(),
+        None,
+    )
+    .expect("server");
+    let owner = Server {
+        shared: shared.clone(),
+        pairing_code: code.clone(),
+    };
+    let mut legacy = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).unwrap();
+    legacy.write_all(b"AURBLD1\n").unwrap();
+    legacy.set_read_timeout(Some(Duration::from_millis(100))).unwrap();
+    assert!(legacy.read(&mut [0; 1]).is_err()); // no rig hello without pairing
+    let mut wrong = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).unwrap();
+    assert!(amante_local_ipc::pairing::connect(&mut wrong, &"00".repeat(32)).is_err());
+    assert!(!shared.status.lock().connected);
+    assert!(shared.latest.lock().is_none());
+    assert!(shared.shape_ack.lock().is_none());
+    assert!(shared.import_result.lock().is_none());
+    // Silent unpaired peer is still open, but cannot block a valid session.
+    for _ in 0..2 {
+        let mut stream = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).unwrap();
+        amante_local_ipc::pairing::connect(&mut stream, &code).unwrap();
+        stream.set_read_timeout(Some(Duration::from_secs(3))).unwrap();
+        let mut reader = BufReader::new(stream.try_clone().unwrap());
+        let mut line = String::new();
+        reader.read_line(&mut line).unwrap();
+        assert!(line.contains("mPelvis"));
+        stream.write_all(&0u32.to_le_bytes()).unwrap();
+        line.clear();
+        reader.read_line(&mut line).unwrap();
+        assert!(line.contains("\"ok\":true"));
+        // Oversized frame is rejected before its body is allocated; a fresh
+        // paired connection is then accepted by the same listener.
+        stream.write_all(&((protocol::MAX_BYTES + 1) as u32).to_le_bytes()).unwrap();
+        assert!(matches!(stream.read(&mut [0]), Ok(0) | Err(_)));
+    }
+    drop(owner);
+}
+
+#[test]
 fn blender_live_transport_handshake_errors_reconnect_and_latest_slot() {
     let ctx = egui::Context::default();
     let probe = std::net::TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).expect("free port");
     let port = probe.local_addr().expect("address").port();
-    let shared = transport::start_listener(probe, supported(), Default::default(), ctx, None).expect("start");
-    let owner = Server { shared: shared.clone() };
+    let code = amante_local_ipc::pairing::new_code();
+    let shared = transport::start_listener(probe, code.clone(), supported(), Default::default(), ctx, None).expect("start");
+    let owner = Server {
+        shared: shared.clone(),
+        pairing_code: code.clone(),
+    };
     let mut stream = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).expect("connect");
     stream.set_read_timeout(Some(Duration::from_secs(5))).expect("timeout");
-    stream.write_all(b"AURBLD1\n").expect("magic");
+    amante_local_ipc::pairing::connect(&mut stream, &code).expect("paired");
     let mut reader = BufReader::new(stream.try_clone().expect("reader"));
     let mut line = String::new();
     reader.read_line(&mut line).expect("hello");
@@ -985,11 +1039,23 @@ fn blender_live_transport_handshake_errors_reconnect_and_latest_slot() {
 fn blender_live_shape_transport_requires_negotiation_and_confirms_import_separately() {
     let listener = std::net::TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).expect("port");
     let port = listener.local_addr().expect("address").port();
-    let shared = transport::start_listener(listener, supported(), Default::default(), egui::Context::default(), None).expect("server");
-    let owner = Server { shared: shared.clone() };
+    let code = amante_local_ipc::pairing::new_code();
+    let shared = transport::start_listener(
+        listener,
+        code.clone(),
+        supported(),
+        Default::default(),
+        egui::Context::default(),
+        None,
+    )
+    .expect("server");
+    let owner = Server {
+        shared: shared.clone(),
+        pairing_code: code.clone(),
+    };
     let mut stream = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).expect("connect");
     stream.set_read_timeout(Some(Duration::from_secs(5))).expect("timeout");
-    stream.write_all(b"AURBLD1\n").expect("hello");
+    amante_local_ipc::pairing::connect(&mut stream, &code).expect("paired");
     let mut reader = BufReader::new(stream.try_clone().expect("reader"));
     let mut line = String::new();
     reader.read_line(&mut line).expect("hello");
@@ -1045,11 +1111,23 @@ fn blender_live_shape_transport_requires_negotiation_and_confirms_import_separat
 fn blender_lods_transport_negotiates_ignores_stale_results_and_keeps_live_revision() {
     let listener = std::net::TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).expect("port");
     let port = listener.local_addr().expect("address").port();
-    let shared = transport::start_listener(listener, supported(), Default::default(), egui::Context::default(), None).expect("server");
-    let owner = Server { shared: shared.clone() };
+    let code = amante_local_ipc::pairing::new_code();
+    let shared = transport::start_listener(
+        listener,
+        code.clone(),
+        supported(),
+        Default::default(),
+        egui::Context::default(),
+        None,
+    )
+    .expect("server");
+    let owner = Server {
+        shared: shared.clone(),
+        pairing_code: code.clone(),
+    };
     let mut stream = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).expect("connect");
     stream.set_read_timeout(Some(Duration::from_secs(5))).expect("timeout");
-    stream.write_all(b"AURBLD1\n").expect("hello");
+    amante_local_ipc::pairing::connect(&mut stream, &code).expect("paired");
     let mut reader = BufReader::new(stream.try_clone().expect("reader"));
     let mut line = String::new();
     reader.read_line(&mut line).expect("hello");

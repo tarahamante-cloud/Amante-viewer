@@ -16,10 +16,11 @@ import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from aurora_live import exporter, starter, materials, weights
-from aurora_live.client import Client, MAGIC
+from aurora_live.client import Client, pair
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=17655)
+parser.add_argument("--pairing-code", required=True)
 parser.add_argument("--starter", action="store_true", help="Use the generated SL rig and test T-shirt")
 parser.add_argument("--pbr", action="store_true", help="Exercise live image and PBR edits plus automatic weights")
 parser.add_argument("--save-blend", type=Path, help="Save a self-contained PBR test scene")
@@ -105,7 +106,7 @@ while connection is None:
 
 with connection:
     connection.settimeout(10)
-    connection.sendall(MAGIC)
+    pair(connection, args.pairing_code)
     reader = connection.makefile("rb")
     hello = Client._line(reader)
     supported = set(hello["joints"])

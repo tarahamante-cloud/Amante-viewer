@@ -214,6 +214,7 @@ impl Default for BrowserSettings {
 pub struct MediaPlugin {
     process: PluginProcess,
     queue: VecDeque<PluginMessage>,
+    queue_bytes: usize,
     texture_params_received: bool,
     depth: i32,
     format: u32,
@@ -230,6 +231,9 @@ pub struct MediaPlugin {
     requested_media_height: i32,
     requested_texture_width: i32,
     requested_texture_height: i32,
+    /// Texture and media dimensions actually sent, independent of later UI
+    /// resize requests while the plugin is still acknowledging this one.
+    pending_size: Option<[i32; 4]>,
     full_width: i32,
     full_height: i32,
     texture_width: i32,
@@ -243,6 +247,10 @@ pub struct MediaPlugin {
     priority: Priority,
     low_priority_size_limit: i32,
     requested_volume: f32,
+    /// Linux: a web page's sound, which the plugin does not set
+    /// (stream_volume.rs).
+    #[cfg(target_os = "linux")]
+    stream_volume: Option<crate::stream_volume::StreamVolume>,
     status: MediaStatus,
     events: Vec<MediaEvent>,
     failed: bool,
@@ -274,6 +282,35 @@ impl MediaPlugin {
         browser: &BrowserSettings,
         target: &str,
     ) -> std::io::Result<MediaPlugin> {
+        Self::launch_with(paths, plugin, width, height, browser, target, false)
+    }
+
+    /// [`MediaPlugin::launch`] for media on a face or a parcel, whose sound
+    /// follows the viewer's volume. On Linux, only these web pages get their
+    /// own stream name and tag (stream_volume.rs): the sound server keeps a
+    /// volume per stream name, so a web window sharing that name would start
+    /// at the last volume set on a world page (muted, for example), with
+    /// nothing to set it back.
+    pub fn launch_in_world(
+        paths: &PluginPaths,
+        plugin: &str,
+        width: i32,
+        height: i32,
+        browser: &BrowserSettings,
+        target: &str,
+    ) -> std::io::Result<MediaPlugin> {
+        Self::launch_with(paths, plugin, width, height, browser, target, true)
+    }
+
+    fn launch_with(
+        paths: &PluginPaths,
+        plugin: &str,
+        width: i32,
+        height: i32,
+        browser: &BrowserSettings,
+        target: &str,
+        in_world: bool,
+    ) -> std::io::Result<MediaPlugin> {
         let file = paths.plugin_file(plugin);
         if !file.is_file() {
             return Err(std::io::Error::new(
@@ -281,10 +318,29 @@ impl MediaPlugin {
                 format!("{} not found", file.display()),
             ));
         }
-        let process = PluginProcess::launch(&paths.launcher, &paths.plugin_dir, &file)?;
+        #[cfg(target_os = "linux")]
+        let stream_volume = (in_world && plugin == "media_plugin_cef").then(crate::stream_volume::StreamVolume::new);
+        #[cfg(not(target_os = "linux"))]
+        let _ = in_world;
+        #[cfg(target_os = "linux")]
+        let env: Vec<(String, String)> = stream_volume.iter().map(crate::stream_volume::StreamVolume::env).collect();
+        #[cfg(not(target_os = "linux"))]
+        let env: Vec<(String, String)> = Vec::new();
+        let process = PluginProcess::launch(&paths.launcher, &paths.plugin_dir, &file, &env)?;
+        #[allow(unused_mut)]
+        let mut media = Self::with_process(process, plugin, width, height, browser, target);
+        #[cfg(target_os = "linux")]
+        {
+            media.stream_volume = stream_volume;
+        }
+        Ok(media)
+    }
+
+    fn with_process(process: PluginProcess, plugin: &str, width: i32, height: i32, browser: &BrowserSettings, target: &str) -> MediaPlugin {
         let mut m = MediaPlugin {
             process,
             queue: VecDeque::new(),
+            queue_bytes: 0,
             texture_params_received: false,
             depth: 0,
             format: 0,
@@ -301,6 +357,7 @@ impl MediaPlugin {
             requested_media_height: 0,
             requested_texture_width: 0,
             requested_texture_height: 0,
+            pending_size: None,
             full_width: 0,
             full_height: 0,
             texture_width: 0,
@@ -314,6 +371,8 @@ impl MediaPlugin {
             priority: Priority::Normal,
             low_priority_size_limit: LOW_PRIORITY_TEXTURE_SIZE_DEFAULT,
             requested_volume: 0.0,
+            #[cfg(target_os = "linux")]
+            stream_volume: None,
             status: MediaStatus::None,
             events: Vec::new(),
             failed: false,
@@ -361,10 +420,21 @@ impl MediaPlugin {
                 .with("target", target)
                 .with("factor", browser.zoom_factor),
         );
-        Ok(m)
+        m
     }
 
     fn send(&mut self, m: PluginMessage) {
+        if self.process.is_done() {
+            return;
+        }
+        let bytes = m.generate().len();
+        if bytes > crate::process::MAX_FRAME || self.queue.len() >= 256 || self.queue_bytes + bytes > 4 * 1024 * 1024 {
+            self.queue.clear();
+            self.queue_bytes = 0;
+            self.process.fail("pending media queue limit exceeded".into());
+            return;
+        }
+        self.queue_bytes += bytes;
         self.queue.push_back(m);
     }
 
@@ -420,6 +490,11 @@ impl MediaPlugin {
             return;
         }
         for m in self.process.take_messages() {
+            if self.events.len() >= 256 {
+                self.events.clear();
+                self.process.fail("media event queue limit exceeded".into());
+                return;
+            }
             self.receive(m);
         }
         if self.media_width == -1 || !self.texture_params_received || !self.process.is_running() {
@@ -429,7 +504,13 @@ impl MediaPlugin {
         }
         if self.process.is_running() {
             while let Some(m) = self.queue.pop_front() {
+                self.queue_bytes -= m.generate().len();
                 self.process.send(&m);
+                if self.process.is_done() {
+                    self.queue.clear();
+                    self.queue_bytes = 0;
+                    break;
+                }
             }
         }
     }
@@ -461,6 +542,10 @@ impl MediaPlugin {
             }
             self.shm_size = newsize;
             self.shm_name = self.process.add_shared_memory(newsize);
+            if self.shm_name.is_none() {
+                self.process.fail("could not allocate media shared memory".into());
+                return;
+            }
         }
         self.texture_width = -1;
         self.texture_height = -1;
@@ -468,6 +553,12 @@ impl MediaPlugin {
         self.media_height = -1;
         self.dirty = None;
         // sent directly: jumps ahead of the queue
+        self.pending_size = Some([
+            self.requested_texture_width,
+            self.requested_texture_height,
+            self.requested_media_width,
+            self.requested_media_height,
+        ]);
         let m = PluginMessage::new(CLASS_MEDIA, "size_change")
             .with("name", self.shm_name.clone().unwrap_or_default())
             .with("width", self.requested_media_width)
@@ -506,6 +597,9 @@ impl MediaPlugin {
         }
         self.full_width = self.requested_media_width;
         self.full_height = self.requested_media_height;
+        // Clamp before power-of-two/padding arithmetic, not afterwards.
+        self.requested_media_width = self.requested_media_width.clamp(1, 2048);
+        self.requested_media_height = self.requested_media_height.clamp(1, 2048);
         if self.allow_downsample && matches!(self.priority, Priority::Slideshow | Priority::Low) {
             while self.requested_media_width > self.low_priority_size_limit || self.requested_media_height > self.low_priority_size_limit {
                 self.requested_media_width /= 2;
@@ -754,6 +848,10 @@ impl MediaPlugin {
 
     /// Volume 0..1 (sent only when it changes).
     pub fn set_volume(&mut self, volume: f32) {
+        #[cfg(target_os = "linux")]
+        if let Some(stream) = self.stream_volume.as_mut() {
+            stream.set(volume);
+        }
         if volume_changed(self.requested_volume, volume) {
             self.requested_volume = volume;
             self.send(PluginMessage::new(CLASS_MEDIA_TIME, "set_volume").with("volume", volume as f64));
@@ -786,6 +884,10 @@ impl MediaPlugin {
     fn receive_media(&mut self, m: PluginMessage) {
         match m.name.as_str() {
             "texture_params" => {
+                if !(1..=4).contains(&m.s32("depth")) || !(-1..=4096).contains(&m.s32("padding")) {
+                    self.process.fail("invalid media texture parameters".into());
+                    return;
+                }
                 self.depth = m.s32("depth");
                 self.format = m.u32_hex("format");
                 self.coords_opengl = m.boolean("coords_opengl");
@@ -854,6 +956,18 @@ impl MediaPlugin {
                 self.set_size_internal();
             }
             "size_change_response" => {
+                let width = m.s32("texture_width");
+                let height = m.s32("texture_height");
+                let media_width = m.s32("width");
+                let media_height = m.s32("height");
+                if self.pending_size != Some([width, height, media_width, media_height])
+                    || !(1..=4096).contains(&width)
+                    || !(1..=4096).contains(&height)
+                {
+                    self.process.fail("invalid media texture size response".into());
+                    return;
+                }
+                self.pending_size = None;
                 self.texture_width = m.s32("texture_width");
                 self.texture_height = m.s32("texture_height");
                 self.media_width = m.s32("width");
@@ -1023,6 +1137,58 @@ fn volume_changed(previous: f32, next: f32) -> bool {
 mod tests {
     use super::*;
 
+    #[test]
+    #[cfg(any(windows, target_os = "linux"))]
+    fn amante_security_resize_in_flight_accepts_old_reply_then_sends_latest_size() {
+        use std::time::{Duration, Instant};
+        let mut process = crate::process::tests::launched_fixture();
+        // The helper performs the normal authorized child handshake and echoes
+        // size responses over TCP, not through a mocked receive method.
+        crate::process::tests::release_child(&mut process);
+        let mut media = MediaPlugin::with_process(process, "synthetic", 128, 128, &BrowserSettings::default(), "");
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while !media.process.is_running() && !media.process.is_done() && Instant::now() < deadline {
+            media.idle();
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert!(media.process.is_running(), "{:?}", media.process.state());
+        media.receive_media(
+            PluginMessage::new(CLASS_MEDIA, "texture_params")
+                .with("depth", 4)
+                .with("padding", 0)
+                .with("default_width", 128)
+                .with("default_height", 128),
+        );
+        media.idle();
+        assert_eq!(media.pending_size, Some([128, 128, 128, 128]));
+        media.set_size(256, 192);
+        assert_eq!(media.pending_size, Some([128, 128, 128, 128]));
+        assert_eq!((media.requested_media_width, media.requested_media_height), (256, 192));
+        // First reply is valid for 128x128; idle must then issue 256x192.
+        while media.pending_size != Some([256, 192, 256, 192]) && !media.process.is_done() && Instant::now() < deadline {
+            media.idle();
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert!(media.process.is_running(), "{:?}", media.process.state());
+        assert_eq!(media.pending_size, Some([256, 192, 256, 192]));
+        while media.pending_size.is_some() && !media.process.is_done() && Instant::now() < deadline {
+            media.idle();
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert!(media.process.is_running(), "{:?}", media.process.state());
+        assert_eq!(media.pending_size, None);
+        assert_eq!(media.media_size(), (256, 192));
+        assert!(media.texture_valid());
+        // Unsolicited/mismatched responses are still rejected.
+        media.receive_media(
+            PluginMessage::new(CLASS_MEDIA, "size_change_response")
+                .with("texture_width", 256)
+                .with("texture_height", 192)
+                .with("width", 256)
+                .with("height", 192),
+        );
+        assert!(media.process.is_done());
+    }
     #[test]
     fn minimized_mute_reaches_plugins_even_at_a_tiny_volume() {
         assert!(volume_changed(0.0005, 0.0));

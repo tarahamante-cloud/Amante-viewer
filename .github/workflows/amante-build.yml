@@ -91,6 +91,7 @@ jobs:
             LD_LIBRARY_PATH="$AMANTE_SWIFTSHADER_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
             cargo test --profile ci --locked -p aurora-render --lib -- --exact terrain_tests::pbr_terrain_samples_all_layers_maps_and_triplanar_normals_on_gpu
           cargo test --profile ci --locked -p aurora-i18n
+          python3 -m unittest discover -s blender/tests -p test_client.py
           cargo test --profile ci --workspace --locked --test updates
           bash ../scripts/test-native-credentials.sh
       - name: Build native Linux viewer without signing in
@@ -122,6 +123,12 @@ jobs:
           rustup override set 1.99.1
           cargo build --release --locked -p aurora-viewer
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows build failed.' }
+      - name: Check local media authorization and Blender pairing on Windows
+        run: |
+          cargo test --profile ci --locked -p amante-local-ipc -p aurora-media
+          if ($LASTEXITCODE -ne 0) { throw 'Local IPC security regressions failed.' }
+          python -m unittest discover -s blender/tests -p test_client.py
+          if ($LASTEXITCODE -ne 0) { throw 'Blender pairing client regressions failed.' }
       - name: Package executable, assets, licenses and checksum
         run: |
           $ErrorActionPreference = 'Stop'

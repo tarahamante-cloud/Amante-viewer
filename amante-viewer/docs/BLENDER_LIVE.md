@@ -7,6 +7,23 @@ and see the result without saving or uploading. The preview is local: other
 residents do not see it, and it does not create inventory items or charge an
 upload fee.
 
+## Pairing with Amante Viewer (plug-in 0.15.0+)
+
+Start LiveMesh in the viewer, copy its session pairing code, and paste it into
+Blender's **Connection settings → Pairing code** before connecting. Both sides
+must be updated together. A legacy addon cannot connect without pairing; the
+mesh, material, shape, LOD and object protocols are unchanged after authentication.
+The code is not saved in the `.blend` file. Stopping and starting live mode
+generates a new code; a temporary disconnect can reconnect with the current code.
+Treat it as private, including any clipboard copy. No grid login is needed.
+
+The bridge authenticates both endpoints with fresh nonces and role-separated
+HMAC-SHA256 proofs before the viewer sends rig information or accepts controls.
+Wrong/old codes and old magic-only clients are closed without changing scene,
+shape or import state. Up to 16 authentication candidates are polled concurrently,
+each with a two-second absolute deadline; one silent client does not block a
+paired client. Only one authenticated addon session drives the viewer at a time.
+
 ## Static objects (plug-in 0.13.0)
 
 LiveMesh accepts rigged and non-rigged mesh selections, including a mixture
@@ -170,13 +187,17 @@ coordinates for an Avastar rig, choose **Automatic (Avastar / SL)** and click
 **Update now**. Existing scenes and skeletons are never rotated automatically.
 See [Avastar's coordinate conventions](https://avalab.org/avastar/300/reference/usermanual/advanced/foreign-rigs/).
 
-Some Avastar rigs, body dev kits in particular, bind their meshes in a rest
-pose other than SL's T-pose (arms lowered into an A-pose). Avastar keeps that
-bind pose on the rig, and LiveMesh and **Import / LOD** undo it the way
-Avastar's own Collada export does, so accessories rigged to the kit sit where
-they do after a normal upload. A bone without its own bind data follows its
-parent's. If the rest pose was edited after binding, the stale bind data is
-ignored and the bones' rest positions are used as they are.
+Some rigs, body dev kits in particular, bind their meshes in a rest pose other
+than SL's T-pose (arms lowered into an A-pose) and on a shape that scales some
+bones. Each bone keeps that bind pose in its `bind_mat` property, with or
+without Avastar installed ("no add-on" kits included). LiveMesh and
+**Import / LOD** undo its rotation and scale the way Blender's and Avastar's
+Collada exports do, so meshes rigged to the kit sit where they do after a
+normal upload. A bone without its own bind data follows its parent's rotation.
+An Avastar rig with **Use Bind Pose** and no bind data at all is undone from
+each bone's default rest pose, as Avastar's export does. If the rest pose was
+edited after binding, the stale bind data is ignored and the bones' rest
+positions are used as they are.
 
 **Automatic updates** sends changed geometry, weights, UVs, materials and list
 membership at most once per configured interval (**0.1–3,600 seconds**). Idle
@@ -764,7 +785,15 @@ can be opened normally and connected through the Aurora sidebar.
 ## Wire protocol v1
 
 TCP listens on IPv4 loopback only. The client sends the eight bytes
-`AURBLD1\n`. Aurora responds with one newline-terminated JSON object containing
+`AURBLD1\n` followed by a 32-byte random client nonce. The viewer responds with
+a 32-byte random server nonce and a 32-byte HMAC-SHA256 server proof. The addon
+verifies that proof, then sends its 32-byte client proof. HMAC uses the ASCII
+64-character session code as key and the concatenation
+`Amante Blender pairing v1\0`, the ASCII role (`server` or `client`), client nonce,
+and server nonce as input. Nonces are fresh on every connection; proofs cannot
+be reflected between roles or reused on a new connection. No unauthenticated
+fallback is supported. After successful pairing, Amante responds with one
+newline-terminated JSON object containing
 `protocol`, the supported `joints`, their inverse neutral `rest_axes` (column-major,
 translation removed), negotiated `features`, `max_bytes` (64 MiB), and
 `max_decoded_bytes` (256 MiB). Every subsequent client message is a four-byte

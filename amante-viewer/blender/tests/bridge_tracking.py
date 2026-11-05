@@ -17,6 +17,7 @@ from aurora_live.client import Client
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=17655)
+parser.add_argument("--pairing-code", required=True)
 parser.add_argument("--save-blend", type=Path)
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
 replies, sent = Queue(), []
@@ -86,6 +87,7 @@ try:
     entries = bpy.context.scene.aurora_live.objects
     assert len(entries) == 2
     bpy.context.scene.aurora_live.port = args.port
+    bpy.context.scene.aurora_live.pairing_code = args.pairing_code
     bpy.ops.aurora.live_connect()
     flush("initial", 2, 4.5)
     broken = bpy.data.materials.new("Unsupported live material")

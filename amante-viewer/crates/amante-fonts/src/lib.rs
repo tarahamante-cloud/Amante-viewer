@@ -1,13 +1,14 @@
 //! Font metadata, outlines and embedded emoji using maintained fontations.
 //! No legacy ttf-parser code is included.
 use skrifa::{
-    FontRef, GlyphId, MetadataProvider,
+    FontRef, MetadataProvider,
     bitmap::{BitmapData, BitmapStrikes},
     instance::{LocationRef, Size},
-    outline::{DrawSettings, OutlinePen},
+    outline::DrawSettings,
     raw::{FileRef, ReadError, TableProvider},
     string::StringId,
 };
+pub use skrifa::{GlyphId, outline::OutlinePen};
 
 pub struct Face<'a> {
     font: FontRef<'a>,
@@ -79,6 +80,54 @@ impl<'a> Face<'a> {
     }
     pub fn has_weight_axis(&self) -> bool {
         self.font.axes().iter().any(|axis| axis.tag() == skrifa::Tag::new(b"wght"))
+    }
+    pub fn glyph_hor_advance(&self, glyph: GlyphId) -> Option<f32> {
+        self.font
+            .glyph_metrics(Size::unscaled(), LocationRef::default())
+            .advance_width(glyph)
+    }
+    pub fn horizontal_kerning(&self, left: GlyphId, right: GlyphId) -> f32 {
+        use skrifa::raw::tables::kern::SubtableKind;
+        let Some(table) = self
+            .font
+            .kern()
+            .ok()
+            .and_then(|kern| kern.subtables().flatten().find(|s| s.is_horizontal() && !s.is_variable()))
+        else {
+            return 0.0;
+        };
+        let value = match table.kind() {
+            Ok(SubtableKind::Format0(s)) => s.kerning(left, right),
+            Ok(SubtableKind::Format2(s)) => s.kerning(left, right),
+            Ok(SubtableKind::Format3(s)) => s.kerning(left, right),
+            _ => None,
+        };
+        value.unwrap_or(0) as f32
+    }
+    pub fn is_symbol(&self) -> bool {
+        self.font.cmap().is_ok_and(|cmap| {
+            cmap.encoding_records()
+                .iter()
+                .any(|r| r.platform_id() == skrifa::raw::tables::cmap::PlatformId::Windows && r.encoding_id() == 0)
+        })
+    }
+    pub fn glyph_name(&self, glyph: GlyphId) -> Option<String> {
+        let id = u16::try_from(glyph.to_u32()).ok()?;
+        let name = self
+            .font
+            .post()
+            .ok()
+            .and_then(|post| post.glyph_name(skrifa::raw::types::GlyphId16::new(id)).map(str::to_owned));
+        // read-fonts does not expose CFF1 charset names. An unverified CFF1
+        // letter preview must use the readable UI font, not potential dingbats.
+        name.or_else(|| self.font.cff().is_ok().then(String::new))
+    }
+    pub fn outline_glyph(&self, glyph: GlyphId, pen: &mut impl OutlinePen) -> bool {
+        self.font.outline_glyphs().get(glyph).is_some_and(|outline| {
+            outline
+                .draw(DrawSettings::unhinted(Size::unscaled(), LocationRef::default()), pen)
+                .is_ok()
+        })
     }
     pub fn has_outline(&self, glyph: GlyphId) -> bool {
         struct Sink(bool);

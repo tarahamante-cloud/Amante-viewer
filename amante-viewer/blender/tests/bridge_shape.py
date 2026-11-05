@@ -12,6 +12,7 @@ from aurora_live import tracking, starter
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=17655)
+parser.add_argument("--pairing-code", required=True)
 parser.add_argument("--readonly", action="store_true")
 parser.add_argument("--apply", action="store_true")
 parser.add_argument("--save-blend")
@@ -26,6 +27,7 @@ if target:
     target.select_set(True)
     bpy.context.view_layer.objects.active = target
 bpy.context.scene.aurora_live.port = args.port
+bpy.context.scene.aurora_live.pairing_code = args.pairing_code
 assert bpy.ops.aurora.live_connect() == {"FINISHED"}
 connection = aurora_live._client
 try:

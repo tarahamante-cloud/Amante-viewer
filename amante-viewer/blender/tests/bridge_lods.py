@@ -13,6 +13,7 @@ from aurora_live import starter, tracking
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", type=int, default=17655)
+parser.add_argument("--pairing-code", required=True)
 parser.add_argument("--hold", type=float, default=1)
 parser.add_argument("--save-blend")
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
@@ -37,6 +38,7 @@ entry.lowest.mode = "FALLBACK"
 entry.lowest.ratio = 8
 bpy.context.scene.aurora_live.show_lods = True
 bpy.context.scene.aurora_live.port = args.port
+bpy.context.scene.aurora_live.pairing_code = args.pairing_code
 assert bpy.ops.aurora.live_connect() == {"FINISHED"}
 connection = aurora_live._client
 prepared = []

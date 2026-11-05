@@ -1,37 +1,37 @@
 use super::*;
 use std::{
-    io::{self, Read, Write},
+    io::{self, Write},
     net::{Ipv4Addr, TcpListener, TcpStream},
     time::{Duration, Instant},
 };
 
-const MAGIC: &[u8; 8] = b"AURBLD1\n";
-
 pub(super) fn start(
     port: u16,
+    pairing_code: String,
     supported: HashSet<String>,
     rest_axes: std::collections::HashMap<String, [f32; 16]>,
     ctx: egui::Context,
     pool: Option<Arc<aurora_render::StagingPool>>,
 ) -> io::Result<Arc<Shared>> {
     let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, port))?;
-    start_listener(listener, supported, rest_axes, ctx, pool)
+    start_listener(listener, pairing_code, supported, rest_axes, ctx, pool)
 }
 
 pub(super) fn start_listener(
     listener: TcpListener,
+    pairing_code: String,
     supported: HashSet<String>,
     rest_axes: std::collections::HashMap<String, [f32; 16]>,
     ctx: egui::Context,
     pool: Option<Arc<aurora_render::StagingPool>>,
 ) -> io::Result<Arc<Shared>> {
-    listener.set_nonblocking(true)?;
+    let mut listener = amante_local_ipc::pairing::Listener::new(listener, pairing_code)?;
     let shared = Arc::new(Shared::default());
     let worker = shared.clone();
     std::thread::Builder::new().name("blender-live".into()).spawn(move || {
         while !worker.stop.load(Ordering::Acquire) {
-            match listener.accept() {
-                Ok((mut stream, _)) => {
+            match listener.poll() {
+                Ok(Some(mut stream)) => {
                     if let Err(error) = serve(&mut stream, &worker, &supported, &rest_axes, &ctx, pool.as_deref())
                         && !worker.stop.load(Ordering::Acquire)
                         && !matches!(
@@ -52,7 +52,7 @@ pub(super) fn start_listener(
                     worker.shape_cancel.lock().take();
                     ctx.request_repaint();
                 }
-                Err(e) if e.kind() == io::ErrorKind::WouldBlock => std::thread::sleep(Duration::from_millis(30)),
+                Ok(None) => std::thread::sleep(Duration::from_millis(10)),
                 Err(e) => {
                     worker.status.lock().error = Some(e.to_string());
                     ctx.request_repaint();
@@ -64,23 +64,8 @@ pub(super) fn start_listener(
     Ok(shared)
 }
 
-fn read(stream: &mut TcpStream, mut target: &mut [u8], shared: &Shared, idle: Duration) -> io::Result<()> {
-    let mut last = Instant::now();
-    while !target.is_empty() {
-        if shared.stop.load(Ordering::Acquire) {
-            return Err(io::ErrorKind::Interrupted.into());
-        }
-        match stream.read(target) {
-            Ok(0) => return Err(io::ErrorKind::UnexpectedEof.into()),
-            Ok(n) => {
-                target = &mut target[n..];
-                last = Instant::now();
-            }
-            Err(e) if matches!(e.kind(), io::ErrorKind::WouldBlock | io::ErrorKind::TimedOut) && last.elapsed() < idle => {}
-            Err(e) => return Err(e),
-        }
-    }
-    Ok(())
+fn read(stream: &mut TcpStream, target: &mut [u8], shared: &Shared, timeout: Duration) -> io::Result<()> {
+    amante_local_ipc::pairing::read_deadline(stream, target, &shared.stop, Instant::now() + timeout)
 }
 
 fn serve(
@@ -94,11 +79,6 @@ fn serve(
     stream.set_read_timeout(Some(Duration::from_millis(150)))?;
     stream.set_write_timeout(Some(Duration::from_secs(2)))?;
     stream.set_nodelay(true)?;
-    let mut magic = [0; 8];
-    read(stream, &mut magic, shared, Duration::from_secs(3))?;
-    if &magic != MAGIC {
-        return Err(io::ErrorKind::InvalidData.into());
-    }
     let mut joints: Vec<_> = supported.iter().collect();
     joints.sort();
     let hello = serde_json::json!({ "protocol": protocol::VERSION, "joints": joints, "rest_axes": rest_axes, "max_bytes": protocol::MAX_BYTES, "max_decoded_bytes": protocol::MAX_DECODED_BYTES, "features": ["pbr-materials", "source-ids", "shape-transfer", "shape-apply", "import-lods", "static-meshes", "object-links", "compressed-snapshots", "packed-geometry"] });

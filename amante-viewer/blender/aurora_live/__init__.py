@@ -1,10 +1,10 @@
 """Blender editing to Aurora's animated avatar, without uploading assets."""
 
 bl_info = {
-    "name": "Aurora LiveMesh", "author": "Aurora Viewer contributors",
-    "version": (0, 14, 7), "blender": (2, 93, 0),
-    "location": "View3D > Sidebar > Aurora", "category": "3D View",
-    "description": "Preview rigged and static mesh edits live in Aurora Viewer",
+    "name": "Amante LiveMesh", "author": "Aurora Viewer contributors; Amante Viewer contributors",
+    "version": (0, 15, 0), "blender": (2, 93, 0),
+    "location": "View3D > Sidebar > Amante", "category": "3D View",
+    "description": "Preview rigged and static mesh edits live in Amante Viewer",
 }
 
 _reloading = "bpy" in globals()
@@ -353,6 +353,8 @@ class AURORA_PG_live(bpy.types.PropertyGroup):
     starter_tshirt: BoolProperty(name="Add rigged test T-shirt", default=True,
                                 description="Create a weighted, editable T-shirt on the new SL skeleton")
     port: IntProperty(name="Aurora port", default=17655, min=1024, max=65535)
+    pairing_code: StringProperty(name="Pairing code", subtype="PASSWORD", options={"SKIP_SAVE"},
+                                 description="Paste the session code from Amante Viewer's live window")
     auto_update: BoolProperty(name="Automatic updates", default=True,
                               description="Send changed objects and materials at the chosen interval; disable for manual updates")
     interval: FloatProperty(name="Interval (seconds)", default=2.0, min=0.1, max=3600.0, soft_max=60.0, precision=2,
@@ -401,7 +403,7 @@ class AURORA_OT_connect(bpy.types.Operator):
         _stop()
         _request_capture()
         _force_capture = True
-        _client = Client(context.scene.aurora_live.port)
+        _client = Client(context.scene.aurora_live.port, context.scene.aurora_live.pairing_code.strip())
         bpy.app.timers.register(_tick, first_interval=0.1)
         return {"FINISHED"}
 
@@ -539,6 +541,7 @@ def _draw_connection(layout, context):
     row = layout.row()
     row.enabled = _client is None
     row.prop(prefs, "port")
+    layout.prop(prefs, "pairing_code")
     layout.prop(prefs, "forward")
 
 

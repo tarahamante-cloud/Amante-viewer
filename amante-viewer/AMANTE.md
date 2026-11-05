@@ -1,13 +1,20 @@
-# Amante Viewer Alpha — clean upstream rebuild
+# Amante Viewer Alpha v0.9.1
 
-Based on Aurora Viewer commit `b21e5c27880176978d4a301220645c2830fef3a9`.
+Based on official Aurora Viewer release `v0.9.1`, commit
+`76f7cd150bb6238fbe5eb895e47ee84777896dfe`.
 
-The runtime is upstream Aurora with Amante name, crest, palette, product directories, owner links and package identity. The previous Amante-specific renderer, texture, clothing, browser, toolbar and dependency changes are not included.
+This update includes the full official release, including its rendering,
+texture, clothing, networking and performance changes. Those engine files
+are byte-identical to the official release, not locally rewritten.
+Amante retains its name, crest, palette, profile and credential namespaces,
+owner feeds, packaging, maintained dependencies and local-peer protections.
+Aurora's complete Quick Preferences, toolbar, browser and Friends Only
+implementations supersede the earlier unfinished local UI substitutes.
 
 This Alpha adds reviewed dependency security fixes to that clean baseline:
 maintained font metadata parsing and Linux credential/D-Bus libraries, patched
-certificate validation and Markdown parsing, and removal of the affected
-constant-time utility dependency. See the included `amante-security-manifest.json`
+certificate validation, Markdown parsing and constant-time utilities.
+See the included `amante-security-manifest.json`
 for the exact security-maintenance exceptions. Rendering, world textures,
 networking and wearable engine code remain unchanged.
 

@@ -1,5 +1,7 @@
 """Transport tests without importing Blender or opening external connections."""
 import importlib.util
+import hashlib
+import hmac
 import io
 import json
 from pathlib import Path
@@ -14,6 +16,7 @@ import zlib
 spec = importlib.util.spec_from_file_location("aurora_client", Path(__file__).resolve().parents[1] / "aurora_live" / "client.py")
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
+CODE = "ab" * 32
 
 
 def receive(connection, size):
@@ -26,9 +29,20 @@ def receive(connection, size):
     return value
 
 
-def hello(connection):
+def authenticate(connection):
     if receive(connection, 8) != module.MAGIC:
         raise ValueError("Bad handshake")
+    client = receive(connection, 32)
+    server = b"s" * 32
+    def proof(role):
+        return hmac.new(CODE.encode(), b"Amante Blender pairing v1\0" + role + client + server, hashlib.sha256).digest()
+    connection.sendall(server + proof(b"server"))
+    if not hmac.compare_digest(receive(connection, 32), proof(b"client")):
+        raise ValueError("Unpaired client")
+
+
+def hello(connection):
+    authenticate(connection)
     connection.sendall(b'{"protocol":1,"joints":["mPelvis"],"max_bytes":67108864,"features":["pbr-materials"]}\n')
 
 
@@ -103,6 +117,26 @@ class ClientTests(unittest.TestCase):
         payload, errors = module.prepare_frame(value, hello_value)
         self.assertFalse(json.loads(payload)["meshes"])
         self.assertIn("transfer limit", errors["Over decoded budget"])
+    def test_pairing_never_sends_client_proof_to_a_fake_viewer(self):
+        left, right = socket.socketpair()
+        received = []
+        def fake_viewer():
+            with right:
+                received.append(receive(right, 40))
+                right.sendall(b"\0" * 64)
+                received.append(right.recv(32))
+        worker = threading.Thread(target=fake_viewer)
+        worker.start()
+        with left:
+            with self.assertRaisesRegex(ValueError, "pairing rejected"):
+                module.pair(left, CODE)
+        worker.join(3)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(len(received[0]), 40)
+        self.assertEqual(received[1], b"")
+        for code in ("", "ab", "G" * 64):
+            with self.assertRaisesRegex(ValueError, "Paste the current pairing code"):
+                module.pair(None, code)
 
     def test_socket_sends_compressed_frames_then_recovers_from_an_oversized_source(self):
         received = []
@@ -112,7 +146,7 @@ class ClientTests(unittest.TestCase):
         def server(listener):
             with listener.accept()[0] as connection:
                 connection.settimeout(5)
-                self.assertEqual(receive(connection, 8), module.MAGIC)
+                authenticate(connection)
                 connection.sendall(b'{"protocol":1,"joints":["mPelvis"],"max_bytes":1024,"max_decoded_bytes":4096,"features":["pbr-materials","compressed-snapshots"]}\n')
                 received.append(snapshot(connection))
                 connection.sendall(b'{"ok":true,"revision":1}\n')
@@ -143,7 +177,7 @@ class ClientTests(unittest.TestCase):
         def server(listener):
             with listener.accept()[0] as connection:
                 connection.settimeout(5)
-                self.assertEqual(receive(connection, 8), module.MAGIC)
+                authenticate(connection)
                 connection.sendall(b'{"protocol":1,"joints":["mPelvis"],"features":["pbr-materials","shape-transfer","import-lods"]}\n')
                 received.append(snapshot(connection))
                 connection.sendall(json.dumps({"ok": True, "prepare_import": identity}).encode() + b"\n")
@@ -219,7 +253,7 @@ class ClientTests(unittest.TestCase):
         def server(listener):
             with listener.accept()[0] as connection:
                 connection.settimeout(5)
-                self.assertEqual(receive(connection, 8), module.MAGIC)
+                authenticate(connection)
                 connection.sendall(b'{"protocol":1,"joints":["mPelvis"],"features":["pbr-materials","shape-transfer","shape-apply"]}\n')
                 received.append(snapshot(connection))
                 payload = {"id": identity, "test_data": "x" * 300000}
@@ -270,7 +304,7 @@ class ClientTests(unittest.TestCase):
         def server(listener):
             with listener.accept()[0] as connection:
                 connection.settimeout(3)
-                self.assertEqual(receive(connection, 8), module.MAGIC)
+                authenticate(connection)
                 connection.sendall(b'{"protocol":1,"joints":["mPelvis"]}\n')
                 received.append(connection.recv(1))
         client, thread, failures = self.serve(server)
@@ -295,7 +329,7 @@ class ClientTests(unittest.TestCase):
 
         thread = threading.Thread(target=worker, daemon=True)
         thread.start()
-        client = module.Client(listener.getsockname()[1])
+        client = module.Client(listener.getsockname()[1], CODE)
         self.addCleanup(client.close)
         return client, thread, failures
 

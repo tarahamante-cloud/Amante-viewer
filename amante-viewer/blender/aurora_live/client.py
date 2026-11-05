@@ -1,6 +1,9 @@
 """Loopback-only transport. This worker never imports or accesses bpy."""
 
 import json
+import hashlib
+import hmac
+import secrets
 import socket
 import struct
 import threading
@@ -15,6 +18,33 @@ MAX_BYTES = 64 * 1024 * 1024
 MAX_DECODED_BYTES = 256 * 1024 * 1024
 COMPRESS_THRESHOLD = 1024 * 1024
 MAX_REPLY = 8 * 1024 * 1024 + 4096
+
+
+def pair(connection, code):
+    """Authenticate both endpoints before sending scene data or reading rig data."""
+    if len(code) != 64 or any(c not in "0123456789abcdef" for c in code):
+        raise ValueError("Paste the current pairing code from Amante Viewer's live window")
+    nonce = secrets.token_bytes(32)
+    connection.sendall(MAGIC + nonce)
+    reply = bytearray()
+    deadline = time.monotonic() + 2.0
+    while len(reply) < 64:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise ValueError("Amante pairing timed out")
+        connection.settimeout(remaining)
+        chunk = connection.recv(64 - len(reply))
+        if not chunk:
+            raise ValueError("Amante pairing rejected; check the current session code")
+        reply.extend(chunk)
+    transcript = nonce + bytes(reply[:32])
+    def proof(role):
+        return hmac.new(code.encode("ascii"), b"Amante Blender pairing v1\0" + role + transcript,
+                        hashlib.sha256).digest()
+    if not hmac.compare_digest(proof(b"server"), reply[32:]):
+        raise ValueError("Amante pairing rejected; check the current session code")
+    connection.sendall(proof(b"client"))
+    connection.settimeout(5.0)
 
 
 def wire_snapshot(snapshot, features):
@@ -132,8 +162,9 @@ def prepare_frame(snapshot, hello):
 
 
 class Client:
-    def __init__(self, port):
+    def __init__(self, port, pairing_code=""):
         self.port = port
+        self.pairing_code = pairing_code
         self._lock = threading.Lock()
         self._stop = threading.Event()
         self._wake = threading.Event()
@@ -262,7 +293,7 @@ class Client:
                         break
                     connection.settimeout(5.0)
                     connection.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-                    connection.sendall(MAGIC)
+                    pair(connection, self.pairing_code)
                     with connection.makefile("rb") as reader:
                         hello = self._line(reader)
                         if hello.get("protocol") != 1 or not hello.get("joints"):

@@ -25,6 +25,7 @@ allowed_security_files = {
     "crates/aurora-viewer/src/ui/emoji.rs",
     "crates/aurora-viewer/src/ui/fonts.rs",
     "crates/aurora-viewer/src/ui/fonts/fallback.rs",
+    "crates/aurora-viewer/src/ui/fonts/preview.rs",
     "crates/aurora-viewer/src/system_notify.rs",
     "crates/aurora-viewer/src/slurl_handoff.rs",
 }
