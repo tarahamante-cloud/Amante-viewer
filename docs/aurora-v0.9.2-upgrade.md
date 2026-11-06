@@ -1,4 +1,4 @@
-# Amante Viewer Alpha v0.9.2
+# Amante Viewer Alpha v0.9.3 — Aurora v0.9.2 update
 
 ## Official source
 
@@ -17,6 +17,11 @@ not a selection of release-note patches.
 Amante branding, crest, palette, service ownership, existing profiles and
 credential namespaces, maintained dependencies, and local-plugin protections
 are preserved. Do not reset existing profiles for this incremental upgrade.
+The maintained credential adapter exposes binary secrets for the new upstream
+sealed-cache key, using the native store without text encoding or a new fallback.
+Its cache service name is Amante-specific. The initial source-only v0.9.2 tag
+identified the missing adapter methods during compilation; it is not a release.
+Use v0.9.3 for the corrected Amante package without rewriting that historical tag.
 Protected renderer, assets, network, world and wearable source must remain
 byte-identical to the official tag.
 
@@ -24,12 +29,12 @@ byte-identical to the official tag.
 
 The native release build checks Amante's public release feed at startup.
 The default Ask mode opens an offer for a newer version; Disabled mode and an
-explicitly skipped tag remain respected. Version v0.9.2 is published as a normal
+explicitly skipped tag remain respected. Amante v0.9.3 is published as a normal
 GitHub release with Alpha wording, plus both updater-compatible and family ZIP
 names and their matching SHA-256 files. This lets existing v0.9.1 installations
 find it without shipping a replacement checker first.
 
-Add a regression asserting the login offer opens for 0.9.2 from 0.9.1 while
+Add a regression asserting the login offer opens for 0.9.3 from 0.9.1 while
 respecting user notice preferences. Run the complete existing offline CI and
 Windows packaging gate on the exact tagged Amante source before publishing.
 Never use live grid credentials in these tests.

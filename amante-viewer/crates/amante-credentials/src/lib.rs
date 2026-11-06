@@ -40,6 +40,14 @@ impl Entry {
         self.0.get_password()
     }
 
+    pub fn set_secret(&self, secret: &[u8]) -> Result<()> {
+        self.0.set_secret(secret)
+    }
+
+    pub fn get_secret(&self) -> Result<Vec<u8>> {
+        self.0.get_secret()
+    }
+
     pub fn delete_credential(&self) -> Result<()> {
         self.0.delete_credential()
     }
@@ -63,5 +71,20 @@ mod tests {
         assert_eq!(entry.get_password().unwrap(), "replacement-test-only");
         entry.delete_credential().unwrap();
         assert!(matches!(entry.get_password(), Err(Error::NoEntry)));
+    }
+
+    #[test]
+    fn facade_preserves_binary_cache_keys_and_deletion() {
+        let store = keyring_core::mock::Store::new().unwrap();
+        let entry = Entry(store.build("Amante cache test", "synthetic key", None).unwrap());
+        assert!(matches!(entry.get_secret(), Err(Error::NoEntry)));
+        let key: Vec<u8> = (0..=255).collect();
+        entry.set_secret(&key).unwrap();
+        assert_eq!(entry.get_secret().unwrap(), key);
+        let replacement = [0u8, 255, 128, 0, 13, 10];
+        entry.set_secret(&replacement).unwrap();
+        assert_eq!(entry.get_secret().unwrap(), replacement);
+        entry.delete_credential().unwrap();
+        assert!(matches!(entry.get_secret(), Err(Error::NoEntry)));
     }
 }

@@ -1,7 +1,7 @@
 {
   "added": {
     "crates/amante-credentials/Cargo.toml": "1fc099966b8bae2f5fb989271287cbef758720bf55be4f78a0f96aff9db93b00",
-    "crates/amante-credentials/src/lib.rs": "ce92c7827d60e8a699e4b4cd6a48d745270beb836f102f1268e1b4ccff6dd1ec",
+    "crates/amante-credentials/src/lib.rs": "4f6bfe05d2baf76e201b11947f82f41b56e2951e7dce00d040868e55522fe21b",
     "crates/amante-credentials/tests/linux_bus.rs": "c02132259ea74cf05b6fd8d8b5e3754fad640c0a198a3032e34e1dcec4b2b94a",
     "crates/amante-credentials/tests/native_store.rs": "6fc541054c7fd39d79cd29ac124a27c4b4ef55a60b5d67c20a4ae768e1a05d5d",
     "crates/amante-fonts/Cargo.toml": "bf5500319deb4aeab1f5fc083c4b8ba0222c4f27e6e2abfa60c753b042c4cf35",

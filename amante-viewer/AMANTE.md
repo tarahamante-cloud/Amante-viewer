@@ -1,4 +1,4 @@
-# Amante Viewer Alpha v0.9.2
+# Amante Viewer Alpha v0.9.3
 
 Based on official Aurora Viewer release `v0.9.2`, commit
 `fde838f1234ebfa2848445965f1f90541f0652f6`.

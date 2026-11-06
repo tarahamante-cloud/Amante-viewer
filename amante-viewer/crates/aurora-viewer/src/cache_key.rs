@@ -12,7 +12,7 @@
 use aurora_assets::sealed::Key;
 use std::path::Path;
 
-const SERVICE: &str = "Aurora Viewer cache";
+const SERVICE: &str = "Amante Viewer cache";
 const ACCOUNT: &str = "disk cache key v1";
 const FILE: &str = "cache.key";
 
