@@ -309,6 +309,33 @@ fn should_offer(required: bool, manual: bool, mode: Mode, ignored: &str, tag: &s
 mod tests {
     use super::*;
     #[test]
+    fn alpha_release_opens_a_login_offer_unless_disabled_or_skipped() {
+        let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("runtime");
+        for (mode, ignored, expected) in [(Mode::Ask, "", true), (Mode::Disabled, "", false), (Mode::Ask, "v0.9.2", false)] {
+            let mut updater = Updater::new(rt.handle(), Channel::Stable);
+            let settings = Settings {
+                update_mode: mode,
+                ignored_update: ignored.into(),
+                ..Settings::default()
+            };
+            let release = Release {
+                tag: "v0.9.2".into(),
+                version: "0.9.2".into(),
+                notes: "Amante Viewer Alpha v0.9.2".into(),
+                url: "https://github.com/tarahamante-cloud/Amante-viewer/releases/tag/v0.9.2".into(),
+                archive: None,
+                checksum: None,
+                required: false,
+                maintenance: Default::default(),
+            };
+            updater.tx.send(Event::Checked(Ok(Some(release)))).expect("fixture");
+            let mut info = LoginInfo::preview_release("0.9.1");
+            updater.poll(&settings, &mut info, rt.handle());
+            assert_eq!(updater.open, expected);
+            assert!(matches!(info.version, VersionState::Available { ref version, .. } if version == "0.9.2"));
+        }
+    }
+    #[test]
     fn skipped_version_manual_check_and_required_policy() {
         assert!(!should_offer(false, false, Mode::Ask, "v0.3.0", "v0.3.0"));
         assert!(should_offer(false, true, Mode::Disabled, "v0.3.0", "v0.3.0"));

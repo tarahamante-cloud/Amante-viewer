@@ -9,12 +9,12 @@
   },
   "files": {
     "Cargo.lock": {
-      "base": "e25a70ea174a471c3c28151b698534128964b4195c5f9ac3073149a268c8d3c9",
-      "sha256": "f3857f8d087aba5d97590fcb8c7b72c362167f165f9e6bb827ff4ab5aa73d694"
+      "base": "f9a2d0a70499e3407f0f3f168d7bee2b7cdc0e67636a55c712a6ab889d1ee49e",
+      "sha256": "9887e3b01d2d88569f87ba37f9f1c17fc4d6e7aa101cb5b6f417f42bdd5b8269"
     },
     "crates/aurora-viewer/Cargo.toml": {
-      "base": "9b09ad269a1c962ce2daab940672977a0546072b892865b44e99c482c34fde6d",
-      "sha256": "c0869a2de769d4c1cc46b6eed20c11eb255ecc09ab2a881e70b7e305362080b4"
+      "base": "9664eb587a6fcd76845345bc007aa2268c26a1c641e3418aeb63b17ffc0f9f13",
+      "sha256": "080238bbac44cbdf2a99fb5969f9c6eafa9e4d110125f02ba26db1065e0fd956"
     },
     "crates/aurora-viewer/src/slurl_handoff.rs": {
       "base": "1fed08142113f5d1a5cec6cebdb34a5a603681a72c05c7f5fb43b35f50a3f9c5",
@@ -45,5 +45,5 @@
       "sha256": "aa31ba15c2c7417b184186de33ef6833ca2e6a95bff8134a28db0c5d49d535c9"
     }
   },
-  "upstream": "76f7cd150bb6238fbe5eb895e47ee84777896dfe"
+  "upstream": "fde838f1234ebfa2848445965f1f90541f0652f6"
 }

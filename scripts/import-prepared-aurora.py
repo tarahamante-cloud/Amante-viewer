@@ -26,7 +26,11 @@ def digest(data):
 
 assert not git("ls-files", "--unmerged"), "Resolve and stage the merge first"
 commit = git("rev-parse", f"{tag}^{{commit}}").decode().strip()
-assert tag == "v0.9.1" and commit == "76f7cd150bb6238fbe5eb895e47ee84777896dfe", "Unexpected release"
+releases = {
+    "v0.9.1": "76f7cd150bb6238fbe5eb895e47ee84777896dfe",
+    "v0.9.2": "fde838f1234ebfa2848445965f1f90541f0652f6",
+}
+assert releases.get(tag) == commit, "Unexpected release"
 metadata = {"amante-upstream-manifest.json", "amante-security-manifest.json"}
 files = set(git("ls-files", "-z").decode().strip("\0").split("\0")) - metadata
 assert all(not Path(p).is_absolute() and ".." not in Path(p).parts for p in files)

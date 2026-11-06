@@ -1,15 +1,15 @@
-# Amante Viewer Alpha v0.9.1
+# Amante Viewer Alpha v0.9.2
 
 Amante Alpha is a native Windows viewer for Second Life, rebuilt from a clean
 Aurora Viewer baseline with the Amante name, family crest and green/copper palette.
-The current source includes the full official Aurora v0.9.1 update, commit
-`76f7cd150bb6238fbe5eb895e47ee84777896dfe`, including its rendering and texture changes.
+The current source includes the full official Aurora v0.9.2 update, commit
+`fde838f1234ebfa2848445965f1f90541f0652f6`, including its rendering and texture changes.
 
 - [Windows downloads and checksums](https://github.com/tarahamante-cloud/Amante-viewer/releases)
 - [Clean rebuild and configuration](amante-viewer/AMANTE.md)
 - [Complete upstream/branding source inventory](amante-viewer/amante-upstream-manifest.json)
 - [Upstream documentation](amante-viewer/README.md)
-- [v0.9.1 upgrade scope and delivery checks](docs/aurora-v0.9.1-upgrade.md)
+- [v0.9.2 upgrade scope and delivery checks](docs/aurora-v0.9.2-upgrade.md)
 
 These are unsigned development builds, not a security-certified release.
 Download the actual versioned ZIP and verify its published SHA-256. New source
