@@ -1,4 +1,4 @@
-# Amante Alpha v0.9.6 — official Aurora v0.9.3
+# Amante Alpha v0.9.7 — official Aurora v0.9.3
 
 Official baseline: `7851d13e61b3f83c7a8ff367f7678fbfd2e3c156`.
 This is a complete upstream release merge, including AMD FSR 3.1,
@@ -22,8 +22,8 @@ creation so deleting the shortcut does not recreate it at each launch.
 The viewer's removal feature removes its own matching shortcut.
 CI exercises the real Windows shortcut API inside a temporary directory.
 
-The Amante release number advances to v0.9.6 because v0.9.3 was already used
-for the previous Aurora v0.9.2-based release and v0.9.4/v0.9.5 were source-only
+The Amante release number advances to v0.9.7 because v0.9.3 was already used
+for the previous Aurora v0.9.2-based release and v0.9.4 through v0.9.6 were source-only
 candidates. The login-notice regression uses the upstream generation-aware
 event helper. The maintained font adapter also handles the new floating-text
 baseline metrics; no legacy parser is reintroduced. Existing tags are not rewritten.

@@ -330,8 +330,8 @@ impl BaselineFace {
         let face = amante_fonts::Face::parse(data.bytes(), data.index).ok()?;
         let em = f32::from(face.units_per_em());
         (em > 0.0).then(|| Self {
-            ascent: f32::from(face.ascender()) / em,
-            descent: -f32::from(face.descender()) / em,
+            ascent: face.ascender() / em,
+            descent: -face.descender() / em,
             scale: data.tweak.scale,
             offset_factor: data.tweak.y_offset_factor,
             offset: data.tweak.y_offset,
