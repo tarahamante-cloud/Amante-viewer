@@ -1,4 +1,4 @@
-# Amante Viewer Alpha v0.9.4
+# Amante Viewer Alpha v0.9.5
 
 Amante Alpha is a native Windows viewer for Second Life, rebuilt from a clean
 Aurora Viewer baseline with the Amante name, family crest and green/copper palette.

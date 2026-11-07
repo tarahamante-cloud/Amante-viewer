@@ -30,7 +30,7 @@
     },
     "crates/aurora-viewer/src/ui/fonts.rs": {
       "base": "705d4ca180eaeec1555620d39acc5df57c58eecc8ace967070758e52f4b883ef",
-      "sha256": "bba1e3776b7fa5c2cd5a7d316cce13eb6076d6ef4a9a085edcaf71f5d04bd157"
+      "sha256": "468aa891c0bb240cd8c0b6f8929dcd0440401071cda63edafd57c5614c102667"
     },
     "crates/aurora-viewer/src/ui/fonts/fallback.rs": {
       "base": "338bd80ae21eb343e012b5e263636aea0f33646fa858b570b87f7f19e4b342b7",

@@ -327,7 +327,7 @@ impl BaselineFace {
                 .iter()
                 .find_map(|name| definitions.font_data.get(name))
         })?;
-        let face = ttf_parser::Face::parse(data.bytes(), data.index).ok()?;
+        let face = amante_fonts::Face::parse(data.bytes(), data.index).ok()?;
         let em = f32::from(face.units_per_em());
         (em > 0.0).then(|| Self {
             ascent: f32::from(face.ascender()) / em,

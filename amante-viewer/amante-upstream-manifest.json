@@ -1,6 +1,6 @@
 {
   "added": {
-    "AMANTE.md": "8e8d4fee04daaa0d0bd9d2ea29ecca5799ccdfa24a07fcab4927ed00b48867a8",
+    "AMANTE.md": "e16fc5a667cc6787054342e3f1ce138b136a72a9277bb9b5c55831bf15a3a0c9",
     "assets/branding/amante-crest-icon.png": "e37250488896e309661bc9e936e3f8526284fa37ac89d46c1646c0c8ff4f4132",
     "crates/amante-local-ipc/Cargo.toml": "e113537b74d9b5c8354cb5bae71fdde62df39d70f94a1e004797ac2d1d09f1ad",
     "crates/amante-local-ipc/src/lib.rs": "267922388f57cafb9b628c1913f9663939de5f1bd27fb0e99e42cc41c6d1dee0",
@@ -34490,7 +34490,7 @@
       "upstream": "574a5b9eb5cd67d4d9447e720decf8652205911a76f1b600764a95cd4a6fe84d"
     },
     "crates/aurora-viewer/src/updater.rs": {
-      "amante": "19ca748b5698bed2b6013acdd1210ad76d1241068b811fa1c08afe37f778b1cf",
+      "amante": "e7939213597e6424441f9035c09a66c4aaabd07603cc815d76414eb355867da7",
       "upstream": "2f29fb88b3dab67ed81660d70c136c6a204f84b531a0f217808ab3d301ae209a"
     },
     "crates/aurora-viewer/src/url_scheme.rs": {
