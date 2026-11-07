@@ -510,7 +510,7 @@ mod tests {
     #[test]
     fn alpha_release_opens_a_login_offer_unless_disabled_or_skipped() {
         let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("runtime");
-        for (mode, ignored, expected) in [(Mode::Ask, "", true), (Mode::Disabled, "", false), (Mode::Ask, "v0.9.5", false)] {
+        for (mode, ignored, expected) in [(Mode::Ask, "", true), (Mode::Disabled, "", false), (Mode::Ask, "v0.9.6", false)] {
             let mut updater = Updater::new(rt.handle(), Channel::Stable);
             let settings = Settings {
                 update_mode: mode,
@@ -518,20 +518,20 @@ mod tests {
                 ..Settings::default()
             };
             let release = Release {
-                tag: "v0.9.5".into(),
-                version: "0.9.5".into(),
-                notes: "Amante Viewer Alpha v0.9.5".into(),
-                url: "https://github.com/tarahamante-cloud/Amante-viewer/releases/tag/v0.9.5".into(),
+                tag: "v0.9.6".into(),
+                version: "0.9.6".into(),
+                notes: "Amante Viewer Alpha v0.9.6".into(),
+                url: "https://github.com/tarahamante-cloud/Amante-viewer/releases/tag/v0.9.6".into(),
                 archive: None,
                 checksum: None,
                 required: false,
                 maintenance: Default::default(),
             };
-            updater.tx.send(Event::Checked(Ok(Some(release)))).expect("fixture");
+            checked(&updater, Ok(Some(release)));
             let mut info = LoginInfo::preview_release("0.9.1");
             updater.poll(&settings, &mut info, rt.handle());
             assert_eq!(updater.open, expected);
-            assert!(matches!(info.version, VersionState::Available { ref version, .. } if version == "0.9.5"));
+            assert!(matches!(info.version, VersionState::Available { ref version, .. } if version == "0.9.6"));
         }
     }
     #[test]
