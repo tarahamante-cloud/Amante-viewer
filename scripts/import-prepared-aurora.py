@@ -29,6 +29,7 @@ commit = git("rev-parse", f"{tag}^{{commit}}").decode().strip()
 releases = {
     "v0.9.1": "76f7cd150bb6238fbe5eb895e47ee84777896dfe",
     "v0.9.2": "fde838f1234ebfa2848445965f1f90541f0652f6",
+    "v0.9.3": "7851d13e61b3f83c7a8ff367f7678fbfd2e3c156",
 }
 assert releases.get(tag) == commit, "Unexpected release"
 metadata = {"amante-upstream-manifest.json", "amante-security-manifest.json"}

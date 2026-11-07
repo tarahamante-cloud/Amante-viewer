@@ -1,7 +1,7 @@
-# Amante Viewer Alpha v0.9.3
+# Amante Viewer Alpha v0.9.4
 
-Based on official Aurora Viewer release `v0.9.2`, commit
-`fde838f1234ebfa2848445965f1f90541f0652f6`.
+Based on official Aurora Viewer release `v0.9.3`, commit
+`7851d13e61b3f83c7a8ff367f7678fbfd2e3c156`.
 
 This update includes the full official release, including its rendering,
 texture, clothing, networking and performance changes. Those engine files
@@ -20,4 +20,13 @@ networking and wearable engine code remain unchanged.
 
 LICENSE and NOTICE.md retain Aurora and third-party attribution. The source manifest records every original and branded file hash.
 
-This clean Alpha uses its own fresh profile and cache, so it does not import settings or cached textures from earlier Amante builds. Add your account again on first launch. No old credentials, profiles or user caches are deleted. Reports and updates use the Amante repository. Direct OAuth reporting is unconfigured rather than using Aurora's app. Existing user skins remain user choices. Native build/test checks do not prove texture loading in a live Second Life session.
+This incremental update keeps the existing Amante Alpha settings and accounts.
+The official cache format upgrade clears the cache once; the first region can
+load more slowly. A Windows desktop shortcut is created on the first normal
+launch from the extracted folder, without administrator access. Keep that
+folder in place. Removing the viewer's registrations also removes its own
+shortcut, never another program's shortcut.
+Reports and updates use the Amante repository. Direct OAuth reporting is
+unconfigured rather than using Aurora's app. Existing user skins remain user
+choices. Native build/test checks do not prove texture loading in a live
+Second Life session.

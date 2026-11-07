@@ -145,6 +145,8 @@ jobs:
           [IO.File]::WriteAllText("$zip.sha256", "$hash  $name.zip`n", [Text.UTF8Encoding]::new($false))
           ../scripts/verify-clean-windows-package.ps1 -Zip $zip -Evidence ../generated-artifacts/windows-package-verification.json
           Copy-Item amante-upstream-manifest.json ../generated-artifacts/source-preservation.json
+      - name: Verify Windows desktop shortcut without changing the runner desktop
+        run: ../scripts/test-desktop-shortcut.ps1 -Source .
       - name: Downloadable Windows build, not a published release
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
