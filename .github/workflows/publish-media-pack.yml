@@ -1,0 +1,61 @@
+name: Publish verified Windows media support
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Fetch the exact upstream binaries and corresponding source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir package
+          cd package
+          origin="https://github.com/Aurora-Viewer/Aurora-Viewer/releases/download/media-plugins-1"
+          curl --fail --location --retry 3 "$origin/Aurora-Media-Plugins-1-windows-x64.zip" -o Aurora-Media-Plugins-1-windows-x64.zip
+          curl --fail --location --retry 3 "$origin/Aurora-Media-Plugins-1-source.tar.gz" -o Aurora-Media-Plugins-1-source.tar.gz
+          printf '%s\n' \
+            'eb2c9c70bcf87df6d987ad38efca83e38a6f2d934fdbc1d00fceb1d20ea1c93e  Aurora-Media-Plugins-1-windows-x64.zip' \
+            '8a8ffbc4a566b62ae88345898c27dbd3d5604a3aa543f154ca662a075635ba52  Aurora-Media-Plugins-1-source.tar.gz' > SHA256SUMS
+          sha256sum --check SHA256SUMS
+          test "$(stat -c %s Aurora-Media-Plugins-1-windows-x64.zip)" = 252643186
+          unzip -tqq Aurora-Media-Plugins-1-windows-x64.zip
+          unzip -Z1 Aurora-Media-Plugins-1-windows-x64.zip > contents.txt
+          for file in llplugin/SLPlugin.exe llplugin/media_plugin_cef.dll llplugin/media_plugin_libvlc.dll aurora-media-plugins.json; do
+            grep -Fx "Aurora-Media-Plugins-1-windows-x64/$file" contents.txt
+          done
+          tar -tzf Aurora-Media-Plugins-1-source.tar.gz > /dev/null
+      - name: Publish the supporting pack without replacing the latest viewer release
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > notes.md <<'NOTES'
+          # Windows web and media support
+
+          Exact, unmodified Aurora media plugin pack 1 and its corresponding
+          upstream source archive. The Windows ZIP matches the size and SHA-256
+          pinned in Amante Viewer Alpha v0.9.7. Upstream credits and licenses
+          remain intact.
+
+          In Amante: Preferences → Media → Plugins → Retry (or Download).
+          The viewer downloads, checks and installs the pack after consent.
+          This is a supporting asset, not a new viewer version.
+
+          Upstream: https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/media-plugins-1
+          NOTES
+          gh release create media-plugins-1 \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Amante Windows media support — upstream pack 1" \
+            --notes-file notes.md --draft --prerelease --latest=false \
+            package/Aurora-Media-Plugins-1-windows-x64.zip \
+            package/Aurora-Media-Plugins-1-source.tar.gz package/SHA256SUMS
+          gh release edit media-plugins-1 --repo "$GITHUB_REPOSITORY" --draft=false --latest=false
