@@ -5,6 +5,7 @@
 //! Port of indra/llplugin/llpluginclassmedia.cpp (Copyright (C) Linden
 //! Research, Inc., originally LGPL 2.1).
 
+use crate::file_picker::FilePicker;
 use crate::message::PluginMessage;
 use crate::process::{PluginPaths, PluginProcess};
 use aurora_llsd::Llsd;
@@ -213,6 +214,7 @@ impl Default for BrowserSettings {
 
 pub struct MediaPlugin {
     process: PluginProcess,
+    file_picker: Option<FilePicker>,
     queue: VecDeque<PluginMessage>,
     queue_bytes: usize,
     texture_params_received: bool,
@@ -339,6 +341,7 @@ impl MediaPlugin {
     fn with_process(process: PluginProcess, plugin: &str, width: i32, height: i32, browser: &BrowserSettings, target: &str) -> MediaPlugin {
         let mut m = MediaPlugin {
             process,
+            file_picker: None,
             queue: VecDeque::new(),
             queue_bytes: 0,
             texture_params_received: false,
@@ -496,6 +499,10 @@ impl MediaPlugin {
                 return;
             }
             self.receive(m);
+        }
+        if let Some(response) = self.file_picker.as_ref().and_then(FilePicker::poll) {
+            self.file_picker = None;
+            self.process.send(&response);
         }
         if self.media_width == -1 || !self.texture_params_received || !self.process.is_running() {
             // can't process a size change at this time
@@ -987,11 +994,15 @@ impl MediaPlugin {
             }
             "tooltip_text" => self.hover_text = m.string("tooltip"),
             "pick_file" => {
-                // blocking request: answer with nothing picked
-                let r = PluginMessage::new(CLASS_MEDIA, "pick_file_response")
-                    .with("file_list", Llsd::new_array())
-                    .with("blocking_response", true);
-                self.process.send(&r);
+                if self.file_picker.is_none() {
+                    match FilePicker::open(m.boolean("multiple_files")) {
+                        Ok(picker) => self.file_picker = Some(picker),
+                        Err(e) => {
+                            log::warn!("media: cannot open file picker: {e}");
+                            self.process.send(&crate::file_picker::response(Vec::new()));
+                        }
+                    }
+                }
             }
             "auth_request" => {
                 let r = PluginMessage::new(CLASS_MEDIA, "auth_response")
@@ -1002,6 +1013,11 @@ impl MediaPlugin {
                 self.process.send(&r);
             }
             "debug_message" => self.events.push(MediaEvent::DebugMessage(m.string("message_text"))),
+            "file_download" => {
+                // Downloads are not implemented. Release CEF's blocking
+                // callback without choosing a save destination.
+                self.process.send(&crate::file_picker::response(Vec::new()));
+            }
             _ => {}
         }
     }

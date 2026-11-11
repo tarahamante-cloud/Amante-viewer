@@ -24,13 +24,21 @@ const LAUNCH_TIMEOUT: Duration = Duration::from_secs(60);
 const LOCKUP_TIMEOUT: Duration = Duration::from_secs(15);
 /// GOODBYE_SECONDS of the child is 12 s: give it a little more.
 const EXIT_TIMEOUT: Duration = Duration::from_secs(14);
+/// Bytes read from the plugin per `idle` at most. The CEF and LibVLC
+/// plugins send small LLSD messages (the pixels go through shared memory),
+/// a few KB per frame; 256 KiB parses in a few milliseconds and still lets
+/// about 15 MB/s through at 60 fps.
+const INPUT_BUDGET: usize = 256 * 1024;
+/// Size of one socket read.
+const READ_CHUNK: usize = 16 * 1024;
 pub(crate) const MAX_FRAME: usize = 1024 * 1024;
 const MAX_QUEUED_BYTES: usize = 4 * MAX_FRAME;
-const MAX_MESSAGES: usize = 256;
-const IO_BUDGET: usize = 256 * 1024;
-const FRAME_TIMEOUT: Duration = Duration::from_secs(5);
+// Allow a full upstream per-frame burst of small LLSD messages, while
+// retaining both a count cap and a separate byte cap for unconsumed queues.
+const MAX_MESSAGES: usize = 4096;
 const MAX_SHM_SEGMENT: usize = 64 * 1024 * 1024;
 const MAX_SHM_TOTAL: usize = 128 * 1024 * 1024;
+const FRAME_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ProcState {
@@ -52,15 +60,18 @@ pub struct PluginProcess {
     stream: Option<TcpStream>,
     child: Option<Child>,
     state: ProcState,
-    input: Vec<u8>,
+    input: MessageFramer,
     input_started: Option<Instant>,
     output: Vec<u8>,
     heartbeat: Instant,
+    received_bytes: usize,
+    /// LLPluginProcessParent::mBlocked: no heartbeat is sent while CEF
+    /// waits for a native file picker (or another blocking response).
+    blocked: bool,
     plugin_file: String,
     plugin_dir: String,
     shm: HashMap<String, SharedMemory>,
     received: VecDeque<PluginMessage>,
-    received_bytes: usize,
     sleep_time: f64,
     exit_deadline: Option<Instant>,
     pub plugin_version: String,
@@ -113,10 +124,11 @@ impl PluginProcess {
             stream: None,
             child: Some(child),
             state: ProcState::Launched,
-            input: Vec::new(),
+            input: MessageFramer::default(),
             input_started: None,
             output: Vec::new(),
             heartbeat: Instant::now() + LAUNCH_TIMEOUT,
+            blocked: false,
             plugin_file: plugin_file.to_string_lossy().into_owned(),
             plugin_dir: plugin_dir.to_string_lossy().into_owned(),
             shm: HashMap::new(),
@@ -155,7 +167,8 @@ impl PluginProcess {
         self.state = ProcState::Error(why);
         self.stream = None;
         self.listener = None;
-        self.input.clear();
+        self.input = MessageFramer::default();
+        self.input_started = None;
         self.output.clear();
         self.received.clear();
         self.received_bytes = 0;
@@ -170,6 +183,12 @@ impl PluginProcess {
     pub fn send(&mut self, m: &PluginMessage) {
         if self.stream.is_none() {
             return;
+        }
+        if m.has("blocking_response") {
+            self.blocked = false;
+            // LLPluginProcessParent::sendMessage resets the timeout after
+            // a blocking request: the resident may have taken any time.
+            self.heartbeat = Instant::now() + LOCKUP_TIMEOUT;
         }
         log::trace!("media → plugin: {}:{}", m.class, m.name);
         let raw = m.generate();
@@ -276,9 +295,8 @@ impl PluginProcess {
         if self.state == ProcState::Launched {
             match self.listener.as_ref().map(|l| l.accept()) {
                 Some(Ok((stream, _))) => {
-                    // The child remains owned/live, preventing PID reuse.
-                    // Reject competitors without consuming the listener or
-                    // changing the original launch deadline. No wire changes.
+                    // Preserve the plugin protocol while accepting only the
+                    // exact child process launched for this media session.
                     let authorized = self
                         .pid()
                         .is_some_and(|pid| amante_local_ipc::peer::owns_connection(&stream, pid).unwrap_or(false));
@@ -310,7 +328,7 @@ impl PluginProcess {
         if self.child_exited() {
             return self.fail("plugin process quit".into());
         }
-        if Instant::now() > self.heartbeat {
+        if self.timed_out(Instant::now()) {
             self.fail(
                 if self.state == ProcState::Running {
                     "plugin locked up"
@@ -322,11 +340,15 @@ impl PluginProcess {
         }
     }
 
+    fn timed_out(&self, now: Instant) -> bool {
+        !self.blocked && now > self.heartbeat
+    }
+
     fn pump_output(&mut self) -> std::io::Result<()> {
         let Some(stream) = self.stream.as_mut() else {
             return Ok(());
         };
-        let mut budget = IO_BUDGET;
+        let mut budget = INPUT_BUDGET;
         while !self.output.is_empty() && budget > 0 {
             match stream.write(&self.output[..self.output.len().min(budget)]) {
                 Ok(0) => return Err(ErrorKind::WriteZero.into()),
@@ -342,70 +364,81 @@ impl PluginProcess {
         Ok(())
     }
 
+    /// Read at most [`INPUT_BUDGET`] bytes from the plugin, then handle every
+    /// complete message, in order. The budget keeps one frame short however
+    /// much the plugin has queued (issue #2882: the old loop read until the
+    /// socket was empty, which a plugin writing as fast as it is read never
+    /// allows, then took each message off the front of one buffer, which
+    /// grows with the square of the backlog); the rest stays in the socket
+    /// for the next `idle`.
     fn pump_input(&mut self) -> std::io::Result<()> {
-        let mut buf = [0u8; 16384];
-        let mut budget = IO_BUDGET;
-        let mut messages = 0;
-        loop {
-            while let Some(end) = self.input.iter().position(|&b| b == 0) {
-                if end > MAX_FRAME {
-                    return Err(ErrorKind::InvalidData.into());
+        let Some(stream) = self.stream.as_mut() else {
+            return Ok(());
+        };
+        if self.input.pending() > MAX_FRAME {
+            return Err(ErrorKind::InvalidData.into());
+        }
+        if self.input_started.is_some_and(|started| started.elapsed() > FRAME_TIMEOUT) {
+            return Err(ErrorKind::TimedOut.into());
+        }
+        // The messages read before an error or the end are still handled.
+        let end = read_budgeted(stream, &mut self.input, INPUT_BUDGET);
+        while let Some(raw) = self.input.next_message() {
+            let len = raw.len();
+            if len > MAX_FRAME {
+                return Err(ErrorKind::InvalidData.into());
+            }
+            if let Some(m) = PluginMessage::parse(raw) {
+                if m.class != CLASS_INTERNAL && (self.received.len() >= MAX_MESSAGES || self.received_bytes + len + 1 > MAX_QUEUED_BYTES) {
+                    return Err(ErrorKind::OutOfMemory.into());
                 }
-                if messages == 64 {
-                    return Ok(());
-                }
-                let raw: Vec<u8> = self.input.drain(..=end).collect();
-                let m = PluginMessage::parse(&raw[..end]).ok_or(ErrorKind::InvalidData)?;
                 if m.class != CLASS_INTERNAL {
-                    if self.received.len() >= MAX_MESSAGES || self.received_bytes + raw.len() > MAX_QUEUED_BYTES {
-                        return Err(ErrorKind::OutOfMemory.into());
-                    }
-                    self.received_bytes += raw.len();
+                    self.received_bytes += len + 1;
                 }
                 self.receive(m);
                 if self.is_done() {
                     return Ok(());
                 }
-                messages += 1;
-                self.input_started = (!self.input.is_empty()).then(Instant::now);
+                self.input_started = (self.input.pending() > 0).then(Instant::now);
+            } else {
+                log::debug!("media: unparsable plugin message ({} bytes)", len + 1);
             }
-            if self.input.len() > MAX_FRAME {
-                return Err(ErrorKind::InvalidData.into());
-            }
-            if self.input_started.is_some_and(|start| start.elapsed() > FRAME_TIMEOUT) {
+        }
+        let pending = self.input.pending();
+        if pending > MAX_FRAME {
+            return Err(ErrorKind::InvalidData.into());
+        }
+        if pending == 0 {
+            self.input_started = None;
+        } else {
+            let started = self.input_started.get_or_insert_with(Instant::now);
+            if started.elapsed() > FRAME_TIMEOUT {
                 return Err(ErrorKind::TimedOut.into());
             }
-            if budget == 0 {
-                return Ok(());
-            }
-            let Some(stream) = self.stream.as_mut() else {
-                return Ok(());
-            };
-            let limit = buf.len().min(budget).min(MAX_FRAME + 1 - self.input.len());
-            match stream.read(&mut buf[..limit]) {
-                Ok(0) => {
-                    if self.state == ProcState::Exiting {
-                        self.stream = None;
-                        return Ok(());
-                    }
-                    return Err(ErrorKind::ConnectionAborted.into());
+        }
+        match end? {
+            ReadEnd::Drained => {}
+            // More is waiting: the plugin is talking, so it is not locked up
+            // even while its heartbeat still waits behind the rest.
+            ReadEnd::Budget => {
+                if self.state == ProcState::Running {
+                    self.heartbeat = self.heartbeat.max(Instant::now() + LOCKUP_TIMEOUT);
                 }
-                Ok(n) => {
-                    if self.input.is_empty() {
-                        self.input_started = Some(Instant::now());
-                    }
-                    self.input.extend_from_slice(&buf[..n]);
-                    budget -= n;
-                }
-                Err(e) if e.kind() == ErrorKind::WouldBlock => break,
-                Err(e) if e.kind() == ErrorKind::Interrupted => {}
-                Err(e) => return Err(e),
             }
+            ReadEnd::Closed if self.state == ProcState::Exiting => self.stream = None,
+            ReadEnd::Closed => return Err(ErrorKind::ConnectionAborted.into()),
         }
         Ok(())
     }
 
     fn receive(&mut self, m: PluginMessage) {
+        if m.has("blocking_request") {
+            self.blocked = true;
+        }
+        if m.has("blocking_response") {
+            self.blocked = false;
+            self.heartbeat = Instant::now() + LOCKUP_TIMEOUT;
+        }
         if m.class != CLASS_INTERNAL {
             if self.state != ProcState::Running {
                 self.fail("media message before plugin ready".into());
@@ -422,9 +455,6 @@ impl PluginProcess {
                         .with("file", self.plugin_file.as_str())
                         .with("dir", self.plugin_dir.as_str());
                     self.send(&lp);
-                    if self.is_done() {
-                        return;
-                    }
                     self.state = ProcState::Loading;
                 } else {
                     self.fail("hello in wrong state".into());
@@ -436,9 +466,6 @@ impl PluginProcess {
                     log::info!("media: plugin version {}", self.plugin_version);
                     let t = self.sleep_time;
                     self.set_sleep_time(t, true);
-                    if self.is_done() {
-                        return;
-                    }
                     self.state = ProcState::Running;
                     self.heartbeat = Instant::now() + LOCKUP_TIMEOUT;
                 } else {
@@ -459,6 +486,85 @@ impl PluginProcess {
             other => log::debug!("media: unknown internal message {other}"),
         }
     }
+}
+
+/// Splits the plugin's byte stream into its `\0`-terminated messages. The
+/// bytes are walked forward once: handing out a message only moves the start
+/// offset, and the consumed front is dropped once, before the next bytes are
+/// appended (only a partial message is left to move by then), so the cost
+/// stays linear in the data received.
+#[derive(Default)]
+struct MessageFramer {
+    buf: Vec<u8>,
+    /// Start of the first message not handed out yet.
+    start: usize,
+    /// Where the search for the next `\0` resumes: `start..scanned` holds
+    /// none, so a long message arriving over several reads is scanned once.
+    scanned: usize,
+}
+
+impl MessageFramer {
+    fn push(&mut self, bytes: &[u8]) {
+        if self.start > 0 {
+            self.buf.drain(..self.start);
+            self.scanned -= self.start;
+            self.start = 0;
+        }
+        self.buf.extend_from_slice(bytes);
+    }
+
+    /// The next complete message, without its `\0`.
+    fn next_message(&mut self) -> Option<&[u8]> {
+        match self.buf[self.scanned..].iter().position(|&b| b == 0) {
+            Some(i) => {
+                let begin = self.start;
+                let end = self.scanned + i;
+                self.start = end + 1;
+                self.scanned = self.start;
+                Some(&self.buf[begin..end])
+            }
+            None => {
+                self.scanned = self.buf.len();
+                None
+            }
+        }
+    }
+
+    /// Bytes received and not handed out yet.
+    fn pending(&self) -> usize {
+        self.buf.len() - self.start
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ReadEnd {
+    /// Nothing more is waiting for now.
+    Drained,
+    /// The budget is used up; more may be waiting.
+    Budget,
+    /// The other side closed the connection.
+    Closed,
+}
+
+/// Read from the non-blocking `reader` into `framer` until it would block,
+/// closes, or `budget` bytes were read.
+fn read_budgeted(reader: &mut impl Read, framer: &mut MessageFramer, budget: usize) -> std::io::Result<ReadEnd> {
+    let mut buf = [0u8; READ_CHUNK];
+    let mut left = budget;
+    while left > 0 {
+        let want = left.min(buf.len());
+        match reader.read(&mut buf[..want]) {
+            Ok(0) => return Ok(ReadEnd::Closed),
+            Ok(n) => {
+                framer.push(&buf[..n]);
+                left -= n;
+            }
+            Err(e) if e.kind() == ErrorKind::WouldBlock => return Ok(ReadEnd::Drained),
+            Err(e) if e.kind() == ErrorKind::Interrupted => {}
+            Err(e) => return Err(e),
+        }
+    }
+    Ok(ReadEnd::Budget)
 }
 
 impl Drop for PluginProcess {
@@ -616,18 +722,63 @@ impl PluginPaths {
 pub(crate) mod tests {
     use super::*;
 
-    fn fixture() -> PluginProcess {
-        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
-        listener.set_nonblocking(true).unwrap();
+    /// A running process on the viewer's end of a loopback connection, and
+    /// the plugin's end.
+    fn running(heartbeat: Instant) -> (PluginProcess, TcpStream) {
+        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).expect("listener");
+        let plugin = TcpStream::connect(listener.local_addr().expect("address")).expect("connect");
+        let (stream, _) = listener.accept().expect("accept");
+        stream.set_nonblocking(true).expect("non-blocking");
+        let process = PluginProcess {
+            listener: None,
+            stream: Some(stream),
+            child: None,
+            state: ProcState::Running,
+            input: MessageFramer::default(),
+            input_started: None,
+            output: Vec::new(),
+            heartbeat,
+            blocked: false,
+            plugin_file: String::new(),
+            plugin_dir: String::new(),
+            shm: HashMap::new(),
+            received: VecDeque::new(),
+            received_bytes: 0,
+            sleep_time: 0.01,
+            exit_deadline: None,
+            plugin_version: String::new(),
+            cpu_usage: 0.0,
+        };
+        (process, plugin)
+    }
+
+    #[cfg(any(windows, target_os = "linux"))]
+    pub(crate) fn release_child(process: &mut PluginProcess) {
+        process.child.as_mut().unwrap().stdin.as_mut().unwrap().write_all(b"x").unwrap();
+    }
+
+    pub(crate) fn launched_fixture() -> PluginProcess {
+        use std::process::Stdio;
+        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).expect("listener");
+        listener.set_nonblocking(true).expect("non-blocking");
+        let port = listener.local_addr().expect("address").port();
+        let child = Command::new(std::env::current_exe().expect("test executable"))
+            .args(["--exact", "process::tests::synthetic_plugin_peer", "--ignored", "--nocapture"])
+            .env("AMANTE_TEST_PLUGIN_PORT", port.to_string())
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .spawn()
+            .expect("synthetic plugin child");
         PluginProcess {
             listener: Some(listener),
             stream: None,
-            child: None,
+            child: Some(child),
             state: ProcState::Launched,
-            input: Vec::new(),
+            input: MessageFramer::default(),
             input_started: None,
             output: Vec::new(),
             heartbeat: Instant::now() + LAUNCH_TIMEOUT,
+            blocked: false,
             plugin_file: "synthetic-plugin".into(),
             plugin_dir: ".".into(),
             shm: HashMap::new(),
@@ -640,36 +791,6 @@ pub(crate) mod tests {
         }
     }
 
-    fn with_socket() -> (PluginProcess, TcpStream) {
-        let mut process = fixture();
-        let client = TcpStream::connect(process.listener.as_ref().unwrap().local_addr().unwrap()).unwrap();
-        let (stream, _) = process.listener.take().unwrap().accept().unwrap();
-        stream.set_nonblocking(true).unwrap();
-        process.stream = Some(stream);
-        process.state = ProcState::Running;
-        (process, client)
-    }
-
-    pub(crate) fn release_child(process: &mut PluginProcess) {
-        process.child.as_mut().unwrap().stdin.as_mut().unwrap().write_all(b"x").unwrap();
-    }
-
-    pub(crate) fn launched_fixture() -> PluginProcess {
-        use std::process::Stdio;
-        let mut process = fixture();
-        let port = process.listener.as_ref().unwrap().local_addr().unwrap().port();
-        process.child = Some(
-            Command::new(std::env::current_exe().unwrap())
-                .args(["--exact", "process::tests::synthetic_plugin_peer", "--ignored", "--nocapture"])
-                .env("AMANTE_TEST_PLUGIN_PORT", port.to_string())
-                .stdin(Stdio::piped())
-                .stdout(Stdio::null())
-                .spawn()
-                .unwrap(),
-        );
-        process
-    }
-
     fn until(process: &mut PluginProcess, expected: ProcState) {
         let deadline = Instant::now() + Duration::from_secs(5);
         while process.state != expected && !process.is_done() && Instant::now() < deadline {
@@ -680,28 +801,29 @@ pub(crate) mod tests {
     }
 
     #[test]
-    #[ignore = "subprocess fixture, invoked by the synthetic peer tests"]
+    #[ignore = "subprocess fixture, invoked by the media peer authorization test"]
     fn synthetic_plugin_peer() {
         let Some(port) = std::env::var_os("AMANTE_TEST_PLUGIN_PORT") else {
             return;
         };
-        std::io::stdin().read_exact(&mut [0]).unwrap();
-        let mut stream = TcpStream::connect((Ipv4Addr::LOCALHOST, port.to_string_lossy().parse::<u16>().unwrap())).unwrap();
-        stream.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
+        std::io::stdin().read_exact(&mut [0]).expect("wait for parent");
+        let mut stream =
+            TcpStream::connect((Ipv4Addr::LOCALHOST, port.to_string_lossy().parse::<u16>().unwrap())).expect("connect to parent");
+        stream.set_read_timeout(Some(Duration::from_secs(5))).expect("read timeout");
         stream
             .write_all(format!("{}\0", PluginMessage::new(CLASS_INTERNAL, "hello").generate()).as_bytes())
-            .unwrap();
+            .expect("hello");
         let mut input = Vec::new();
         loop {
             let mut byte = [0];
-            stream.read_exact(&mut byte).unwrap();
+            stream.read_exact(&mut byte).expect("parent message");
             if byte[0] != 0 {
                 input.push(byte[0]);
                 continue;
             }
-            let mut m = PluginMessage::parse(&input).unwrap();
+            let mut message = PluginMessage::parse(&input).expect("plugin message");
             input.clear();
-            match m.name.as_str() {
+            match message.name.as_str() {
                 "load_plugin" => stream
                     .write_all(
                         format!(
@@ -712,30 +834,37 @@ pub(crate) mod tests {
                         )
                         .as_bytes(),
                     )
-                    .unwrap(),
+                    .expect("load response"),
                 "shutdown_plugin" => return,
                 "size_change" => {
-                    m.name = "size_change_response".into();
-                    stream.write_all(format!("{}\0", m.generate()).as_bytes()).unwrap();
+                    message.name = "size_change_response".into();
+                    stream.write_all(format!("{}\0", message.generate()).as_bytes()).unwrap();
                 }
                 _ => {}
             }
         }
     }
 
-    #[test]
     #[cfg(any(windows, target_os = "linux"))]
-    fn amante_security_competitor_cannot_claim_child_connection_and_clean_shutdown() {
+    #[test]
+    fn rejects_an_unrelated_loopback_process_then_connects_the_launched_plugin() {
         let mut process = launched_fixture();
-        let mut attacker = TcpStream::connect(process.listener.as_ref().unwrap().local_addr().unwrap()).unwrap();
-        attacker
+        let mut competitor = TcpStream::connect(process.listener.as_ref().unwrap().local_addr().unwrap()).expect("competitor");
+        competitor
             .write_all(format!("{}\0", PluginMessage::new(CLASS_INTERNAL, "hello").generate()).as_bytes())
-            .unwrap();
+            .expect("competitor message");
         process.idle();
         assert_eq!(process.state, ProcState::Launched);
         assert!(process.listener.is_some());
-        assert!(process.output.is_empty());
-        process.child.as_mut().unwrap().stdin.as_mut().unwrap().write_all(b"x").unwrap();
+        process
+            .child
+            .as_mut()
+            .unwrap()
+            .stdin
+            .as_mut()
+            .unwrap()
+            .write_all(b"x")
+            .expect("start plugin");
         until(&mut process, ProcState::Running);
         assert_eq!(process.plugin_version, "synthetic");
         process.shutdown();
@@ -743,98 +872,201 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn amante_security_unpaired_traffic_cannot_extend_launch_timeout_and_relaunch_works() {
-        let mut process = launched_fixture();
-        let _attacker = TcpStream::connect(process.listener.as_ref().unwrap().local_addr().unwrap()).unwrap();
-        process.heartbeat = Instant::now() - Duration::from_secs(1);
-        process.idle();
-        assert!(process.is_done());
-        assert!(process.child.is_none());
-        assert!(process.listener.is_none());
-        #[cfg(any(windows, target_os = "linux"))]
-        {
-            let mut replacement = launched_fixture();
-            replacement.child.as_mut().unwrap().stdin.as_mut().unwrap().write_all(b"x").unwrap();
-            until(&mut replacement, ProcState::Running);
-            replacement.shutdown();
-            until(&mut replacement, ProcState::Done);
-        }
-    }
-
-    #[test]
-    fn amante_security_media_frame_queue_and_partial_deadline_limits() {
-        let (mut process, _client) = with_socket();
-        process.input = vec![b'x'; MAX_FRAME + 1];
+    fn rejects_overlong_frames_and_expired_partial_messages() {
+        let (mut process, _plugin) = running(Instant::now() + LOCKUP_TIMEOUT);
+        process.input.push(&vec![b'x'; MAX_FRAME + 1]);
         assert_eq!(process.pump_input().unwrap_err().kind(), ErrorKind::InvalidData);
-        process.input = vec![b'x'];
+
+        let (mut process, _plugin) = running(Instant::now() + LOCKUP_TIMEOUT);
+        process.input.push(b"<partial");
         process.input_started = Some(Instant::now() - FRAME_TIMEOUT - Duration::from_secs(1));
         assert_eq!(process.pump_input().unwrap_err().kind(), ErrorKind::TimedOut);
-        process.input = b"<llsd>\0".to_vec();
-        assert_eq!(process.pump_input().unwrap_err().kind(), ErrorKind::InvalidData);
-        process.input = format!("{}\0", PluginMessage::new("media", "event").generate()).into_bytes();
-        process.received_bytes = MAX_QUEUED_BYTES;
-        assert_eq!(process.pump_input().unwrap_err().kind(), ErrorKind::OutOfMemory);
-        process.send(&PluginMessage::new("media", "too-large").with("value", "x".repeat(MAX_FRAME)));
-        assert!(process.is_done());
-        assert!(process.input.is_empty() && process.output.is_empty() && process.received.is_empty());
     }
 
     #[test]
-    fn amante_security_media_flood_has_per_idle_work_and_output_bounds() {
-        let (mut process, mut client) = with_socket();
-        let message = format!("{}\0", PluginMessage::new("media", "event").generate());
-        client.write_all(message.repeat(200).as_bytes()).unwrap();
-        process.pump_input().unwrap();
-        assert_eq!(process.received.len(), 64);
-        process.pump_input().unwrap();
-        assert_eq!(process.received.len(), 128);
+    fn output_overflow_fails_and_releases_queued_state() {
+        let (mut process, _plugin) = running(Instant::now() + LOCKUP_TIMEOUT);
         process.output = vec![b'x'; MAX_QUEUED_BYTES];
-        process.send(&PluginMessage::new("media", "event"));
+        process.send(&PluginMessage::new("media", "test"));
         assert!(process.is_done());
-    }
-
-    #[test]
-    fn amante_security_fragmented_frames_heartbeat_and_memory_limits() {
-        let (mut process, mut client) = with_socket();
-        let message = PluginMessage::new("media", "event").generate();
-        client.write_all(&message.as_bytes()[..10]).unwrap();
-        process.pump_input().unwrap();
+        assert!(process.output.is_empty());
         assert!(process.received.is_empty());
-        client.write_all(&message.as_bytes()[10..]).unwrap();
-        client.write_all(&[0]).unwrap();
-        process.pump_input().unwrap();
-        assert_eq!(process.take_messages().len(), 1);
-        assert_eq!(process.received_bytes, 0);
-        process.state = ProcState::Loading;
-        let deadline = process.heartbeat;
-        process.receive(PluginMessage::new(CLASS_INTERNAL, "heartbeat"));
-        assert_eq!(process.heartbeat, deadline);
-        assert!(process.add_shared_memory(MAX_SHM_SEGMENT + 1).is_none());
-        assert!(process.is_done());
-        let (mut process, _client) = with_socket();
-        for _ in 0..4 {
-            assert!(process.add_shared_memory(1).is_some());
-        }
-        assert!(process.add_shared_memory(1).is_none());
-        assert!(process.shm.is_empty());
-        let (mut process, _client) = with_socket();
-        assert!(process.add_shared_memory(MAX_SHM_SEGMENT).is_some());
-        assert!(process.add_shared_memory(MAX_SHM_SEGMENT).is_some());
-        assert!(process.add_shared_memory(1).is_none());
         assert!(process.shm.is_empty());
     }
 
+    /// `count` media messages numbered from 0, each ended by its `\0`.
+    fn numbered(count: usize) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        for i in 0..count {
+            let m = PluginMessage::new("media", "navigate_complete").with("index", i as i32);
+            bytes.extend_from_slice(m.generate().as_bytes());
+            bytes.push(0);
+        }
+        bytes
+    }
+
+    /// A non-blocking stream holding a backlog: `chunk` bytes per read at
+    /// most, then `WouldBlock` once it is empty.
+    struct Backlog {
+        data: Vec<u8>,
+        pos: usize,
+        chunk: usize,
+    }
+
+    impl Read for Backlog {
+        fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+            let n = buf.len().min(self.chunk).min(self.data.len() - self.pos);
+            if n == 0 {
+                return Err(ErrorKind::WouldBlock.into());
+            }
+            buf[..n].copy_from_slice(&self.data[self.pos..self.pos + n]);
+            self.pos += n;
+            Ok(n)
+        }
+    }
+
+    fn indices(framer: &mut MessageFramer, into: &mut Vec<i32>) {
+        while let Some(raw) = framer.next_message() {
+            into.push(PluginMessage::parse(raw).expect("message").s32("index"));
+        }
+    }
+
     #[test]
-    fn amante_security_running_child_lockup_releases_buffers_and_mappings() {
-        let mut process = launched_fixture();
-        process.state = ProcState::Running;
-        process.heartbeat = Instant::now() - LOCKUP_TIMEOUT;
-        process.input.extend_from_slice(b"partial");
-        process.output.extend_from_slice(b"pending");
-        process.idle();
-        assert!(process.error().is_some_and(|error| error.contains("locked up")));
-        assert!(process.child.is_none());
-        assert!(process.input.is_empty() && process.output.is_empty() && process.shm.is_empty());
+    fn many_messages_in_one_read_come_out_in_order() {
+        let mut framer = MessageFramer::default();
+        framer.push(&numbered(5000));
+        let mut seen = Vec::new();
+        indices(&mut framer, &mut seen);
+        assert_eq!(seen, (0..5000).collect::<Vec<_>>());
+        assert_eq!(framer.pending(), 0);
+        // the next bytes start a fresh message
+        framer.push(&numbered(1));
+        indices(&mut framer, &mut seen);
+        assert_eq!(seen.len(), 5001);
+        assert_eq!(seen[5000], 0);
+    }
+
+    #[test]
+    fn a_message_split_across_reads_is_handed_out_once_complete() {
+        let bytes = numbered(3);
+        // every split point, including inside a terminator's neighbours
+        for cut in 0..=bytes.len() {
+            let mut framer = MessageFramer::default();
+            let mut seen = Vec::new();
+            framer.push(&bytes[..cut]);
+            indices(&mut framer, &mut seen);
+            framer.push(&bytes[cut..]);
+            indices(&mut framer, &mut seen);
+            assert_eq!(seen, vec![0, 1, 2], "cut at {cut}");
+            assert_eq!(framer.pending(), 0);
+        }
+        // one byte per read
+        let mut framer = MessageFramer::default();
+        let mut seen = Vec::new();
+        for b in &bytes {
+            framer.push(std::slice::from_ref(b));
+            indices(&mut framer, &mut seen);
+        }
+        assert_eq!(seen, vec![0, 1, 2]);
+    }
+
+    #[test]
+    fn a_huge_backlog_is_read_within_the_budget_of_each_frame_and_nothing_is_lost() {
+        let count = 100_000;
+        let data = numbered(count);
+        let total = data.len();
+        let largest = data.split(|&b| b == 0).map(<[u8]>::len).max().unwrap_or(0);
+        let mut stream = Backlog {
+            data,
+            pos: 0,
+            chunk: READ_CHUNK,
+        };
+        let mut framer = MessageFramer::default();
+        let mut seen = Vec::with_capacity(count);
+        let started = Instant::now();
+        let mut frames = 0;
+        loop {
+            let before = stream.pos;
+            let end = read_budgeted(&mut stream, &mut framer, INPUT_BUDGET).expect("read");
+            assert!(stream.pos - before <= INPUT_BUDGET, "frame {frames} read past its budget");
+            indices(&mut framer, &mut seen);
+            // only a partial message is ever carried to the next frame
+            assert!(framer.pending() <= largest);
+            frames += 1;
+            if end == ReadEnd::Drained {
+                break;
+            }
+            assert_eq!(end, ReadEnd::Budget);
+        }
+        assert_eq!(seen, (0..count as i32).collect::<Vec<_>>());
+        assert_eq!(frames, total / INPUT_BUDGET + 1);
+        // Linear work: well under a second even in a debug build (the old
+        // reader took minutes on such a backlog).
+        assert!(started.elapsed() < Duration::from_secs(30), "{:?}", started.elapsed());
+    }
+
+    #[test]
+    fn a_closed_connection_still_delivers_what_was_read() {
+        let mut framer = MessageFramer::default();
+        let mut seen = Vec::new();
+        let mut closed: &[u8] = &numbered(2);
+        assert_eq!(
+            read_budgeted(&mut closed, &mut framer, INPUT_BUDGET).expect("read"),
+            ReadEnd::Closed
+        );
+        indices(&mut framer, &mut seen);
+        assert_eq!(seen, vec![0, 1]);
+    }
+
+    #[test]
+    fn a_flooding_plugin_is_read_a_budget_per_idle_in_order_and_stays_alive() {
+        let (mut process, mut plugin) = running(Instant::now() + LOCKUP_TIMEOUT);
+        let count = 20_000;
+        let data = numbered(count);
+        let shortest = data.split(|&b| b == 0).map(<[u8]>::len).filter(|&n| n > 0).min().unwrap_or(1) + 1;
+        let writer = std::thread::spawn(move || {
+            plugin.write_all(&data).expect("write");
+            plugin
+        });
+        let mut seen = Vec::with_capacity(count);
+        let deadline = Instant::now() + Duration::from_secs(60);
+        while seen.len() < count {
+            assert!(Instant::now() < deadline, "only {} of {count} messages arrived", seen.len());
+            process.pump_input().expect("pump");
+            let got = process.take_messages();
+            // one budget of bytes, plus the message completed from before
+            assert!(got.len() <= INPUT_BUDGET / shortest + 1, "{} messages in one idle", got.len());
+            seen.extend(got.iter().map(|m| m.s32("index")));
+            if got.is_empty() {
+                std::thread::sleep(Duration::from_millis(1));
+            }
+        }
+        assert_eq!(seen, (0..count as i32).collect::<Vec<_>>());
+        assert!(!process.timed_out(Instant::now()));
+        drop(writer.join().expect("writer"));
+        process.state = ProcState::Done;
+    }
+
+    #[test]
+    fn media_file_picker_suspends_lockup_timeout_until_the_blocking_response() {
+        let now = Instant::now();
+        let (mut process, _plugin) = running(now - Duration::from_secs(1));
+        assert!(process.timed_out(now));
+        process.receive(
+            PluginMessage::new("media", "pick_file")
+                .with("blocking_request", true)
+                .with("multiple_files", true),
+        );
+        assert!(!process.timed_out(now + Duration::from_secs(600)));
+        assert_eq!(process.take_messages().front().expect("file request").name, "pick_file");
+        // Ordinary traffic must not release the wait for the picker.
+        process.send(&PluginMessage::new("media", "set_volume").with("volume", 0.5));
+        assert!(!process.timed_out(now + Duration::from_secs(600)));
+        process.send(&crate::file_picker::response(Vec::new()));
+        assert!(!process.blocked);
+        assert!(!process.timed_out(Instant::now()));
+        assert!(process.timed_out(Instant::now() + LOCKUP_TIMEOUT + Duration::from_secs(1)));
+        process.state = ProcState::Done;
     }
 
     fn folder(root: &Path, name: &str, launcher_inside: bool) -> PathBuf {

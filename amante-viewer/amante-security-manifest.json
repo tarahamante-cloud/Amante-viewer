@@ -2,35 +2,35 @@
   "added": {
     "crates/amante-credentials/Cargo.toml": "1fc099966b8bae2f5fb989271287cbef758720bf55be4f78a0f96aff9db93b00",
     "crates/amante-credentials/src/lib.rs": "4f6bfe05d2baf76e201b11947f82f41b56e2951e7dce00d040868e55522fe21b",
-    "crates/amante-credentials/tests/linux_bus.rs": "c02132259ea74cf05b6fd8d8b5e3754fad640c0a198a3032e34e1dcec4b2b94a",
+    "crates/amante-credentials/tests/linux_bus.rs": "ad86d40ec5c258cfac6878c63fbdaaf9d40d9c18ca5f3a5f93560b9bd2d10995",
     "crates/amante-credentials/tests/native_store.rs": "6fc541054c7fd39d79cd29ac124a27c4b4ef55a60b5d67c20a4ae768e1a05d5d",
     "crates/amante-fonts/Cargo.toml": "bf5500319deb4aeab1f5fc083c4b8ba0222c4f27e6e2abfa60c753b042c4cf35",
     "crates/amante-fonts/src/lib.rs": "82b3ac3bc509e4d6a17ae3822584d1b2a08599625b8bff9ca78a65a6e75a90db"
   },
   "files": {
     "Cargo.lock": {
-      "base": "0b371bf4f3d71274262cfbc7efe963bab36ffc63587b333657c90e04df5cce0f",
-      "sha256": "b0258739b06e01f1f2ee7be2a885951990dd7094c30a8b30367780ddbbf96e90"
+      "base": "c7fbb86fcf6474df8767237f48401ee047d6f736c9c7d70d2b4b883820732f1e",
+      "sha256": "ee890dfcca7564f0e26ba18dfbd517ead9e67168e93e8afbadd528a297992a7e"
     },
     "crates/aurora-viewer/Cargo.toml": {
-      "base": "db20054b0e648bf736eed34b6c075213e094e47e0a2a9b3f75eb362ed03dd023",
-      "sha256": "b3107ccecbaf8b210fd3c739115badab3062d9473714c6456906144b44979616"
+      "base": "456424cc270b6b95aedbe28b304eda2b06ade0d1b14559ec9dddc4adeddee62f",
+      "sha256": "f76f97759418c6919f8bec741d5c208f72e10fac8b5d369dcc5eeb9fd50f01b0"
     },
     "crates/aurora-viewer/src/slurl_handoff.rs": {
-      "base": "1fed08142113f5d1a5cec6cebdb34a5a603681a72c05c7f5fb43b35f50a3f9c5",
-      "sha256": "8aea6771f35cd44e8dda2cd09185fafded8143151153e1dc3f0ed7f4d56511f7"
+      "base": "61632b12cc5b9abe22de0c93db54a623e51d47412b36d25dc2ef3071055ac8d7",
+      "sha256": "0eaa2659eeb9611f351d59e14f210b5f0a0ed848584f3f634f9437d9f2559544"
     },
     "crates/aurora-viewer/src/system_notify.rs": {
       "base": "82a5a5a610ebe5b78aae933354d7a1b3ec42da7b15ea25911b79e7f58aef0d1e",
       "sha256": "854ef9bab9bcc9a7513f20428fa253436a2673944000f48254f14f73f5942215"
     },
     "crates/aurora-viewer/src/ui/emoji.rs": {
-      "base": "7613049d11ef97572b18113264ff845e29c579470f8331359f78df46b95f4c8c",
-      "sha256": "d6b7b6bd09006b644d3c841d20cd702bcec581a739b4297ae21f1215de29f6b1"
+      "base": "5bc14a25e58683c537d275790ea151aa5e39ed8451964369c7392c11000c996b",
+      "sha256": "b25c6e6d807c00c6383e231dfce9817203031ee21b0f30a6aebcc650865fe38e"
     },
     "crates/aurora-viewer/src/ui/fonts.rs": {
-      "base": "705d4ca180eaeec1555620d39acc5df57c58eecc8ace967070758e52f4b883ef",
-      "sha256": "e152b91d6d4593820e24b416435ad9de8cbf54864b178cac4ccdb9289f651b0f"
+      "base": "007551da3250a9f48f06e37d7d1cfe23f19bc2fca0d37046a35cf0c3bc073326",
+      "sha256": "7ed1998dc7c3fcfc04acdb38d9098523db2902e688a6cd6fe21ce3f4563e4686"
     },
     "crates/aurora-viewer/src/ui/fonts/fallback.rs": {
       "base": "338bd80ae21eb343e012b5e263636aea0f33646fa858b570b87f7f19e4b342b7",
@@ -45,5 +45,5 @@
       "sha256": "aa31ba15c2c7417b184186de33ef6833ca2e6a95bff8134a28db0c5d49d535c9"
     }
   },
-  "upstream": "7851d13e61b3f83c7a8ff367f7678fbfd2e3c156"
+  "upstream": "019d41a5ba4b87fb2f6e7072ae5c003b31017c26"
 }

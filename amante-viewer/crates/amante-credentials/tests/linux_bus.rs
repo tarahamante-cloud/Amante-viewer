@@ -10,5 +10,6 @@ mod cli {
     }
 }
 
+#[rustfmt::skip]
 #[path = "../../aurora-viewer/src/slurl_handoff.rs"]
 mod slurl_handoff;
