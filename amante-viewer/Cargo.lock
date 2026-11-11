@@ -101,6 +101,7 @@ dependencies = [
  "keyring-core",
  "log",
  "windows-native-keyring-store",
+ "winit",
  "zbus",
 ]
 

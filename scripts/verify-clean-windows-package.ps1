@@ -37,4 +37,16 @@ try {
     }
     $report | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $Evidence -Encoding utf8NoBOM
     $report | ConvertTo-Json
-} finally { Remove-Item -LiteralPath $temp -Recurse -Force }
+} finally {
+    # Windows scanners can retain the freshly executed image briefly after
+    # --version exits. Retry cleanup only; never skip package verification.
+    for ($attempt = 0; $attempt -lt 10; $attempt++) {
+        try {
+            Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction Stop
+            break
+        } catch {
+            if ($attempt -eq 9) { throw }
+            Start-Sleep -Seconds 2
+        }
+    }
+}

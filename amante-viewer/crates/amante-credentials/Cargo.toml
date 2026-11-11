@@ -23,6 +23,7 @@ dbus-secret-service-keyring-store = { version = "1.0.1", features = ["crypto-rus
 zbus = "6.2.1"
 crossbeam-channel = "0.5"
 log = "0.4"
+winit = { version = "0.30", default-features = false, features = ["rwh_06", "x11", "wayland", "wayland-dlopen", "wayland-csd-adwaita-crossfont"] }
 
 [lints]
 workspace = true

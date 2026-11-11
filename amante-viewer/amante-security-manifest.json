@@ -1,6 +1,6 @@
 {
   "added": {
-    "crates/amante-credentials/Cargo.toml": "1fc099966b8bae2f5fb989271287cbef758720bf55be4f78a0f96aff9db93b00",
+    "crates/amante-credentials/Cargo.toml": "f56dc1b1907b61a450010d1eb999c82d5726d2b16b069fd22effe1a5292f1742",
     "crates/amante-credentials/src/lib.rs": "4f6bfe05d2baf76e201b11947f82f41b56e2951e7dce00d040868e55522fe21b",
     "crates/amante-credentials/tests/linux_bus.rs": "ad86d40ec5c258cfac6878c63fbdaaf9d40d9c18ca5f3a5f93560b9bd2d10995",
     "crates/amante-credentials/tests/native_store.rs": "6fc541054c7fd39d79cd29ac124a27c4b4ef55a60b5d67c20a4ae768e1a05d5d",
@@ -10,7 +10,7 @@
   "files": {
     "Cargo.lock": {
       "base": "c7fbb86fcf6474df8767237f48401ee047d6f736c9c7d70d2b4b883820732f1e",
-      "sha256": "ee890dfcca7564f0e26ba18dfbd517ead9e67168e93e8afbadd528a297992a7e"
+      "sha256": "507dfaa62190f8cd4166b28d758ea9970bf7d16eb869d1b84726c2bdbffc17a6"
     },
     "crates/aurora-viewer/Cargo.toml": {
       "base": "456424cc270b6b95aedbe28b304eda2b06ade0d1b14559ec9dddc4adeddee62f",

@@ -589,7 +589,7 @@ mod tests {
         let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("runtime");
         for (mode, ignored, expected) in [(Mode::Ask, "", true), (Mode::Disabled, "", false), (Mode::Ask, "v0.9.6", false)] {
             let mut updater = Updater::new(rt.handle(), Channel::Stable);
-            let settings = Settings {
+            let mut settings = Settings {
                 update_mode: mode,
                 ignored_update: ignored.into(),
                 ..Settings::default()
@@ -602,11 +602,13 @@ mod tests {
                 archive: None,
                 checksum: None,
                 required: false,
+                minimum: None,
+                grace: Duration::ZERO,
                 maintenance: Default::default(),
             };
             checked(&updater, Ok(Some(release)));
             let mut info = LoginInfo::preview_release("0.9.1");
-            updater.poll(&settings, &mut info, rt.handle());
+            updater.poll(&mut settings, &mut info, rt.handle());
             assert_eq!(updater.open, expected);
             assert!(matches!(info.version, VersionState::Available { ref version, .. } if version == "0.9.6"));
         }

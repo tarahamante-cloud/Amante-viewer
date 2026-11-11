@@ -1,4 +1,4 @@
-# Amante Alpha v0.9.8 / Aurora v0.9.6
+# Amante Alpha v0.9.9 / Aurora v0.9.6
 
 Integrates official Aurora tag v0.9.6, commit
 019d41a5ba4b87fb2f6e7072ae5c003b31017c26, into the existing Amante fork.
