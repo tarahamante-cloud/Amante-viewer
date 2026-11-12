@@ -31,6 +31,7 @@ releases = {
     "v0.9.2": "fde838f1234ebfa2848445965f1f90541f0652f6",
     "v0.9.3": "7851d13e61b3f83c7a8ff367f7678fbfd2e3c156",
     "v0.9.6": "019d41a5ba4b87fb2f6e7072ae5c003b31017c26",
+    "v0.9.8": "e71e818f136a79219b675a55ea0e4a0ad9996409",
 }
 assert releases.get(tag) == commit, "Unexpected release"
 metadata = {"amante-upstream-manifest.json", "amante-security-manifest.json"}

@@ -1,6 +1,6 @@
 {
   "added": {
-    "AMANTE.md": "6c445e55fe8bd9b1463a8e153a0f7af89147cd458d399b846ec074e8a0da8115",
+    "AMANTE.md": "cd4b45231eaa6b559110d699aeb50097100ba8de6939aac20b06145431abea6f",
     "assets/branding/amante-crest-icon.png": "e37250488896e309661bc9e936e3f8526284fa37ac89d46c1646c0c8ff4f4132",
     "crates/amante-local-ipc/Cargo.toml": "e113537b74d9b5c8354cb5bae71fdde62df39d70f94a1e004797ac2d1d09f1ad",
     "crates/amante-local-ipc/src/lib.rs": "267922388f57cafb9b628c1913f9663939de5f1bd27fb0e99e42cc41c6d1dee0",
@@ -110,16 +110,16 @@
       "upstream": "2032684272d612bc09406b56984943637fd14c27ee1ac1ea7460b091d92a2712"
     },
     ".gitignore": {
-      "amante": "64cde61e2c4b3709a081948c1707dc362e92797efe30b5f18d40cec6d09d43c3",
+      "amante": "e20096a41eb0bc5d52e42415d238d4677de5611e47e62224f9b6e222546c741c",
       "upstream": "64cde61e2c4b3709a081948c1707dc362e92797efe30b5f18d40cec6d09d43c3"
     },
     "AGENTS.md": {
-      "amante": "68895087bcf88be1ac0c0db4e3a9b3aff99e37d189a65d9d49e11ffab2db6825",
-      "upstream": "68895087bcf88be1ac0c0db4e3a9b3aff99e37d189a65d9d49e11ffab2db6825"
+      "amante": "a6f5c1a30a16479f4531227e81b78e29fea1b1e45df7cf08bb20dcfcbe7cc788",
+      "upstream": "a6f5c1a30a16479f4531227e81b78e29fea1b1e45df7cf08bb20dcfcbe7cc788"
     },
     "ARCHITECTURE.md": {
-      "amante": "8ea86c468d67faba0cfda022703f3fdecdb7287bf3c4cf90004a0fbcc0bd1a89",
-      "upstream": "8ea86c468d67faba0cfda022703f3fdecdb7287bf3c4cf90004a0fbcc0bd1a89"
+      "amante": "f8355549f74f4e028583416dcae217552043180dd84bf15e435732178b1171c7",
+      "upstream": "f8355549f74f4e028583416dcae217552043180dd84bf15e435732178b1171c7"
     },
     "CLAUDE.md": {
       "amante": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
@@ -146,12 +146,12 @@
       "upstream": "25fc6eee1dbb1181a789714fe5a8106ec4261b2226b845369b82d12271d5e6b1"
     },
     "README.md": {
-      "amante": "d334787014ff59351b65061e29977e4bb2aa3d8633ad5af279f1f7cd08854120",
-      "upstream": "d334787014ff59351b65061e29977e4bb2aa3d8633ad5af279f1f7cd08854120"
+      "amante": "cba4c7b7379db6840db0acab80ba313e69792c004055342da0fe6d5b645ac028",
+      "upstream": "cba4c7b7379db6840db0acab80ba313e69792c004055342da0fe6d5b645ac028"
     },
     "TASKS.md": {
-      "amante": "008e104baa3d1ee094812a4ffafc7557a551156f6979d209e2c1d4ffb9158413",
-      "upstream": "008e104baa3d1ee094812a4ffafc7557a551156f6979d209e2c1d4ffb9158413"
+      "amante": "0f2865ed065d4436bd5dbf5bcc397fdbe44ecdd969e7525b137ae398619b9b92",
+      "upstream": "0f2865ed065d4436bd5dbf5bcc397fdbe44ecdd969e7525b137ae398619b9b92"
     },
     "TRADEMARKS.md": {
       "amante": "3de116245c178b63521fb6d10d9a70cafd836290a46ad54f4cd252294b4fb7ca",
@@ -25614,8 +25614,8 @@
       "upstream": "5d9dc8326782dba3f9d52e09d36b96bc9c670388ec284ce08757b185fde5fd34"
     },
     "crates/aurora-assets/src/anim.rs": {
-      "amante": "18bac597c9d10b8bb0ee93a091dbc1ca3cc8bd80d504dc10b51ff47dcb268606",
-      "upstream": "18bac597c9d10b8bb0ee93a091dbc1ca3cc8bd80d504dc10b51ff47dcb268606"
+      "amante": "b4a9e41e5e7ff13878db35181ad84ddb566f2d219f15993c1bb54c26fa5cf6bf",
+      "upstream": "b4a9e41e5e7ff13878db35181ad84ddb566f2d219f15993c1bb54c26fa5cf6bf"
     },
     "crates/aurora-assets/src/gesture.rs": {
       "amante": "66e00b8a7b515c022acca6c0d43c191489201c10076ab9992d35f9de575f9ea7",
@@ -25690,8 +25690,8 @@
       "upstream": "3fd6eecb6cd0d175c2e5a7b24554b38c6f48290e566c9723872ec17c0ed6ed4d"
     },
     "crates/aurora-assets/src/lib.rs": {
-      "amante": "f874f639ec120015bdcc879b1ee0d068ebbcbdc5990f47f864ebe397c8d893cc",
-      "upstream": "f874f639ec120015bdcc879b1ee0d068ebbcbdc5990f47f864ebe397c8d893cc"
+      "amante": "94881ed3f00f751ab17fd55ff4dc38522d7d783a8eccd4ebaeca85f631ff8d97",
+      "upstream": "94881ed3f00f751ab17fd55ff4dc38522d7d783a8eccd4ebaeca85f631ff8d97"
     },
     "crates/aurora-assets/src/llm.rs": {
       "amante": "f70c804e5059db5b17ee56d43e4c2f8640b8663758dedfc70e734d6d8b9ea23a",
@@ -25750,8 +25750,8 @@
       "upstream": "468022e29ee74f210407960c395b3d328df9c9accd00323556fc46b83da606cf"
     },
     "crates/aurora-audio/src/lib.rs": {
-      "amante": "d35b34628227df361ac6f97b36297d6b0f9f18dd677df8b1cb2926a40ed93da9",
-      "upstream": "d35b34628227df361ac6f97b36297d6b0f9f18dd677df8b1cb2926a40ed93da9"
+      "amante": "6ce76a2dec50887fd822f3c55dc9e50f59f8fa9728c5faeb3192e47871dde744",
+      "upstream": "6ce76a2dec50887fd822f3c55dc9e50f59f8fa9728c5faeb3192e47871dde744"
     },
     "crates/aurora-audio/src/mixer.rs": {
       "amante": "41c3d604ec67ace0aeb162c23c66cad8ce8acd5b00467acc2809c7cf1fd2f553",
@@ -25762,8 +25762,8 @@
       "upstream": "ddcd0761382d257c0aeaf2eda920cddcca88a98cf6c52ff231911accb68aafff"
     },
     "crates/aurora-audio/src/playlist.rs": {
-      "amante": "7571ff7a39d46575d31a90fcf13263a0a6db85d8de9c7e53b6781543e7f14331",
-      "upstream": "7571ff7a39d46575d31a90fcf13263a0a6db85d8de9c7e53b6781543e7f14331"
+      "amante": "8f61b48c9b0a51ab392590e04dc1bc1506df30b790125e3ed7cd9030c0870712",
+      "upstream": "8f61b48c9b0a51ab392590e04dc1bc1506df30b790125e3ed7cd9030c0870712"
     },
     "crates/aurora-audio/src/processing.rs": {
       "amante": "cd94d16513cc468af35a9ccff4a40edd0ac30b21f8bfa17d065ed6f98c871993",
@@ -25778,8 +25778,8 @@
       "upstream": "2b108ef0479fb4b0b417cb2c821c60a7ef81ec36d1e5d20ec29dd857fa78e3c3"
     },
     "crates/aurora-audio/src/stream.rs": {
-      "amante": "2673b637e898cfd8865cde99806fa2cb52f1614f01b5ecd7aec9bb1914d8c546",
-      "upstream": "2673b637e898cfd8865cde99806fa2cb52f1614f01b5ecd7aec9bb1914d8c546"
+      "amante": "31b3ce7600cfd89d81201790641b2793dffa3909943009f2bd5a86a38fc72eac",
+      "upstream": "31b3ce7600cfd89d81201790641b2793dffa3909943009f2bd5a86a38fc72eac"
     },
     "crates/aurora-audio/src/wind.rs": {
       "amante": "47d0fe2c9651ec3bc6566aedbcfc29ac910f1380a5ebc3bc797451666533fdee",
@@ -25802,16 +25802,16 @@
       "upstream": "d8df126c8a210f4aeefd4e9af8ed2584473d429f3ca5fcac441c1d4fec779239"
     },
     "crates/aurora-i18n/locales/en.ftl": {
-      "amante": "eccfd994297ee81952d4ece2324a98b46439f738b077ff354c723a0ca9acc865",
-      "upstream": "65ba47bd5eafdf1566e0676fdb6246acf5c3bca8d834e95c48d122c39defdd4e"
+      "amante": "ac648985044ca85085bc54c18ca50a2612da83ad53a3c4807c60a93613e15d55",
+      "upstream": "38c478017b982180d78a9bc4ef018596ed1b92a737de0fd396321a727b347156"
     },
     "crates/aurora-i18n/locales/fr.ftl": {
-      "amante": "b09c1600899fbb9f3f762a13080f1d290f1fdea34f8a33c2f455501ebcc990e2",
-      "upstream": "b1c0f553db5cc0d963f8941230d1d082d70cfb981ba431a9bda657f86723985f"
+      "amante": "b258a28487d8f8b0a9d4ac8d4f709b5a8f09799375163b63a4ca740addf50ccd",
+      "upstream": "ff563d98b4abfe14b502b7fae76986007de5c38f54b7b33ff43a16c46a89b7b6"
     },
     "crates/aurora-i18n/locales/ja.ftl": {
-      "amante": "86d54ad7fd490363d3501911cec8df1988530c85d0654713785af0a231a013b2",
-      "upstream": "18b1ae56fbdaf46585112121a3354273243b2dc71211d93de17794ef0c3a58c3"
+      "amante": "f2dea9ddf8f7dc5084d79fdf83a9253c632a5d94e6e4294234b204d713697aef",
+      "upstream": "59d566fde0bf0b3112be613cca310e05256217c68f39bba4f18dba2e53334c10"
     },
     "crates/aurora-i18n/src/lib.rs": {
       "amante": "50a3edc01a288bcd9d21fb633c3296ad77a56e7be44b29611afdafdd4bcaf256",
@@ -25973,6 +25973,10 @@
       "amante": "60c250ec90a6cc7ea3d875a9aa6cba5848640e5334ddfc6b913d21e538dda442",
       "upstream": "60c250ec90a6cc7ea3d875a9aa6cba5848640e5334ddfc6b913d21e538dda442"
     },
+    "crates/aurora-net/src/god.rs": {
+      "amante": "37afe548bd02e362db0d7b42369351e51b0c4b79ff2692f2a2c0953e837d651a",
+      "upstream": "37afe548bd02e362db0d7b42369351e51b0c4b79ff2692f2a2c0953e837d651a"
+    },
     "crates/aurora-net/src/group_money.rs": {
       "amante": "c647603d0ee20794ea63fe8787f6c3e0545785101dd6ffcc73d99fd9054c1f49",
       "upstream": "c647603d0ee20794ea63fe8787f6c3e0545785101dd6ffcc73d99fd9054c1f49"
@@ -26042,16 +26046,16 @@
       "upstream": "0a6b9770b00d8fd9ab2ee3dde892fb047f2572ef5d50b8fa4415fac01b1bd996"
     },
     "crates/aurora-net/src/lib.rs": {
-      "amante": "d12f31592aed165dfca211a0f6f071f4f6993f5887d6933dcbb1d8eb73355082",
-      "upstream": "d12f31592aed165dfca211a0f6f071f4f6993f5887d6933dcbb1d8eb73355082"
+      "amante": "396c70b9dfc19690e36757f5673084bda00ed6315c60af99b2dc65fba0ad9c39",
+      "upstream": "396c70b9dfc19690e36757f5673084bda00ed6315c60af99b2dc65fba0ad9c39"
     },
     "crates/aurora-net/src/local_bakes.rs": {
       "amante": "e2471fa4c843327945269ed3168618a43f3d360ec655d16df10750fc78931adf",
       "upstream": "e2471fa4c843327945269ed3168618a43f3d360ec655d16df10750fc78931adf"
     },
     "crates/aurora-net/src/login.rs": {
-      "amante": "76ce04e1e3d9657ef3b4b0f741149f9aae480491b727ce5e897efc4a108bd907",
-      "upstream": "76ce04e1e3d9657ef3b4b0f741149f9aae480491b727ce5e897efc4a108bd907"
+      "amante": "7d6268b25692253dbd907d8a93c6f513ff44b501dfa30d15023cd89f78f238e7",
+      "upstream": "7d6268b25692253dbd907d8a93c6f513ff44b501dfa30d15023cd89f78f238e7"
     },
     "crates/aurora-net/src/lsl_syntax.rs": {
       "amante": "f04490754b23c86d62f1bb0a3c5f97c29d6593e47325b90f680b9ded497d1eb5",
@@ -26109,6 +26113,14 @@
       "amante": "b0a2563e0ffa22a46a5d60716743e148c82ac6560daad53102b54b25ca094712",
       "upstream": "b0a2563e0ffa22a46a5d60716743e148c82ac6560daad53102b54b25ca094712"
     },
+    "crates/aurora-net/src/render_info.rs": {
+      "amante": "9e8023ae35a27bfbecedab575ff3e047c7edee53799a13045598395346309351",
+      "upstream": "9e8023ae35a27bfbecedab575ff3e047c7edee53799a13045598395346309351"
+    },
+    "crates/aurora-net/src/render_info/tests.rs": {
+      "amante": "7c144daedc0eb4afd81aa9eb51254be395d1704eb3fb8020f83d3d2c5a7b2916",
+      "upstream": "7c144daedc0eb4afd81aa9eb51254be395d1704eb3fb8020f83d3d2c5a7b2916"
+    },
     "crates/aurora-net/src/script_controls.rs": {
       "amante": "24938e7d8a803e8e962a60e0cc268556107eb44018ffd1204cdd40a60e7fdf4f",
       "upstream": "24938e7d8a803e8e962a60e0cc268556107eb44018ffd1204cdd40a60e7fdf4f"
@@ -26126,8 +26138,8 @@
       "upstream": "bbe8adb8211de8712e985e647c197decf0d14ac1294a19e43470bda7967f17a8"
     },
     "crates/aurora-net/src/session.rs": {
-      "amante": "a02eb7aeb3d30ab3aa5bc8cb8bb677b8710866fef2ed7bb1c80e5593ddc820ab",
-      "upstream": "a02eb7aeb3d30ab3aa5bc8cb8bb677b8710866fef2ed7bb1c80e5593ddc820ab"
+      "amante": "3b929bfeecbd76e5d22ddcf305a901ae290faf1dd729eaed1ee4b38f6d572000",
+      "upstream": "3b929bfeecbd76e5d22ddcf305a901ae290faf1dd729eaed1ee4b38f6d572000"
     },
     "crates/aurora-net/src/session/abuse_reports.rs": {
       "amante": "38f921cb277858d5463059586ec01702beb1ee0a167a3c7c294de768638358c1",
@@ -26142,16 +26154,16 @@
       "upstream": "1768cdfa9481ef5fd44d23b1027a506620ca6d1940db6071a7f70804c04f8155"
     },
     "crates/aurora-net/src/session/asset_imports.rs": {
-      "amante": "70e7decd0b0c963f43aae44b8c06b2ca7defc45e16a060d13c78d8102f9b1e33",
-      "upstream": "70e7decd0b0c963f43aae44b8c06b2ca7defc45e16a060d13c78d8102f9b1e33"
+      "amante": "b79340e1f5e5b47be5707e59401812996c6b90ddf0a3bc0e7a953039d8841a5b",
+      "upstream": "b79340e1f5e5b47be5707e59401812996c6b90ddf0a3bc0e7a953039d8841a5b"
     },
     "crates/aurora-net/src/session/attach_queue.rs": {
       "amante": "825d6553bccf94b84685909361e89ad7228469ff8136ce25e30b4c810036edd2",
       "upstream": "825d6553bccf94b84685909361e89ad7228469ff8136ce25e30b4c810036edd2"
     },
     "crates/aurora-net/src/session/build_cmds.rs": {
-      "amante": "603c7752d119bc25a85b82c4126e9e01979397f9f4c818376489d799a4cabc75",
-      "upstream": "603c7752d119bc25a85b82c4126e9e01979397f9f4c818376489d799a4cabc75"
+      "amante": "6feae8b804388cf53883f9e93aadd0864d6d8c325e9691b4bb4c3ed7b1443170",
+      "upstream": "6feae8b804388cf53883f9e93aadd0864d6d8c325e9691b4bb4c3ed7b1443170"
     },
     "crates/aurora-net/src/session/currency.rs": {
       "amante": "a9c82ab31de7eafef20d00167fdb4aba0c13445b7a19f7f6098d533f28ed9511",
@@ -26168,6 +26180,10 @@
     "crates/aurora-net/src/session/gestures.rs": {
       "amante": "73f916eb28132f9669d11a057a5a75e15c7912d6ec6f53c3e7d1b52e60b53156",
       "upstream": "73f916eb28132f9669d11a057a5a75e15c7912d6ec6f53c3e7d1b52e60b53156"
+    },
+    "crates/aurora-net/src/session/god.rs": {
+      "amante": "f85444d1615cb1ac48eaa103df4523b55159df997d60f8fad50dbba06c295835",
+      "upstream": "f85444d1615cb1ac48eaa103df4523b55159df997d60f8fad50dbba06c295835"
     },
     "crates/aurora-net/src/session/inventory_copies.rs": {
       "amante": "6579b7351a249731857b0f51c769d29d09397453190ebefe1d889ae944329161",
@@ -26186,8 +26202,8 @@
       "upstream": "90b7a9e8a1686c3b80379d0db6c8c3e586a5db15c59365c57e1ddd9db29bbf94"
     },
     "crates/aurora-net/src/session/inventory_updates.rs": {
-      "amante": "9e241a9d511afdd8b10d78830d557bb032e950e6f1654895ccaa09971104bd26",
-      "upstream": "9e241a9d511afdd8b10d78830d557bb032e950e6f1654895ccaa09971104bd26"
+      "amante": "b13ddd796cf4166ece03e4a78d554ba76acede334c73808fc032da8ecf602e81",
+      "upstream": "b13ddd796cf4166ece03e4a78d554ba76acede334c73808fc032da8ecf602e81"
     },
     "crates/aurora-net/src/session/inventory_upload.rs": {
       "amante": "11b0c4939bd75daf7b9e519f207bf724a8f5b1f1fb1aaaf9dbdd1e056b6cd400",
@@ -26198,12 +26214,16 @@
       "upstream": "f3ae83adcfd97d411b1322424cc610282320274215989ff92d2e18a5cd432267"
     },
     "crates/aurora-net/src/session/object_cache.rs": {
-      "amante": "95698904201dd59970637e3a07c275a690c23cd6ff43c5a86f314b21d3495bc5",
-      "upstream": "95698904201dd59970637e3a07c275a690c23cd6ff43c5a86f314b21d3495bc5"
+      "amante": "afa02f4a03d33b0c32a4cd46fb14d04daf7c34a7958a0e04786ad7af5680b459",
+      "upstream": "afa02f4a03d33b0c32a4cd46fb14d04daf7c34a7958a0e04786ad7af5680b459"
+    },
+    "crates/aurora-net/src/session/render_info_net.rs": {
+      "amante": "5951fe9f14072f2fa69bfe8f13e89aa4e1f33676c753cbd0c66dfe846ecfe3aa",
+      "upstream": "5951fe9f14072f2fa69bfe8f13e89aa4e1f33676c753cbd0c66dfe846ecfe3aa"
     },
     "crates/aurora-net/src/session/scripts.rs": {
-      "amante": "ca8335b828ddb849b053c4ec707187277d65baea52269c764ddc34a7e5f6ca1f",
-      "upstream": "ca8335b828ddb849b053c4ec707187277d65baea52269c764ddc34a7e5f6ca1f"
+      "amante": "a67878e322790cb332b0c4352fba5339a88a652b590df7e8220ced03302bd72e",
+      "upstream": "a67878e322790cb332b0c4352fba5339a88a652b590df7e8220ced03302bd72e"
     },
     "crates/aurora-net/src/session/sim_requests.rs": {
       "amante": "1de95715a1805764e1955af9448d709afc82081d3b3dad483cc6bcd696be7033",
@@ -26242,8 +26262,8 @@
       "upstream": "733e6a1d17592a8460ef62870ae26f0a20454af7ba9c32d336cffe5d20a37bef"
     },
     "crates/aurora-net/src/session_social.rs": {
-      "amante": "cff8d6e9856cc9c260d5f077793a4546a2f95616c086ed5661f67b81c6ebab7f",
-      "upstream": "cff8d6e9856cc9c260d5f077793a4546a2f95616c086ed5661f67b81c6ebab7f"
+      "amante": "f573948a03bf9b8a505011f4e6956e6f363a4f1491463afc4c2e9b6deb1f4fcd",
+      "upstream": "f573948a03bf9b8a505011f4e6956e6f363a4f1491463afc4c2e9b6deb1f4fcd"
     },
     "crates/aurora-net/src/sim_console.rs": {
       "amante": "504a47fe3ef5fc8cf5807ac11f5d1fcbf6c6be56d5d0b5d521b9537735d2a5f8",
@@ -26258,8 +26278,8 @@
       "upstream": "fa9ddc3d7a4d395d624896001581d889e4f197ae7392fe73ddd8d88d4b7c9ea6"
     },
     "crates/aurora-net/src/social.rs": {
-      "amante": "bd79964d6f41c2f04b3e21f20b1cd6848ae8337808c3912e341057aca160c9d1",
-      "upstream": "bd79964d6f41c2f04b3e21f20b1cd6848ae8337808c3912e341057aca160c9d1"
+      "amante": "86f58b12d75123ae75402a522d3ec2006ee1cfc0483f0320a5c2ba8dfc1fcecc",
+      "upstream": "86f58b12d75123ae75402a522d3ec2006ee1cfc0483f0320a5c2ba8dfc1fcecc"
     },
     "crates/aurora-net/src/stats.rs": {
       "amante": "5b8ec0bf3de874b6a830d8f946a9fd0f2578fd43a5efa3752b161635c3ab804e",
@@ -26294,8 +26314,8 @@
       "upstream": "90f1e98d834e7b2ed1e65c3b6df8a35ddf29da18061afbe1f6780320db014860"
     },
     "crates/aurora-net/src/types.rs": {
-      "amante": "ce4ee832c25b197e633a41cc5f960e5947a3e98e2d4f80f81a4409e08c0ecbb1",
-      "upstream": "ce4ee832c25b197e633a41cc5f960e5947a3e98e2d4f80f81a4409e08c0ecbb1"
+      "amante": "fa03fd0813e63ce9eb867a9675ff07555fb3fb131d19fdb32536e6cdd825c224",
+      "upstream": "fa03fd0813e63ce9eb867a9675ff07555fb3fb131d19fdb32536e6cdd825c224"
     },
     "crates/aurora-net/src/user_info.rs": {
       "amante": "431378492148efb7efe7737907e489f9ea3ec64742cc0437808ab33782121718",
@@ -26358,8 +26378,8 @@
       "upstream": "f26113eb81e7fca849762372fde149593b4f9fed82728587ae3e9a22e49104c1"
     },
     "crates/aurora-prim/src/te.rs": {
-      "amante": "4dd293692c58e21c032c6d72fe87a6b177d5f6d4eaf5d13e25e15633e29c2568",
-      "upstream": "4dd293692c58e21c032c6d72fe87a6b177d5f6d4eaf5d13e25e15633e29c2568"
+      "amante": "d963fd51a5bc0637ba32c7a17a7d53b0ece1e6df11908a1dc717191c8d37088e",
+      "upstream": "d963fd51a5bc0637ba32c7a17a7d53b0ece1e6df11908a1dc717191c8d37088e"
     },
     "crates/aurora-prim/src/tree.rs": {
       "amante": "c839d7eb0d85dac19343de7cc15c31697f623a1cf7c96e258f8b3843693fb652",
@@ -26418,8 +26438,8 @@
       "upstream": "6412f52af80aa3387615ed3a02c4b238b10c02bfb68fa4f3dd37f5737370204f"
     },
     "crates/aurora-render/src/blend_tests.rs": {
-      "amante": "dd32fefd9feeb1a0c1dc0c87f480013835aaeb2d5b55e840f09b59c56461856d",
-      "upstream": "dd32fefd9feeb1a0c1dc0c87f480013835aaeb2d5b55e840f09b59c56461856d"
+      "amante": "881e9394aaf628ac14d84b9ec90a3558969893401f7b7bad130131b1131dd68a",
+      "upstream": "881e9394aaf628ac14d84b9ec90a3558969893401f7b7bad130131b1131dd68a"
     },
     "crates/aurora-render/src/bloom.rs": {
       "amante": "16f4250ca1ceb368606bfd73bb239aaae5378dfa092c30d16681a414b2f9dc05",
@@ -26462,16 +26482,16 @@
       "upstream": "0a63adab3acaa0e647cf58a7c60f8bcef7b5ca3350c00246fa2a220e743b3302"
     },
     "crates/aurora-render/src/fsr.rs": {
-      "amante": "f2e7109a1ab4f7c45d14a4ff691ee3a19d1fc8dcfde82501b96d7d774dfb22f6",
-      "upstream": "f2e7109a1ab4f7c45d14a4ff691ee3a19d1fc8dcfde82501b96d7d774dfb22f6"
+      "amante": "a7c2fb137a6edeea9be0f2909f5353fa04be5e5fd22d85e33fb1351bf263a595",
+      "upstream": "a7c2fb137a6edeea9be0f2909f5353fa04be5e5fd22d85e33fb1351bf263a595"
     },
     "crates/aurora-render/src/gpu_alloc.rs": {
       "amante": "f70d74b188bd72790b571e168d88fe5baffaaaee5b7698d5bb2800db8515a01c",
       "upstream": "f70d74b188bd72790b571e168d88fe5baffaaaee5b7698d5bb2800db8515a01c"
     },
     "crates/aurora-render/src/gpu_cull.rs": {
-      "amante": "78e9f4135ad04976031751019734f2580a62f4e2906432a35e8fddabf70c1416",
-      "upstream": "78e9f4135ad04976031751019734f2580a62f4e2906432a35e8fddabf70c1416"
+      "amante": "713fdc9544c836b9350a9faf6ec957609e8613de79a10607602ca7cf5459dddd",
+      "upstream": "713fdc9544c836b9350a9faf6ec957609e8613de79a10607602ca7cf5459dddd"
     },
     "crates/aurora-render/src/gtao.rs": {
       "amante": "ac1d5d09621a16653bc05def992209fb649a1308e88c4d94c55118966dfb5c12",
@@ -26494,8 +26514,8 @@
       "upstream": "a3b4d9d088107022d53d0260f5dc20b2a0b3e573d0cd053b2457269724942806"
     },
     "crates/aurora-render/src/lib.rs": {
-      "amante": "518e271e522e9b685c5072f79d5f9a99dff27ddcb66e8ffa00c305713c6d55de",
-      "upstream": "518e271e522e9b685c5072f79d5f9a99dff27ddcb66e8ffa00c305713c6d55de"
+      "amante": "79d097456a447ca2f167a711d384a7f20c10b5f508b264ee6e85628f3df1ed25",
+      "upstream": "79d097456a447ca2f167a711d384a7f20c10b5f508b264ee6e85628f3df1ed25"
     },
     "crates/aurora-render/src/light_tiles.rs": {
       "amante": "37d54e3bd6d9d20e3d0ccb6693d6f9cc62467a4d43241c15b8729be89ff1e149",
@@ -26782,8 +26802,8 @@
       "upstream": "173c0fb1a64c7e84ef7aa110279868fe48c8443472dd8fe4c129964e1887e121"
     },
     "crates/aurora-render/src/main_thread.rs": {
-      "amante": "5aad40b0a02f5990e6a9c6c46fa6beccafb0e2fde9c66ff48ebd5370d10e0468",
-      "upstream": "5aad40b0a02f5990e6a9c6c46fa6beccafb0e2fde9c66ff48ebd5370d10e0468"
+      "amante": "8d9de2fd389cac6febd8146fe29d027f8bcd376ab3a63da8157bc91f4399a089",
+      "upstream": "8d9de2fd389cac6febd8146fe29d027f8bcd376ab3a63da8157bc91f4399a089"
     },
     "crates/aurora-render/src/motion_debug.rs": {
       "amante": "243973ae2026daf329ad35b2c36063ec00d7f062d5e16c81bbd01e1166e978c1",
@@ -26802,8 +26822,16 @@
       "upstream": "1d4a8877c3b3d1a6f430a69a9684a032e65f3027d22804db13a1a8ede5922e14"
     },
     "crates/aurora-render/src/packet.rs": {
-      "amante": "28e9dadbf212584867d07a9259a4c7c410feee5f4b5a9c20956242ad4ae7696b",
-      "upstream": "28e9dadbf212584867d07a9259a4c7c410feee5f4b5a9c20956242ad4ae7696b"
+      "amante": "f9a888dbb9a43df22de7ed6103c638293f7f07afa8bd04c169ddc57787740706",
+      "upstream": "f9a888dbb9a43df22de7ed6103c638293f7f07afa8bd04c169ddc57787740706"
+    },
+    "crates/aurora-render/src/part_pick.rs": {
+      "amante": "48fb493f8494f2f2bfacdf4076125a3f7958f05e3c10052b119497ab01eafddf",
+      "upstream": "48fb493f8494f2f2bfacdf4076125a3f7958f05e3c10052b119497ab01eafddf"
+    },
+    "crates/aurora-render/src/part_tests.rs": {
+      "amante": "21ad98c5f5988b069469099d0b5802dc5bf12179f3fd5dd798ba0b147dc98355",
+      "upstream": "21ad98c5f5988b069469099d0b5802dc5bf12179f3fd5dd798ba0b147dc98355"
     },
     "crates/aurora-render/src/pick.rs": {
       "amante": "eae18d3a72e0bc82ca7a1ef8f6ea443d24fdae45dbe8f3a6bf100ddc9a5ca530",
@@ -26846,8 +26874,8 @@
       "upstream": "d5aa27f8f4e452259283ecaf564802266bc1dc2942eb560c5ed10d8e829036d0"
     },
     "crates/aurora-render/src/renderer.rs": {
-      "amante": "f1acdde30c48357fb5519205e69de5b35502a95701cace0b1a4847e7e8e0e36e",
-      "upstream": "f1acdde30c48357fb5519205e69de5b35502a95701cace0b1a4847e7e8e0e36e"
+      "amante": "fd4e76df4b53f4e598e7dbd7a57a846067f40ea19fa015dcb7641fe174899098",
+      "upstream": "fd4e76df4b53f4e598e7dbd7a57a846067f40ea19fa015dcb7641fe174899098"
     },
     "crates/aurora-render/src/rlva.rs": {
       "amante": "551af3c0673af30a2a582d8d40fcc7790f9fe962d17acb3c60d95d49f5cbdaff",
@@ -26862,12 +26890,12 @@
       "upstream": "51999c781444b43d15a2f5d23185aae728183a4e1e6aa5d7c6233cfbd923d619"
     },
     "crates/aurora-render/src/rlva/tests.rs": {
-      "amante": "414ccedebbfed837f0d83b4b6ba79cb7f26176d843884c42aeb4b31c0a51fcb7",
-      "upstream": "414ccedebbfed837f0d83b4b6ba79cb7f26176d843884c42aeb4b31c0a51fcb7"
+      "amante": "603862634cba2220d5e4aba48aa5e32da5a48ecc5ac77eda3f9f4ddb280c6525",
+      "upstream": "603862634cba2220d5e4aba48aa5e32da5a48ecc5ac77eda3f9f4ddb280c6525"
     },
     "crates/aurora-render/src/selection.rs": {
-      "amante": "7b9bb38c6f38793dd5bfda7a7d970223b1a31b44b296c444d14f9bded8b3d97e",
-      "upstream": "7b9bb38c6f38793dd5bfda7a7d970223b1a31b44b296c444d14f9bded8b3d97e"
+      "amante": "75be6d08d988efa35844e098567c6996ee67c12bb0ac82401f1fad5ae9383f70",
+      "upstream": "75be6d08d988efa35844e098567c6996ee67c12bb0ac82401f1fad5ae9383f70"
     },
     "crates/aurora-render/src/selection/tests.rs": {
       "amante": "124aaceac64d59f333c6dc6013a73890005c3bc0b5581e39607cfa5204bb55aa",
@@ -26878,8 +26906,8 @@
       "upstream": "9e7a5fc0727d7d09133a8dd6a0100d0123279a8e1db660be10ad23ff267fd46e"
     },
     "crates/aurora-render/src/shaders/common.wgsl": {
-      "amante": "65a56bbc23d27abba215c5241b93450ae354773d07dc48083a02da61d9ed9df9",
-      "upstream": "65a56bbc23d27abba215c5241b93450ae354773d07dc48083a02da61d9ed9df9"
+      "amante": "44faead320f55459c966412d9d001fa4faadb581eb799055e7890ecbb5b7d3ff",
+      "upstream": "44faead320f55459c966412d9d001fa4faadb581eb799055e7890ecbb5b7d3ff"
     },
     "crates/aurora-render/src/shaders/contact_shadows.wgsl": {
       "amante": "1c5770fce0cc4ad4d937692979aad07ba06e820686ee4a9ae6b2f94309040521",
@@ -26894,8 +26922,8 @@
       "upstream": "b1565a6d28bfa75d71d319319ebcc673433ce4a798b611f8d8d2efedcd1a5e03"
     },
     "crates/aurora-render/src/shaders/cull.wgsl": {
-      "amante": "28d930de0a1a8901d077c4d63c95970280bafee3ba4bb64adeee57b488cb416f",
-      "upstream": "28d930de0a1a8901d077c4d63c95970280bafee3ba4bb64adeee57b488cb416f"
+      "amante": "281feb3082b1bcb8ad6e31c88f43925a6df66c995bbac4b011bb0d6f37300b28",
+      "upstream": "281feb3082b1bcb8ad6e31c88f43925a6df66c995bbac4b011bb0d6f37300b28"
     },
     "crates/aurora-render/src/shaders/cutout.wgsl": {
       "amante": "37d74557385875c496a8adabe8bbbc5c41330db32e7937d268d88434b2ef4467",
@@ -26906,8 +26934,8 @@
       "upstream": "8f291d00fc94e5b919fd63a7b336e80a7efab1f5373f2e85ac477c70abbe359a"
     },
     "crates/aurora-render/src/shaders/env.wgsl": {
-      "amante": "88b3a71ffef3e30eca609ee04592ebf7a813a61328f94c9b9226e332841f9f68",
-      "upstream": "88b3a71ffef3e30eca609ee04592ebf7a813a61328f94c9b9226e332841f9f68"
+      "amante": "1b6244a4c1011ad0fcd592a04a1138fc5a2485ed8c2a1d88438953c7e737bf9e",
+      "upstream": "1b6244a4c1011ad0fcd592a04a1138fc5a2485ed8c2a1d88438953c7e737bf9e"
     },
     "crates/aurora-render/src/shaders/exposure.wgsl": {
       "amante": "50e562529786186772320962aa71774645bc79014aca557aec0b3afd7b5314cf",
@@ -26970,8 +26998,8 @@
       "upstream": "9b39522d678d7c4929beddcfc91e640ee9a7c3d1e923e2ea6596633294c1f360"
     },
     "crates/aurora-render/src/shaders/object.wgsl": {
-      "amante": "447214fa503c9dfc32f58ae14c2460987c388c19f0004e7a306d942e53f84885",
-      "upstream": "447214fa503c9dfc32f58ae14c2460987c388c19f0004e7a306d942e53f84885"
+      "amante": "c1dafbe14461a226be723b520488294ebbef7f7cd11321b6ac711d5b6ab6a8e5",
+      "upstream": "c1dafbe14461a226be723b520488294ebbef7f7cd11321b6ac711d5b6ab6a8e5"
     },
     "crates/aurora-render/src/shaders/occlusion.wgsl": {
       "amante": "3f04f7ebda29b8776e2ebbec88a626c2a8c75dad319c80b299ab259834636d81",
@@ -26998,16 +27026,16 @@
       "upstream": "1f8fff506ac4076bcaaa55f44a25ae12d8e5b9d9e0ce71534fd4707b06aceef4"
     },
     "crates/aurora-render/src/shaders/rlva_overlay.wgsl": {
-      "amante": "2f746f514170457d38b8f3ff111dc1ba33b4af46be8ddd0d58b71f9a94a1d0d5",
-      "upstream": "2f746f514170457d38b8f3ff111dc1ba33b4af46be8ddd0d58b71f9a94a1d0d5"
+      "amante": "96c9c09059f93d1a065fbe2dc46fd48bb774e839c9f7e79e683867dcc8c03e19",
+      "upstream": "96c9c09059f93d1a065fbe2dc46fd48bb774e839c9f7e79e683867dcc8c03e19"
     },
     "crates/aurora-render/src/shaders/rlva_resolution.wgsl": {
       "amante": "982f6c726875140354fe744177ee82696867fba561c70ca5bf69bc5d9ce3cfea",
       "upstream": "982f6c726875140354fe744177ee82696867fba561c70ca5bf69bc5d9ce3cfea"
     },
     "crates/aurora-render/src/shaders/selection.wgsl": {
-      "amante": "37c92b2f9fea92065309d3ec6c2000641ca9a4daab721078534c021ee57afeeb",
-      "upstream": "37c92b2f9fea92065309d3ec6c2000641ca9a4daab721078534c021ee57afeeb"
+      "amante": "6942b776e966f078c3f578dedab5c1a09d8bb54ae40aa9450a12be2776a7b197",
+      "upstream": "6942b776e966f078c3f578dedab5c1a09d8bb54ae40aa9450a12be2776a7b197"
     },
     "crates/aurora-render/src/shaders/shadow_merge.wgsl": {
       "amante": "25df8b658cd3180fa4ccdc8d287149456f84e0edecffd126814f2ee64e91f533",
@@ -27090,8 +27118,8 @@
       "upstream": "5fb8e62835d4bd9672c16e14706303578829610f6d3fa2c75c36597a624721f3"
     },
     "crates/aurora-render/src/terrain_tests.rs": {
-      "amante": "177513ae5802c7312dcbe8236467d74f726abcffb9ede659bba28903698fb00b",
-      "upstream": "177513ae5802c7312dcbe8236467d74f726abcffb9ede659bba28903698fb00b"
+      "amante": "7909238384e779b900e0d830ee41391cfadad6c81430e3bdc22c58b89780f040",
+      "upstream": "7909238384e779b900e0d830ee41391cfadad6c81430e3bdc22c58b89780f040"
     },
     "crates/aurora-render/src/test_gpu.rs": {
       "amante": "787b240acb1654ba46afa6ee4460ca99e9bf0db4ddb35c56180a72e4ada45796",
@@ -27102,16 +27130,16 @@
       "upstream": "9286ded12d7e7bc0452729da5f1f3bc3618ce48b54ec4224452c60880fb02d31"
     },
     "crates/aurora-render/src/textures.rs": {
-      "amante": "60b051eebc044b69b03acaa56445df7dc557f5663004132f7a6a93af0da61fa3",
-      "upstream": "60b051eebc044b69b03acaa56445df7dc557f5663004132f7a6a93af0da61fa3"
+      "amante": "2ee4bc0328e42c8a849a71bb036971e03bc76272d7b5f393117eb32f6919bcc2",
+      "upstream": "2ee4bc0328e42c8a849a71bb036971e03bc76272d7b5f393117eb32f6919bcc2"
     },
     "crates/aurora-render/src/thread_cpu.rs": {
       "amante": "9da286d2b30e5eb94f2be10b251be6f945857a0f2b660f9810736fffc4cc6f02",
       "upstream": "9da286d2b30e5eb94f2be10b251be6f945857a0f2b660f9810736fffc4cc6f02"
     },
     "crates/aurora-render/src/types.rs": {
-      "amante": "f5012c93d958c42ac72f832cf34f1c17836e109363a172778421a7c8ab262c67",
-      "upstream": "f5012c93d958c42ac72f832cf34f1c17836e109363a172778421a7c8ab262c67"
+      "amante": "bb4c18ffc2ab8cf92fc24b6c485e58ad75cce954ff37c2f2f9410bec6d5578d5",
+      "upstream": "bb4c18ffc2ab8cf92fc24b6c485e58ad75cce954ff37c2f2f9410bec6d5578d5"
     },
     "crates/aurora-render/src/ui_blur.rs": {
       "amante": "9187e65901c72ddffd0fad8d781d364ec36a8f7c29af1c5a2452a32fdf2d3854",
@@ -27194,8 +27222,8 @@
       "upstream": "c5673858e45628f431a40cc2391f339f07b0bc8abefb68307297858bedb591c8"
     },
     "crates/aurora-updater/src/install.rs": {
-      "amante": "1dcc2065dc06aa50059d3ae26edf1d24c4062b25438f2f60194adbd92be750f9",
-      "upstream": "056928d42c886fd23972d525fcdc78d18db0b4fc03a8d340d5baf5d8b8a60908"
+      "amante": "911d605088e246ac0ef7cc79bb64292507f425e2fa4da063445e1114723986ba",
+      "upstream": "68ab7e21b1518f0976836756d196163ac7eed8e41b91b6d76822ed780525dc5f"
     },
     "crates/aurora-updater/src/lib.rs": {
       "amante": "d98d353b6dd2d6c21c78f4a8c2798e3413e4e890510a0797b28b23f61a0738b3",
@@ -28056,6 +28084,10 @@
     "crates/aurora-viewer/assets/icons/tabler/filled/click.svg": {
       "amante": "30c3c9115fe3e43512617acff9fab2b0c800ea454f7a4cc7cb8481d00fe2b4ce",
       "upstream": "30c3c9115fe3e43512617acff9fab2b0c800ea454f7a4cc7cb8481d00fe2b4ce"
+    },
+    "crates/aurora-viewer/assets/icons/tabler/filled/clipboard-data.svg": {
+      "amante": "5114f233d4af546047cdab9bf8356543d2dbfe7e12028cc6cd720bd4c1b7c951",
+      "upstream": "5114f233d4af546047cdab9bf8356543d2dbfe7e12028cc6cd720bd4c1b7c951"
     },
     "crates/aurora-viewer/assets/icons/tabler/filled/clipboard-text.svg": {
       "amante": "6cbe490a7f7a3b69aa7f3cfc74a39776bcc284adf830bd17ba96bd879e0c422b",
@@ -29037,6 +29069,10 @@
       "amante": "0142561fc2fd1b6a18b2cb0c08959b6037643aecf6adc6612aefe16ec4f39f0f",
       "upstream": "0142561fc2fd1b6a18b2cb0c08959b6037643aecf6adc6612aefe16ec4f39f0f"
     },
+    "crates/aurora-viewer/assets/icons/tabler/outline/chevron-up.svg": {
+      "amante": "b832f0550c1d0ea213538fb55d1849e080a0c5e9c86063913b061d81b41fe31c",
+      "upstream": "b832f0550c1d0ea213538fb55d1849e080a0c5e9c86063913b061d81b41fe31c"
+    },
     "crates/aurora-viewer/assets/icons/tabler/outline/chevrons-down.svg": {
       "amante": "7c1e4c5ea9e733aae525c33d2a23efe8e003492e5889905acb02a9a6a0d493b4",
       "upstream": "7c1e4c5ea9e733aae525c33d2a23efe8e003492e5889905acb02a9a6a0d493b4"
@@ -29405,6 +29441,10 @@
       "amante": "037f6e6dde1b5aafe913060b763a77d428a096f0da5e0b35389ef6e3ddeea912",
       "upstream": "037f6e6dde1b5aafe913060b763a77d428a096f0da5e0b35389ef6e3ddeea912"
     },
+    "crates/aurora-viewer/assets/icons/tabler/outline/refresh-dot.svg": {
+      "amante": "09791256d0c819d60daaa57b1a29654938375d981bb9f3cdd0418a8b5c4db0f5",
+      "upstream": "09791256d0c819d60daaa57b1a29654938375d981bb9f3cdd0418a8b5c4db0f5"
+    },
     "crates/aurora-viewer/assets/icons/tabler/outline/refresh-off.svg": {
       "amante": "be6011d2af1c204f3434da67d893f5820adf4c6cce2534d96fc69634b2f90bcb",
       "upstream": "be6011d2af1c204f3434da67d893f5820adf4c6cce2534d96fc69634b2f90bcb"
@@ -29421,9 +29461,17 @@
       "amante": "ccd7241a24a1fb432d4c27d35db189e416e9f16859d43848c914d62f4daaacd3",
       "upstream": "ccd7241a24a1fb432d4c27d35db189e416e9f16859d43848c914d62f4daaacd3"
     },
+    "crates/aurora-viewer/assets/icons/tabler/outline/resize.svg": {
+      "amante": "c8bf1dafa6ac479a5443d48b9e4cb31c97e6cdb90d8f23365b2116d5fb93ab7f",
+      "upstream": "c8bf1dafa6ac479a5443d48b9e4cb31c97e6cdb90d8f23365b2116d5fb93ab7f"
+    },
     "crates/aurora-viewer/assets/icons/tabler/outline/restore.svg": {
       "amante": "bf61377e47b2e771d6d4a988cb3cf68e4d1b8947e48d53bed05e0b3f8885a5ee",
       "upstream": "bf61377e47b2e771d6d4a988cb3cf68e4d1b8947e48d53bed05e0b3f8885a5ee"
+    },
+    "crates/aurora-viewer/assets/icons/tabler/outline/ripple.svg": {
+      "amante": "f49f264873479440902f407227da99850511523d00f3264b50300fd13f19b9ef",
+      "upstream": "f49f264873479440902f407227da99850511523d00f3264b50300fd13f19b9ef"
     },
     "crates/aurora-viewer/assets/icons/tabler/outline/rotate-2.svg": {
       "amante": "5507803d2763a71105aec771e50194202ce1582c9801bba0962b1fd6eb7026f6",
@@ -29432,6 +29480,10 @@
     "crates/aurora-viewer/assets/icons/tabler/outline/rotate-360.svg": {
       "amante": "fbf44f4c21338c06e7a788e09f7667ef28dff7556380aa1c2ae86ea6bba44244",
       "upstream": "fbf44f4c21338c06e7a788e09f7667ef28dff7556380aa1c2ae86ea6bba44244"
+    },
+    "crates/aurora-viewer/assets/icons/tabler/outline/rotate-3d.svg": {
+      "amante": "c6a10a066d975fb1b71571e2a1596f1c1788344244363d0d7876e82923aa10dc",
+      "upstream": "c6a10a066d975fb1b71571e2a1596f1c1788344244363d0d7876e82923aa10dc"
     },
     "crates/aurora-viewer/assets/icons/tabler/outline/rotate-clockwise-2.svg": {
       "amante": "4040f6fbd276369932668c612f102c12dd15b0d6ba5b4ab51d3e95c0a5ebf957",
@@ -29782,12 +29834,16 @@
       "upstream": "575c41e10ed4b6094e6e8388735b17c46c4214880621fd583549e5653aaebc93"
     },
     "crates/aurora-viewer/src/app.rs": {
-      "amante": "e29e1282e3b2902d68c0e3606f8959d028e41366abd3d938151ee839daca17c8",
-      "upstream": "e29e1282e3b2902d68c0e3606f8959d028e41366abd3d938151ee839daca17c8"
+      "amante": "fbeba13c3b39d7799ba2c0a57f3da94ee2ef3599524b917a803e3a7cb684d98b",
+      "upstream": "fbeba13c3b39d7799ba2c0a57f3da94ee2ef3599524b917a803e3a7cb684d98b"
     },
     "crates/aurora-viewer/src/app/about.rs": {
       "amante": "7b0f38f9fc96969ce2a65cc429655a3c0825822cf9501d0849e7f001673cb8e3",
       "upstream": "7cd040edac10309fbdc4c425809c552e38a4a2d5b61999145f0201f822fbbb9e"
+    },
+    "crates/aurora-viewer/src/app/admin_status.rs": {
+      "amante": "891bfda7d617402a39935373dda6c650b93a345125e3156d2908cd97c83f7a90",
+      "upstream": "891bfda7d617402a39935373dda6c650b93a345125e3156d2908cd97c83f7a90"
     },
     "crates/aurora-viewer/src/app/alt_graph.rs": {
       "amante": "5f9bfa51a8acc8303e7d2366d30daa6596a243751d6d17799cade32693a9fd1f",
@@ -29820,6 +29876,10 @@
     "crates/aurora-viewer/src/app/avatar_health.rs": {
       "amante": "3600ac430f6d5553f420c257431242b4b93ad9558ff2e4b5f479ed11343fd3d5",
       "upstream": "3600ac430f6d5553f420c257431242b4b93ad9558ff2e4b5f479ed11343fd3d5"
+    },
+    "crates/aurora-viewer/src/app/avatar_reload.rs": {
+      "amante": "af0dbac9aa5c8e81ac01b446cbbae61161fb56013dd68eaf1547dec2e8fe7386",
+      "upstream": "af0dbac9aa5c8e81ac01b446cbbae61161fb56013dd68eaf1547dec2e8fe7386"
     },
     "crates/aurora-viewer/src/app/avatar_render_settings.rs": {
       "amante": "b636c29e3cf7d9b49c132376ff6a349fd5e9984d4146b9ff6f26a0d3e14be347",
@@ -29890,8 +29950,8 @@
       "upstream": "ce6fdcbdb8a30635b3e4de21b7315d927accc72b3498f013b677b1723f61514d"
     },
     "crates/aurora-viewer/src/app/context_menu.rs": {
-      "amante": "8c00e3e1a9f23b5dbe3a08157fa9ebdd121d371206409ab8c985996526a6f281",
-      "upstream": "8c00e3e1a9f23b5dbe3a08157fa9ebdd121d371206409ab8c985996526a6f281"
+      "amante": "f06e3428f3db2cea061c62695190b104f34c5d6ba5d8f92f6a179ddd5226c1a5",
+      "upstream": "f06e3428f3db2cea061c62695190b104f34c5d6ba5d8f92f6a179ddd5226c1a5"
     },
     "crates/aurora-viewer/src/app/controls.rs": {
       "amante": "b194e1f3bf9e5763b343d7c77730127698c4f6c72aa3f9f770c21135297d6ff9",
@@ -29910,8 +29970,8 @@
       "upstream": "dc93ca1f22ce33015bb7221f155d76e6163c3b8e8325ff865a9208bfdd26e2cd"
     },
     "crates/aurora-viewer/src/app/derender.rs": {
-      "amante": "5de90821d32756b7a577f047f0bdd678c8ae4b0969249b5b66062fb0f0768d9d",
-      "upstream": "5de90821d32756b7a577f047f0bdd678c8ae4b0969249b5b66062fb0f0768d9d"
+      "amante": "1e292a9cb1cd44edb854e0dca465243dd94af5982ba642a5233de9064569a61f",
+      "upstream": "1e292a9cb1cd44edb854e0dca465243dd94af5982ba642a5233de9064569a61f"
     },
     "crates/aurora-viewer/src/app/describe.rs": {
       "amante": "5cae05ae8880092aa905c7a30d143e7b5cae86b5b1eb53178f1437a5164e90c2",
@@ -29942,8 +30002,8 @@
       "upstream": "107f81193cfad32410be77d51a0f945776c9b2658f8cf125d9eda23ade6a0c2d"
     },
     "crates/aurora-viewer/src/app/env_apply.rs": {
-      "amante": "2802e5975b5d40d54fb39155ad4c5a352b9c560b34bcc79024ec43a5c657b9f6",
-      "upstream": "2802e5975b5d40d54fb39155ad4c5a352b9c560b34bcc79024ec43a5c657b9f6"
+      "amante": "d9f0d3db5751e5feb5d09114f3cf8d4f3baceace7f3e2bf0eea22758e2787234",
+      "upstream": "d9f0d3db5751e5feb5d09114f3cf8d4f3baceace7f3e2bf0eea22758e2787234"
     },
     "crates/aurora-viewer/src/app/env_day_editor.rs": {
       "amante": "0220d38e71748a224d14722da8617acce203d270f8f9ee32f55682054e6d9a25",
@@ -30002,24 +30062,24 @@
       "upstream": "0b07be3a1c92e9530bde62084fdd2fac65dc9888015f6acb9f77f87f38f18dd1"
     },
     "crates/aurora-viewer/src/app/hover_tips.rs": {
-      "amante": "4bac86ce5bbbd70402a79c0c2ff760103532d3c36ec74272ff8a1fd377451182",
-      "upstream": "4bac86ce5bbbd70402a79c0c2ff760103532d3c36ec74272ff8a1fd377451182"
+      "amante": "7526243d5bba498e75fd9b7499f9ddad4b2a1896cf67cb3ab95dac31bcf190a6",
+      "upstream": "7526243d5bba498e75fd9b7499f9ddad4b2a1896cf67cb3ab95dac31bcf190a6"
     },
     "crates/aurora-viewer/src/app/hud_drag.rs": {
       "amante": "cc4be5076c3eb9b4cd90c37e7afa97efe21c59ce446fcfb3166df9370a6c3096",
       "upstream": "cc4be5076c3eb9b4cd90c37e7afa97efe21c59ce446fcfb3166df9370a6c3096"
     },
     "crates/aurora-viewer/src/app/imports.rs": {
-      "amante": "4aeb4095a57dfb859a25f532502db4126e3049878174bbd1932a34be2c438ca1",
-      "upstream": "4aeb4095a57dfb859a25f532502db4126e3049878174bbd1932a34be2c438ca1"
+      "amante": "71efaff48d5cccc8b470fb17b8773325ec31c45449d6c6a4b2e91e5b3f87748f",
+      "upstream": "71efaff48d5cccc8b470fb17b8773325ec31c45449d6c6a4b2e91e5b3f87748f"
     },
     "crates/aurora-viewer/src/app/inspect.rs": {
       "amante": "893ca6f3a87bd505bbd46196c114f04725c7c1274b301b82910d11b65e48b142",
       "upstream": "893ca6f3a87bd505bbd46196c114f04725c7c1274b301b82910d11b65e48b142"
     },
     "crates/aurora-viewer/src/app/inventory.rs": {
-      "amante": "7f4c148ac96fb485d8bea9b9884b405dfd77efbfa8c6bccf4513118024c28b02",
-      "upstream": "7f4c148ac96fb485d8bea9b9884b405dfd77efbfa8c6bccf4513118024c28b02"
+      "amante": "b1795607c9b920209ee653ba1bcfc442168b9d1ef35600c1a869afebe7a67147",
+      "upstream": "b1795607c9b920209ee653ba1bcfc442168b9d1ef35600c1a869afebe7a67147"
     },
     "crates/aurora-viewer/src/app/inventory_drag.rs": {
       "amante": "aa03effe4f055d7bf70e84f8cd53ad386c4411bdbf7a581e4e7c402a9373f987",
@@ -30038,8 +30098,8 @@
       "upstream": "62a5b3ba4c56566d1e33c7aa39f8e0af9cf8b992d6de3dbc88c5f86b6130a984"
     },
     "crates/aurora-viewer/src/app/land_moderation.rs": {
-      "amante": "3531cc2cb3462e5b60a3d86ba74d2198bbb88de4b057b9907df53e4834e0c0e5",
-      "upstream": "3531cc2cb3462e5b60a3d86ba74d2198bbb88de4b057b9907df53e4834e0c0e5"
+      "amante": "52d2cead5d47f566ac3d203fce5500855516eca4ce197d86f79ca2cd9ccb97a4",
+      "upstream": "52d2cead5d47f566ac3d203fce5500855516eca4ce197d86f79ca2cd9ccb97a4"
     },
     "crates/aurora-viewer/src/app/land_rights.rs": {
       "amante": "c0fd6129f642c713258cbcfefae6154d1500fcf5e1d8d953fa799d4c97849955",
@@ -30054,8 +30114,8 @@
       "upstream": "d2f5b739029265131303612d21fb0c69e83ca726e546d6f2442eb9f6fc6647cf"
     },
     "crates/aurora-viewer/src/app/marketplace_listings.rs": {
-      "amante": "77f0bd8d602476039aa7866decab76945eddfb44271198d8fa5eb795d447fdf9",
-      "upstream": "77f0bd8d602476039aa7866decab76945eddfb44271198d8fa5eb795d447fdf9"
+      "amante": "260fd2ffba980ee044e548e22d692a2e28d0f75b651b8036b3353a75a82eea60",
+      "upstream": "260fd2ffba980ee044e548e22d692a2e28d0f75b651b8036b3353a75a82eea60"
     },
     "crates/aurora-viewer/src/app/media_pack.rs": {
       "amante": "36ccc30b5c3ba4b7cd012a05129a860ddd185c5054e60986b9a08c4ec3e6f2c1",
@@ -30066,8 +30126,8 @@
       "upstream": "9b8e93506d6bd4a6f7f35187716d582e5ff5c24b1ab6c7c455478d261467d8bc"
     },
     "crates/aurora-viewer/src/app/monitor.rs": {
-      "amante": "7a7459eec88be440617b53de202bde442d6a5e1ead8c06f5ac402229e963b7f1",
-      "upstream": "7a7459eec88be440617b53de202bde442d6a5e1ead8c06f5ac402229e963b7f1"
+      "amante": "3931ad3ed5afbb97204bc3c7de883f3c100e942ea28f443f3aef753061dc9e83",
+      "upstream": "3931ad3ed5afbb97204bc3c7de883f3c100e942ea28f443f3aef753061dc9e83"
     },
     "crates/aurora-viewer/src/app/movelock.rs": {
       "amante": "6aa66f2db507abcf1b5bff31b5d540db47b51f8a5761390da2c76110850ac929",
@@ -30082,8 +30142,8 @@
       "upstream": "29c382f1f677807fee8c253531ce7320205498f77067e3afb7fde39d581e5e9c"
     },
     "crates/aurora-viewer/src/app/object_menu.rs": {
-      "amante": "53f9bb2d83ca4db87bd2a60f963f263ec70f8780b1605748ee94b0997d0f1cc3",
-      "upstream": "53f9bb2d83ca4db87bd2a60f963f263ec70f8780b1605748ee94b0997d0f1cc3"
+      "amante": "b457f4e58f91439c680684b8eb956cc9cd995a9c12d353c5c42396bc59168def",
+      "upstream": "b457f4e58f91439c680684b8eb956cc9cd995a9c12d353c5c42396bc59168def"
     },
     "crates/aurora-viewer/src/app/object_menu_demo.rs": {
       "amante": "82d7de87f0a42a9b01b566b65a1b6ee1a504693655b615491c56e6d81d5ea4b2",
@@ -30106,8 +30166,8 @@
       "upstream": "ce29cc2bfea43fff46bb9c7b537cd08d659b0266a7862d546a0587b7faa8725d"
     },
     "crates/aurora-viewer/src/app/parcel_music.rs": {
-      "amante": "d6d72b9ca55d63952528cacc1c4480f246d0552e7902f1eb6e618eaed2c0239b",
-      "upstream": "d6d72b9ca55d63952528cacc1c4480f246d0552e7902f1eb6e618eaed2c0239b"
+      "amante": "19e1fab5112dbe05d132d0be153bc4ff1c5986d7cc1bcc1f1be99be81caf3cd5",
+      "upstream": "19e1fab5112dbe05d132d0be153bc4ff1c5986d7cc1bcc1f1be99be81caf3cd5"
     },
     "crates/aurora-viewer/src/app/particle_editor.rs": {
       "amante": "4252fbd7193937b28018dd021225f7dcb113a9bcb0ccc509913aeda324828249",
@@ -30154,8 +30214,8 @@
       "upstream": "559076117afd48274011d90d294bc89792effc38bf477627a07eca7d3b5c07f9"
     },
     "crates/aurora-viewer/src/app/poser.rs": {
-      "amante": "b9c6b6f6c5aeb60ebfcc922bbcfea7a0810530d8131be5b7aee4f83b8f5ce93f",
-      "upstream": "b9c6b6f6c5aeb60ebfcc922bbcfea7a0810530d8131be5b7aee4f83b8f5ce93f"
+      "amante": "f875ab1af4d09ea5451b61c2f530bce0d6913329132be23a14db1b4b014f27ac",
+      "upstream": "f875ab1af4d09ea5451b61c2f530bce0d6913329132be23a14db1b4b014f27ac"
     },
     "crates/aurora-viewer/src/app/quick_prefs.rs": {
       "amante": "4760c7ff0e375af46ece8c1ba57fed2673a48467066fb38455ef7526fdf89fbb",
@@ -30169,9 +30229,17 @@
       "amante": "94337de9463eca4b6849926a9a8607911f387ba4c71ec29d807976c9161a5853",
       "upstream": "94337de9463eca4b6849926a9a8607911f387ba4c71ec29d807976c9161a5853"
     },
+    "crates/aurora-viewer/src/app/release_keys.rs": {
+      "amante": "3473322269a31b441981d796a89a726b69ea8cb421dbf53648b2b9ab3e3683bc",
+      "upstream": "3473322269a31b441981d796a89a726b69ea8cb421dbf53648b2b9ab3e3683bc"
+    },
     "crates/aurora-viewer/src/app/relogin.rs": {
-      "amante": "1540984fd20978f6ef704042e7605511a5249a70f068dce94915924acdc6c305",
-      "upstream": "1540984fd20978f6ef704042e7605511a5249a70f068dce94915924acdc6c305"
+      "amante": "e9b6adda1632b49a11c3470f9fa36715ee9d47aa0f532ae6b7da55706bd5d74b",
+      "upstream": "e9b6adda1632b49a11c3470f9fa36715ee9d47aa0f532ae6b7da55706bd5d74b"
+    },
+    "crates/aurora-viewer/src/app/render_info.rs": {
+      "amante": "c325b488b5c18af758b6e5181e32078ccfe5c75164fe3ffc9964af1d719a6d06",
+      "upstream": "c325b488b5c18af758b6e5181e32078ccfe5c75164fe3ffc9964af1d719a6d06"
     },
     "crates/aurora-viewer/src/app/report_abuse.rs": {
       "amante": "da00c9355bfe3658db55a1afd3a08a9f3ccb8b50d9f7285f42a4b2190afbd493",
@@ -30197,25 +30265,29 @@
       "amante": "7d362563641117dcebee9421284d6378073cbb7dd93b4b9cfbc121b9d8afb11a",
       "upstream": "7d362563641117dcebee9421284d6378073cbb7dd93b4b9cfbc121b9d8afb11a"
     },
+    "crates/aurora-viewer/src/app/script_recovery.rs": {
+      "amante": "43f2083728a0a1dffa9405a5702a2b5881c0b54da05b50d6f83715d33e93a3d0",
+      "upstream": "43f2083728a0a1dffa9405a5702a2b5881c0b54da05b50d6f83715d33e93a3d0"
+    },
     "crates/aurora-viewer/src/app/scripts.rs": {
-      "amante": "5b9b7dd7c62e34cbcdcb0d84cde975d19f39cbb6c013e4b2c49cbcb5a38abf3c",
-      "upstream": "5b9b7dd7c62e34cbcdcb0d84cde975d19f39cbb6c013e4b2c49cbcb5a38abf3c"
+      "amante": "7f8267f8100a8d68f3d3e14f05d368993536d205db5c1cc464a0e09cc4295ea4",
+      "upstream": "7f8267f8100a8d68f3d3e14f05d368993536d205db5c1cc464a0e09cc4295ea4"
     },
     "crates/aurora-viewer/src/app/settings_backup.rs": {
       "amante": "9373047699599299dff84f254091495742e32c8951382bea3877d1b6ed9f3baa",
       "upstream": "9373047699599299dff84f254091495742e32c8951382bea3877d1b6ed9f3baa"
     },
     "crates/aurora-viewer/src/app/shape_editor.rs": {
-      "amante": "05369e91ac1119f355f4523edf06ceda736203d5e82f0b6f64911db4ae0c85c4",
-      "upstream": "05369e91ac1119f355f4523edf06ceda736203d5e82f0b6f64911db4ae0c85c4"
+      "amante": "25394172d41d8ba26eca5d715aab9fc62b87409b29685e5487d02ae0f35734fc",
+      "upstream": "25394172d41d8ba26eca5d715aab9fc62b87409b29685e5487d02ae0f35734fc"
     },
     "crates/aurora-viewer/src/app/shortcuts.rs": {
       "amante": "0899ade448e22a4ef0d13b00d4de71a89bac35dea39a04d664350e7e1112eda4",
       "upstream": "0899ade448e22a4ef0d13b00d4de71a89bac35dea39a04d664350e7e1112eda4"
     },
     "crates/aurora-viewer/src/app/snapshot.rs": {
-      "amante": "63e1aa422c1d37f6a67cc991ac4556cc0c3a4e2e03ae2d1e637ab971e66adf72",
-      "upstream": "63e1aa422c1d37f6a67cc991ac4556cc0c3a4e2e03ae2d1e637ab971e66adf72"
+      "amante": "b73671f7929357ff787b435d1b2bd204c4ab87f396ad033f51fdf20bf9dcba3c",
+      "upstream": "b73671f7929357ff787b435d1b2bd204c4ab87f396ad033f51fdf20bf9dcba3c"
     },
     "crates/aurora-viewer/src/app/social_menu_demo.rs": {
       "amante": "57949f6a4c6adcd0df26db7c0872955827e1f6c58774a4f497df66a9babfb8b7",
@@ -30234,8 +30306,8 @@
       "upstream": "07c6ecc4ca1a959fc1b8c354d4dfd75d787074d8b6e5841d222e7d67b5066bb4"
     },
     "crates/aurora-viewer/src/app/task_notecards.rs": {
-      "amante": "e9c66a34d22aacf7443d95990c0b45dcac5cbf48d948c866b923788529381001",
-      "upstream": "e9c66a34d22aacf7443d95990c0b45dcac5cbf48d948c866b923788529381001"
+      "amante": "7410a0d9c226ff6902a1ee160807613d30857a46b06ffbcdfeb9d2f4770162fd",
+      "upstream": "7410a0d9c226ff6902a1ee160807613d30857a46b06ffbcdfeb9d2f4770162fd"
     },
     "crates/aurora-viewer/src/app/teleport_lookup.rs": {
       "amante": "d8bdca05d194d722fafaedb6e47721794b3aa375423bc84ceea83cfe06f8ed27",
@@ -30246,8 +30318,8 @@
       "upstream": "b9936ad8800dc578933a34a16d485eec99f665764ebb680da7bdbbb06a693546"
     },
     "crates/aurora-viewer/src/app/texture_library.rs": {
-      "amante": "00a8374912503ba2480d540b876f2a21216e4b54b700eb3afe9605d2296acbd0",
-      "upstream": "00a8374912503ba2480d540b876f2a21216e4b54b700eb3afe9605d2296acbd0"
+      "amante": "c9508409912aca2b5d7e6a5d071e30fbebb67cbfb3540d05b690c732c13b215b",
+      "upstream": "c9508409912aca2b5d7e6a5d071e30fbebb67cbfb3540d05b690c732c13b215b"
     },
     "crates/aurora-viewer/src/app/texture_picker.rs": {
       "amante": "0d2cac157930e2206c6574bde25673cc779438391c39b534a93d8b5c23f13a14",
@@ -30270,8 +30342,8 @@
       "upstream": "350fe43727e6c0ea434ddb37638d8a1ee419f09ebca96967d29a2968ee0fe3d5"
     },
     "crates/aurora-viewer/src/app/viewfinder.rs": {
-      "amante": "e6d79c643d87758b91f04d2e497fd8ad7efdbf9c1d667725f3e14fae4fd4ff99",
-      "upstream": "e6d79c643d87758b91f04d2e497fd8ad7efdbf9c1d667725f3e14fae4fd4ff99"
+      "amante": "e459fdc31f0ee2e96ebf2de93f41f1add3da54e0d59dfa32e3d0f80d3d123c1e",
+      "upstream": "e459fdc31f0ee2e96ebf2de93f41f1add3da54e0d59dfa32e3d0f80d3d123c1e"
     },
     "crates/aurora-viewer/src/app/wearable_editor.rs": {
       "amante": "7b192d1d9550fd27aa211588fc0691050d4b745d844facd610c1a21829f980dc",
@@ -30282,16 +30354,16 @@
       "upstream": "24a9b0a2013bd557c3d7a1130f8b44a98742700af0fca754c22a9d68cb3eb2d0"
     },
     "crates/aurora-viewer/src/app/worn_demo.rs": {
-      "amante": "99261cdf73b098a9f206cd816099d1744d0d0bc9e75ab11ec852b12d2b557b36",
-      "upstream": "99261cdf73b098a9f206cd816099d1744d0d0bc9e75ab11ec852b12d2b557b36"
+      "amante": "5c1de7be244f94fff05e81d842548cdc9fe33cb2f3c44444cfa6ff1422b1f140",
+      "upstream": "5c1de7be244f94fff05e81d842548cdc9fe33cb2f3c44444cfa6ff1422b1f140"
     },
     "crates/aurora-viewer/src/atomic_file.rs": {
       "amante": "00175480c6b0b514f09b9f5a32c11fb77ec4032afdeb0d2a51c77e72f636e067",
       "upstream": "00175480c6b0b514f09b9f5a32c11fb77ec4032afdeb0d2a51c77e72f636e067"
     },
     "crates/aurora-viewer/src/autopilot.rs": {
-      "amante": "ea4aa6358ab2d74d86e7374ab32a9ffe953d47a060edcc40c9bdd1c8e0d05db9",
-      "upstream": "ea4aa6358ab2d74d86e7374ab32a9ffe953d47a060edcc40c9bdd1c8e0d05db9"
+      "amante": "fc5b680b0a0639ecf427e36aa34260ef9d097aaac2817cfe2c45e3c69286d906",
+      "upstream": "fc5b680b0a0639ecf427e36aa34260ef9d097aaac2817cfe2c45e3c69286d906"
     },
     "crates/aurora-viewer/src/autoreplace.rs": {
       "amante": "36a4a2b869e46cb224009fa2b6caae36fcdb4c0b7f1b3c971138b0927453cbc0",
@@ -30381,6 +30453,14 @@
       "amante": "a05e4870bb5f59c3c49b18ef1713672290d9ad5fa7313eb18f967eb09f3f5131",
       "upstream": "a05e4870bb5f59c3c49b18ef1713672290d9ad5fa7313eb18f967eb09f3f5131"
     },
+    "crates/aurora-viewer/src/build/admin.rs": {
+      "amante": "393d31cd9e60ce1df8a083b277919b302c6951143e7d0cc69cff144de930ddc3",
+      "upstream": "393d31cd9e60ce1df8a083b277919b302c6951143e7d0cc69cff144de930ddc3"
+    },
+    "crates/aurora-viewer/src/build/admin_tests.rs": {
+      "amante": "37eacf25fef1c18fdb367bdd7f475d4f06e879399369c6506034f254a88b8e3b",
+      "upstream": "37eacf25fef1c18fdb367bdd7f475d4f06e879399369c6506034f254a88b8e3b"
+    },
     "crates/aurora-viewer/src/build/align.rs": {
       "amante": "c13759565707e43a23aa189a1dc2f8e36ca15e7dbb37c1718e2e0001120e815d",
       "upstream": "c13759565707e43a23aa189a1dc2f8e36ca15e7dbb37c1718e2e0001120e815d"
@@ -30390,8 +30470,8 @@
       "upstream": "871c55de2a83fbad95f75f3348473942be81d425b24c2f08e02abde9fdb5ca2c"
     },
     "crates/aurora-viewer/src/build/contents.rs": {
-      "amante": "831cf8230cee92d2f5f4c7cb877bb4a016a14abed6e76e817bcdbe52c504d243",
-      "upstream": "831cf8230cee92d2f5f4c7cb877bb4a016a14abed6e76e817bcdbe52c504d243"
+      "amante": "b2983ea76672ca1847b3a6fc01308d660e3ce96bd4d4977b1eb4ee719e7c5579",
+      "upstream": "b2983ea76672ca1847b3a6fc01308d660e3ce96bd4d4977b1eb4ee719e7c5579"
     },
     "crates/aurora-viewer/src/build/contents_drop.rs": {
       "amante": "81accc13190cf31ffe56a7fc74d513c968f213128a5c0b82b40eb8ab9763dc33",
@@ -30410,8 +30490,8 @@
       "upstream": "12788f1880941dc7df4659325e071699b709d3e65e1f634ef2f6253c9677121f"
     },
     "crates/aurora-viewer/src/build/demo.rs": {
-      "amante": "9a63bdf039fe309936e8807c2a1f2d7261e3664c37d0d4214daea7edb624ea99",
-      "upstream": "9a63bdf039fe309936e8807c2a1f2d7261e3664c37d0d4214daea7edb624ea99"
+      "amante": "55df2dd1b98f1ea1627ba90864ed65708a4c78a9736d56188852777a705edec8",
+      "upstream": "55df2dd1b98f1ea1627ba90864ed65708a4c78a9736d56188852777a705edec8"
     },
     "crates/aurora-viewer/src/build/demo_sim.rs": {
       "amante": "72735fbc17a0a67ed0c57ec43a8b17395726d2dfe45c6af38931b37fb14865ef",
@@ -30446,12 +30526,12 @@
       "upstream": "2d08f6ca97195a2e8f67f45d52cabedfd162135796ef5893e37e879ecd411254"
     },
     "crates/aurora-viewer/src/build/layout.rs": {
-      "amante": "f626e89052652a46f2021028d8a8f72d24aa456351f92ec2d7868e7dc3d110fc",
-      "upstream": "f626e89052652a46f2021028d8a8f72d24aa456351f92ec2d7868e7dc3d110fc"
+      "amante": "3da0c95365bdcc45f66fda9886e42a2f53882346117030b25d52107286c32fbb",
+      "upstream": "3da0c95365bdcc45f66fda9886e42a2f53882346117030b25d52107286c32fbb"
     },
     "crates/aurora-viewer/src/build/linking.rs": {
-      "amante": "36575b6d2c767b844183ddcdca4100c36d27ab1bf084a0659ac0e9ae33d1711b",
-      "upstream": "36575b6d2c767b844183ddcdca4100c36d27ab1bf084a0659ac0e9ae33d1711b"
+      "amante": "6220b1e0a2014bd5b81618467ca32988eb0b4cf13b1f87ad476666d9053ead34",
+      "upstream": "6220b1e0a2014bd5b81618467ca32988eb0b4cf13b1f87ad476666d9053ead34"
     },
     "crates/aurora-viewer/src/build/linking/tests.rs": {
       "amante": "731db6ebf368ec9d516f788fc94695cbfb2e137d9c510f3c0a5e5d97b6e74869",
@@ -30470,8 +30550,8 @@
       "upstream": "bfecc34f5bc16b36009ee3b423fd5865388c7739e38c51289492b3394385fa65"
     },
     "crates/aurora-viewer/src/build/mod.rs": {
-      "amante": "adecb02f029426cdf5797c29a80cea617e82373ee678787899e03ba3eba16cb5",
-      "upstream": "adecb02f029426cdf5797c29a80cea617e82373ee678787899e03ba3eba16cb5"
+      "amante": "7cb1baedde2cda19963beadf8e39555e657058234d4de3a01f6378454d90e93c",
+      "upstream": "7cb1baedde2cda19963beadf8e39555e657058234d4de3a01f6378454d90e93c"
     },
     "crates/aurora-viewer/src/build/new_defaults.rs": {
       "amante": "5ee38eaf41020a08d5ff01d57587d676a54ba55b563a272c72526a39bb1cae43",
@@ -30482,8 +30562,8 @@
       "upstream": "081ad963f2286078e03bd3081164f72a344b10b6fef774085faf901a3cf4a6c4"
     },
     "crates/aurora-viewer/src/build/object_snap_tests.rs": {
-      "amante": "7f42046ec2982fd0df318291214f0d3c4905e39346adcdfcd4f1713414a32eae",
-      "upstream": "7f42046ec2982fd0df318291214f0d3c4905e39346adcdfcd4f1713414a32eae"
+      "amante": "e21fbc2059446934b06af0667d85965467a7ecc5b083d87425efdd71fa43b7f7",
+      "upstream": "e21fbc2059446934b06af0667d85965467a7ecc5b083d87425efdd71fa43b7f7"
     },
     "crates/aurora-viewer/src/build/particle_editor.rs": {
       "amante": "8e045d5a4df5139294f6f1cd8075e5464bde6b7e61ddf17c5e0d1ac0ee0ccc7c",
@@ -30498,8 +30578,8 @@
       "upstream": "08a372897ace1cf59e95f04b72880f212894d55815940e28800c89f393d8ec50"
     },
     "crates/aurora-viewer/src/build/replace.rs": {
-      "amante": "9551b8978ad621202af4515e5c7f79e96ed7a9833fcc55b252d3b304bb7d5f78",
-      "upstream": "9551b8978ad621202af4515e5c7f79e96ed7a9833fcc55b252d3b304bb7d5f78"
+      "amante": "e829dd19efb638339d896b09cbaf1cc6f6711118ecbf7a223b4592acd237f0db",
+      "upstream": "e829dd19efb638339d896b09cbaf1cc6f6711118ecbf7a223b4592acd237f0db"
     },
     "crates/aurora-viewer/src/build/replace/demo.rs": {
       "amante": "d5e013bc0c340849d5b54ee9d36bd955698adb83d54674fdf69dd84f5882c37d",
@@ -30518,8 +30598,8 @@
       "upstream": "d55b5d440a74dc1c5927b79a95eb633f10e108a76c540dcb4bc37b2154e85346"
     },
     "crates/aurora-viewer/src/build/selection_tests.rs": {
-      "amante": "f744df3bcafc568d161ea909dd66651fcead73044d90633966112bc117801957",
-      "upstream": "f744df3bcafc568d161ea909dd66651fcead73044d90633966112bc117801957"
+      "amante": "1126f54c2a289d56ace26d5d14adebf00b9b924a75479ea4d9bcc82bfce475d5",
+      "upstream": "1126f54c2a289d56ace26d5d14adebf00b9b924a75479ea4d9bcc82bfce475d5"
     },
     "crates/aurora-viewer/src/build/shapes.rs": {
       "amante": "b25d7253d2448c14541861d8e24e76fd8996776a4bd9e62edba7f94721fdbd2f",
@@ -30554,24 +30634,24 @@
       "upstream": "945a4d97e8ef5aa82467c2f3ebf5ba67ecbd90da5663d0075be25f5dd58835b8"
     },
     "crates/aurora-viewer/src/build/ui/common.rs": {
-      "amante": "10d74b936532a84efb88b5ad8dd88276163c93038172744e502ddb9dd9d033ee",
-      "upstream": "10d74b936532a84efb88b5ad8dd88276163c93038172744e502ddb9dd9d033ee"
+      "amante": "6e61ab73627349a9cf101bab768875699bc738ae25be45c9d08dc2c236c1d426",
+      "upstream": "6e61ab73627349a9cf101bab768875699bc738ae25be45c9d08dc2c236c1d426"
     },
     "crates/aurora-viewer/src/build/ui/compact.rs": {
-      "amante": "04a15a31af459fafb5c2dc536054fe7d93b0bdf2d58b422e701f8de311ed30ae",
-      "upstream": "04a15a31af459fafb5c2dc536054fe7d93b0bdf2d58b422e701f8de311ed30ae"
+      "amante": "5cb25a66fce85bdaabd83cdef467af4bb1afb19a91fac41f1955753cd7914c98",
+      "upstream": "5cb25a66fce85bdaabd83cdef467af4bb1afb19a91fac41f1955753cd7914c98"
     },
     "crates/aurora-viewer/src/build/ui/compact_tests.rs": {
-      "amante": "824013c8797b5982c2db538e6cd24f49e059aec756c6344fc0461cf63b4c905e",
-      "upstream": "824013c8797b5982c2db538e6cd24f49e059aec756c6344fc0461cf63b4c905e"
+      "amante": "f0b540179407910f79bff562af4a439dff9406bf7e0ffcf88e5c7507f2eb00b6",
+      "upstream": "f0b540179407910f79bff562af4a439dff9406bf7e0ffcf88e5c7507f2eb00b6"
     },
     "crates/aurora-viewer/src/build/ui/contents.rs": {
-      "amante": "9ab1162436c0d460c21efa96208433575b6f4568141a35e3f35deedb27b593a3",
-      "upstream": "9ab1162436c0d460c21efa96208433575b6f4568141a35e3f35deedb27b593a3"
+      "amante": "c5d7993972ac19345d5c01f73601af5a128f1eee6ae483430c3816a6afd187e3",
+      "upstream": "c5d7993972ac19345d5c01f73601af5a128f1eee6ae483430c3816a6afd187e3"
     },
     "crates/aurora-viewer/src/build/ui/contents_keyboard_tests.rs": {
-      "amante": "92647bcb080509054ad90610f459e249fd574521efe49cafe7bdaa68bd65594d",
-      "upstream": "92647bcb080509054ad90610f459e249fd574521efe49cafe7bdaa68bd65594d"
+      "amante": "4e187bf9e08aa7cb340182970f7693bef8d572e3152362246d852c88f2c03b46",
+      "upstream": "4e187bf9e08aa7cb340182970f7693bef8d572e3152362246d852c88f2c03b46"
     },
     "crates/aurora-viewer/src/build/ui/contents_permissions.rs": {
       "amante": "3c71ae136fab169cf5689d3a757a3a751f320767ecd0da1a6c8ff02c8a76c4ec",
@@ -30586,32 +30666,32 @@
       "upstream": "c7a53ef044e912580e9a9f64143ae3234c27e5863bb8f75689970ad4b848ae0d"
     },
     "crates/aurora-viewer/src/build/ui/features.rs": {
-      "amante": "4937c189da75e6fbe61092d0a46c7462b1e046ff67fb65ed5543fee02021c530",
-      "upstream": "4937c189da75e6fbe61092d0a46c7462b1e046ff67fb65ed5543fee02021c530"
+      "amante": "0340d97569032361f31975ba39bde2e945dffcc263556822a30d4dc00bc976ad",
+      "upstream": "0340d97569032361f31975ba39bde2e945dffcc263556822a30d4dc00bc976ad"
     },
     "crates/aurora-viewer/src/build/ui/floaters.rs": {
       "amante": "567050da1e86c74b01477cc9fbf226292bcec8b73cf072e2908848e8d5938e1d",
       "upstream": "567050da1e86c74b01477cc9fbf226292bcec8b73cf072e2908848e8d5938e1d"
     },
     "crates/aurora-viewer/src/build/ui/general.rs": {
-      "amante": "ca41652e3f5afcd2f172bd9430ff9ace14b51386823441a757a0f56a1b9cae32",
-      "upstream": "ca41652e3f5afcd2f172bd9430ff9ace14b51386823441a757a0f56a1b9cae32"
+      "amante": "c6f12ed3ea5530354ecfc4972cfeec5e9b6254da1603a79185f1bf467b165c7c",
+      "upstream": "c6f12ed3ea5530354ecfc4972cfeec5e9b6254da1603a79185f1bf467b165c7c"
     },
     "crates/aurora-viewer/src/build/ui/item_properties.rs": {
-      "amante": "f408c2e297f07909ee9675a97c6d75352a754e6e804fef9e3db2665e6624dbee",
-      "upstream": "f408c2e297f07909ee9675a97c6d75352a754e6e804fef9e3db2665e6624dbee"
+      "amante": "745450ad0122e1ae1c40694e6b3fee451b6cad751e21c4e7078597a1dcdcb009",
+      "upstream": "745450ad0122e1ae1c40694e6b3fee451b6cad751e21c4e7078597a1dcdcb009"
     },
     "crates/aurora-viewer/src/build/ui/keyboard.rs": {
       "amante": "7bc1133be99e7b1270d99eefee88abfdd94d35f265228196c7df9c59a5fed60a",
       "upstream": "7bc1133be99e7b1270d99eefee88abfdd94d35f265228196c7df9c59a5fed60a"
     },
     "crates/aurora-viewer/src/build/ui/layout.rs": {
-      "amante": "ac2c1d969bd08602fd87b7752f0b18382a3c7c4514774175ea6ac24e941b9632",
-      "upstream": "ac2c1d969bd08602fd87b7752f0b18382a3c7c4514774175ea6ac24e941b9632"
+      "amante": "845adf54e6192d2c0ad116bc7cf26b3c5b49f31d0b80e0294ba3c603de107deb",
+      "upstream": "845adf54e6192d2c0ad116bc7cf26b3c5b49f31d0b80e0294ba3c603de107deb"
     },
     "crates/aurora-viewer/src/build/ui/layout_tests.rs": {
-      "amante": "355632876763c2bab8679fcb246aa49bfde39c7d44d68a29596de47ec01aebee",
-      "upstream": "355632876763c2bab8679fcb246aa49bfde39c7d44d68a29596de47ec01aebee"
+      "amante": "c75fff9924b1cd270e0bff0e5923da465a250e95bd15a1ea68624358af9dac2d",
+      "upstream": "c75fff9924b1cd270e0bff0e5923da465a250e95bd15a1ea68624358af9dac2d"
     },
     "crates/aurora-viewer/src/build/ui/legacy.rs": {
       "amante": "7ed19ff0706cee8352adca2c163da9099a99cbfb0edc5aa876043c679f2ba399",
@@ -30630,24 +30710,24 @@
       "upstream": "111643782d87a8b5619688016a28b99d9b0aece6e967393ff73f5a6129dbda40"
     },
     "crates/aurora-viewer/src/build/ui/mod.rs": {
-      "amante": "795824d577bd888c9b7592b14a770cfc69ac5ae6dc62bb7e0fac226d2a80d37f",
-      "upstream": "795824d577bd888c9b7592b14a770cfc69ac5ae6dc62bb7e0fac226d2a80d37f"
+      "amante": "b1115ba9f004ea99643d8fcb8a3740a40b6b9b48ab0034798b179e9785550706",
+      "upstream": "b1115ba9f004ea99643d8fcb8a3740a40b6b9b48ab0034798b179e9785550706"
     },
     "crates/aurora-viewer/src/build/ui/notecards.rs": {
       "amante": "1b39513f720ec83dff3f8dd4ff189be077dc7593d4d8ff80108a4b6128d6d11c",
       "upstream": "1b39513f720ec83dff3f8dd4ff189be077dc7593d4d8ff80108a4b6128d6d11c"
     },
     "crates/aurora-viewer/src/build/ui/object.rs": {
-      "amante": "4d84984074aa1edc1fe4e53d841167981adb2deee9d84c425a068c6f86d0c87a",
-      "upstream": "4d84984074aa1edc1fe4e53d841167981adb2deee9d84c425a068c6f86d0c87a"
+      "amante": "2c645ade2ecd76ade3d673a738110a3f1083bb9272e2c03bee64502d1ba1f34d",
+      "upstream": "2c645ade2ecd76ade3d673a738110a3f1083bb9272e2c03bee64502d1ba1f34d"
     },
     "crates/aurora-viewer/src/build/ui/particles.rs": {
       "amante": "e1d9e8050d620a49acd2ebc31f14db17759487a353ce7b6c109dc7f0076383ca",
       "upstream": "e1d9e8050d620a49acd2ebc31f14db17759487a353ce7b6c109dc7f0076383ca"
     },
     "crates/aurora-viewer/src/build/ui/replace.rs": {
-      "amante": "91d3850abfbb756a455be86b9fb6bf01685b844b501b133c6e4c15ce966a9075",
-      "upstream": "91d3850abfbb756a455be86b9fb6bf01685b844b501b133c6e4c15ce966a9075"
+      "amante": "f4ffd1b18994e1e2f96d0f752317416cce83654a7f2933d20985821045600dbf",
+      "upstream": "f4ffd1b18994e1e2f96d0f752317416cce83654a7f2933d20985821045600dbf"
     },
     "crates/aurora-viewer/src/build/ui/shape_preview.rs": {
       "amante": "815306ad5cc76370fb4ad1258586913cad910522aef989df4d923f0269c9474f",
@@ -30678,8 +30758,8 @@
       "upstream": "d398a2722e872f124b094a8b7b422cd30728a2e4445d23da70e929ef2f4a2aad"
     },
     "crates/aurora-viewer/src/build/ui/workspace.rs": {
-      "amante": "386f327029674cd9d4d0fc45d9d0254a454c712a6983e56e9e382abbf74cc418",
-      "upstream": "386f327029674cd9d4d0fc45d9d0254a454c712a6983e56e9e382abbf74cc418"
+      "amante": "54bcc99c620c127951205de7da032aafea479540218db43b921754428ec7a820",
+      "upstream": "54bcc99c620c127951205de7da032aafea479540218db43b921754428ec7a820"
     },
     "crates/aurora-viewer/src/build/worn_tests.rs": {
       "amante": "850af93d8db0fcdda92c6317cc409742a815511b070975822411c34920031eca",
@@ -30766,8 +30846,8 @@
       "upstream": "ed532aefb3b8fe6424d88677b3a31151ba60a47cc59dd4077fb07ab07b89dd45"
     },
     "crates/aurora-viewer/src/crash/mod.rs": {
-      "amante": "fe49688bfaf988ed336c2b73820fb35166c82e2fa8839aa6dfd29d3c816d5d1d",
-      "upstream": "fe49688bfaf988ed336c2b73820fb35166c82e2fa8839aa6dfd29d3c816d5d1d"
+      "amante": "3950a791088a7f91a1386b7ed19f775ab93c209b4b84b070787c3b59976e9163",
+      "upstream": "3950a791088a7f91a1386b7ed19f775ab93c209b4b84b070787c3b59976e9163"
     },
     "crates/aurora-viewer/src/crash/native.rs": {
       "amante": "61c4689ae3bf7af759490beb87968084cf8e5d2cabbeea1665ee93d60e6dc034",
@@ -30786,8 +30866,8 @@
       "upstream": "d91ad839f654fd69cfe12ace95b42b66ff893132a3a756205ec65c4f42f6729e"
     },
     "crates/aurora-viewer/src/crash/software.rs": {
-      "amante": "3b2933203b6f2f980663a36b47042b070f60b6204a8fd0339856d13c2f6dea24",
-      "upstream": "3b2933203b6f2f980663a36b47042b070f60b6204a8fd0339856d13c2f6dea24"
+      "amante": "149944ef9708cca6dbd5f7fb48b5b21e01d3f61863cf0118e816110b05e3beb7",
+      "upstream": "149944ef9708cca6dbd5f7fb48b5b21e01d3f61863cf0118e816110b05e3beb7"
     },
     "crates/aurora-viewer/src/crash/summary.rs": {
       "amante": "2363ce4a4e000df02caa20d6c8f26fa9c4c13366156c7def08a220917bd533f7",
@@ -30822,8 +30902,8 @@
       "upstream": "b1af9117e9d40c8e532f569b7dc14e1358a4b15151106da573e03cd472c5edf1"
     },
     "crates/aurora-viewer/src/demo.rs": {
-      "amante": "e3b04cfef790f6726012a6110b47fd4d9b77a5d467f4954c68451e0f3a7502a2",
-      "upstream": "53f5d4214ab304f2a6f2cea1cad441182a1b1521e66141783dcd35b7ff492057"
+      "amante": "eaf1f662782c2b867e950e6733013d66541c1f1a5c0fd129b375dc55067242a6",
+      "upstream": "3c52d8a544801d53187fb38d0a35415a8fef8a9275bd7456c3a9c44eee672539"
     },
     "crates/aurora-viewer/src/demo_aa_switch.rs": {
       "amante": "1e289e495062fcdbfedfbcd8a47fa3e66e50cf3328cb4b1d4e062a488f458ca0",
@@ -30842,8 +30922,8 @@
       "upstream": "b481e852c28c5c6f1124a3cb8346549bb3af6b941133d23d7cb4287a9dc93cec"
     },
     "crates/aurora-viewer/src/demo_anti_spam.rs": {
-      "amante": "9e73be4a52123c59d3f9d30f76bdf5ce6b967ece47e467077f697f8e14721956",
-      "upstream": "9e73be4a52123c59d3f9d30f76bdf5ce6b967ece47e467077f697f8e14721956"
+      "amante": "9c118cd431244e745e8d13d99b147ac50e711820f86e79ad4a9466eab528b9f5",
+      "upstream": "9c118cd431244e745e8d13d99b147ac50e711820f86e79ad4a9466eab528b9f5"
     },
     "crates/aurora-viewer/src/demo_arrival.rs": {
       "amante": "4c2ab6308c7a4f846bd0e34fb42a03d9c75865d208133d5585e5645f4833dd81",
@@ -30916,6 +30996,10 @@
     "crates/aurora-viewer/src/demo_delivery.rs": {
       "amante": "c2e73d55ae0c3dd6688dcacdb2c47473c907c6f967156c42207566928f76876c",
       "upstream": "c2e73d55ae0c3dd6688dcacdb2c47473c907c6f967156c42207566928f76876c"
+    },
+    "crates/aurora-viewer/src/demo_destinations.rs": {
+      "amante": "74a0e3fe9048de789e530937fc8220c42d274fb50479ca8ec868fb836c7584e9",
+      "upstream": "74a0e3fe9048de789e530937fc8220c42d274fb50479ca8ec868fb836c7584e9"
     },
     "crates/aurora-viewer/src/demo_eep.rs": {
       "amante": "9a68841b02ee8fa50361d4bbacd5ce0695a752b712065088c782fe942c7ceb5f",
@@ -30994,8 +31078,8 @@
       "upstream": "896e3bb5ab81f17c7d20907c61fe43d83f42a42a58be71020608c3d645eb1781"
     },
     "crates/aurora-viewer/src/demo_land.rs": {
-      "amante": "75049c177c9d84bdbe77c7f40c40c7808b7ac970df2fb8abbf210f673b80f776",
-      "upstream": "75049c177c9d84bdbe77c7f40c40c7808b7ac970df2fb8abbf210f673b80f776"
+      "amante": "b643c1cb58a4c06a33cd34f2015ee6ade3cf3cc7e2226d0aab3d075f77459c44",
+      "upstream": "b643c1cb58a4c06a33cd34f2015ee6ade3cf3cc7e2226d0aab3d075f77459c44"
     },
     "crates/aurora-viewer/src/demo_legacy_bump.rs": {
       "amante": "82ed6bae68f4efe639b1b62f1a1f952088f4ebf667301329bf647fe90b99c60c",
@@ -31014,12 +31098,12 @@
       "upstream": "a0d80292bd2129e8036c355ef990a2cb395b988eb1e2a82044b06f98442edc07"
     },
     "crates/aurora-viewer/src/demo_night_sky.rs": {
-      "amante": "0e7f2bf75549c6d75c98a249a662eb52a8fb5c0844dfd3cc1f2d1eb5ab4a2114",
-      "upstream": "0e7f2bf75549c6d75c98a249a662eb52a8fb5c0844dfd3cc1f2d1eb5ab4a2114"
+      "amante": "c718e17028a5bd13e44d9b6ccfa75b4a4e94f2d3a67289b422d5177ae54f327d",
+      "upstream": "c718e17028a5bd13e44d9b6ccfa75b4a4e94f2d3a67289b422d5177ae54f327d"
     },
     "crates/aurora-viewer/src/demo_notifs.rs": {
-      "amante": "4a7643cc8fee20753503cbd6766f4d353c863350243043e7499d1279d72196e1",
-      "upstream": "4a7643cc8fee20753503cbd6766f4d353c863350243043e7499d1279d72196e1"
+      "amante": "a331426aab9bd2ea40cc492762a433370d377de273898833d4038831f190585c",
+      "upstream": "a331426aab9bd2ea40cc492762a433370d377de273898833d4038831f190585c"
     },
     "crates/aurora-viewer/src/demo_object_chat.rs": {
       "amante": "09999e2c28526f1c18b2855450801217265bffaac4437a036dbd6032e968f196",
@@ -31046,8 +31130,8 @@
       "upstream": "9c53c966f92590a8f37e74c92ed6e80f4b59cf9cc9bf76d16d20c4d9b87eec78"
     },
     "crates/aurora-viewer/src/demo_people.rs": {
-      "amante": "a69589e4d49fcc2bd30e9329d892ffaab803cb861caae61f3954f172c00eed12",
-      "upstream": "a69589e4d49fcc2bd30e9329d892ffaab803cb861caae61f3954f172c00eed12"
+      "amante": "0ec4986a177110044f737f39ebb26c0498abc62b0f638e37288a683fc490dc08",
+      "upstream": "0ec4986a177110044f737f39ebb26c0498abc62b0f638e37288a683fc490dc08"
     },
     "crates/aurora-viewer/src/demo_physics.rs": {
       "amante": "b18e9ecb7be9bbcfc5528ba7239d14afa4fbea0bb48014626646b396e1f02acf",
@@ -31066,8 +31150,8 @@
       "upstream": "cec942ecd2d529c81decae2c2f26a14758f98e8a9bdb9b7fed39c4e3d2432c4f"
     },
     "crates/aurora-viewer/src/demo_poser.rs": {
-      "amante": "bb36c9eabde097782675f94b9d76e8b5911257cbcf7f70e4d41bfc645531568b",
-      "upstream": "bb36c9eabde097782675f94b9d76e8b5911257cbcf7f70e4d41bfc645531568b"
+      "amante": "f8a593bc59cdfb517cf4addd552c622edb3af44430bc5fb575255cd6e4e84e46",
+      "upstream": "f8a593bc59cdfb517cf4addd552c622edb3af44430bc5fb575255cd6e4e84e46"
     },
     "crates/aurora-viewer/src/demo_presence.rs": {
       "amante": "ec6646a501c755131c2e865366f1642f4b39d0cd40aca4547502e2bf4cf9e584",
@@ -31193,9 +31277,21 @@
       "amante": "932924f3e170d5f376fb5b4f4818b076b8bc9ae6ee22a1ddf4e9444295569158",
       "upstream": "932924f3e170d5f376fb5b4f4818b076b8bc9ae6ee22a1ddf4e9444295569158"
     },
+    "crates/aurora-viewer/src/demo_wet_layer.rs": {
+      "amante": "45527ade0b36c2b165cdc1343b238f815b0b1b63a591e309a8fc4a0818825d6f",
+      "upstream": "45527ade0b36c2b165cdc1343b238f815b0b1b63a591e309a8fc4a0818825d6f"
+    },
     "crates/aurora-viewer/src/demo_worn.rs": {
       "amante": "dab7893e456142b763bcf2fcb59adaa2913cd914fecb0f222b90a3050d23e107",
       "upstream": "dab7893e456142b763bcf2fcb59adaa2913cd914fecb0f222b90a3050d23e107"
+    },
+    "crates/aurora-viewer/src/destination_guide.rs": {
+      "amante": "b767c2eb5afa95a089050cc085498b0499ed575880933620c73fbb327743d08a",
+      "upstream": "b767c2eb5afa95a089050cc085498b0499ed575880933620c73fbb327743d08a"
+    },
+    "crates/aurora-viewer/src/destination_guide/tests.rs": {
+      "amante": "f1d327720def1ac1bd5bd9b8fc2ae1a05f9f40fb7b5e2d13e75d442bd4a9502e",
+      "upstream": "f1d327720def1ac1bd5bd9b8fc2ae1a05f9f40fb7b5e2d13e75d442bd4a9502e"
     },
     "crates/aurora-viewer/src/dev_toolbox/anonymize.rs": {
       "amante": "86e96549a11495d62414508fcd3a3d750cfa3bb21869c9002a40870c316231a8",
@@ -31326,8 +31422,8 @@
       "upstream": "839bd54c179de83b9623855f034752a6f0ce3831f83e362c3f595400bf7c8c09"
     },
     "crates/aurora-viewer/src/ik_edit.rs": {
-      "amante": "4e98f7765a416728f0b4847790a2916e6c0048d29ddc8a35142f3d551dcff6ca",
-      "upstream": "4e98f7765a416728f0b4847790a2916e6c0048d29ddc8a35142f3d551dcff6ca"
+      "amante": "7e6452f7c6fec66f68cfc0a97aee0e433e4ec7e23e653bbe33695b1c733e6060",
+      "upstream": "7e6452f7c6fec66f68cfc0a97aee0e433e4ec7e23e653bbe33695b1c733e6060"
     },
     "crates/aurora-viewer/src/ik_edit/animations.rs": {
       "amante": "24448c1de51b9a26fd0638d1b57fc1a9fb398517b6ff48072b4f074f92a1c5c2",
@@ -31366,12 +31462,12 @@
       "upstream": "90a50151f9a919729e5343c3b36fc9678391c0495acde6e9f805b021b3241501"
     },
     "crates/aurora-viewer/src/ik_edit/gizmo.rs": {
-      "amante": "e4372085945bb917d054d6f843c770b1212f0400f87f39c4be4bd7cf8f332bca",
-      "upstream": "e4372085945bb917d054d6f843c770b1212f0400f87f39c4be4bd7cf8f332bca"
+      "amante": "7356d5033ab1c6dc1d46ee425aed342808ac82f7dc9c2b96d106beea74d494bc",
+      "upstream": "7356d5033ab1c6dc1d46ee425aed342808ac82f7dc9c2b96d106beea74d494bc"
     },
     "crates/aurora-viewer/src/ik_edit/gizmo/tests.rs": {
-      "amante": "ea4315ab02b3aab5852338052961daecd628731f01da6ecf23e565c3ffb05568",
-      "upstream": "ea4315ab02b3aab5852338052961daecd628731f01da6ecf23e565c3ffb05568"
+      "amante": "eae1a5cfeeae5710111d1c460223c2ba5535b653abfc45bc247bb2c9cbea4755",
+      "upstream": "eae1a5cfeeae5710111d1c460223c2ba5535b653abfc45bc247bb2c9cbea4755"
     },
     "crates/aurora-viewer/src/ik_edit/graph.rs": {
       "amante": "5ce2bb6285904e59bb5818d39da5112a0c667d10cb38a9f89258b50acce78a98",
@@ -31418,64 +31514,80 @@
       "upstream": "b440356529a64e4dd5e687f2727efcede601ee95b0a1074c59181e4e16b7b77d"
     },
     "crates/aurora-viewer/src/ik_edit/poser.rs": {
-      "amante": "0ee0a0ee5d94a8b653e0b6d58cd6658d8fa0659b745afc9efbd7936ef810fd0c",
-      "upstream": "0ee0a0ee5d94a8b653e0b6d58cd6658d8fa0659b745afc9efbd7936ef810fd0c"
+      "amante": "c81ec2ea749649e49cfcffcab9b07146cffdc77d74ce6c08da01094999577709",
+      "upstream": "c81ec2ea749649e49cfcffcab9b07146cffdc77d74ce6c08da01094999577709"
     },
     "crates/aurora-viewer/src/ik_edit/poser/bones.rs": {
-      "amante": "4acffe70d6f9fa3b775550583cfcb988f2d51fa5396bc175e1f18a8f70d56c0a",
-      "upstream": "4acffe70d6f9fa3b775550583cfcb988f2d51fa5396bc175e1f18a8f70d56c0a"
+      "amante": "4028912753df3d81f75f238a3054e3910569c1f3568ee0bb1a6191bff85c0512",
+      "upstream": "4028912753df3d81f75f238a3054e3910569c1f3568ee0bb1a6191bff85c0512"
     },
     "crates/aurora-viewer/src/ik_edit/poser/bvh.rs": {
       "amante": "58f004196e49fe20d514b9fc8ed4317d7dbcef66b0fc8d3ed908363a54d5ec3c",
       "upstream": "58f004196e49fe20d514b9fc8ed4317d7dbcef66b0fc8d3ed908363a54d5ec3c"
     },
+    "crates/aurora-viewer/src/ik_edit/poser/compact.rs": {
+      "amante": "a539eb365f5c345379087691b2968e62d3c5db87f89451cb7314343cfeb89b54",
+      "upstream": "a539eb365f5c345379087691b2968e62d3c5db87f89451cb7314343cfeb89b54"
+    },
     "crates/aurora-viewer/src/ik_edit/poser/controls.rs": {
-      "amante": "cdd88414bec5e345e370989b3dd8c7edc4ce65f5963aa868a734f4056f723de8",
-      "upstream": "cdd88414bec5e345e370989b3dd8c7edc4ce65f5963aa868a734f4056f723de8"
+      "amante": "0515decafa503e27713f4b42550315d1f6995c4c28bd662c618396752ec52634",
+      "upstream": "0515decafa503e27713f4b42550315d1f6995c4c28bd662c618396752ec52634"
     },
     "crates/aurora-viewer/src/ik_edit/poser/data.rs": {
       "amante": "88d30da269fd3f261f84dd8420a01e3301f4218f5db5a6de3906dca92b594db5",
       "upstream": "88d30da269fd3f261f84dd8420a01e3301f4218f5db5a6de3906dca92b594db5"
     },
     "crates/aurora-viewer/src/ik_edit/poser/document.rs": {
-      "amante": "3f0d2084396ba153a0678c8966d2385b12a9f644c890d488ef871ee201d3cc56",
-      "upstream": "3f0d2084396ba153a0678c8966d2385b12a9f644c890d488ef871ee201d3cc56"
+      "amante": "ea48092e8f9c16228a24f72c7f26d58685169efef03f20e1654ff31b34e74901",
+      "upstream": "ea48092e8f9c16228a24f72c7f26d58685169efef03f20e1654ff31b34e74901"
     },
     "crates/aurora-viewer/src/ik_edit/poser/kinematics.rs": {
       "amante": "6e42522984e555ee420b76e4e03b883d825d6b5385a590eed610abd550b2d0e5",
       "upstream": "6e42522984e555ee420b76e4e03b883d825d6b5385a590eed610abd550b2d0e5"
     },
     "crates/aurora-viewer/src/ik_edit/poser/overlay.rs": {
-      "amante": "77794bad95fa6110166904c190ca8d515b69a827ccf096c34434820316f9c106",
-      "upstream": "77794bad95fa6110166904c190ca8d515b69a827ccf096c34434820316f9c106"
+      "amante": "3bcd65b18fc45782004dcdd16f5595f1c18904245f203448d0e8c2a6b3116bf3",
+      "upstream": "3bcd65b18fc45782004dcdd16f5595f1c18904245f203448d0e8c2a6b3116bf3"
     },
     "crates/aurora-viewer/src/ik_edit/poser/presets.json": {
       "amante": "49a3b65ca1c31da9d0c52c001946ab74ded815cfc228f6085a29cbcbe3f73694",
       "upstream": "49a3b65ca1c31da9d0c52c001946ab74ded815cfc228f6085a29cbcbe3f73694"
     },
     "crates/aurora-viewer/src/ik_edit/poser/scale_gizmo.rs": {
-      "amante": "08b4ac6b3a896b7379578025418ef4656711ae19a8923c23578152cd04d5bec1",
-      "upstream": "08b4ac6b3a896b7379578025418ef4656711ae19a8923c23578152cd04d5bec1"
+      "amante": "c13f70dc1be3e4aec04f2f0fd4baead0a63041cede31ccf5b797d4ae70b891a5",
+      "upstream": "c13f70dc1be3e4aec04f2f0fd4baead0a63041cede31ccf5b797d4ae70b891a5"
+    },
+    "crates/aurora-viewer/src/ik_edit/poser/silhouette.rs": {
+      "amante": "c460b55412594cff4ae48b454fb19248f93af1e4126bb42390ebeee305d6dd30",
+      "upstream": "c460b55412594cff4ae48b454fb19248f93af1e4126bb42390ebeee305d6dd30"
     },
     "crates/aurora-viewer/src/ik_edit/poser/storage.rs": {
       "amante": "840549d307c3619e1f0a8e0133597e64224de7dd7ae32ec143021d79a40f6d64",
       "upstream": "840549d307c3619e1f0a8e0133597e64224de7dd7ae32ec143021d79a40f6d64"
     },
     "crates/aurora-viewer/src/ik_edit/poser/subjects.rs": {
-      "amante": "164598e9b50632b66a3e12291f408891e6af74a067aadc5c27b25dcc991ddc95",
-      "upstream": "164598e9b50632b66a3e12291f408891e6af74a067aadc5c27b25dcc991ddc95"
+      "amante": "abba103bad3d98579cca4716944c01eb6970e3f6ff8e9432429c338c3bd3080a",
+      "upstream": "abba103bad3d98579cca4716944c01eb6970e3f6ff8e9432429c338c3bd3080a"
     },
     "crates/aurora-viewer/src/ik_edit/poser/tests.rs": {
-      "amante": "22bc5a72b0e616683c4fd5683a3a7fa82e24ab5f59deed8a6b3b30d1361f5c47",
-      "upstream": "22bc5a72b0e616683c4fd5683a3a7fa82e24ab5f59deed8a6b3b30d1361f5c47"
+      "amante": "0a3eb79cc4df3d58fa8dbb4eff609402be6c9c070af8e043fa29fb3356d23301",
+      "upstream": "0a3eb79cc4df3d58fa8dbb4eff609402be6c9c070af8e043fa29fb3356d23301"
+    },
+    "crates/aurora-viewer/src/ik_edit/poser/together.rs": {
+      "amante": "d7c79cf335d7f7e159f899de91238f1d4d92548cdfed08b87b8b671c903cf3b2",
+      "upstream": "d7c79cf335d7f7e159f899de91238f1d4d92548cdfed08b87b8b671c903cf3b2"
     },
     "crates/aurora-viewer/src/ik_edit/poser/trackball.rs": {
       "amante": "a8949b3866788a276fbe88526339e307bce70cd788055f6fa914dac769f757a2",
       "upstream": "a8949b3866788a276fbe88526339e307bce70cd788055f6fa914dac769f757a2"
     },
     "crates/aurora-viewer/src/ik_edit/poser/ui.rs": {
-      "amante": "6ce43f7ebe2fba628e1b161e51bce9c50561eba1a904ea15aa38953ee745ccfd",
-      "upstream": "6ce43f7ebe2fba628e1b161e51bce9c50561eba1a904ea15aa38953ee745ccfd"
+      "amante": "b2dc8b4772cd1b602b8d779d6e37893e7d556d1f0cfab7825ff6de1f17f91ca8",
+      "upstream": "b2dc8b4772cd1b602b8d779d6e37893e7d556d1f0cfab7825ff6de1f17f91ca8"
+    },
+    "crates/aurora-viewer/src/ik_edit/poser/world_hints.rs": {
+      "amante": "722da255918de5b7a35bbcbc79bd31d76bb572122cc2f1ac21bde62736e3a45c",
+      "upstream": "722da255918de5b7a35bbcbc79bd31d76bb572122cc2f1ac21bde62736e3a45c"
     },
     "crates/aurora-viewer/src/ik_edit/prim_targets.rs": {
       "amante": "e3e9e75777d9b3f8ccb686b0b2977ee7006b4ffe3b0ffbed7717d8549e813d17",
@@ -31542,8 +31654,8 @@
       "upstream": "2e502cb89c65e125cfb8aa5eaa7bf182cfd09e733d5b65ed008bd8468f8e38e8"
     },
     "crates/aurora-viewer/src/ik_edit/segments.rs": {
-      "amante": "a0c93bb7d4e2497c1ef799fb8465fe9477974fa2e8dea841db44f816e406380b",
-      "upstream": "a0c93bb7d4e2497c1ef799fb8465fe9477974fa2e8dea841db44f816e406380b"
+      "amante": "4c18f7b1aea973940de0522465010ee9da21b59ecacc51c0f50e2f56685024dd",
+      "upstream": "4c18f7b1aea973940de0522465010ee9da21b59ecacc51c0f50e2f56685024dd"
     },
     "crates/aurora-viewer/src/ik_edit/segments/tests.rs": {
       "amante": "05ae1d92525967ede2e3e451d308724a8aa6b251bbaea53d97087bf57f1cba7a",
@@ -31578,12 +31690,12 @@
       "upstream": "fceae450da72a9495cfdf8715c296a751f9799272a3e322edd2a89d488713eb5"
     },
     "crates/aurora-viewer/src/imports/demo.rs": {
-      "amante": "f50e3bf608a4a418e0850d3ec88aa9a96b0662aa1c45df46df1a66a92a99eea5",
-      "upstream": "f50e3bf608a4a418e0850d3ec88aa9a96b0662aa1c45df46df1a66a92a99eea5"
+      "amante": "a4af2224e557fa0638c19ad5a6cebcf0d12425ffbcc194b2786420be16ae0f01",
+      "upstream": "a4af2224e557fa0638c19ad5a6cebcf0d12425ffbcc194b2786420be16ae0f01"
     },
     "crates/aurora-viewer/src/imports/files.rs": {
-      "amante": "c48760e207103cad53d63ad1864664d2cf89c73488028cf54887a1f8e878a15b",
-      "upstream": "c48760e207103cad53d63ad1864664d2cf89c73488028cf54887a1f8e878a15b"
+      "amante": "a89a1a5ba26c04da143fa0735b2fef8c993d0eaf3bed4c7285e1574bc6236ab8",
+      "upstream": "a89a1a5ba26c04da143fa0735b2fef8c993d0eaf3bed4c7285e1574bc6236ab8"
     },
     "crates/aurora-viewer/src/imports/files/folder.rs": {
       "amante": "a850b21c1ec7c3a7b1983674f7441ba7bfc4fd3407251f92e3321c74faf3a584",
@@ -31654,8 +31766,8 @@
       "upstream": "fc1d4318a4f2bf3b2be6234aa12685472578eb4607fc6ab20ece142114c32d0f"
     },
     "crates/aurora-viewer/src/imports/persistence.rs": {
-      "amante": "30ef33108c943c0caf4cb06a44ad10fcbdfced3d6f18bd2c77e773d66d7f74ff",
-      "upstream": "30ef33108c943c0caf4cb06a44ad10fcbdfced3d6f18bd2c77e773d66d7f74ff"
+      "amante": "758ce8e94f69bf312c7f8fbf4e7ba40fcbd0edbb1e99953d876003766830e65a",
+      "upstream": "758ce8e94f69bf312c7f8fbf4e7ba40fcbd0edbb1e99953d876003766830e65a"
     },
     "crates/aurora-viewer/src/imports/preview.rs": {
       "amante": "f64aa01f1a6f490cd5249f26ca46ae650c342bdefb9d4f678838160e8299805f",
@@ -31678,8 +31790,8 @@
       "upstream": "1ba7ddfc6d6bcd4055273944c8ae762756d6642309d471fb9e83f768a9adfce4"
     },
     "crates/aurora-viewer/src/imports/ui.rs": {
-      "amante": "fdc0972b3b41e6b7918475db76a6c73b417b07610eeea70d7fa9fbd2e3ad8aa8",
-      "upstream": "fdc0972b3b41e6b7918475db76a6c73b417b07610eeea70d7fa9fbd2e3ad8aa8"
+      "amante": "024b340ed916766069983c1f9e96108a151819d86344b11e37c5074f9aa7049c",
+      "upstream": "024b340ed916766069983c1f9e96108a151819d86344b11e37c5074f9aa7049c"
     },
     "crates/aurora-viewer/src/imports/ui/destination.rs": {
       "amante": "0815546fa5527ed61a5eb3322ce1d25fce8e1136082d66c6dd18fadbef3d684a",
@@ -31710,8 +31822,8 @@
       "upstream": "0344c93f52870b8f23f88c7690744f03d5cefafd0cbe2fcb9318389ee7e7e224"
     },
     "crates/aurora-viewer/src/imports/ui/inspector.rs": {
-      "amante": "24b38894a68ac3ba3818ad1640f8deddeaa16778e68362dc369db65fbbef337c",
-      "upstream": "24b38894a68ac3ba3818ad1640f8deddeaa16778e68362dc369db65fbbef337c"
+      "amante": "4a09b55ca5df803832582767ed772ffaae4e5ce6fc3a0a1331b748b37fc3313e",
+      "upstream": "4a09b55ca5df803832582767ed772ffaae4e5ce6fc3a0a1331b748b37fc3313e"
     },
     "crates/aurora-viewer/src/imports/ui/launcher.rs": {
       "amante": "f2c1ad0019337032ddcde4804e9e6d2213b4f6abbc07376d06e371493dfe5639",
@@ -31810,8 +31922,8 @@
       "upstream": "bd0dac403a554fdbe9a456d3a002bd16b6c570bdaf60143c6ca57e9434e78a60"
     },
     "crates/aurora-viewer/src/keybinds.rs": {
-      "amante": "a9ba1c295ca3d4b8ed41b70d0d8a377f6c6badc5423b6353c9e71b1f788cb233",
-      "upstream": "a9ba1c295ca3d4b8ed41b70d0d8a377f6c6badc5423b6353c9e71b1f788cb233"
+      "amante": "41731317f5832f9dada3474d59d73daa754f617a2fd639bb0edc3f4d4e013bb5",
+      "upstream": "41731317f5832f9dada3474d59d73daa754f617a2fd639bb0edc3f4d4e013bb5"
     },
     "crates/aurora-viewer/src/keybinds/layout.rs": {
       "amante": "36d55a80348b180f329cc32187a94d61456f6a2962be49736e7576d39f1acabe",
@@ -31830,8 +31942,8 @@
       "upstream": "06048ff8a6cfcb9f634c612e536f873c8f7c0db60c7566966c4145dae3658772"
     },
     "crates/aurora-viewer/src/link_preview.rs": {
-      "amante": "0115aa5d86287beb3cb18069ef0cc4b8ca2ee7d38dc965216fbaa44515d3967f",
-      "upstream": "0115aa5d86287beb3cb18069ef0cc4b8ca2ee7d38dc965216fbaa44515d3967f"
+      "amante": "9a4acc9224d23a0f92eba4a145d70ede66078aef18b465a36b8d807410ecd33c",
+      "upstream": "9a4acc9224d23a0f92eba4a145d70ede66078aef18b465a36b8d807410ecd33c"
     },
     "crates/aurora-viewer/src/link_preview/fixtures/anim.webp": {
       "amante": "f52034a1f9aa09981ad58dfcadaeef8f5d54b61f4ccc4c4b470b057a8f9c7f71",
@@ -31902,8 +32014,8 @@
       "upstream": "8347d83b191bffb1802de5302ae3035867c33b68a2ea87f6005541c60ca42cec"
     },
     "crates/aurora-viewer/src/link_trust.rs": {
-      "amante": "b93899cde3aca70d67a9471bd2922136bbd14842c148d3abf3c06d67ff9087dc",
-      "upstream": "b93899cde3aca70d67a9471bd2922136bbd14842c148d3abf3c06d67ff9087dc"
+      "amante": "58aa74c1f67ec7fed4d728e6158e7c90188af27250550cd51f7ada199ddd3639",
+      "upstream": "58aa74c1f67ec7fed4d728e6158e7c90188af27250550cd51f7ada199ddd3639"
     },
     "crates/aurora-viewer/src/links.rs": {
       "amante": "b010f22578fdf3830bff00be44821405691bde55b28ca9f3c2540772810bafd7",
@@ -31946,32 +32058,32 @@
       "upstream": "b19326d64a687a569cfc2a6dbf39f6b0f7092b90882244fda5805ad2844860cd"
     },
     "crates/aurora-viewer/src/main.rs": {
-      "amante": "4449d15e866a154b990e828c73e4f4821c6781fb3756ccd0e1844801834b9fce",
-      "upstream": "dc140f3ccbf3be19b664b1ae34da98c0f567b5c640e078cff2da4b1965a08a3d"
+      "amante": "5a3a37aff69beadd5bc429117a978464c08f8f75e757608da2313128bfbd52da",
+      "upstream": "1e96d6863542a2a8662a5afb97e47f8789e7dabf9a37fbd58d3d2ea7d25659b5"
     },
     "crates/aurora-viewer/src/media/cef_cache.rs": {
       "amante": "f4557216d70bcbbcf73ea372f93f5250a29364b803013d0d6ea7c5cc07f47751",
       "upstream": "f4557216d70bcbbcf73ea372f93f5250a29364b803013d0d6ea7c5cc07f47751"
     },
     "crates/aurora-viewer/src/media/entry.rs": {
-      "amante": "0ec009862ce8f39a994801b82a457466e9a69fb1d922a1a296495713fffbdfa4",
-      "upstream": "0ec009862ce8f39a994801b82a457466e9a69fb1d922a1a296495713fffbdfa4"
+      "amante": "fd4d5777ab1e11a38aedf6d57a336fcb2ecddffa66377c6b0bfff9a42782f70b",
+      "upstream": "fd4d5777ab1e11a38aedf6d57a336fcb2ecddffa66377c6b0bfff9a42782f70b"
     },
     "crates/aurora-viewer/src/media/filter.rs": {
-      "amante": "4054fae199d5d0779054ea1ab9634dcc29b5f3330d6ef2000f4683468f7455b2",
-      "upstream": "4054fae199d5d0779054ea1ab9634dcc29b5f3330d6ef2000f4683468f7455b2"
+      "amante": "1d1b6f50c609422ec0b71b82f26f8a38d9606434d9055174c3e737271de66be2",
+      "upstream": "1d1b6f50c609422ec0b71b82f26f8a38d9606434d9055174c3e737271de66be2"
     },
     "crates/aurora-viewer/src/media/interact.rs": {
-      "amante": "a907b429cceecbe06f46e8a98507bd2bccd3c06abd0cd16bf2c4db422e655ca0",
-      "upstream": "a907b429cceecbe06f46e8a98507bd2bccd3c06abd0cd16bf2c4db422e655ca0"
+      "amante": "850d18dda89f6a8a313db69d3e6e1d3e834475b6da76ef7a46469c9cf4d06feb",
+      "upstream": "850d18dda89f6a8a313db69d3e6e1d3e834475b6da76ef7a46469c9cf4d06feb"
     },
     "crates/aurora-viewer/src/media/keys.rs": {
       "amante": "37870740102b1814a4d3896f2d35935722b52f2c8fb08b819e04f7678dbe99ab",
       "upstream": "37870740102b1814a4d3896f2d35935722b52f2c8fb08b819e04f7678dbe99ab"
     },
     "crates/aurora-viewer/src/media/mod.rs": {
-      "amante": "1c69185fea19fbeb5ee6101389d947c275455edaf64c26f313cd411edb8a8997",
-      "upstream": "a3df070691513c7cb9b7f166ee425d146bd7951607b0d18b0bcc2e328dc8f111"
+      "amante": "4679e658d8f37316e97423dd096425f5486a9b54a1df022d54573b93c919b64f",
+      "upstream": "2a13dd841d3a56a5852f413fca71e362184b601d6dc0f5059b3218761877025c"
     },
     "crates/aurora-viewer/src/media/openid.rs": {
       "amante": "6025dffc29fe0f58941cc088c9c8c1e4f5de849683259c7b5c2dd30ed5683954",
@@ -31990,8 +32102,8 @@
       "upstream": "ff7b617ce6630f2e2250e516b1e6c2db954101a30c18f404d71ac6581e1d0b15"
     },
     "crates/aurora-viewer/src/media/update.rs": {
-      "amante": "b70a668a11ba6890ce205d628eae7d06ceae17a2684d180326c28d5f34a08f88",
-      "upstream": "b70a668a11ba6890ce205d628eae7d06ceae17a2684d180326c28d5f34a08f88"
+      "amante": "5d789135cd74cba4b3766d0afeb1a57f0f54db5d937d548fb62185b27a80648d",
+      "upstream": "5d789135cd74cba4b3766d0afeb1a57f0f54db5d937d548fb62185b27a80648d"
     },
     "crates/aurora-viewer/src/movement.rs": {
       "amante": "5b7789978fd46b9bff85fb4663bba8fe446525c27427d596c1df8d01e91e1238",
@@ -32062,8 +32174,8 @@
       "upstream": "585adf483b3b2a210e8cdc824f4837fa845856922966d9c1cd1438e1a59313eb"
     },
     "crates/aurora-viewer/src/physics_editor.rs": {
-      "amante": "6212376d4ab81d5eacfe7d702d5faaafde5dbd22501998e4499a50a1c199a8bc",
-      "upstream": "6212376d4ab81d5eacfe7d702d5faaafde5dbd22501998e4499a50a1c199a8bc"
+      "amante": "fe2fecbd3a7721882fed0fc2e714b216c00074e195c15bcf975680c376714ad3",
+      "upstream": "fe2fecbd3a7721882fed0fc2e714b216c00074e195c15bcf975680c376714ad3"
     },
     "crates/aurora-viewer/src/raw_mouse.rs": {
       "amante": "f5276a00eaa987c3c59acb1ed7e1992f16d101226779ed9afbe32303bf40160a",
@@ -32074,8 +32186,8 @@
       "upstream": "fa15cefcad373f712638e80376b708215f1a4be60843205c8ba6b6cd1fa237c0"
     },
     "crates/aurora-viewer/src/scene/anchors.rs": {
-      "amante": "ab4e5ddf2b188a1a23b166b71e1069e3d1304247d33d7c0b876a0f0abf463f36",
-      "upstream": "ab4e5ddf2b188a1a23b166b71e1069e3d1304247d33d7c0b876a0f0abf463f36"
+      "amante": "20cb858cc7005227b9aff7d31ce2dbcc072a00af3d6e70bc4951b3a96a88c69d",
+      "upstream": "20cb858cc7005227b9aff7d31ce2dbcc072a00af3d6e70bc4951b3a96a88c69d"
     },
     "crates/aurora-viewer/src/scene/anim.rs": {
       "amante": "f20696c0b8d5617de33abf860f6a63cc986398513f36a51d095c5d796296594a",
@@ -32098,16 +32210,16 @@
       "upstream": "2beb1f7a879cbf9bd7d7a92e6a783afbe437f1a4f0f39745fbc699328226883c"
     },
     "crates/aurora-viewer/src/scene/anim_box.rs": {
-      "amante": "b4ed1943a0cdf5ab80724318569627fcfba37d7ee81bdd616c817bab07a8c2f6",
-      "upstream": "b4ed1943a0cdf5ab80724318569627fcfba37d7ee81bdd616c817bab07a8c2f6"
+      "amante": "462a730d2126ae322ec5746f9b5de0e35dee032ffd15191c69a8badcda035b26",
+      "upstream": "462a730d2126ae322ec5746f9b5de0e35dee032ffd15191c69a8badcda035b26"
     },
     "crates/aurora-viewer/src/scene/animesh.rs": {
-      "amante": "b3b89e04fbe55fde4f3284b671e2708e87871d14e8e159a1393869bc32d58e32",
-      "upstream": "b3b89e04fbe55fde4f3284b671e2708e87871d14e8e159a1393869bc32d58e32"
+      "amante": "6eb323514efc825334a30674d6c4f014d05b6042b39ded0248711299696775fc",
+      "upstream": "6eb323514efc825334a30674d6c4f014d05b6042b39ded0248711299696775fc"
     },
     "crates/aurora-viewer/src/scene/animesh_report.rs": {
-      "amante": "3d75ede0209791084c6a86436f101d8069589f46451f5fe0645613c14fc8f249",
-      "upstream": "3d75ede0209791084c6a86436f101d8069589f46451f5fe0645613c14fc8f249"
+      "amante": "a806cab25adcd9b3f0da1bfe7f57bc15da7796f4df032969aa95e4d02e5ff8b5",
+      "upstream": "a806cab25adcd9b3f0da1bfe7f57bc15da7796f4df032969aa95e4d02e5ff8b5"
     },
     "crates/aurora-viewer/src/scene/auto_hover.rs": {
       "amante": "bd27a1ec5051f6dae1a11d7726f298c5f1e1b4fca950ac44c0ac9738b22be899",
@@ -32122,8 +32234,8 @@
       "upstream": "d9c405f2701fb708f76168cd3c3b76703e89a829c0b899d808c697da0a15adfe"
     },
     "crates/aurora-viewer/src/scene/blend_order.rs": {
-      "amante": "2e33ffee43677cf08b466aaf8220ff0a610fd39dc15c0d5fa3427535721d93ec",
-      "upstream": "2e33ffee43677cf08b466aaf8220ff0a610fd39dc15c0d5fa3427535721d93ec"
+      "amante": "86f813edc2ed3894a7cec2d944a9ab80e2fb5e84cc34f0b97de3973fa96a98e0",
+      "upstream": "86f813edc2ed3894a7cec2d944a9ab80e2fb5e84cc34f0b97de3973fa96a98e0"
     },
     "crates/aurora-viewer/src/scene/blender_live.rs": {
       "amante": "5c3928fd0bdc1170455858890abb098e29c4d6cae5b805420f250b156a02c764",
@@ -32138,8 +32250,8 @@
       "upstream": "fc1d701b9350f9afb6c1751870349270a5d889b81dd4678e6fcd4c5e09429bad"
     },
     "crates/aurora-viewer/src/scene/complexity.rs": {
-      "amante": "dd89869ece08e4f9c5225dea13eae9f1cfcb8b87181b9190a180289de12378be",
-      "upstream": "dd89869ece08e4f9c5225dea13eae9f1cfcb8b87181b9190a180289de12378be"
+      "amante": "cf1a18d39b447f509986ff519ab7d7dd8e936d5c3d78adadfe4b4cb6e7e61b88",
+      "upstream": "cf1a18d39b447f509986ff519ab7d7dd8e936d5c3d78adadfe4b4cb6e7e61b88"
     },
     "crates/aurora-viewer/src/scene/creation_preview.rs": {
       "amante": "44fb418e18f036e0503a3e1d6306c5c24ba3b751c33a7383647682d403ba67bf",
@@ -32152,6 +32264,10 @@
     "crates/aurora-viewer/src/scene/describe.rs": {
       "amante": "6a3c84bc710bc4167f2e89d00ac964de20d3c6d9d54e5d0579f1267c63615350",
       "upstream": "6a3c84bc710bc4167f2e89d00ac964de20d3c6d9d54e5d0579f1267c63615350"
+    },
+    "crates/aurora-viewer/src/scene/draw_limits.rs": {
+      "amante": "7578a216cbc1fc85630198e6e5c471fac97e1eae5a06ca20798aa4b43dee8692",
+      "upstream": "7578a216cbc1fc85630198e6e5c471fac97e1eae5a06ca20798aa4b43dee8692"
     },
     "crates/aurora-viewer/src/scene/drawn.rs": {
       "amante": "4ecd3b59470c35b93010fdd5fbb4b103e6644aae4c4161c72af1e30138e37ed7",
@@ -32190,12 +32306,12 @@
       "upstream": "38757caa8721909f2c3d609c483908bc29cb3ec818c1ca8f00ac396e496ee97d"
     },
     "crates/aurora-viewer/src/scene/hover.rs": {
-      "amante": "a27517912fefb3a4d60747f5500eff369bb00d5e5b4f889f65488e068e3717b2",
-      "upstream": "a27517912fefb3a4d60747f5500eff369bb00d5e5b4f889f65488e068e3717b2"
+      "amante": "c5c76ccb1e30af33091da3f88a4dfc9f65b0d93a2d397944e9cc8a44df272346",
+      "upstream": "c5c76ccb1e30af33091da3f88a4dfc9f65b0d93a2d397944e9cc8a44df272346"
     },
     "crates/aurora-viewer/src/scene/hud.rs": {
-      "amante": "d87e127e2fd36716bc7ced650488f6172fab2dd85a69c5745bc00214004aedb9",
-      "upstream": "d87e127e2fd36716bc7ced650488f6172fab2dd85a69c5745bc00214004aedb9"
+      "amante": "05fe95540a1d921be7742bc30ebb8a40102d3ea49bb979a3e0a7c8b7c661ac2f",
+      "upstream": "05fe95540a1d921be7742bc30ebb8a40102d3ea49bb979a3e0a7c8b7c661ac2f"
     },
     "crates/aurora-viewer/src/scene/ik.rs": {
       "amante": "a0b31b51b6e3d881b6a969b8b65b8d3b232995bc56e92dd17d75ce9cd434d77e",
@@ -32246,16 +32362,16 @@
       "upstream": "d7e9fbdf932df69c4a7fa0be4f44c0c6b524a6e39054fdeb0333a368e26ede66"
     },
     "crates/aurora-viewer/src/scene/inspect.rs": {
-      "amante": "e423594f39ef83229ab59e2f37fbdd16718b95ed34b2389ac069cf4e7cd4d09b",
-      "upstream": "e423594f39ef83229ab59e2f37fbdd16718b95ed34b2389ac069cf4e7cd4d09b"
+      "amante": "1398032af895fe567742053a8411366ffabbe1506090509537a5423bc04d752e",
+      "upstream": "1398032af895fe567742053a8411366ffabbe1506090509537a5423bc04d752e"
     },
     "crates/aurora-viewer/src/scene/jobs.rs": {
       "amante": "5b0a27d779ef762e5ff8aad3f78f176cb4712a15a9ab380c884e7e3a69796181",
       "upstream": "5b0a27d779ef762e5ff8aad3f78f176cb4712a15a9ab380c884e7e3a69796181"
     },
     "crates/aurora-viewer/src/scene/joint_overrides.rs": {
-      "amante": "3b88899f08f9616093e341c49737e4176f03a954235e9811cc654fd036958d78",
-      "upstream": "3b88899f08f9616093e341c49737e4176f03a954235e9811cc654fd036958d78"
+      "amante": "bc7a3fce4bc42dc8068066d415b2799c1fbeb7d6b8d9904ef704cb92534da358",
+      "upstream": "bc7a3fce4bc42dc8068066d415b2799c1fbeb7d6b8d9904ef704cb92534da358"
     },
     "crates/aurora-viewer/src/scene/legacy_bump.rs": {
       "amante": "be448b444be77a9f580252b957cad1cf4704a10250b71a5efe4a0387e441ea3f",
@@ -32282,8 +32398,8 @@
       "upstream": "cae89cd0ceaa7e433fc9541a280bcf367df4f827f6e393ace144668495c055bb"
     },
     "crates/aurora-viewer/src/scene/loading.rs": {
-      "amante": "405b3cf2201951e6c6c05694f8213fe6e8d8d383f3a36a581b840a74beab12ba",
-      "upstream": "405b3cf2201951e6c6c05694f8213fe6e8d8d383f3a36a581b840a74beab12ba"
+      "amante": "cfbf6ebc1ea5f8b7ed31b5d44dd99b7a8cf12d607aa4d12afbd2354e97f74564",
+      "upstream": "cfbf6ebc1ea5f8b7ed31b5d44dd99b7a8cf12d607aa4d12afbd2354e97f74564"
     },
     "crates/aurora-viewer/src/scene/lod_watch.rs": {
       "amante": "e35042961673d45d0d774c5146e4018ae0f4d2c1d0fba05a6831378ce24042aa",
@@ -32302,12 +32418,12 @@
       "upstream": "48357b98b5769e52aae2a0736b3cf1e57cb563b6fc08606f88367a708a052114"
     },
     "crates/aurora-viewer/src/scene/meshes.rs": {
-      "amante": "9c7d02521142c88c8aff4f24ebe5b58a98b9b0b3f1d00e2a2fe0819896579d02",
-      "upstream": "9c7d02521142c88c8aff4f24ebe5b58a98b9b0b3f1d00e2a2fe0819896579d02"
+      "amante": "8680164e4a95c72acc29a80252b03cb44c45bca536e4ae1a45ca5ff66b1d076d",
+      "upstream": "8680164e4a95c72acc29a80252b03cb44c45bca536e4ae1a45ca5ff66b1d076d"
     },
     "crates/aurora-viewer/src/scene/mod.rs": {
-      "amante": "29c6fa064fcb78f84886c89ef7d2c6c63721c7975e99677247b03b5b71c0baba",
-      "upstream": "29c6fa064fcb78f84886c89ef7d2c6c63721c7975e99677247b03b5b71c0baba"
+      "amante": "4711a81c99da516df3b6e3424c065e3f4f6fca35d3f5be739daf704adf20d8cb",
+      "upstream": "4711a81c99da516df3b6e3424c065e3f4f6fca35d3f5be739daf704adf20d8cb"
     },
     "crates/aurora-viewer/src/scene/morph.rs": {
       "amante": "393956402fa76a728252a7f3ff57c3b704a202340ca98cf86d5b97e73c920b97",
@@ -32326,8 +32442,8 @@
       "upstream": "a19d4dcc77023514ff50bac76228e5fe7371c9dc91890b212d9c1bdec8af4b9c"
     },
     "crates/aurora-viewer/src/scene/picking.rs": {
-      "amante": "edf14c61c0b0b16fa3c068a1d079a5726ae271928259f79a40783dbde3dc36c5",
-      "upstream": "edf14c61c0b0b16fa3c068a1d079a5726ae271928259f79a40783dbde3dc36c5"
+      "amante": "1f17a2e7a7b43069184eaf1135617dcc11381c037348dac71329e3fbaa8b2d33",
+      "upstream": "1f17a2e7a7b43069184eaf1135617dcc11381c037348dac71329e3fbaa8b2d33"
     },
     "crates/aurora-viewer/src/scene/plants.rs": {
       "amante": "5759f80ef6b1370f1970b969d83443068a874196de99770978b1ce45ee1087cd",
@@ -32346,8 +32462,8 @@
       "upstream": "0eb4a061596a646f7cab16faabbbea16773e81a6d85e0db8a3f834fceae9a067"
     },
     "crates/aurora-viewer/src/scene/probes_walk.rs": {
-      "amante": "db79bc87c094d12a0570885d2214fbcad43c8f060c0c34181e02e2be5252ae29",
-      "upstream": "db79bc87c094d12a0570885d2214fbcad43c8f060c0c34181e02e2be5252ae29"
+      "amante": "30841c0a6e204fa6760ebd762e0ddefd0b9c1e669a91f4a306d6e64c69239ba3",
+      "upstream": "30841c0a6e204fa6760ebd762e0ddefd0b9c1e669a91f4a306d6e64c69239ba3"
     },
     "crates/aurora-viewer/src/scene/render_types.rs": {
       "amante": "8b1d40ee4e46e0ce3d367a53b983ee08de377a8231d17a5e7482b97f8daba979",
@@ -32370,8 +32486,8 @@
       "upstream": "199195ff5de4d779ad1c9167fd4d9169cdc3b05687713db8b2fc1961d448d5f7"
     },
     "crates/aurora-viewer/src/scene/shape.rs": {
-      "amante": "fef23f4128aa9decb0de190f5b8b8b87feecb1f6ef0e11dc94ce8a70fc9b2a5a",
-      "upstream": "fef23f4128aa9decb0de190f5b8b8b87feecb1f6ef0e11dc94ce8a70fc9b2a5a"
+      "amante": "1b0da48146af5ed7ed9032d3e260edb52783e900dda1e670e83400fa7f4edd6f",
+      "upstream": "1b0da48146af5ed7ed9032d3e260edb52783e900dda1e670e83400fa7f4edd6f"
     },
     "crates/aurora-viewer/src/scene/shown_bakes.rs": {
       "amante": "c55c159eb467e7446768735270eb98bdf8d0f3eb97704c375cf2e25ebe2ce3da",
@@ -32454,8 +32570,8 @@
       "upstream": "865cdbf30226a475151e59b3585b890264c59be0640ab8fbac7364328de0383a"
     },
     "crates/aurora-viewer/src/scene/textures.rs": {
-      "amante": "ea053ffba9205e2ca8e29c21827bc176522e052d8c24c5d81b577e8c1feb1454",
-      "upstream": "ea053ffba9205e2ca8e29c21827bc176522e052d8c24c5d81b577e8c1feb1454"
+      "amante": "dc8b806801840b324f3d9ac6d689849a64c34b3e9e6e507a6aa47a712e2c7887",
+      "upstream": "dc8b806801840b324f3d9ac6d689849a64c34b3e9e6e507a6aa47a712e2c7887"
     },
     "crates/aurora-viewer/src/scene/tree_detail.rs": {
       "amante": "d8b771f65ede015642e884a618e9bab18712cc9fb528045375f2bd5aa2cd05c8",
@@ -32486,8 +32602,8 @@
       "upstream": "d70255bf6fc13574cc164c14e4bdf60d902a0654992edb24605f0597b558a630"
     },
     "crates/aurora-viewer/src/settings.rs": {
-      "amante": "fc7840e4f697bc2b88460f12ae9271731084492f770e05dabd42a28719513a20",
-      "upstream": "dcaa336b03d22f892ae46c318c5abf9abeafa4575dbc66e03e1709416ae18601"
+      "amante": "0f17e57e1e69ee0b3651b16e95e624968e6c78b453d7f6c5b5809fdefc77ea2f",
+      "upstream": "e76e3a25ba4ea49f15a42c0822268b65957e52b8439063e66729dc9e6414f5ac"
     },
     "crates/aurora-viewer/src/settings/area_search.rs": {
       "amante": "65b935cc2c8c10d6f26f6c84ac313ac2b1ec2bc286515f34ff843924fe4fbe8e",
@@ -32534,8 +32650,8 @@
       "upstream": "8b06861528cdac688405a23f18f12dfd92d8c33caf5ba019c5ad4004a6779573"
     },
     "crates/aurora-viewer/src/shape_editor/mod.rs": {
-      "amante": "566fc3753f3c9b948b4038485a2725239f4672ebf94bc1d61ce69a756e017650",
-      "upstream": "566fc3753f3c9b948b4038485a2725239f4672ebf94bc1d61ce69a756e017650"
+      "amante": "664fecf930f72300f7ac6020fcb3361cd5832a3e5a3281afd8fa3f9b055f2a50",
+      "upstream": "664fecf930f72300f7ac6020fcb3361cd5832a3e5a3281afd8fa3f9b055f2a50"
     },
     "crates/aurora-viewer/src/shape_editor/preview.rs": {
       "amante": "024d016a2e10f765c5975dd9c632df2318c0607a89dad9cb53cbe8528cc2f17b",
@@ -32544,6 +32660,10 @@
     "crates/aurora-viewer/src/shape_editor/tests.rs": {
       "amante": "8818bba553c2cf03c79304f0de8d133bd86d3923cf4fdce79ba422a6373793da",
       "upstream": "8818bba553c2cf03c79304f0de8d133bd86d3923cf4fdce79ba422a6373793da"
+    },
+    "crates/aurora-viewer/src/shape_editor/xml_export.rs": {
+      "amante": "ba90f1fd48c44d12352dc544626d08a9bc5e03597cb64da0ae80588be9c504c6",
+      "upstream": "ba90f1fd48c44d12352dc544626d08a9bc5e03597cb64da0ae80588be9c504c6"
     },
     "crates/aurora-viewer/src/shape_editor/xml_import.rs": {
       "amante": "c8ba9c6749d218cda8bda0aec65d5a59ced41485faab41bbd66810b92e7de38e",
@@ -32665,6 +32785,18 @@
       "amante": "edf992abf4781d43584d5c2d184fee36c08dface34b410e0719a644b5583ede1",
       "upstream": "edf992abf4781d43584d5c2d184fee36c08dface34b410e0719a644b5583ede1"
     },
+    "crates/aurora-viewer/src/splash/mod.rs": {
+      "amante": "3ba220d3c6bad0c7f0f309ab4b7fa724c128f1a896da82db841bc55c37f5ac01",
+      "upstream": "3ba220d3c6bad0c7f0f309ab4b7fa724c128f1a896da82db841bc55c37f5ac01"
+    },
+    "crates/aurora-viewer/src/splash/progress.rs": {
+      "amante": "afe1876db294a228d3b6fa5962a24bef049f5c98683de3e28c26662250d0b0d0",
+      "upstream": "afe1876db294a228d3b6fa5962a24bef049f5c98683de3e28c26662250d0b0d0"
+    },
+    "crates/aurora-viewer/src/splash/window.rs": {
+      "amante": "400b99f280c2a10027e0a1d25f1fdbcd7f0e420d8b6e4507df19ebd874d9e38e",
+      "upstream": "9be25a0bfe86e6658882bf383ca1771fe2e13f7f207ec405dd69cfbbe70f5d79"
+    },
     "crates/aurora-viewer/src/stream_title.rs": {
       "amante": "73e4e42177e9f443e50e5acf8fe53bd7c2e3c4db9ee109b37ae4cab009e6c5f2",
       "upstream": "73e4e42177e9f443e50e5acf8fe53bd7c2e3c4db9ee109b37ae4cab009e6c5f2"
@@ -32742,8 +32874,8 @@
       "upstream": "7fdf0af9c23a515cce9e4ca899fee4e8495913af7d36e9b6204d86bbc91fd1e7"
     },
     "crates/aurora-viewer/src/ui/appearance.rs": {
-      "amante": "0262c8ff47fb068a7a06eafc3bd7060b07f38edd4906c70d311700d81649b7e4",
-      "upstream": "0262c8ff47fb068a7a06eafc3bd7060b07f38edd4906c70d311700d81649b7e4"
+      "amante": "bfac89adfc7bf5aede254e1b347ed2226480de53a18f44822bf80407789eb8c3",
+      "upstream": "bfac89adfc7bf5aede254e1b347ed2226480de53a18f44822bf80407789eb8c3"
     },
     "crates/aurora-viewer/src/ui/appearance/batch.rs": {
       "amante": "5bddff67d49b4f239d4c1fdbd14a9b21ceda581bbb0b5175ab56cde2a4f82c38",
@@ -32758,20 +32890,20 @@
       "upstream": "e2c7fb0118cfc7fe7065aef73bf1f863a20e2ea767802d8ce9c241b0353c1d0b"
     },
     "crates/aurora-viewer/src/ui/appearance/gallery.rs": {
-      "amante": "01e06537f393558aa47960753c937830a72eac0c01d6591010706599b57927fb",
-      "upstream": "01e06537f393558aa47960753c937830a72eac0c01d6591010706599b57927fb"
+      "amante": "63f1041b98c71086dd6d5bc2f655a1f723359ad708ba59541faea3783ed4978f",
+      "upstream": "63f1041b98c71086dd6d5bc2f655a1f723359ad708ba59541faea3783ed4978f"
     },
     "crates/aurora-viewer/src/ui/appearance/items.rs": {
-      "amante": "e6ff9df48b12f541b39f2ff155a3b95abfaf673c5132cb768bd8ef729c17ce71",
-      "upstream": "e6ff9df48b12f541b39f2ff155a3b95abfaf673c5132cb768bd8ef729c17ce71"
+      "amante": "3ea3fe5ffa7cdf57b8659bc956c6087609a1139c7f83f15d0789798c3205a372",
+      "upstream": "3ea3fe5ffa7cdf57b8659bc956c6087609a1139c7f83f15d0789798c3205a372"
     },
     "crates/aurora-viewer/src/ui/appearance/json.rs": {
-      "amante": "39704dcd421ad749722228db7f5cf1644dc0c4f48b09b4e73d0f04fead142db1",
-      "upstream": "39704dcd421ad749722228db7f5cf1644dc0c4f48b09b4e73d0f04fead142db1"
+      "amante": "50233c9c78a0f844e8ebdfe12c2836ac0fae33eb5077b966f3da06517ef37302",
+      "upstream": "50233c9c78a0f844e8ebdfe12c2836ac0fae33eb5077b966f3da06517ef37302"
     },
     "crates/aurora-viewer/src/ui/appearance/layers.rs": {
-      "amante": "91bdd1760588ba4e39176cac03f70eea59b0539fe998ac66255fef3b3b2206fe",
-      "upstream": "91bdd1760588ba4e39176cac03f70eea59b0539fe998ac66255fef3b3b2206fe"
+      "amante": "2ab524e231fc706b692251111de30ac8b56950215c4c9505b369b170728eeb8e",
+      "upstream": "2ab524e231fc706b692251111de30ac8b56950215c4c9505b369b170728eeb8e"
     },
     "crates/aurora-viewer/src/ui/appearance/perf_tests.rs": {
       "amante": "e04e37aa09086bce0a8e4bd3d420ee00dabfba4964412a8b2851b73d17552822",
@@ -32786,8 +32918,8 @@
       "upstream": "e91f5337c37473b20b159b2513ed965fc2ff4ac2c9d201504948d22c4d17e526"
     },
     "crates/aurora-viewer/src/ui/appearance/showcase.rs": {
-      "amante": "8d2da9672acfd37ec5bf61021c63b48caabbe012e73aa06eb00214ad69eb9408",
-      "upstream": "8d2da9672acfd37ec5bf61021c63b48caabbe012e73aa06eb00214ad69eb9408"
+      "amante": "a8af7a4d6d2697fa6b34e91e36ad385e936c2cc6290284020456fb502471fac7",
+      "upstream": "a8af7a4d6d2697fa6b34e91e36ad385e936c2cc6290284020456fb502471fac7"
     },
     "crates/aurora-viewer/src/ui/area_search.rs": {
       "amante": "dbcc4fbaf3a4ef75ce3f4e0a0213a6e4b77e0ce2bfce8b733e55dd5375a2916f",
@@ -32810,8 +32942,8 @@
       "upstream": "c2bb295b027f2267b7385cbe989b23b33176f2adce3b7e85fb4882d4dd1f0d78"
     },
     "crates/aurora-viewer/src/ui/audio.rs": {
-      "amante": "dd3b33b1a244daf899c78a9c28994b5b0eddb927ec8fcd7f0bf356bb015df737",
-      "upstream": "dd3b33b1a244daf899c78a9c28994b5b0eddb927ec8fcd7f0bf356bb015df737"
+      "amante": "68b5befa326fd4b5d92683f0a179ae5417a679b6ef87cfab635f6cef8c0b66f5",
+      "upstream": "68b5befa326fd4b5d92683f0a179ae5417a679b6ef87cfab635f6cef8c0b66f5"
     },
     "crates/aurora-viewer/src/ui/aurora_bg.rs": {
       "amante": "f0192ccf5aeab3dd6e440870ba47b581c7ad59b12e6a355f4208a457cb1fd68e",
@@ -32838,8 +32970,8 @@
       "upstream": "7753edac1f370b21d34bb4934d816462dc76221df3d91839d497a34d6e700894"
     },
     "crates/aurora-viewer/src/ui/bars.rs": {
-      "amante": "fca585b0e4b0edf62c46ad1df40d9a6ba659ec626580a0718605b7704b461e43",
-      "upstream": "fca585b0e4b0edf62c46ad1df40d9a6ba659ec626580a0718605b7704b461e43"
+      "amante": "b504c40608338b90d024c963d8938184f6bb0d787f845315ef43e925efc679ac",
+      "upstream": "b504c40608338b90d024c963d8938184f6bb0d787f845315ef43e925efc679ac"
     },
     "crates/aurora-viewer/src/ui/bars/clock.rs": {
       "amante": "c37fc6f0dcb3546e12302ec8593b1556933d05f6e2aac482527d9a2eed8ef4df",
@@ -32866,8 +32998,8 @@
       "upstream": "0cdda9cfd7df28cfa3bd149923e23362c6702d56c58efa1572970d99712ba26a"
     },
     "crates/aurora-viewer/src/ui/bars/islands.rs": {
-      "amante": "a462ed1b9cd549fe3f66f0595eab51c3cd8b7700e4d3500cb708e97a207a761f",
-      "upstream": "a462ed1b9cd549fe3f66f0595eab51c3cd8b7700e4d3500cb708e97a207a761f"
+      "amante": "0503025e17f33107a86b1b429d95c804262051893f67286a8be46c02352e7f98",
+      "upstream": "0503025e17f33107a86b1b429d95c804262051893f67286a8be46c02352e7f98"
     },
     "crates/aurora-viewer/src/ui/bars/location_suggest.rs": {
       "amante": "a3c583b335d535ff18c963081e60b8f58a845dd5c23eb76c26d01c8f6a5cd670",
@@ -32930,8 +33062,8 @@
       "upstream": "9577b05261a2ed37ea9fb35154cd1cd802bedba56abcf560f84010a032ae278e"
     },
     "crates/aurora-viewer/src/ui/chat.rs": {
-      "amante": "039bc8aed150092e8d80fc0e63edce50775dbf20fab26757f8901fa773a32db7",
-      "upstream": "039bc8aed150092e8d80fc0e63edce50775dbf20fab26757f8901fa773a32db7"
+      "amante": "c41e43960881f8f9bfb0015c3ab19bfeb4ba781f1d948c07452c068046ff91b9",
+      "upstream": "c41e43960881f8f9bfb0015c3ab19bfeb4ba781f1d948c07452c068046ff91b9"
     },
     "crates/aurora-viewer/src/ui/chat/action_marker.rs": {
       "amante": "894ca4265dfb09c2c0f8d49ddb48a98c0c2531ff926af5b11da4d51ecf828b4f",
@@ -32950,12 +33082,16 @@
       "upstream": "58e2d413cff3bb4d9d5c539badaca4c1557ba0f281187914c84b7102583548bc"
     },
     "crates/aurora-viewer/src/ui/chat/buttons_tests.rs": {
-      "amante": "fea98ff438a9421643d6b82ff997b56ab04d0ed66056e7f701fe44b25bf0de24",
-      "upstream": "fea98ff438a9421643d6b82ff997b56ab04d0ed66056e7f701fe44b25bf0de24"
+      "amante": "521dda5ed2241bcdd05b6b1cf5aadeede520e4d79d1b5e39ba4d0f9c9670ef34",
+      "upstream": "521dda5ed2241bcdd05b6b1cf5aadeede520e4d79d1b5e39ba4d0f9c9670ef34"
     },
     "crates/aurora-viewer/src/ui/chat/call.rs": {
       "amante": "ddfe36d885edfe6cb744d204f81a39e9064b4a989806e45afe1e1de727b415ca",
       "upstream": "ddfe36d885edfe6cb744d204f81a39e9064b4a989806e45afe1e1de727b415ca"
+    },
+    "crates/aurora-viewer/src/ui/chat/channel.rs": {
+      "amante": "8c5cfab4e88ba71c0686702dbb8ce26850090d4585bcfe1de5255e66104df34d",
+      "upstream": "8c5cfab4e88ba71c0686702dbb8ce26850090d4585bcfe1de5255e66104df34d"
     },
     "crates/aurora-viewer/src/ui/chat/chat_lines_tests.rs": {
       "amante": "1284f6faa4d35be115c14924b615d44b345128a88d63a76edf64627e081902e1",
@@ -32966,8 +33102,8 @@
       "upstream": "d46aa9f6603f37d14c2c57f414c5d50959238c3f181d8e976311d7c0fd183262"
     },
     "crates/aurora-viewer/src/ui/chat/compose.rs": {
-      "amante": "af739affd128f9111da283f5505d8037e7ddccb94258a4af36d7fd7ef64e126e",
-      "upstream": "af739affd128f9111da283f5505d8037e7ddccb94258a4af36d7fd7ef64e126e"
+      "amante": "4ecb7ca4bb174d8bca31c7bc16d1724c76225a0f9c6cf57d048898e52411139b",
+      "upstream": "4ecb7ca4bb174d8bca31c7bc16d1724c76225a0f9c6cf57d048898e52411139b"
     },
     "crates/aurora-viewer/src/ui/chat/console.rs": {
       "amante": "9f8a8a81db061c7da7c18bc9cbbd74535076fbf2fef8e7ab9c8c2b0a2fc406d8",
@@ -33022,8 +33158,8 @@
       "upstream": "816f8eb29b9fd1078715f2252a518a1ca2e7b92aff519e362bbeb5dd32318293"
     },
     "crates/aurora-viewer/src/ui/chat/invite_card.rs": {
-      "amante": "2bf5842530d5e87befb5377721b76854dfe0f5bb0538e1909d2ae443f9b7f05c",
-      "upstream": "2bf5842530d5e87befb5377721b76854dfe0f5bb0538e1909d2ae443f9b7f05c"
+      "amante": "3e0161905cf60683d5372546ef0166f902d69235b548fa3ef2a7050afe7e6c44",
+      "upstream": "3e0161905cf60683d5372546ef0166f902d69235b548fa3ef2a7050afe7e6c44"
     },
     "crates/aurora-viewer/src/ui/chat/keys.rs": {
       "amante": "d9e3e310039bc2b0fc329a22f9e5382bdc0a151cd20846df036a15bfa4962328",
@@ -33186,20 +33322,20 @@
       "upstream": "dc14a13b30c41cce779ba0bd6490f20f124c0c6b88be6f531763e820d0f0ab35"
     },
     "crates/aurora-viewer/src/ui/context.rs": {
-      "amante": "bf1f690ec901fdb9001ed7f3c82c48e984a725c676483b82a49e43064951ca83",
-      "upstream": "bf1f690ec901fdb9001ed7f3c82c48e984a725c676483b82a49e43064951ca83"
+      "amante": "95fbfb718868e5e74f566d3abb9a05da187cbdbbbbdff2a54d31b67403b1c065",
+      "upstream": "95fbfb718868e5e74f566d3abb9a05da187cbdbbbbdff2a54d31b67403b1c065"
     },
     "crates/aurora-viewer/src/ui/context/avatar_textures.rs": {
       "amante": "a4c27aa5587dfb675f472907619846a4b976cef312b95193c3b034cfaa2ff283",
       "upstream": "a4c27aa5587dfb675f472907619846a4b976cef312b95193c3b034cfaa2ff283"
     },
     "crates/aurora-viewer/src/ui/context/customize.rs": {
-      "amante": "e68cd27f71696bbe397804c43f8b1133090d62c3dc5fc504e28e9a46d8c835df",
-      "upstream": "e68cd27f71696bbe397804c43f8b1133090d62c3dc5fc504e28e9a46d8c835df"
+      "amante": "cb24aaba20a364a1fa400d3f0ffe6daa6eae32a360718a7c860d558765fb1a1e",
+      "upstream": "cb24aaba20a364a1fa400d3f0ffe6daa6eae32a360718a7c860d558765fb1a1e"
     },
     "crates/aurora-viewer/src/ui/context/entries.rs": {
-      "amante": "4235e5ce3c50b781b86dfeb6acbf702528d108be04f8c0076e8e680263015493",
-      "upstream": "4235e5ce3c50b781b86dfeb6acbf702528d108be04f8c0076e8e680263015493"
+      "amante": "3173cf2ad9f73c3f53a48834fafb07fa0a436e889192d771469b82f184440b6a",
+      "upstream": "3173cf2ad9f73c3f53a48834fafb07fa0a436e889192d771469b82f184440b6a"
     },
     "crates/aurora-viewer/src/ui/context/multi.rs": {
       "amante": "b053fd85f32c4db9f1a1f548e4cfb6bf20fcf7c8e914cfab703ee98e76fe9099",
@@ -33248,6 +33384,18 @@
     "crates/aurora-viewer/src/ui/debug_settings.rs": {
       "amante": "6cff1146a48740f63725a3d62083e16c31fd71ddfe4e5a305d6279aaf79f5ad5",
       "upstream": "6cff1146a48740f63725a3d62083e16c31fd71ddfe4e5a305d6279aaf79f5ad5"
+    },
+    "crates/aurora-viewer/src/ui/destinations.rs": {
+      "amante": "c1b46638059a5706c7f813910c919a87081679054d7f5a1f1cd95ba863b4cd06",
+      "upstream": "c1b46638059a5706c7f813910c919a87081679054d7f5a1f1cd95ba863b4cd06"
+    },
+    "crates/aurora-viewer/src/ui/destinations/aurora.rs": {
+      "amante": "e8f8ed3ded19de847c96083186e6ca12a8ea33eabfefb3136e7947e3a65c4c0c",
+      "upstream": "e8f8ed3ded19de847c96083186e6ca12a8ea33eabfefb3136e7947e3a65c4c0c"
+    },
+    "crates/aurora-viewer/src/ui/destinations/aurora/tests.rs": {
+      "amante": "f47e858f7313c20e6f11eea08f56a647bf6fdd9ee08cc57099d6ebb642957be4",
+      "upstream": "f47e858f7313c20e6f11eea08f56a647bf6fdd9ee08cc57099d6ebb642957be4"
     },
     "crates/aurora-viewer/src/ui/dev_toolbox.rs": {
       "amante": "716cfeb7d40f043c9e1baf3be7a73c1d181865d54f02640cad5e1ddda9ce3307",
@@ -33422,8 +33570,8 @@
       "upstream": "97d1f335c7326560c2ed3bbbfadb64fe7316b92c4f7cd4499ebafebd2eedc83e"
     },
     "crates/aurora-viewer/src/ui/icons.rs": {
-      "amante": "d4cf3da6c607c7cbd8ae7b22cbcb19bfb579a5b7bb4febf4c589f164d6e9de80",
-      "upstream": "c5b00e987275b3c3ccabcca1c029497f5f38da3cc85b2cd8821808443ad9f4df"
+      "amante": "2747f4498297b94ae291377de24c801cb282dc4329cf85549648977e669b9a22",
+      "upstream": "43e9c6e7d3337c4a7dec1e23720fec09ee2691173a2ba92f642a216a671613d8"
     },
     "crates/aurora-viewer/src/ui/inspect.rs": {
       "amante": "d657c2ff29a9a08b35450cc52515cca8b7749ab7bc90a673c614c842f5bb3125",
@@ -33434,12 +33582,12 @@
       "upstream": "48eca6c0fb2c94737ab3a7a304cbbe9ef7d5b564271e8203102e55552e55f1d9"
     },
     "crates/aurora-viewer/src/ui/inventory.rs": {
-      "amante": "f6843d6a9cb55980c9c7deed220d731f5bb5446db8976d414235b2236d10126d",
-      "upstream": "f6843d6a9cb55980c9c7deed220d731f5bb5446db8976d414235b2236d10126d"
+      "amante": "3b03d3a5b6c4f0a24156569e9bb795008581f4ab7b799d026bbf9493bc3cdf0b",
+      "upstream": "3b03d3a5b6c4f0a24156569e9bb795008581f4ab7b799d026bbf9493bc3cdf0b"
     },
     "crates/aurora-viewer/src/ui/inventory/aurora.rs": {
-      "amante": "79a72e1af647a099c2cc5a05d37f1fc5f87270ffa8c1a0fefb9baa1bc7078185",
-      "upstream": "79a72e1af647a099c2cc5a05d37f1fc5f87270ffa8c1a0fefb9baa1bc7078185"
+      "amante": "5adcb19e3c94ec4c709eb0378add7451b8c94c7482ff182b40487dc8197c3f62",
+      "upstream": "5adcb19e3c94ec4c709eb0378add7451b8c94c7482ff182b40487dc8197c3f62"
     },
     "crates/aurora-viewer/src/ui/inventory/aurora/columns.rs": {
       "amante": "9966b204cf852476f5f833fe551cb6d88540679918f97d411ab52ed4fd60db7d",
@@ -33478,16 +33626,16 @@
       "upstream": "1369b0733f652ef7ce2ad905202aea6013c8bdfaf9e38a14a987f70a91527546"
     },
     "crates/aurora-viewer/src/ui/inventory/clipboard.rs": {
-      "amante": "1b7f0b513f53b31253c454a75230897ab68a90f059867a14fdd04ad634f45f27",
-      "upstream": "1b7f0b513f53b31253c454a75230897ab68a90f059867a14fdd04ad634f45f27"
+      "amante": "6250ea4dac1841b2c78b220d2940e728f7767d71ceb60a716bdf1c7856263739",
+      "upstream": "6250ea4dac1841b2c78b220d2940e728f7767d71ceb60a716bdf1c7856263739"
     },
     "crates/aurora-viewer/src/ui/inventory/context.rs": {
-      "amante": "ff7ed8a39836947b2ff2bd7f4eee68e927d53950830efdce0875be60e9015439",
-      "upstream": "ff7ed8a39836947b2ff2bd7f4eee68e927d53950830efdce0875be60e9015439"
+      "amante": "20ccaf9b1b1b5bd9e826218b7483682532819b3bb847b6eb042c166eeedf9c63",
+      "upstream": "20ccaf9b1b1b5bd9e826218b7483682532819b3bb847b6eb042c166eeedf9c63"
     },
     "crates/aurora-viewer/src/ui/inventory/context_catalog.rs": {
-      "amante": "ef7d71f323762d50e19ed93ad017336a88c213ed3f1c4acd4887af22b4e61c2c",
-      "upstream": "ef7d71f323762d50e19ed93ad017336a88c213ed3f1c4acd4887af22b4e61c2c"
+      "amante": "f572fa6c03bbdf04928f1792c54d527367663860f3902dc20afd60df978853b5",
+      "upstream": "f572fa6c03bbdf04928f1792c54d527367663860f3902dc20afd60df978853b5"
     },
     "crates/aurora-viewer/src/ui/inventory/context_catalog/extra.rs": {
       "amante": "10f1e51e4ab36d1bec36375906513c193537a61424afe819e7018d56d5d751de",
@@ -33514,16 +33662,16 @@
       "upstream": "556e9a24af10b3be0e492bc719b38a59147fd518b3c299fac629a551900a2c6b"
     },
     "crates/aurora-viewer/src/ui/inventory/delete.rs": {
-      "amante": "261041f45ef9cf2033e72a76ca4bdacb007cc1d6da00f6a738400f70444c2967",
-      "upstream": "261041f45ef9cf2033e72a76ca4bdacb007cc1d6da00f6a738400f70444c2967"
+      "amante": "4b91d2717df976471ffca7a4ead73fac48f780432bfb68620495d6afa1019b26",
+      "upstream": "4b91d2717df976471ffca7a4ead73fac48f780432bfb68620495d6afa1019b26"
     },
     "crates/aurora-viewer/src/ui/inventory/delete_tests.rs": {
-      "amante": "fcac3b7686501ef2b5f1b47b40bf2ac2057467036d50cc6df2690a7ef83386b7",
-      "upstream": "fcac3b7686501ef2b5f1b47b40bf2ac2057467036d50cc6df2690a7ef83386b7"
+      "amante": "0fff115368637f8866303f38a63e39a80abde61384662149a57bf95aa92dd614",
+      "upstream": "0fff115368637f8866303f38a63e39a80abde61384662149a57bf95aa92dd614"
     },
     "crates/aurora-viewer/src/ui/inventory/dialogs.rs": {
-      "amante": "257ae10c7678375a55f10c4a3ac00e2b8c048255f3acf297b9711a762575f038",
-      "upstream": "257ae10c7678375a55f10c4a3ac00e2b8c048255f3acf297b9711a762575f038"
+      "amante": "42cd2c38a68034c14fa83965694ac250b8442b563f7e5d9eb01d0b28c095f7df",
+      "upstream": "42cd2c38a68034c14fa83965694ac250b8442b563f7e5d9eb01d0b28c095f7df"
     },
     "crates/aurora-viewer/src/ui/inventory/document.rs": {
       "amante": "be6486392f9dcc3201e965e226d4d758b3ac921368324daf6951032fc5835058",
@@ -33550,8 +33698,8 @@
       "upstream": "b6fdcf4df35f34116f043e8006be928580407bf6d51a8563486ca964bee29eba"
     },
     "crates/aurora-viewer/src/ui/inventory/embedded.rs": {
-      "amante": "e065e692688917fb23df8bc5f37a3521d989614d6abab51bc39acfaed585543e",
-      "upstream": "e065e692688917fb23df8bc5f37a3521d989614d6abab51bc39acfaed585543e"
+      "amante": "568e8d32f0a91ae609a330d25b613d64f41f9d9ecdb418b25674472f856e6406",
+      "upstream": "568e8d32f0a91ae609a330d25b613d64f41f9d9ecdb418b25674472f856e6406"
     },
     "crates/aurora-viewer/src/ui/inventory/folder_colors.rs": {
       "amante": "ad1f5e04ab19c7244fb3930f234a07348880bd6301aa1e4740723f8f18642a3d",
@@ -33562,8 +33710,8 @@
       "upstream": "4bbe7a1ace49751e30287fc3afed55ab388dfb9132aea8d2e1ddbe9047f19e3d"
     },
     "crates/aurora-viewer/src/ui/inventory/keyboard.rs": {
-      "amante": "819381ba792ce82615845c0d75b72c4e4509444586c8f6b38aae02ebb03a1e3e",
-      "upstream": "819381ba792ce82615845c0d75b72c4e4509444586c8f6b38aae02ebb03a1e3e"
+      "amante": "9993906b33e30a9fcdca2bcfbab510e2565ec66fc787d2098a27c83af07f97a8",
+      "upstream": "9993906b33e30a9fcdca2bcfbab510e2565ec66fc787d2098a27c83af07f97a8"
     },
     "crates/aurora-viewer/src/ui/inventory/listings.rs": {
       "amante": "920412fa439e01a38141a1c1b7c793ef728b9399f951948ad74825499629b870",
@@ -33590,8 +33738,8 @@
       "upstream": "7d2b7f698159e60712b5e9a6abe9869b6e29a098b87f814f7e7541e8802cb597"
     },
     "crates/aurora-viewer/src/ui/inventory/permissions.rs": {
-      "amante": "29102796aefc077c6123df02fd10c07791675b259c8e10ea136ba92362ac168f",
-      "upstream": "29102796aefc077c6123df02fd10c07791675b259c8e10ea136ba92362ac168f"
+      "amante": "0a302b091653bd0922b29a942ecde3a621b17b5c60d7d7f5cf8073a9b7559926",
+      "upstream": "0a302b091653bd0922b29a942ecde3a621b17b5c60d7d7f5cf8073a9b7559926"
     },
     "crates/aurora-viewer/src/ui/inventory/progress.rs": {
       "amante": "2faf0190b5cf617d636863a506ab11f289794cebf3ec036877041e93364b10a1",
@@ -33654,16 +33802,16 @@
       "upstream": "ff527f97c6f754e764c336d254cd665c552325f5f8854a6e217857d1f04525d8"
     },
     "crates/aurora-viewer/src/ui/inventory/view.rs": {
-      "amante": "21a50b0e156fed40fb650902f96b65fe58a98be04223a5beec0af2771e4b0cc6",
-      "upstream": "21a50b0e156fed40fb650902f96b65fe58a98be04223a5beec0af2771e4b0cc6"
+      "amante": "fe83089da4525bae503194c02d5ba325217c42016808afb44eb033cc282e2021",
+      "upstream": "fe83089da4525bae503194c02d5ba325217c42016808afb44eb033cc282e2021"
     },
     "crates/aurora-viewer/src/ui/land/access.rs": {
       "amante": "55dab68760803d378bd102050d54290c47883ff01088148776b1b811e604ea37",
       "upstream": "55dab68760803d378bd102050d54290c47883ff01088148776b1b811e604ea37"
     },
     "crates/aurora-viewer/src/ui/land/aurora.rs": {
-      "amante": "1efcbfd077aad6d6df42ca738c9fcc386ac699b173c1a9576c77683f61be3412",
-      "upstream": "1efcbfd077aad6d6df42ca738c9fcc386ac699b173c1a9576c77683f61be3412"
+      "amante": "857f30713f4f146a3e7c8c9e0e560411c7b5aebe0fd2ba55a7a05288d86f4b1b",
+      "upstream": "857f30713f4f146a3e7c8c9e0e560411c7b5aebe0fd2ba55a7a05288d86f4b1b"
     },
     "crates/aurora-viewer/src/ui/land/covenant.rs": {
       "amante": "58a525f59210b128bf0de8ebf2b9bd3e781ca898edca33afcef12f6dc3b111b9",
@@ -33690,16 +33838,16 @@
       "upstream": "c29f7b739bd8eff94f8640d3f3c66f549c547b0a1bf454d89ea4045223e57c9a"
     },
     "crates/aurora-viewer/src/ui/land/manage.rs": {
-      "amante": "81cef9534e2364686ea358e93b5820c30eba73bdf99fe54cacd98b87152a2588",
-      "upstream": "81cef9534e2364686ea358e93b5820c30eba73bdf99fe54cacd98b87152a2588"
+      "amante": "caf4378016468edfe725a9c70b8bb0acd02d868060dcd1baab1058375ab7dfc8",
+      "upstream": "caf4378016468edfe725a9c70b8bb0acd02d868060dcd1baab1058375ab7dfc8"
     },
     "crates/aurora-viewer/src/ui/land/media.rs": {
       "amante": "07bdc6872a479e87f3f1396eeb2f970ddd26215f70bc3225a51aee3b9fe0807a",
       "upstream": "07bdc6872a479e87f3f1396eeb2f970ddd26215f70bc3225a51aee3b9fe0807a"
     },
     "crates/aurora-viewer/src/ui/land/mod.rs": {
-      "amante": "4e679f7049c08eede4ec7fa30bd2f94d5934ecdcd1ffbdd4cbe2491953a237f5",
-      "upstream": "4e679f7049c08eede4ec7fa30bd2f94d5934ecdcd1ffbdd4cbe2491953a237f5"
+      "amante": "95e559461e438c454538ce51c1da11899d6cb1aac9dbad48848217f351ef3fd2",
+      "upstream": "95e559461e438c454538ce51c1da11899d6cb1aac9dbad48848217f351ef3fd2"
     },
     "crates/aurora-viewer/src/ui/land/name_tests.rs": {
       "amante": "5fd6e113a9243df7733f290f9f47fbaa44a39b1d0efad50b6adde0a1e5e61620",
@@ -33714,8 +33862,8 @@
       "upstream": "5d8335ddee3b276399c48f22842f61bdbe4ffe431f648265962e1f4d3fc12dbd"
     },
     "crates/aurora-viewer/src/ui/land/overview.rs": {
-      "amante": "a5e4f6fdaf976c2573399cd99c80183476a38aefe9c373622aefe7a318e47966",
-      "upstream": "a5e4f6fdaf976c2573399cd99c80183476a38aefe9c373622aefe7a318e47966"
+      "amante": "0336c8f9112a8db34c26a74dbc217a9671bdc0a4e32b139acae586355be8c2a4",
+      "upstream": "0336c8f9112a8db34c26a74dbc217a9671bdc0a4e32b139acae586355be8c2a4"
     },
     "crates/aurora-viewer/src/ui/land/people.rs": {
       "amante": "a56c6f5476cd7f56440a80930e9abf037fa5a7fb8f9c5dda3ec54dc7848c1806",
@@ -33754,28 +33902,28 @@
       "upstream": "daa108831ac3fa67ee83a8dd10060fccc9eeaebdfcb1f825f11133c9b1df2f37"
     },
     "crates/aurora-viewer/src/ui/loading.rs": {
-      "amante": "c0f10bfc18683c09984687900db9c04f9b163bc32abcb16a34e0920176511326",
-      "upstream": "2d2a5dc9bb241636fc314173b57f8ac716e3f27f0e9da04fb7364689d28c2f5c"
+      "amante": "c7a08b6d6dfdef8c78769f762f550dd68785e07cb0d763a941a2d98a188ddb8c",
+      "upstream": "373c3e902bfa5b8c34b133c65ea29a3149a9e52d74994d36cb68e5b95e92c5ec"
     },
     "crates/aurora-viewer/src/ui/login.rs": {
-      "amante": "4ef53cc2e18a93d53ca08f9cf1dedaaae5d98cd1e9f15432632cac53a67ac946",
-      "upstream": "240165946f1a5b8be591835ea35b3320f19e908a9d687f53d96e497741fc8ce6"
+      "amante": "9948b71cd0a62e9b790793c842d3a8c31ccc930289e9d9577115163ec85ce193",
+      "upstream": "5cfd3ee60f52cf0a518f7fba6c04673eeb60d84e95a53e6fb9f5d08ae9dd444b"
     },
     "crates/aurora-viewer/src/ui/login/camera_limits_notice.rs": {
       "amante": "b090ff501725fdc5810eba91ce5fe345d1f61f6e26a42be366ab8d330a2bdd81",
       "upstream": "b090ff501725fdc5810eba91ce5fe345d1f61f6e26a42be366ab8d330a2bdd81"
     },
     "crates/aurora-viewer/src/ui/login/carousel.rs": {
-      "amante": "52c92ae30c196f5eacce37b1b8b40ddc477e80a67bb7db7ede6c6f3c2584a62a",
-      "upstream": "f966f30c9994e5473d645a9f7100bbfb22f2a4ea0a76d027dcd290d6c23e8048"
+      "amante": "e8dfb7fd028f015418a7659e5e999a8e9efb5561723f740f668a57bd1d77c2cb",
+      "upstream": "611f07b10e601aa6bf8151fa5ba6f48d0c254fb7edaa28f451a0012afd851508"
     },
     "crates/aurora-viewer/src/ui/login/chrome.rs": {
       "amante": "1abcea6b8052ab0cf33df4f2c66ccbdb406154eec78dd897200cd6fba560bbe1",
       "upstream": "1abcea6b8052ab0cf33df4f2c66ccbdb406154eec78dd897200cd6fba560bbe1"
     },
     "crates/aurora-viewer/src/ui/login/credentials_form.rs": {
-      "amante": "6f2137d4d97f94b1454f5d2f42a057edc48cc7b4392f7d4384cb85176199d792",
-      "upstream": "6f2137d4d97f94b1454f5d2f42a057edc48cc7b4392f7d4384cb85176199d792"
+      "amante": "83e991a5e22478702b2c1a48e7ffaa2eccd98fc63ef3e9c7cabeb34c3f731762",
+      "upstream": "83e991a5e22478702b2c1a48e7ffaa2eccd98fc63ef3e9c7cabeb34c3f731762"
     },
     "crates/aurora-viewer/src/ui/login/derez.rs": {
       "amante": "9e4e8863dd9f217732871f348109a2d5d403f890e6708f497d594ea0432987d6",
@@ -33818,28 +33966,28 @@
       "upstream": "bfae0742305c7c3138ed8226f7bf0793dbb000ddfac437a2d222a402a89fb6cc"
     },
     "crates/aurora-viewer/src/ui/looks_editor.rs": {
-      "amante": "ae98e255d9ba75f8921d22c272f2814b9b692cc41947b6a4ec120e45f2f7b007",
-      "upstream": "ae98e255d9ba75f8921d22c272f2814b9b692cc41947b6a4ec120e45f2f7b007"
+      "amante": "55123b84bdff0ce02e2d28e044acf1b7e54f67cf4781d6822a062616f7c841a2",
+      "upstream": "55123b84bdff0ce02e2d28e044acf1b7e54f67cf4781d6822a062616f7c841a2"
     },
     "crates/aurora-viewer/src/ui/map_tiles.rs": {
       "amante": "8b12990f56818010f56ecce900f7ff488a570ddd383b87785703a81e63b7f0b1",
       "upstream": "8b12990f56818010f56ecce900f7ff488a570ddd383b87785703a81e63b7f0b1"
     },
     "crates/aurora-viewer/src/ui/marketplace.rs": {
-      "amante": "d6bdf371cd9592faf394b7222705313b8781054e250210681c2f22d285ed8573",
-      "upstream": "d6bdf371cd9592faf394b7222705313b8781054e250210681c2f22d285ed8573"
+      "amante": "0ec287ccfee0d0982a4e024191e6b3dda9c489d812042f64867e72b7d41180fe",
+      "upstream": "0ec287ccfee0d0982a4e024191e6b3dda9c489d812042f64867e72b7d41180fe"
     },
     "crates/aurora-viewer/src/ui/marketplace_listings.rs": {
-      "amante": "1b60f3399588d2ad7569013a0aa858d85bd50e514c6fee7735d5426ae9db6ffb",
-      "upstream": "1b60f3399588d2ad7569013a0aa858d85bd50e514c6fee7735d5426ae9db6ffb"
+      "amante": "dbda66c768644d8aa9ff71f600a7fac2ec62d8328cf750747688a8a40fc5ca95",
+      "upstream": "dbda66c768644d8aa9ff71f600a7fac2ec62d8328cf750747688a8a40fc5ca95"
     },
     "crates/aurora-viewer/src/ui/marketplace_listings/commands.rs": {
-      "amante": "1eb0f872bd19d2b5a636246f37234e0ff91caa0bb77d4a5f555d47ddb995be11",
-      "upstream": "1eb0f872bd19d2b5a636246f37234e0ff91caa0bb77d4a5f555d47ddb995be11"
+      "amante": "15718b540641cd18f7788518766511d000b376ac107cb5c148449a5a25049bb1",
+      "upstream": "15718b540641cd18f7788518766511d000b376ac107cb5c148449a5a25049bb1"
     },
     "crates/aurora-viewer/src/ui/media.rs": {
-      "amante": "1ec5b1db5cc61141c26b3e3c470908da16a2c536052c62d7760809657d544660",
-      "upstream": "1ec5b1db5cc61141c26b3e3c470908da16a2c536052c62d7760809657d544660"
+      "amante": "ad7a055e75a02cd6f67f7b98a4d543ce6082e2078d7a42afb70d7dc906417661",
+      "upstream": "ad7a055e75a02cd6f67f7b98a4d543ce6082e2078d7a42afb70d7dc906417661"
     },
     "crates/aurora-viewer/src/ui/media_filter.rs": {
       "amante": "1a50ad83e8ea2bfddd5cfeeee90eeb983b36b6cee7ecb9729e53e0f2ed783f86",
@@ -33858,8 +34006,8 @@
       "upstream": "300c25ca0eb0e4423549b132e6251b9016f297050a51e563f0d12a2dca5eb4ae"
     },
     "crates/aurora-viewer/src/ui/mod.rs": {
-      "amante": "88ca39e44a6ca3fb7c89d9de6a3eb4f65d87693c14665430e973c436f39e9cc2",
-      "upstream": "88ca39e44a6ca3fb7c89d9de6a3eb4f65d87693c14665430e973c436f39e9cc2"
+      "amante": "cd70e8def9fc76a3d4a3906b29aceac49d4531825c53a0b41bfdef7963915221",
+      "upstream": "cd70e8def9fc76a3d4a3906b29aceac49d4531825c53a0b41bfdef7963915221"
     },
     "crates/aurora-viewer/src/ui/money_tracker.rs": {
       "amante": "ff6b6fc0a3e3f7c886602a8e1b7afdc7f43d851d22cae455be7125afe0e84044",
@@ -33982,8 +34130,8 @@
       "upstream": "6bb621ef20c86369c876941cb57fe42ecea1bf2932560c7e85323b499af59d58"
     },
     "crates/aurora-viewer/src/ui/notification_center.rs": {
-      "amante": "8715c5482f745cb530fd9d94200e75b573561fe351497f6f49f7eba40493c295",
-      "upstream": "8715c5482f745cb530fd9d94200e75b573561fe351497f6f49f7eba40493c295"
+      "amante": "ae2d1f9f829ca9a20aa10edc1f572461fd9d53af8c8c33443e614e1ba50598df",
+      "upstream": "ae2d1f9f829ca9a20aa10edc1f572461fd9d53af8c8c33443e614e1ba50598df"
     },
     "crates/aurora-viewer/src/ui/notification_center/aurora.rs": {
       "amante": "72b3ff0fc99904de7d4f02fee9d2618f389e6b179ebfbbbd38e117e180080306",
@@ -33994,16 +34142,16 @@
       "upstream": "a17842f6b6289718987d2c79ddf37df779aae2ea5c776110a40ce5a937730daa"
     },
     "crates/aurora-viewer/src/ui/notification_center/presence/tests.rs": {
-      "amante": "70b2877f3ca6c6d1bd517d3ecfeef6910dc45e612e8c13ccdbed18d217f92787",
-      "upstream": "70b2877f3ca6c6d1bd517d3ecfeef6910dc45e612e8c13ccdbed18d217f92787"
+      "amante": "127bb9dfc9cb39a5abb0ffc1859e81172a26d1687cbf5b8b8b491eecba0cbf1c",
+      "upstream": "127bb9dfc9cb39a5abb0ffc1859e81172a26d1687cbf5b8b8b491eecba0cbf1c"
     },
     "crates/aurora-viewer/src/ui/notification_center/tests.rs": {
-      "amante": "4142be92a9add63ed5d37c38badbe40243a946d10f028dff49383f12c9b6f585",
-      "upstream": "4142be92a9add63ed5d37c38badbe40243a946d10f028dff49383f12c9b6f585"
+      "amante": "87a730d69418ddbc77d54b43f2dc92015cac53f9026c5cd28d91ca6f1865e964",
+      "upstream": "87a730d69418ddbc77d54b43f2dc92015cac53f9026c5cd28d91ca6f1865e964"
     },
     "crates/aurora-viewer/src/ui/notifications.rs": {
-      "amante": "2ec9b0f46014bcee7ee849c68629cffdd07efe2afcd175f216f491b5fea36193",
-      "upstream": "2ec9b0f46014bcee7ee849c68629cffdd07efe2afcd175f216f491b5fea36193"
+      "amante": "0e15191001969098bd9b4e05fc8ab934edb9bbe89bc47d772e7e382ff60f118e",
+      "upstream": "0e15191001969098bd9b4e05fc8ab934edb9bbe89bc47d772e7e382ff60f118e"
     },
     "crates/aurora-viewer/src/ui/notifications/text.rs": {
       "amante": "8e254882ec462d3e91db08cc26c1982d100005419ff74a0b0ed89efd9d926841",
@@ -34050,12 +34198,12 @@
       "upstream": "0506b13c80e29c901a540f16719ac150a0d3d48f6172e6935640f894fbb85105"
     },
     "crates/aurora-viewer/src/ui/options/pages/aurora.rs": {
-      "amante": "820cc22b766f4490bc2df0cf09934619ee904a6e7c6211542773347094e4359e",
-      "upstream": "820cc22b766f4490bc2df0cf09934619ee904a6e7c6211542773347094e4359e"
+      "amante": "87a4c7b8004973d630b9f4a13bfb5ef02022be6d57546b753112d4cf62644803",
+      "upstream": "87a4c7b8004973d630b9f4a13bfb5ef02022be6d57546b753112d4cf62644803"
     },
     "crates/aurora-viewer/src/ui/options/pages/avatars.rs": {
-      "amante": "d7345b2505f67c0336ce132c41daa57e7954e75ad3568c163c505a0c3c3bf7a3",
-      "upstream": "d7345b2505f67c0336ce132c41daa57e7954e75ad3568c163c505a0c3c3bf7a3"
+      "amante": "deb7bbc62f6d3fdffecf6e83c673126b24f39824150ed1e21abc2ac7228aea67",
+      "upstream": "deb7bbc62f6d3fdffecf6e83c673126b24f39824150ed1e21abc2ac7228aea67"
     },
     "crates/aurora-viewer/src/ui/options/pages/build.rs": {
       "amante": "f255e4956b02f2b88f67327dddcd8cb00de7aba54125105d7153d2e578ff688e",
@@ -34066,8 +34214,8 @@
       "upstream": "c7a7248638496b6d028a783fbd895e6463254cefd07823a3dc6998b97f248936"
     },
     "crates/aurora-viewer/src/ui/options/pages/chat.rs": {
-      "amante": "b2b6c71d77809c2959f6affdb565245b79006f9db24bb588493fdd686af38162",
-      "upstream": "b2b6c71d77809c2959f6affdb565245b79006f9db24bb588493fdd686af38162"
+      "amante": "3dd1a5069ad4dbe8526d040d6c4653c5617a42fcc86e283486ded1775aa5e43f",
+      "upstream": "3dd1a5069ad4dbe8526d040d6c4653c5617a42fcc86e283486ded1775aa5e43f"
     },
     "crates/aurora-viewer/src/ui/options/pages/commands.rs": {
       "amante": "3c08700ef93ebe093c4048f83ad4c90b68a236b0359caaf4b1f02a8ccdef1633",
@@ -34078,16 +34226,16 @@
       "upstream": "07c02acb0dba955ea1f3981f30a56d27511d9e9aeb637db086b674daba6dd336"
     },
     "crates/aurora-viewer/src/ui/options/pages/controls.rs": {
-      "amante": "1e584b9af2e1a60797932cac9faf06a6ac0ad6ffaad5c7ca8fe25b470c1d05f6",
-      "upstream": "1e584b9af2e1a60797932cac9faf06a6ac0ad6ffaad5c7ca8fe25b470c1d05f6"
+      "amante": "cbba44db0dd09dae12b2f74feb7929453c40818ff6f0c4360878a9368beca0da",
+      "upstream": "cbba44db0dd09dae12b2f74feb7929453c40818ff6f0c4360878a9368beca0da"
     },
     "crates/aurora-viewer/src/ui/options/pages/fun.rs": {
       "amante": "68fe84a813395747b401b069f4c6bb6826e283f6833e2b4560dcb86044304d3f",
       "upstream": "68fe84a813395747b401b069f4c6bb6826e283f6833e2b4560dcb86044304d3f"
     },
     "crates/aurora-viewer/src/ui/options/pages/graphics.rs": {
-      "amante": "34b1393bd85690a02923bddd81cb7b6dae09f6f4224ac7ee15c200f504c85539",
-      "upstream": "34b1393bd85690a02923bddd81cb7b6dae09f6f4224ac7ee15c200f504c85539"
+      "amante": "1d4f9b2439e70abcdcd4ff4f39eafbf4032c81df13a7da4788b1e915e0eab2d1",
+      "upstream": "1d4f9b2439e70abcdcd4ff4f39eafbf4032c81df13a7da4788b1e915e0eab2d1"
     },
     "crates/aurora-viewer/src/ui/options/pages/inventory.rs": {
       "amante": "716320ae826b413500c8bc96b5348f97efb534b6bd9e6a32c5c6c8a97c87da7a",
@@ -34106,8 +34254,8 @@
       "upstream": "7d28dd37d110320443f13832e85432f0aa58b92e1ba576c76208b891c54907c6"
     },
     "crates/aurora-viewer/src/ui/options/pages/network.rs": {
-      "amante": "4c7ca262c7b4a96412aa2ae021530b50be78949623b39d7135aba36d94e822ec",
-      "upstream": "4c7ca262c7b4a96412aa2ae021530b50be78949623b39d7135aba36d94e822ec"
+      "amante": "f58b67e241ca43a0898b0801849edcd3ba2a99f01f080401eb4ceb50f5dbc612",
+      "upstream": "f58b67e241ca43a0898b0801849edcd3ba2a99f01f080401eb4ceb50f5dbc612"
     },
     "crates/aurora-viewer/src/ui/options/pages/privacy.rs": {
       "amante": "9d89d590b8ef3e164e678d6e040052e45af1fed800ca51235b53965167f3fd65",
@@ -34146,16 +34294,16 @@
       "upstream": "c08a9af1451c7d56fae44d8d62316c07541ca80742ab3c172b6f5b167f791c02"
     },
     "crates/aurora-viewer/src/ui/options/tests.rs": {
-      "amante": "a49a12e3bf5e00165cadfe39b8eb0991732fa9dbcf523932de1f0e497484d7b8",
-      "upstream": "a49a12e3bf5e00165cadfe39b8eb0991732fa9dbcf523932de1f0e497484d7b8"
+      "amante": "797e1885403ebed41683e1972df0c527ab7f192aeda5cf4e5ae3b27ce1d484a0",
+      "upstream": "797e1885403ebed41683e1972df0c527ab7f192aeda5cf4e5ae3b27ce1d484a0"
     },
     "crates/aurora-viewer/src/ui/owned_land.rs": {
       "amante": "73bfe1420e080749e12a54459de10ab654100be22a4fefc94c164a14cbd8b382",
       "upstream": "73bfe1420e080749e12a54459de10ab654100be22a4fefc94c164a14cbd8b382"
     },
     "crates/aurora-viewer/src/ui/parcel_icons.rs": {
-      "amante": "3d39eabf056bf548d94281210ebe993b8c5aeeddec2d7c2af2773344c42b6b29",
-      "upstream": "3d39eabf056bf548d94281210ebe993b8c5aeeddec2d7c2af2773344c42b6b29"
+      "amante": "2d0b4c9c3cb2aa844251a869465e65960ce03d2eb9377ed9dd43c46669a4217f",
+      "upstream": "2d0b4c9c3cb2aa844251a869465e65960ce03d2eb9377ed9dd43c46669a4217f"
     },
     "crates/aurora-viewer/src/ui/pay.rs": {
       "amante": "0cc871d5c05ec6279957eacd9721447ec9153431fc11dc62bdb36ab42c464ef4",
@@ -34210,12 +34358,12 @@
       "upstream": "9005b2c89625482e114c0bad767a96c5927fefa4eb845100e51e8d6be57c9ea8"
     },
     "crates/aurora-viewer/src/ui/physics.rs": {
-      "amante": "33ac5fc23afe018df5a62cfe0e5dbda2fe6b853274bd685341198213aca86643",
-      "upstream": "33ac5fc23afe018df5a62cfe0e5dbda2fe6b853274bd685341198213aca86643"
+      "amante": "3d864624dec41564e1eec250a99c4cd3d0e819c1d4c3cbf686bc4d6d1fc3205f",
+      "upstream": "3d864624dec41564e1eec250a99c4cd3d0e819c1d4c3cbf686bc4d6d1fc3205f"
     },
     "crates/aurora-viewer/src/ui/place_card.rs": {
-      "amante": "a375f8b4c25bfacce44a67d3b8ccf80b20b59f5696eca762ff059ea92c191eee",
-      "upstream": "a375f8b4c25bfacce44a67d3b8ccf80b20b59f5696eca762ff059ea92c191eee"
+      "amante": "bfeb723441a1ccbe9c857b1ad5a5cd73a4042225fef840efed93875b211c1fb1",
+      "upstream": "bfeb723441a1ccbe9c857b1ad5a5cd73a4042225fef840efed93875b211c1fb1"
     },
     "crates/aurora-viewer/src/ui/place_details.rs": {
       "amante": "62fab4a8e79968b3adecd34ebfa727e73114b4000dd7a2a867da2fb1fc9452f3",
@@ -34254,16 +34402,16 @@
       "upstream": "7f530f2818c4826678c6f3afe97acb4f92e00bfca4db87d69801722dec409a9d"
     },
     "crates/aurora-viewer/src/ui/profile.rs": {
-      "amante": "2b0517b7194bae9e73bb4cd7b2838f725f73accb032f4bb8041e312e3ec394b5",
-      "upstream": "2b0517b7194bae9e73bb4cd7b2838f725f73accb032f4bb8041e312e3ec394b5"
+      "amante": "d6893c5dd3e6488d4655681a66194d1de92de97ca4aa94d11651077944e918c5",
+      "upstream": "d6893c5dd3e6488d4655681a66194d1de92de97ca4aa94d11651077944e918c5"
     },
     "crates/aurora-viewer/src/ui/profile/aurora.rs": {
-      "amante": "3c5e4f7df7e678c84943f846ada36925b1e670d050f755ed8c5e167cbd3eb7af",
-      "upstream": "3c5e4f7df7e678c84943f846ada36925b1e670d050f755ed8c5e167cbd3eb7af"
+      "amante": "601532624480dad92d15266a2c4340b3d16df61b1702a8667eef4463ead640e7",
+      "upstream": "601532624480dad92d15266a2c4340b3d16df61b1702a8667eef4463ead640e7"
     },
     "crates/aurora-viewer/src/ui/profile/aurora/tabs.rs": {
-      "amante": "888f4cff3978916824794bd16a0969d1f88d67dd7129e2314cac9777431bafd8",
-      "upstream": "888f4cff3978916824794bd16a0969d1f88d67dd7129e2314cac9777431bafd8"
+      "amante": "823dbc583e2967ec970a0bb86ada9dbc758301732eed3f74a2f5e572c562d15f",
+      "upstream": "823dbc583e2967ec970a0bb86ada9dbc758301732eed3f74a2f5e572c562d15f"
     },
     "crates/aurora-viewer/src/ui/profile/aurora/tests.rs": {
       "amante": "e5a5bdd22268e30959e74e46ce14a9383213bc9e0a85b935858f2030a13e53e9",
@@ -34302,8 +34450,8 @@
       "upstream": "ae92f58884b38df67952ff905fc1e76a8a63a89b629cbc319fab3b16063ed904"
     },
     "crates/aurora-viewer/src/ui/region/mod.rs": {
-      "amante": "1eebf88c3f88554f512187a76f061c34dd1e2d06ca001a0a507555e60155a7a9",
-      "upstream": "1eebf88c3f88554f512187a76f061c34dd1e2d06ca001a0a507555e60155a7a9"
+      "amante": "f1acf758a622e3759deea00795ce0b693ff7d4c054a6b3399c09a591fff841ca",
+      "upstream": "f1acf758a622e3759deea00795ce0b693ff7d4c054a6b3399c09a591fff841ca"
     },
     "crates/aurora-viewer/src/ui/region/overview.rs": {
       "amante": "e48727fd1d5a0ade73df8fc8805cfe24aa4b19e5af2a04225708ad9f4d1b68be",
@@ -34354,8 +34502,12 @@
       "upstream": "9fbf110fca8f7d6a1c1e4499a54f8b8aadcc4db009b4fcfbeb3e7f8ded553dcb"
     },
     "crates/aurora-viewer/src/ui/scripts.rs": {
-      "amante": "b113fa60cda013fb239182f9e6f074d322b857b14c8ff8779dc95b50526689e2",
-      "upstream": "b113fa60cda013fb239182f9e6f074d322b857b14c8ff8779dc95b50526689e2"
+      "amante": "80ba093acfe5c00646411fb7054e56b18f71b1f2424c2912c6de81b17e0e8d6c",
+      "upstream": "80ba093acfe5c00646411fb7054e56b18f71b1f2424c2912c6de81b17e0e8d6c"
+    },
+    "crates/aurora-viewer/src/ui/scripts/backup.rs": {
+      "amante": "f3c41932b451d0e85947a69bfa27cd2fb8abea5f1c4289b84619d989fbbb2ca8",
+      "upstream": "f3c41932b451d0e85947a69bfa27cd2fb8abea5f1c4289b84619d989fbbb2ca8"
     },
     "crates/aurora-viewer/src/ui/scripts/colors.rs": {
       "amante": "58019f81d4fbe90cd87334655c7d4782fec142c701534845047027f1903a5bdc",
@@ -34417,6 +34569,10 @@
       "amante": "7d851a49c8bbd9adc0b0ce6428954d105c779d361bddc9d95072cbeb88fa4502",
       "upstream": "7d851a49c8bbd9adc0b0ce6428954d105c779d361bddc9d95072cbeb88fa4502"
     },
+    "crates/aurora-viewer/src/ui/scripts/recovery.rs": {
+      "amante": "d974bc2ad85947f16d9df9ed7b11ff7abbd788eeadc35d4052bbfc07be1c169d",
+      "upstream": "d974bc2ad85947f16d9df9ed7b11ff7abbd788eeadc35d4052bbfc07be1c169d"
+    },
     "crates/aurora-viewer/src/ui/scripts/reference.rs": {
       "amante": "48944e193bb0c884714773a89e26b0edf62e6f1f04332832bf688af16f7b01a4",
       "upstream": "48944e193bb0c884714773a89e26b0edf62e6f1f04332832bf688af16f7b01a4"
@@ -34434,12 +34590,12 @@
       "upstream": "5cfeb8d7dc91b60ee9ee2038bcf2eae35ebc1c05b29cfe58a03e003875c212c4"
     },
     "crates/aurora-viewer/src/ui/search.rs": {
-      "amante": "3c1eb5d64c5dd573c014bd64a22df978d8e68049ced4def34171dbccfe1c8301",
-      "upstream": "3c1eb5d64c5dd573c014bd64a22df978d8e68049ced4def34171dbccfe1c8301"
+      "amante": "51b5717e36a6086ee15d5b0382196005cfeb84a9d95a902d25c23d3b7b9770f7",
+      "upstream": "51b5717e36a6086ee15d5b0382196005cfeb84a9d95a902d25c23d3b7b9770f7"
     },
     "crates/aurora-viewer/src/ui/search/aurora.rs": {
-      "amante": "fbde98e793a73431135e8080c670a748fdcb940af17f22493821933039e16cc7",
-      "upstream": "fbde98e793a73431135e8080c670a748fdcb940af17f22493821933039e16cc7"
+      "amante": "e2134a8e3e6b47b5eafa5fa45da19a659f951dce59fd364b4e8482ceff2d3bb8",
+      "upstream": "e2134a8e3e6b47b5eafa5fa45da19a659f951dce59fd364b4e8482ceff2d3bb8"
     },
     "crates/aurora-viewer/src/ui/search/aurora_details.rs": {
       "amante": "27c65ad78916c519472b657c4bcd995ee2a40d1af040c53b888c54f13bbf32b1",
@@ -34458,8 +34614,8 @@
       "upstream": "565dc641a2cc12881b18cd8b4fe9446c0ce47f17c1a1fbb834d6e2933be29ace"
     },
     "crates/aurora-viewer/src/ui/shape.rs": {
-      "amante": "ed2bbb3148c0c7255357f6b6f9858049412502bae378ad0be3d840c9151cad41",
-      "upstream": "ed2bbb3148c0c7255357f6b6f9858049412502bae378ad0be3d840c9151cad41"
+      "amante": "c851473a7b7ade15c40b05efaeb5e724c1fb8982f48f7efddb294dd6bafa5c86",
+      "upstream": "c851473a7b7ade15c40b05efaeb5e724c1fb8982f48f7efddb294dd6bafa5c86"
     },
     "crates/aurora-viewer/src/ui/sheet.rs": {
       "amante": "531948dca49d65cca2b2915c8e66e498eba5922f88ec1d6c9a3d47acc8f36a6e",
@@ -34526,36 +34682,36 @@
       "upstream": "b37a42863875ad5987e433bc1674ebfd94e80babd54e31fca70ae396c7abef20"
     },
     "crates/aurora-viewer/src/ui/texture_library.rs": {
-      "amante": "3bc1b984c27a558e739b96fb97ef915f0e0bb9ce43e6c2e94f7d2d2da1b497c8",
-      "upstream": "3bc1b984c27a558e739b96fb97ef915f0e0bb9ce43e6c2e94f7d2d2da1b497c8"
+      "amante": "35bc520cee261bbd431ba6b46a572d6cba1d49439c6229259cffdcd8c383f26a",
+      "upstream": "35bc520cee261bbd431ba6b46a572d6cba1d49439c6229259cffdcd8c383f26a"
     },
     "crates/aurora-viewer/src/ui/texture_library/catalogue.rs": {
       "amante": "e0731d19cdd98689f2381657cf6591b19bd530396f232ce0bea9b604a9c724ec",
       "upstream": "e0731d19cdd98689f2381657cf6591b19bd530396f232ce0bea9b604a9c724ec"
     },
     "crates/aurora-viewer/src/ui/texture_library/material_editor.rs": {
-      "amante": "11204e607ffe420c5de58741389037727db458033a6282cf99d6477ca95f1292",
-      "upstream": "11204e607ffe420c5de58741389037727db458033a6282cf99d6477ca95f1292"
+      "amante": "e76f9e4138414fe83f98cf19c7d2845335e559583f9a54f64f794cde9579fbdc",
+      "upstream": "e76f9e4138414fe83f98cf19c7d2845335e559583f9a54f64f794cde9579fbdc"
     },
     "crates/aurora-viewer/src/ui/texture_library/previews.rs": {
       "amante": "630b9073e89add8d7264f03d5b0a1d4f57e3fa4197107b1428f5012e78aaba6c",
       "upstream": "630b9073e89add8d7264f03d5b0a1d4f57e3fa4197107b1428f5012e78aaba6c"
     },
     "crates/aurora-viewer/src/ui/texture_library/size_tests.rs": {
-      "amante": "8d8771b59c0542aa9b6e206ef658a7ef27623cc0a06979e9f2990dfb591b119c",
-      "upstream": "8d8771b59c0542aa9b6e206ef658a7ef27623cc0a06979e9f2990dfb591b119c"
+      "amante": "e74e6073142464c4fc14c270b2b4be1e63f810b5925694a988cb0f96e5b7e7ca",
+      "upstream": "e74e6073142464c4fc14c270b2b4be1e63f810b5925694a988cb0f96e5b7e7ca"
     },
     "crates/aurora-viewer/src/ui/texture_library/tests.rs": {
       "amante": "0b214e359538d7a3836609dc70c10bfe080089e1a837c4306d5b971dcc7f3493",
       "upstream": "0b214e359538d7a3836609dc70c10bfe080089e1a837c4306d5b971dcc7f3493"
     },
     "crates/aurora-viewer/src/ui/texture_library/texture_view.rs": {
-      "amante": "e6853ee86af50333529f804e32eceb9538dc9ec48206c0639eeaecd71a7151d1",
-      "upstream": "e6853ee86af50333529f804e32eceb9538dc9ec48206c0639eeaecd71a7151d1"
+      "amante": "2a867a4b031836154600945d2a0129bf705708b5ea1a0810b220585316eb7170",
+      "upstream": "2a867a4b031836154600945d2a0129bf705708b5ea1a0810b220585316eb7170"
     },
     "crates/aurora-viewer/src/ui/texture_library/windows.rs": {
-      "amante": "0c54ead204dc8adeec2ea499e3f346ab86cb37b8d45d0a07c6698cdd26897eb0",
-      "upstream": "0c54ead204dc8adeec2ea499e3f346ab86cb37b8d45d0a07c6698cdd26897eb0"
+      "amante": "9bc63764bb7d64b22aa4033ea1cd2d57801c9442167a0dff7fcd05551668ab7b",
+      "upstream": "9bc63764bb7d64b22aa4033ea1cd2d57801c9442167a0dff7fcd05551668ab7b"
     },
     "crates/aurora-viewer/src/ui/texture_picker.rs": {
       "amante": "431fc0eaff52583620b80eb630d59b44f5eb0c1539c0a9d74e3bda9b9e1f76cc",
@@ -34570,24 +34726,24 @@
       "upstream": "3951a383000bae10ae6babcb1c8fd70409f470dd942cdaeb0bb8090f7a70c1a1"
     },
     "crates/aurora-viewer/src/ui/theme_guard.rs": {
-      "amante": "3a36036133cb8b45599f40a219e24ec94ca94e90460e5cdf3793008573460477",
-      "upstream": "3a36036133cb8b45599f40a219e24ec94ca94e90460e5cdf3793008573460477"
+      "amante": "7a02bfe11b20d020d985f8f5b754ccd0fb663aa50967cbe860ab709c4cf841ea",
+      "upstream": "7a02bfe11b20d020d985f8f5b754ccd0fb663aa50967cbe860ab709c4cf841ea"
     },
     "crates/aurora-viewer/src/ui/toolbar.rs": {
-      "amante": "796fa97a1c1b86a12ba65b2f70a98efa9987b11cf2b622013e14015082c822a3",
-      "upstream": "796fa97a1c1b86a12ba65b2f70a98efa9987b11cf2b622013e14015082c822a3"
+      "amante": "02ab79f20b5dd5bf011cec379af128927919bc05e8f02dd0518b09e5db71a480",
+      "upstream": "02ab79f20b5dd5bf011cec379af128927919bc05e8f02dd0518b09e5db71a480"
     },
     "crates/aurora-viewer/src/ui/toolbar/catalogue.rs": {
-      "amante": "a7f6a2a5c826b47040271d4e205ad6af49c85dc477c0b6c3871462686865809b",
-      "upstream": "a7f6a2a5c826b47040271d4e205ad6af49c85dc477c0b6c3871462686865809b"
+      "amante": "5c1b7cf4c016df54a3131be0123e709a2f0500b19f7fd6abdc8e2c51de0f5fe6",
+      "upstream": "5c1b7cf4c016df54a3131be0123e709a2f0500b19f7fd6abdc8e2c51de0f5fe6"
     },
     "crates/aurora-viewer/src/ui/toolbar/editor.rs": {
       "amante": "02d405dc2dd8a92a1bf793324f66666818e894da6c16b6aec47ed882696f816d",
       "upstream": "02d405dc2dd8a92a1bf793324f66666818e894da6c16b6aec47ed882696f816d"
     },
     "crates/aurora-viewer/src/ui/toolbar/tests.rs": {
-      "amante": "bcec1314c56b5083b5214ee36b3cbb00fc295a0deea2ca5260b8890ea63c2b60",
-      "upstream": "bcec1314c56b5083b5214ee36b3cbb00fc295a0deea2ca5260b8890ea63c2b60"
+      "amante": "9847cf6aa27abd61f624d47f29f706f651f7d94634505e56f7e0045a84ffbea5",
+      "upstream": "9847cf6aa27abd61f624d47f29f706f651f7d94634505e56f7e0045a84ffbea5"
     },
     "crates/aurora-viewer/src/ui/uninstall.rs": {
       "amante": "48b5b1acc7e8fe5b7863bb94610c7a86332f09c5fb7185efc778a1e74648ab59",
@@ -34638,20 +34794,20 @@
       "upstream": "1d5e940b017ce3714fa9d9becdc902f3ec5935aedd4fecf21ecb06b4a20d7289"
     },
     "crates/aurora-viewer/src/ui/wearable.rs": {
-      "amante": "130986c141850914fbf894fa41ca0dad15488f14e20e441f027e468c91c45649",
-      "upstream": "130986c141850914fbf894fa41ca0dad15488f14e20e441f027e468c91c45649"
+      "amante": "9644616d7490b0aeaf6c54d49e31b3d68e3d5d7cc9b09de30f35a8a68dbd8a08",
+      "upstream": "9644616d7490b0aeaf6c54d49e31b3d68e3d5d7cc9b09de30f35a8a68dbd8a08"
     },
     "crates/aurora-viewer/src/ui/web_browser.rs": {
-      "amante": "fc3b42477cedb99dda92eba9f92687a895e52c0f698cf492885afc96db92dd27",
-      "upstream": "fc3b42477cedb99dda92eba9f92687a895e52c0f698cf492885afc96db92dd27"
+      "amante": "87f15196850806b1a14951afa1e9e883fe1cb984b6cbbb50ddef4ee193f61475",
+      "upstream": "87f15196850806b1a14951afa1e9e883fe1cb984b6cbbb50ddef4ee193f61475"
     },
     "crates/aurora-viewer/src/ui/web_view.rs": {
-      "amante": "94c04cff001b6d6a2e410f95d082bf88042cfcdb7daca0a591ab686bd99fac92",
-      "upstream": "94c04cff001b6d6a2e410f95d082bf88042cfcdb7daca0a591ab686bd99fac92"
+      "amante": "738d9ab256f8caf4f958702d334e5bb16d507d38a8739722b5e512e6291ab438",
+      "upstream": "738d9ab256f8caf4f958702d334e5bb16d507d38a8739722b5e512e6291ab438"
     },
     "crates/aurora-viewer/src/ui/widgets.rs": {
-      "amante": "726fe8d191d15e6bda45252b6709ec06d6b1d3f1903e69770f7ccbe88070c8ee",
-      "upstream": "726fe8d191d15e6bda45252b6709ec06d6b1d3f1903e69770f7ccbe88070c8ee"
+      "amante": "efbe5c373d1ffc7a75415c5b483eb354f98245122c6dabfe1d95ce6b4d86b44a",
+      "upstream": "efbe5c373d1ffc7a75415c5b483eb354f98245122c6dabfe1d95ce6b4d86b44a"
     },
     "crates/aurora-viewer/src/ui/widgets/alignment_tests.rs": {
       "amante": "53c4ae240b98504932344f2ce84c9c73668522407543eadbf42106b67973cde1",
@@ -34670,8 +34826,8 @@
       "upstream": "0a8aa316c80201161262997718970532f196907c9a1ed0471d1aa613c9461268"
     },
     "crates/aurora-viewer/src/ui/widgets/collapse_tests.rs": {
-      "amante": "159bc21494535d95338ca8300fbbb04cf7f37bfd4725ee973bdf102922770edc",
-      "upstream": "159bc21494535d95338ca8300fbbb04cf7f37bfd4725ee973bdf102922770edc"
+      "amante": "cf2ac355b954418136196180133705f5cd350f4a223796301e3a157bc7add73b",
+      "upstream": "cf2ac355b954418136196180133705f5cd350f4a223796301e3a157bc7add73b"
     },
     "crates/aurora-viewer/src/ui/widgets/color.rs": {
       "amante": "8f93a0b9100c3d84e74b5d1febba82454388ba46ea41b4c8140f8889bfb4f8e3",
@@ -34706,16 +34862,16 @@
       "upstream": "fb5537d0e306b2fe44b1a7844c2b59f017e1bcc890a70d71a2f42fa6d61515ba"
     },
     "crates/aurora-viewer/src/ui/widgets/modal_keys.rs": {
-      "amante": "bb51119359d617bf512ac8dce59e02e0f809284ad768a7c935ca9d4362280ff4",
-      "upstream": "bb51119359d617bf512ac8dce59e02e0f809284ad768a7c935ca9d4362280ff4"
+      "amante": "620e0ac16be786adb50dcfb1d2d0f34a168eb57dfb23ae70f4ce5af5da98b4fc",
+      "upstream": "620e0ac16be786adb50dcfb1d2d0f34a168eb57dfb23ae70f4ce5af5da98b4fc"
     },
     "crates/aurora-viewer/src/ui/widgets/movement_tests.rs": {
       "amante": "0a60cfdccede78ee8083d6dc5ff2c7f9da7b9058128fc3db09c4f9fbcccdf230",
       "upstream": "0a60cfdccede78ee8083d6dc5ff2c7f9da7b9058128fc3db09c4f9fbcccdf230"
     },
     "crates/aurora-viewer/src/ui/widgets/pills.rs": {
-      "amante": "7bbbd684936ba42d16cb77fc72560fc37dc0ec9aa2a3af91f287a5e99b8a261d",
-      "upstream": "7bbbd684936ba42d16cb77fc72560fc37dc0ec9aa2a3af91f287a5e99b8a261d"
+      "amante": "b8618ea1baae78db1d3c066b0a13b2b974bf0f1366ceedb8c9b40dc95e44d215",
+      "upstream": "b8618ea1baae78db1d3c066b0a13b2b974bf0f1366ceedb8c9b40dc95e44d215"
     },
     "crates/aurora-viewer/src/ui/widgets/resize.rs": {
       "amante": "52e5c9e3e5d3b9ffa71bd298b4a8535ab13a69489dc0a9b26bf1a09c09b02d65",
@@ -34741,6 +34897,10 @@
       "amante": "204d744c525c8d08c9ba42d3eda2a483e11f06a10641e1e4b8a7faa31ab5e446",
       "upstream": "204d744c525c8d08c9ba42d3eda2a483e11f06a10641e1e4b8a7faa31ab5e446"
     },
+    "crates/aurora-viewer/src/ui/widgets/tracks.rs": {
+      "amante": "f9bab13a88e31ea95993906b5ae824553fd7f489b5a765a731bb9c0d4461fd7f",
+      "upstream": "f9bab13a88e31ea95993906b5ae824553fd7f489b5a765a731bb9c0d4461fd7f"
+    },
     "crates/aurora-viewer/src/ui/widgets/unread.rs": {
       "amante": "0ff323272a0facf281ac71d077b717fc2dc0cf6d75c7fd2de1c53a2a879f8819",
       "upstream": "0ff323272a0facf281ac71d077b717fc2dc0cf6d75c7fd2de1c53a2a879f8819"
@@ -34750,12 +34910,12 @@
       "upstream": "135a17fc96b5d7a033745a6d455ea7b34a9a14193fe01e939318171652093964"
     },
     "crates/aurora-viewer/src/ui/widgets/workspace.rs": {
-      "amante": "80f168d924b2178f01f77bf4716781fd5197094057252cd37def77203e8eea0a",
-      "upstream": "80f168d924b2178f01f77bf4716781fd5197094057252cd37def77203e8eea0a"
+      "amante": "7aff4c43b641f3cc1bf419069f64557909aa9eb051c074c50120be41b8c64836",
+      "upstream": "7aff4c43b641f3cc1bf419069f64557909aa9eb051c074c50120be41b8c64836"
     },
     "crates/aurora-viewer/src/ui/worldmap/mod.rs": {
-      "amante": "cc24e26bdd67f69504f7a9b03bb32d14e164401b8f959fc9138fa0b5192b7db0",
-      "upstream": "cc24e26bdd67f69504f7a9b03bb32d14e164401b8f959fc9138fa0b5192b7db0"
+      "amante": "a7d071d79f85bd3d5882cd19c0d32caa9009efe87fb66907b0b4793e4ace0e84",
+      "upstream": "a7d071d79f85bd3d5882cd19c0d32caa9009efe87fb66907b0b4793e4ace0e84"
     },
     "crates/aurora-viewer/src/ui/worldmap/overlay.rs": {
       "amante": "6aaee05e7f405bd597321d372bb132b06a0453b3027e7552224afc3d622b06f6",
@@ -34778,8 +34938,8 @@
       "upstream": "574a5b9eb5cd67d4d9447e720decf8652205911a76f1b600764a95cd4a6fe84d"
     },
     "crates/aurora-viewer/src/updater.rs": {
-      "amante": "a42c11315a6808f71cc6454687e2a223d99775682d77e68f37bd30f428717c8c",
-      "upstream": "eaa0e73623960d374f5f27fea499a13e0d53b3203c6520e5ec7e9bd6a6bd53f2"
+      "amante": "a8a972c6c10048d4ae8b79813dfe367dfaf2ed273eca2dd81709934e20ae16ff",
+      "upstream": "0af9f2c7d33d6bd14d72918a45896057283f646dc45ed0c1ece0e54b4ec2be0c"
     },
     "crates/aurora-viewer/src/url_scheme.rs": {
       "amante": "4cd22c5479209c2a26fad2440ccab411b9cff234463a71ce69f6c594472afee7",
@@ -34790,8 +34950,8 @@
       "upstream": "3036cf86e937c93630bf50b4d05c8b7d5e8b0b53ca374361b322a969e7c7fb4d"
     },
     "crates/aurora-viewer/src/wearable_editor.rs": {
-      "amante": "40cb17f56557bc95abd40c45d0f20373741aa804c5981c720656abf0ac0894e7",
-      "upstream": "40cb17f56557bc95abd40c45d0f20373741aa804c5981c720656abf0ac0894e7"
+      "amante": "dd087f80c8979a363ca86b6f0f5e9b12689c7e0c1d321e6195059262a376142a",
+      "upstream": "dd087f80c8979a363ca86b6f0f5e9b12689c7e0c1d321e6195059262a376142a"
     },
     "crates/aurora-viewer/src/wearable_editor/bake.rs": {
       "amante": "ed5e2706cabcb5ba16002b28668b1d13972c86ed3ae4a84ce72f50d8f6693697",
@@ -34830,12 +34990,16 @@
       "upstream": "83950e676392ca3c2cb11fc37d7aba690f657a634eeccfd44ae6b7f1f044e31e"
     },
     "crates/aurora-viewer/src/world/anti_spam/tests.rs": {
-      "amante": "a334d7576c1ea29134f8071ebf83b600d8e601ac9d73fb02db5b4d08d4934521",
-      "upstream": "a334d7576c1ea29134f8071ebf83b600d8e601ac9d73fb02db5b4d08d4934521"
+      "amante": "aa0bdea77d28556069f14438f7bf7d64423fbd65579e4df901ecfd4289065946",
+      "upstream": "aa0bdea77d28556069f14438f7bf7d64423fbd65579e4df901ecfd4289065946"
     },
     "crates/aurora-viewer/src/world/appearance.rs": {
-      "amante": "b16a563e58e635f772b76ecdb89f4de62500ed215f3db2eeb50b25b1f8b4db0e",
-      "upstream": "b16a563e58e635f772b76ecdb89f4de62500ed215f3db2eeb50b25b1f8b4db0e"
+      "amante": "02b7b1cc34fbb5253699b71901d04ac894278b58273e262ffeeff1aacb7fb4c4",
+      "upstream": "02b7b1cc34fbb5253699b71901d04ac894278b58273e262ffeeff1aacb7fb4c4"
+    },
+    "crates/aurora-viewer/src/world/appearance_xml.rs": {
+      "amante": "e13c28857ad4a543c33a466b6f91286b5df77c7081ede7c2f613e906a7326a43",
+      "upstream": "e13c28857ad4a543c33a466b6f91286b5df77c7081ede7c2f613e906a7326a43"
     },
     "crates/aurora-viewer/src/world/arrival_wait.rs": {
       "amante": "f92ee121ed55adb971cbcf23c2b581967c6f88d1f0aef6ded857db08a7b25743",
@@ -34858,8 +35022,8 @@
       "upstream": "0907fd80049f201c47b384fb670e6a2742513c66ab5588fb71ca60beb9bf4874"
     },
     "crates/aurora-viewer/src/world/blocking.rs": {
-      "amante": "3924dc7928f94ff24ff7af5e2ad8d477ab0ddca640f64eb557a5e5eb46ba41db",
-      "upstream": "3924dc7928f94ff24ff7af5e2ad8d477ab0ddca640f64eb557a5e5eb46ba41db"
+      "amante": "104d301da090dd21648d726d25dce301f6744900dad96ef379fb2d04d0c326a2",
+      "upstream": "104d301da090dd21648d726d25dce301f6744900dad96ef379fb2d04d0c326a2"
     },
     "crates/aurora-viewer/src/world/body.rs": {
       "amante": "77fb8f1b22ad892c4a0ea5bd44a1116cd24519988d13db83236e911f0bb6c72a",
@@ -34941,6 +35105,14 @@
       "amante": "1ad7369e01f09c0bf4620fb22563e40ea407f28a6b1f42b960e62affd24e1490",
       "upstream": "1ad7369e01f09c0bf4620fb22563e40ea407f28a6b1f42b960e62affd24e1490"
     },
+    "crates/aurora-viewer/src/world/complexity_notice.rs": {
+      "amante": "3ee9ed7f137cd2670b4928e34b615341b7b0b968d1b6d00a762a39d0c60a9d10",
+      "upstream": "3ee9ed7f137cd2670b4928e34b615341b7b0b968d1b6d00a762a39d0c60a9d10"
+    },
+    "crates/aurora-viewer/src/world/complexity_notice/tests.rs": {
+      "amante": "ace023b1581dab96b1692f07d84e55de968283b4716bf326cb5dbe5bf2b62ad6",
+      "upstream": "ace023b1581dab96b1692f07d84e55de968283b4716bf326cb5dbe5bf2b62ad6"
+    },
     "crates/aurora-viewer/src/world/contact_markers.rs": {
       "amante": "02e7540ad7d749d570a5a10a471b49bedda82100ef7a6d8ee551cedc0b2134d6",
       "upstream": "02e7540ad7d749d570a5a10a471b49bedda82100ef7a6d8ee551cedc0b2134d6"
@@ -34962,8 +35134,8 @@
       "upstream": "a07e2d7430df31a29eaf762d01c7796166a64daf0a7452328c746de90d6c97a9"
     },
     "crates/aurora-viewer/src/world/derender.rs": {
-      "amante": "5ac445fcb1df00503a300dee929dec4b8bcd1476b5f1547be6b0af6a3a823e91",
-      "upstream": "5ac445fcb1df00503a300dee929dec4b8bcd1476b5f1547be6b0af6a3a823e91"
+      "amante": "6907c8ac5bc250bc720d39000e90ac5f4f9cdfa2c4e42b5a38eb5b045398d555",
+      "upstream": "6907c8ac5bc250bc720d39000e90ac5f4f9cdfa2c4e42b5a38eb5b045398d555"
     },
     "crates/aurora-viewer/src/world/dialog_name_tests.rs": {
       "amante": "fa559a02dc43ed937b580c20e6eb227b0628df88b1119e83b7cf87decc91cebb",
@@ -34998,8 +35170,8 @@
       "upstream": "bed057b53f9a34d79ae0c5f4facafab94b5c9762094d94f14951415fe8406d0d"
     },
     "crates/aurora-viewer/src/world/env_apply.rs": {
-      "amante": "72baba8be8691f45a152abb30a6949ac8ca3c05be9341f4bab3dad0e312b0cf9",
-      "upstream": "72baba8be8691f45a152abb30a6949ac8ca3c05be9341f4bab3dad0e312b0cf9"
+      "amante": "5a6489586a41abcc295aee68c12cfa197dc392fe36530705e0e48722347b5126",
+      "upstream": "5a6489586a41abcc295aee68c12cfa197dc392fe36530705e0e48722347b5126"
     },
     "crates/aurora-viewer/src/world/env_day_edit.rs": {
       "amante": "952f9a02059c2b295a027c2c7bf17d0290d51b63559a44d6a9bffc278fd5beea",
@@ -35042,12 +35214,16 @@
       "upstream": "8bafd6b4e149e00d78885910cea5fc0eb0d643161048ad0a4ccb30bfffa27a7c"
     },
     "crates/aurora-viewer/src/world/friend_join.rs": {
-      "amante": "a257864b2524178dd271cf3f9ffb08c0eaebe16a9af488bd65d30787212b2243",
-      "upstream": "a257864b2524178dd271cf3f9ffb08c0eaebe16a9af488bd65d30787212b2243"
+      "amante": "85b812637f2f6b35a4d79a11feb8489987876e8ed5297e5627ab7eb3dca5e44e",
+      "upstream": "85b812637f2f6b35a4d79a11feb8489987876e8ed5297e5627ab7eb3dca5e44e"
     },
     "crates/aurora-viewer/src/world/friends_only.rs": {
       "amante": "e6d7d1ae3a0eeb79222a8a621113e9d37c0dc5fed1e878c4ef1660084d69dffa",
       "upstream": "e6d7d1ae3a0eeb79222a8a621113e9d37c0dc5fed1e878c4ef1660084d69dffa"
+    },
+    "crates/aurora-viewer/src/world/god_mode_tests.rs": {
+      "amante": "6da3507154f6e3fee60733e86952edc00fd8b9f19066237a928935c2a9cfa4a7",
+      "upstream": "6da3507154f6e3fee60733e86952edc00fd8b9f19066237a928935c2a9cfa4a7"
     },
     "crates/aurora-viewer/src/world/group_data.rs": {
       "amante": "2487f0c9d306eedcce4ca316488bb824fb3fab7b3d2f2f2cd0a883eb2fbd2afd",
@@ -35058,12 +35234,12 @@
       "upstream": "3beb45dde13735ca9218392412789d19636e16d464d8328260aa6d1ee1eaaa91"
     },
     "crates/aurora-viewer/src/world/group_notice_tests.rs": {
-      "amante": "23f1913ee4cf262910ae1922022f64ab2f2b006832110050131207753ca7ceb1",
-      "upstream": "23f1913ee4cf262910ae1922022f64ab2f2b006832110050131207753ca7ceb1"
+      "amante": "bba80f1309fa86d4838997b13d5c50e860013eebe9a582e3079a30fc78a057d5",
+      "upstream": "bba80f1309fa86d4838997b13d5c50e860013eebe9a582e3079a30fc78a057d5"
     },
     "crates/aurora-viewer/src/world/groups.rs": {
-      "amante": "c0cc7ad522ba2f0064ec92785a8092a266f12a78ed728e0c6aedc9f9e6d227c2",
-      "upstream": "c0cc7ad522ba2f0064ec92785a8092a266f12a78ed728e0c6aedc9f9e6d227c2"
+      "amante": "17a98aa725e65f7876ebe1fa42bb369cb37e57265138fdaa7616b44864ecf6b7",
+      "upstream": "17a98aa725e65f7876ebe1fa42bb369cb37e57265138fdaa7616b44864ecf6b7"
     },
     "crates/aurora-viewer/src/world/hand_ik.rs": {
       "amante": "530fa87b464652f2cd1451a989cfedc57607bd2a2cb653efe5c4a5ca9eb7c750",
@@ -35122,8 +35298,8 @@
       "upstream": "7cd8b2bd646460b541fd46fb2a4c447615cd9cdef80074e127d0adec112438ea"
     },
     "crates/aurora-viewer/src/world/home.rs": {
-      "amante": "909ea58b89bfd63fa6f6dfe3b3eb3972e9607b2914459bed9e28d1e4157fac5d",
-      "upstream": "909ea58b89bfd63fa6f6dfe3b3eb3972e9607b2914459bed9e28d1e4157fac5d"
+      "amante": "8055a11dc5dc7bee34f66e97032b46af15c34461e9b978c2835342a45b9e09af",
+      "upstream": "8055a11dc5dc7bee34f66e97032b46af15c34461e9b978c2835342a45b9e09af"
     },
     "crates/aurora-viewer/src/world/hover_height.rs": {
       "amante": "38fb89b73465816e5f4565eb62c7219233060ff4c4de394f3f9334356721583f",
@@ -35146,8 +35322,8 @@
       "upstream": "7f2a8e99bedb6001413fb3bcb25259c44db75ec520e38b848ae5a82825c54aeb"
     },
     "crates/aurora-viewer/src/world/inventory/actions.rs": {
-      "amante": "471652181e937b06d8a6b299d6383a95bc91b8466ebfa031f049ce43a9b24624",
-      "upstream": "471652181e937b06d8a6b299d6383a95bc91b8466ebfa031f049ce43a9b24624"
+      "amante": "01d42c8b945ae71edd9702eafbfb02a7cdad667670abf642a8ecabb14e88e1d0",
+      "upstream": "01d42c8b945ae71edd9702eafbfb02a7cdad667670abf642a8ecabb14e88e1d0"
     },
     "crates/aurora-viewer/src/world/inventory/asset_ids.rs": {
       "amante": "6a7dbb2ead30d2bdd6ef6ec18a1b7f7f44a3dfd042f328ea2be061eccf43ac42",
@@ -35162,8 +35338,8 @@
       "upstream": "7bfba2521cc51659b5a124e43e82b80b8857cef466c6180e10fb62f46c511170"
     },
     "crates/aurora-viewer/src/world/inventory/demo.rs": {
-      "amante": "756fe9fa80b6a840215a511655eb235591e312e38b0b9c2b91d46a5bcbd8740e",
-      "upstream": "756fe9fa80b6a840215a511655eb235591e312e38b0b9c2b91d46a5bcbd8740e"
+      "amante": "2827913a7d9c775fbee27c36806ee1400bf5aa6e9c87d472e0071b581b09e7f2",
+      "upstream": "2827913a7d9c775fbee27c36806ee1400bf5aa6e9c87d472e0071b581b09e7f2"
     },
     "crates/aurora-viewer/src/world/inventory/items.rs": {
       "amante": "47f5bfc13d775161af55f26cee8693741605cdbcafc82d4725c7cda7cbbcab3b",
@@ -35178,36 +35354,36 @@
       "upstream": "1bf92f935af39112a92627eba6541efe22ea0eef9de873bc6baec371375fed37"
     },
     "crates/aurora-viewer/src/world/inventory/preview.rs": {
-      "amante": "a9efbb44af88ec9996f46cf599beb98933b1e5dd4e2a73e4df6c96054343af36",
-      "upstream": "a9efbb44af88ec9996f46cf599beb98933b1e5dd4e2a73e4df6c96054343af36"
+      "amante": "cdf0cf3ed4116d9c92fc8d3571356e9cb59f09d09af93123b9b26bcf9a293b62",
+      "upstream": "cdf0cf3ed4116d9c92fc8d3571356e9cb59f09d09af93123b9b26bcf9a293b62"
     },
     "crates/aurora-viewer/src/world/inventory/system.rs": {
       "amante": "2c443c9cbec925c6d3b2a590c5b107da1af83ababdfe8072c42cc215f604330f",
       "upstream": "2c443c9cbec925c6d3b2a590c5b107da1af83ababdfe8072c42cc215f604330f"
     },
     "crates/aurora-viewer/src/world/inventory/tests.rs": {
-      "amante": "4b84a1f1733ab1d1cda393b474441177546118ea207d5db6fae505fd9be8728c",
-      "upstream": "4b84a1f1733ab1d1cda393b474441177546118ea207d5db6fae505fd9be8728c"
+      "amante": "1f5574f2bc5ce50d157d1fcee0ff36a4981d1174a517cd5c90898b4e792bc1ff",
+      "upstream": "1f5574f2bc5ce50d157d1fcee0ff36a4981d1174a517cd5c90898b4e792bc1ff"
     },
     "crates/aurora-viewer/src/world/inventory/wearable.rs": {
-      "amante": "d608eb68b3fbc29b96bd1b3c0bf6c6fd3ec6187ab871208b544c8f9f96674dea",
-      "upstream": "d608eb68b3fbc29b96bd1b3c0bf6c6fd3ec6187ab871208b544c8f9f96674dea"
+      "amante": "e326d60cabe6741ea55b71ca8d340d7dbc870138e8a8b2550ca9267aaeb45e70",
+      "upstream": "e326d60cabe6741ea55b71ca8d340d7dbc870138e8a8b2550ca9267aaeb45e70"
     },
     "crates/aurora-viewer/src/world/inventory_offers.rs": {
       "amante": "13fccde0261c2dc574e87b714c8e173d23a021666a7313a22b56340b5ab24d09",
       "upstream": "13fccde0261c2dc574e87b714c8e173d23a021666a7313a22b56340b5ab24d09"
     },
     "crates/aurora-viewer/src/world/land.rs": {
-      "amante": "831f05391d906e6e6386123e9b54fa8b82897b7cf6dd5029823656f913791379",
-      "upstream": "831f05391d906e6e6386123e9b54fa8b82897b7cf6dd5029823656f913791379"
+      "amante": "296abafe9981f20666ef22c1e8cca0d7d84b8403f2ee47951e7c235ce5feef9d",
+      "upstream": "296abafe9981f20666ef22c1e8cca0d7d84b8403f2ee47951e7c235ce5feef9d"
     },
     "crates/aurora-viewer/src/world/land_buy.rs": {
       "amante": "2eae5f68a43ea6ef0439ebbd0d93b8788ce011966a54ce48f7ca724f183843a6",
       "upstream": "2eae5f68a43ea6ef0439ebbd0d93b8788ce011966a54ce48f7ca724f183843a6"
     },
     "crates/aurora-viewer/src/world/land_moderation.rs": {
-      "amante": "04b29f6241fa55b5ecc23e46b79d6a35baba9e4a93d43dce27298beb44aa0b62",
-      "upstream": "04b29f6241fa55b5ecc23e46b79d6a35baba9e4a93d43dce27298beb44aa0b62"
+      "amante": "215debd6d11834ca75a3a996c3815b00030c084fc9955d153f5d670407d9a7fe",
+      "upstream": "215debd6d11834ca75a3a996c3815b00030c084fc9955d153f5d670407d9a7fe"
     },
     "crates/aurora-viewer/src/world/landmarks.rs": {
       "amante": "4340970488d8cc463b5dcfbb785cdc34df43493b0439398b75e21dacc4cc02d0",
@@ -35242,28 +35418,28 @@
       "upstream": "7f6b2407e3fb7231e102a32f0fe9b1c2686cccceccd696b39e64007fa757483c"
     },
     "crates/aurora-viewer/src/world/maturity.rs": {
-      "amante": "05d7b2f75a8d8eab3b6eb84e817837d1746efb033f6944b37e5f10c51c70887e",
-      "upstream": "05d7b2f75a8d8eab3b6eb84e817837d1746efb033f6944b37e5f10c51c70887e"
+      "amante": "b57383a46930da08d6672171a217de24cdc5172ccf681a47c7e95cc9f8405d86",
+      "upstream": "b57383a46930da08d6672171a217de24cdc5172ccf681a47c7e95cc9f8405d86"
     },
     "crates/aurora-viewer/src/world/mod.rs": {
-      "amante": "650550fd56f937b0d0f30e5d1e0336f987548cf378599259e1adf2d784ac2a2e",
-      "upstream": "650550fd56f937b0d0f30e5d1e0336f987548cf378599259e1adf2d784ac2a2e"
+      "amante": "6ae6d58d91d6ff5a42b8024a25465bec9adabc83dec2f8720ce7e3a83350665f",
+      "upstream": "6ae6d58d91d6ff5a42b8024a25465bec9adabc83dec2f8720ce7e3a83350665f"
     },
     "crates/aurora-viewer/src/world/motion.rs": {
       "amante": "278143f6ffaaf1a815fbd23c16a878f10ab091e288a28213b7cc266e0d2315e4",
       "upstream": "278143f6ffaaf1a815fbd23c16a878f10ab091e288a28213b7cc266e0d2315e4"
     },
     "crates/aurora-viewer/src/world/mutes.rs": {
-      "amante": "658e28d9c5d5342bee1e3ad45d8b39015edf1460fc159eee0ad75f70e6e896b4",
-      "upstream": "658e28d9c5d5342bee1e3ad45d8b39015edf1460fc159eee0ad75f70e6e896b4"
+      "amante": "191337966c6e2cd96a2037f9f1a7f5e65b9439174ed1ff911228a393ec5a495e",
+      "upstream": "191337966c6e2cd96a2037f9f1a7f5e65b9439174ed1ff911228a393ec5a495e"
     },
     "crates/aurora-viewer/src/world/names.rs": {
       "amante": "3bf91f1df4655deeb82668e682b58b9db3268790e788f9b4c01fbc93a1df3ede",
       "upstream": "3bf91f1df4655deeb82668e682b58b9db3268790e788f9b4c01fbc93a1df3ede"
     },
     "crates/aurora-viewer/src/world/night_sky.rs": {
-      "amante": "04e474d6db2968333aa317f65d9dcd9c954e1a543c89baed0cdb6bf1af9712f5",
-      "upstream": "04e474d6db2968333aa317f65d9dcd9c954e1a543c89baed0cdb6bf1af9712f5"
+      "amante": "a5ef1e974b17ad1f14ae7d4815d8d7d0e0af011b80f011b8077fa8d3ce6cc8ee",
+      "upstream": "a5ef1e974b17ad1f14ae7d4815d8d7d0e0af011b80f011b8077fa8d3ce6cc8ee"
     },
     "crates/aurora-viewer/src/world/notice_topics.rs": {
       "amante": "6f5311cad2c725e6f3730084703fb0e50780e9bae59028ace4e6ece2118ffe56",
@@ -35274,8 +35450,8 @@
       "upstream": "e2cc88c954784de8b26ad4078f87a0c4b353740fcd0089b9feb77478ac0f1ecf"
     },
     "crates/aurora-viewer/src/world/notifications.rs": {
-      "amante": "74349c3fbda7fc1c190f49f3e4652503e6435ea76ede22d33e3f0b567277383f",
-      "upstream": "74349c3fbda7fc1c190f49f3e4652503e6435ea76ede22d33e3f0b567277383f"
+      "amante": "b1b9a89920b413b8f3b10586f92dd15b6c9a0dcb1daad77e41ca3bbfea84a62d",
+      "upstream": "b1b9a89920b413b8f3b10586f92dd15b6c9a0dcb1daad77e41ca3bbfea84a62d"
     },
     "crates/aurora-viewer/src/world/object_im_filter.rs": {
       "amante": "028d03fe69c5e86566699cb2b24058afa455083a42f75737077379e6c10e011d",
@@ -35302,8 +35478,8 @@
       "upstream": "2a44bbc97bcd6e2a525f07dedbc37890ec67df6a5216b9ab26af9ec28d156f2b"
     },
     "crates/aurora-viewer/src/world/outfit_backup.rs": {
-      "amante": "a9c249d246612f4ae88728c79a679fd3e69b4fcc9c93ad7b4b48530206870975",
-      "upstream": "a9c249d246612f4ae88728c79a679fd3e69b4fcc9c93ad7b4b48530206870975"
+      "amante": "37885c9b03bcd8666719b7ad797eaf60c770fb81cb1e75bacd5cea88bbbe12f4",
+      "upstream": "37885c9b03bcd8666719b7ad797eaf60c770fb81cb1e75bacd5cea88bbbe12f4"
     },
     "crates/aurora-viewer/src/world/outfit_backup/tests.rs": {
       "amante": "16855bfa75b7d6f257f54c57e0518b3fa18eadd2132a89221a847335259d48f9",
@@ -35362,12 +35538,12 @@
       "upstream": "ceed604f17bdd1628eab2c5a50b31b9fc9b0ab9e2a2968d1dfb13b618d69ed4f"
     },
     "crates/aurora-viewer/src/world/poser_consent.rs": {
-      "amante": "255d96d55af3284dd40b6c6570a9cf0aea24059ac76a7570b58c2bc622f86cab",
-      "upstream": "255d96d55af3284dd40b6c6570a9cf0aea24059ac76a7570b58c2bc622f86cab"
+      "amante": "c41110d98abaf92f6e0905e2bd6f77afef2dbfde013ff6333c939f597c7c3f27",
+      "upstream": "c41110d98abaf92f6e0905e2bd6f77afef2dbfde013ff6333c939f597c7c3f27"
     },
     "crates/aurora-viewer/src/world/poser_consent/tests.rs": {
-      "amante": "ea452d5d788ac5a429297018d1618abe7bc97c65fbbdef938d58fcb41fe97fe8",
-      "upstream": "ea452d5d788ac5a429297018d1618abe7bc97c65fbbdef938d58fcb41fe97fe8"
+      "amante": "b0509a3e31a7f547066870845fd7b2f1383b92bdca4afed2b0488e8d653b5091",
+      "upstream": "b0509a3e31a7f547066870845fd7b2f1383b92bdca4afed2b0488e8d653b5091"
     },
     "crates/aurora-viewer/src/world/profiles.rs": {
       "amante": "ecf9599fb17d016497c22842dc4f485c3383389dbde1a4ead68ef6a54bbfde51",
@@ -35430,8 +35606,8 @@
       "upstream": "56e8a625e5089fc003ac799ebd8ba37e9e75e8f8e18240187fc6fdc92c5d7b3f"
     },
     "crates/aurora-viewer/src/world/rlva/chat.rs": {
-      "amante": "ab8713d35ed43d26cb2b41e69c30a91c1fee78a0193ab47479d44f5ec6ff3889",
-      "upstream": "ab8713d35ed43d26cb2b41e69c30a91c1fee78a0193ab47479d44f5ec6ff3889"
+      "amante": "e5b919fdd8648222b102d20cd79527c650aac6411d2d8d724267ba6233ab2930",
+      "upstream": "e5b919fdd8648222b102d20cd79527c650aac6411d2d8d724267ba6233ab2930"
     },
     "crates/aurora-viewer/src/world/rlva/collection.rs": {
       "amante": "c6ae54b755ee2d04a2457b67d27b7d4c83e53931c39bea195ddca1e933912610",
@@ -35506,8 +35682,8 @@
       "upstream": "fb7ffc23be38467113a0b15b31da404aba1676362c3dcfcc62ef4c488c7613a1"
     },
     "crates/aurora-viewer/src/world/rlva/policy.rs": {
-      "amante": "588455c3c5fc32b5fda4f76ee473b4d120f6b37878e14c4d7aea3d596fa26283",
-      "upstream": "588455c3c5fc32b5fda4f76ee473b4d120f6b37878e14c4d7aea3d596fa26283"
+      "amante": "69efdacfd2e3e9369043377e8189a2afab0a412ea9c972ec3629dbdd8bd7c4eb",
+      "upstream": "69efdacfd2e3e9369043377e8189a2afab0a412ea9c972ec3629dbdd8bd7c4eb"
     },
     "crates/aurora-viewer/src/world/rlva/preferences.rs": {
       "amante": "692da2b9d5cd8ca32ab0bcb0b54943c6d631e4ba2f5b47fdfd5acabbaafccf82",
@@ -35538,8 +35714,8 @@
       "upstream": "9a04cbf5f114e9900e9ded921c6f9ae088d3fb0650de12d49487e5ca4d6f0c0c"
     },
     "crates/aurora-viewer/src/world/rlva/temporary.rs": {
-      "amante": "ffaa6f8f84e7b60eddfb98a1613f34a1e52859754970ffd413412a86ef015c68",
-      "upstream": "ffaa6f8f84e7b60eddfb98a1613f34a1e52859754970ffd413412a86ef015c68"
+      "amante": "f5111a9caaf53d51219138983fbdd562cdd17b4dc8a42351bbabab6d58171fe2",
+      "upstream": "f5111a9caaf53d51219138983fbdd562cdd17b4dc8a42351bbabab6d58171fe2"
     },
     "crates/aurora-viewer/src/world/rlva/tests.rs": {
       "amante": "52cddaf280cc9358f44374d3cdd6af3d02f5551e96f1420797df78a34426e329",
@@ -35564,6 +35740,10 @@
     "crates/aurora-viewer/src/world/script_debug.rs": {
       "amante": "85c5ac1094dc02378297fb2b031878909c08c9d388e27020423ede2607585d2f",
       "upstream": "85c5ac1094dc02378297fb2b031878909c08c9d388e27020423ede2607585d2f"
+    },
+    "crates/aurora-viewer/src/world/script_dialog_limit.rs": {
+      "amante": "5c27ec3ef31d2f10e3f6350cbfcfd5d7ea41d1942aa1583037a39ad377b7ed0b",
+      "upstream": "5c27ec3ef31d2f10e3f6350cbfcfd5d7ea41d1942aa1583037a39ad377b7ed0b"
     },
     "crates/aurora-viewer/src/world/search.rs": {
       "amante": "ea0bf70f78716e146fb8f6b5176a22b5e1cc3489c9353462fe18f281d9078b7e",
@@ -35597,9 +35777,13 @@
       "amante": "722535dde1f3984222661ec7aed7bb997ffccc8f7ddd109793e050ef35a76d42",
       "upstream": "722535dde1f3984222661ec7aed7bb997ffccc8f7ddd109793e050ef35a76d42"
     },
+    "crates/aurora-viewer/src/world/teleport_cancel.rs": {
+      "amante": "21c46e592a7778bd9d1f6daff5bff1f385c7aa448dc09d6c53b568691c8b20c2",
+      "upstream": "21c46e592a7778bd9d1f6daff5bff1f385c7aa448dc09d6c53b568691c8b20c2"
+    },
     "crates/aurora-viewer/src/world/teleport_invites.rs": {
-      "amante": "11eb61ac726be280d253e90088dba14034da885c41a05166cb3c60747c9c0cc5",
-      "upstream": "11eb61ac726be280d253e90088dba14034da885c41a05166cb3c60747c9c0cc5"
+      "amante": "483ef12607a7de1d2741a41a83cf6df7c2791acd0a24d1e2b91a8022bc1c5637",
+      "upstream": "483ef12607a7de1d2741a41a83cf6df7c2791acd0a24d1e2b91a8022bc1c5637"
     },
     "crates/aurora-viewer/src/world/temp_attachments.rs": {
       "amante": "70fe82984c76a167bb160f7bd970a4b74c4b30a9f5603ac795f551e0b39b1552",
@@ -35622,16 +35806,16 @@
       "upstream": "fabf3e6a12eccdc47aaff0f9f29e879b2a29c3e552eefdfd0d2c37f1371be84a"
     },
     "crates/aurora-viewer/src/world/transcripts.rs": {
-      "amante": "c7e0992bedcf2852d0c5e236d15239297591c4dc0f2b8bddf1c6cf8fc9d7631b",
-      "upstream": "c7e0992bedcf2852d0c5e236d15239297591c4dc0f2b8bddf1c6cf8fc9d7631b"
+      "amante": "6e05046a816bb7d3eaa3bb4077a1c76ccd06dd996ad368185167250ddd401be6",
+      "upstream": "6e05046a816bb7d3eaa3bb4077a1c76ccd06dd996ad368185167250ddd401be6"
     },
     "crates/aurora-viewer/src/world/user_info.rs": {
       "amante": "3aaac4adedf1416d25fee5e1dfa1845a5783778790c3277d37ee8ae9dd9d0acf",
       "upstream": "3aaac4adedf1416d25fee5e1dfa1845a5783778790c3277d37ee8ae9dd9d0acf"
     },
     "crates/aurora-viewer/src/world/voice_moderation.rs": {
-      "amante": "a6d3e141486d90df406a04b58c105a3e4e1fc9e40b1ee5c39bc0d348a6bc04ed",
-      "upstream": "a6d3e141486d90df406a04b58c105a3e4e1fc9e40b1ee5c39bc0d348a6bc04ed"
+      "amante": "646c1d746bd0783b264e76c75684a64ce70ac93f1fb88abe0f5ce12eb516803a",
+      "upstream": "646c1d746bd0783b264e76c75684a64ce70ac93f1fb88abe0f5ce12eb516803a"
     },
     "crates/aurora-viewer/src/world/windlight_presets.rs": {
       "amante": "d1a7b6380c30bf1ea19cf50188a50d2f8c500138f2dbe4683524f1b8325c23ec",
@@ -35658,12 +35842,12 @@
       "upstream": "715311bd3839f8b11a34dd1b7881b512623d18e709b92cc0e2bc187ca263be56"
     },
     "crates/aurora-voice/src/protocol.rs": {
-      "amante": "e7f2e9ab374231694506d2be4f80b660e28dd301d3e24784c90ecc0d79d4e086",
-      "upstream": "e7f2e9ab374231694506d2be4f80b660e28dd301d3e24784c90ecc0d79d4e086"
+      "amante": "3ab0f2065a28c063c5011909f9650ccdd971974e2ed4b87eb3b89a72c3bef0b7",
+      "upstream": "3ab0f2065a28c063c5011909f9650ccdd971974e2ed4b87eb3b89a72c3bef0b7"
     },
     "crates/aurora-voice/src/session.rs": {
-      "amante": "346e81d338389389fad974c00fcb1413eb63f686d4e6fcf5f5ee770021067cda",
-      "upstream": "346e81d338389389fad974c00fcb1413eb63f686d4e6fcf5f5ee770021067cda"
+      "amante": "cbc79ce10108978d07bd819f6e25904cf0a802b4b1f64c65ed473a4e88072e1b",
+      "upstream": "cbc79ce10108978d07bd819f6e25904cf0a802b4b1f64c65ed473a4e88072e1b"
     },
     "crates/aurora-voice/src/session_tests.rs": {
       "amante": "1b1079f74ac36af97392274a035e5428e567ed6937507df77e9a87a706aa7908",
@@ -35690,8 +35874,8 @@
       "upstream": "df1d91a12ca19b21e08fad3f65f4d96f755ce6e9f37076566dc5112186629939"
     },
     "docs/BUG_REPORTING.md": {
-      "amante": "9c2bc15aeb495d6944dba7c77caa28c9a15a2de092e0649232532e71863e1c4b",
-      "upstream": "9c2bc15aeb495d6944dba7c77caa28c9a15a2de092e0649232532e71863e1c4b"
+      "amante": "f02f8ffaad83c4f04d73e5f5bfc2b4732b4c172c692e5989f3af3d51282c812c",
+      "upstream": "f02f8ffaad83c4f04d73e5f5bfc2b4732b4c172c692e5989f3af3d51282c812c"
     },
     "docs/DEV_TOOLBOX.md": {
       "amante": "3df20ec104d440e3a99d94a3c1de4328e61179098f6d8d8dcb1e0c57216f0a31",
@@ -35718,8 +35902,8 @@
       "upstream": "d428459713bb4e5834378641845fbf28cf862c6477b5787f0819f5d1c7cf8e0c"
     },
     "docs/POSER.md": {
-      "amante": "92a01be8dd9ee32e2e0569dfeb978abbde55a0a6b4856cc57bee6995d7a995af",
-      "upstream": "92a01be8dd9ee32e2e0569dfeb978abbde55a0a6b4856cc57bee6995d7a995af"
+      "amante": "e36b8a5fb1a1b3144e2377e127b0d3e46aa76273d242d5789b8b1a0fc241a936",
+      "upstream": "e36b8a5fb1a1b3144e2377e127b0d3e46aa76273d242d5789b8b1a0fc241a936"
     },
     "docs/RLVA.md": {
       "amante": "f1e11f1c243faf99d879ed559cd0d55e37c6847511afeb3923cf0f6a0a4582e8",
@@ -35730,8 +35914,8 @@
       "upstream": "182ed02b1db4a20e75df27d259f7a6946a48a7a93f0f030ec46987e26b9bff2c"
     },
     "docs/TESTING.md": {
-      "amante": "4cdc5b07f45d48ef2d962d9f7cf2a798eefb1d2675d67c6237a9a1c296afda8c",
-      "upstream": "4cdc5b07f45d48ef2d962d9f7cf2a798eefb1d2675d67c6237a9a1c296afda8c"
+      "amante": "7562d7a2344a5307f71f2cac80767893d9e03a6c1ed8353721c3aff2755f751d",
+      "upstream": "7562d7a2344a5307f71f2cac80767893d9e03a6c1ed8353721c3aff2755f751d"
     },
     "docs/TRANSLATING.md": {
       "amante": "ad74063a10a1b13fe9aa13ba957f4e60e817ceccef8de72ab51664f2c190de8d",
@@ -35906,16 +36090,16 @@
       "upstream": "8460940b9c2fcba06a9336c8b90efcea8857fb78d8c0aa00178207cdef7e9ba5"
     },
     "news/en.md": {
-      "amante": "c8ec3beb3fecfc6b43cf9fe70a1cf0b3d341154167f60db0665fb80d63782807",
-      "upstream": "c8ec3beb3fecfc6b43cf9fe70a1cf0b3d341154167f60db0665fb80d63782807"
+      "amante": "fc36377e25bbf3885d2b8bb49fe0bc09198d80b206e72c02d5f22da052faac81",
+      "upstream": "fc36377e25bbf3885d2b8bb49fe0bc09198d80b206e72c02d5f22da052faac81"
     },
     "news/fr.md": {
-      "amante": "820b0704937c7b7f45deeb5fab9a64dc2fd4800ce38d3b1478299521ebbfbd0f",
-      "upstream": "820b0704937c7b7f45deeb5fab9a64dc2fd4800ce38d3b1478299521ebbfbd0f"
+      "amante": "7a0c2c542d034a2def23df68664adabd5d8ca644ab64113bd47ae979a6cc31c4",
+      "upstream": "7a0c2c542d034a2def23df68664adabd5d8ca644ab64113bd47ae979a6cc31c4"
     },
     "news/ja.md": {
-      "amante": "a8c4f99b3be9581f794194bb11ff3f0ce767736e80f7ba0b7dbcd1b1e5ba1c95",
-      "upstream": "a8c4f99b3be9581f794194bb11ff3f0ce767736e80f7ba0b7dbcd1b1e5ba1c95"
+      "amante": "4057f35fc3c1165bf31954ef874ede6e37d269610604b1c769bdbaa4f94827b8",
+      "upstream": "4057f35fc3c1165bf31954ef874ede6e37d269610604b1c769bdbaa4f94827b8"
     },
     "packaging/linux/aurora-viewer.desktop": {
       "amante": "d5e9c80b36d50969d0e0e71ccaf5a7a9a8111c2dc4a0d298866cc4447527672b",
@@ -35990,8 +36174,8 @@
       "upstream": "9f5fb0fa3180f0cad19a383381ec7b81e652da89fa4c9ecc45a012dbda7128a5"
     },
     "scripts/crash-triage.ps1": {
-      "amante": "8989e75e528953997ccd78e7524609daf5d275a99b9e89261b63b08a06dced11",
-      "upstream": "8989e75e528953997ccd78e7524609daf5d275a99b9e89261b63b08a06dced11"
+      "amante": "fd2a2711f8ac73f21c3b856e31dd301498ade5964b53dd182568fa1698bd7246",
+      "upstream": "fd2a2711f8ac73f21c3b856e31dd301498ade5964b53dd182568fa1698bd7246"
     },
     "scripts/end-task.ps1": {
       "amante": "80151a717a8cf44dc880e965993611f6520fbe7e2e481482e50c43e9f9059550",
@@ -36074,8 +36258,8 @@
       "upstream": "31e4c7b6f7f9ea8064d05eb38bb76f1ac9937051afd928e47f1a009bdbb21beb"
     },
     "scripts/test-crash-triage.ps1": {
-      "amante": "78f629d854ef9fe89f1cb7e188f627c9de68a0e221bbb957adbb5d9d4366834d",
-      "upstream": "78f629d854ef9fe89f1cb7e188f627c9de68a0e221bbb957adbb5d9d4366834d"
+      "amante": "da9be6cb6fa3295043bae8b64c5564703941e8c62fa5b40a7caeba235f6dadd4",
+      "upstream": "da9be6cb6fa3295043bae8b64c5564703941e8c62fa5b40a7caeba235f6dadd4"
     },
     "scripts/test-nightly.ps1": {
       "amante": "74455a39e82fc9fcac67d65d4532aa6ee042dc39ceead06d01f4b14ee975cf08",
@@ -36098,8 +36282,8 @@
       "upstream": "c45936d50bb2971b658818fe907c9dd9273ea5b02447fddaea9bfd438ce3b1f5"
     },
     "scripts/test-update.ps1": {
-      "amante": "da3db005aba683bf395b4b1a0c869522509225e687529762212000c6a43b3f90",
-      "upstream": "da3db005aba683bf395b4b1a0c869522509225e687529762212000c6a43b3f90"
+      "amante": "73dc1419fcb4e545bc27ff8d7f313dc21ceb856d3e411877a4abe810cd641daa",
+      "upstream": "73dc1419fcb4e545bc27ff8d7f313dc21ceb856d3e411877a4abe810cd641daa"
     },
     "scripts/tools/actions.ps1": {
       "amante": "69136d530c2d2d5ec0aa33c830942aab03077efb617ccc88d2d278deb6cacaef",
@@ -36118,8 +36302,8 @@
       "upstream": "95bccd0296d1ed5e0f1fc9b30ceefe6060db9833e5ba467f45f17d65a2003dfc"
     },
     "scripts/tools/crash-triage.ps1": {
-      "amante": "2ae78901b978169eecffdfc331883b6229b21dddd33927085ce9e530dab8406c",
-      "upstream": "2ae78901b978169eecffdfc331883b6229b21dddd33927085ce9e530dab8406c"
+      "amante": "a4dc994c7d2e97740160e22790d72944f80ee2e882fd91fa0fd3f22a54b9513b",
+      "upstream": "a4dc994c7d2e97740160e22790d72944f80ee2e882fd91fa0fd3f22a54b9513b"
     },
     "scripts/tools/nightly.ps1": {
       "amante": "4e8aa002f94a0c34c808642cd9a592d5837527fb34bc2e87717f879547692e77",
@@ -36170,6 +36354,6 @@
       "upstream": "51caba0efdc28994b8611b7554afc6170186f8e603f68f5f51680fc2634fd296"
     }
   },
-  "release": "v0.9.6",
-  "upstream": "019d41a5ba4b87fb2f6e7072ae5c003b31017c26"
+  "release": "v0.9.8",
+  "upstream": "e71e818f136a79219b675a55ea0e4a0ad9996409"
 }

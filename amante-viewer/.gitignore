@@ -1,6 +1,8 @@
 # Build output (one target per worktree, never committed)
 /target/
 **/target/
+# This is poser source, not a Cargo build directory.
+!/crates/aurora-viewer/src/ik_edit/project/target/
 # The macOS bundle scripts/package-macos.ps1 builds (docs/MACOS.md)
 /Aurora Viewer.app/
 
