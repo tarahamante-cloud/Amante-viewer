@@ -588,7 +588,7 @@ impl Session<'_> {
                 item: item.id,
             };
             let options = crate::scripts::ScriptOptions {
-                mono: true,
+                compile: crate::scripts::CompileTarget::for_item(item.flags),
                 running: false,
                 experience: Uuid::nil(),
             };
