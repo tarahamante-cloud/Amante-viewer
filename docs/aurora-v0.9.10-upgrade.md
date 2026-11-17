@@ -1,4 +1,4 @@
-# Amante Alpha v0.9.12 / Aurora v0.9.10
+# Amante Alpha v0.9.13 / Aurora v0.9.10
 
 Integrates complete official Aurora v0.9.10, commit
 1c9c39c2c33645fdbcf4351245bc15ee72d8dde9, on top of the complete v0.9.9 merge.
@@ -22,3 +22,9 @@ Release gate: full hosted native checks and Windows packaging must pass,
 followed by public asset checksum verification before replacing website links.
 The existing family download stays available until those gates pass.
 Automated checks do not establish logged-in desktop/GPU behavior.
+
+The first candidate failed the Libraries inventory test because upstream's
+generated notices described its dependency versions, not Amante's maintained
+dependencies. Regenerated notices using cargo-about 0.9.3 and retained the
+complete aws-lc-sys licence file as required by the upstream generator.
+No tests or runtime code were changed for this correction.

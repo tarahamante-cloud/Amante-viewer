@@ -1,6 +1,6 @@
 {
   "added": {
-    "AMANTE.md": "ed603ce078b86baf5428f66a9967e39ed99c004190f21e820896dd0769447b85",
+    "AMANTE.md": "7c080c92f23925b31215d60e0dbc08367126bb16822584168d4dc129cd188783",
     "assets/branding/amante-crest-icon.png": "e37250488896e309661bc9e936e3f8526284fa37ac89d46c1646c0c8ff4f4132",
     "crates/amante-local-ipc/Cargo.toml": "e113537b74d9b5c8354cb5bae71fdde62df39d70f94a1e004797ac2d1d09f1ad",
     "crates/amante-local-ipc/src/lib.rs": "267922388f57cafb9b628c1913f9663939de5f1bd27fb0e99e42cc41c6d1dee0",
@@ -154,7 +154,7 @@
       "upstream": "ac05c1cac9f98d6c36f0092993d6534cfe783cc1325b302a94253d7cab9b446c"
     },
     "THIRD-PARTY-LICENSES.md": {
-      "amante": "ffbe8bb0e0821541ef6fbe308632eac339e4fbf680c112381e397eecb4543786",
+      "amante": "6b66b4be51404fb3a3087011ab9cec0d1e11ca3d8099dc9132678b3a67b25194",
       "upstream": "ffbe8bb0e0821541ef6fbe308632eac339e4fbf680c112381e397eecb4543786"
     },
     "TRADEMARKS.md": {
