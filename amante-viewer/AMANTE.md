@@ -1,7 +1,7 @@
-# Amante Viewer Alpha v0.9.11
+# Amante Viewer Alpha v0.9.12
 
-Based on official Aurora Viewer release `v0.9.9`, commit
-`b630e7391e4454f1d9aec1a2e5b6521f6828858e`, including all previous updates.
+Based on official Aurora Viewer release `v0.9.10`, commit
+`1c9c39c2c33645fdbcf4351245bc15ee72d8dde9`, including all previous updates.
 
 This update includes the full official release, including its rendering,
 texture, clothing, networking and performance changes. Those engine files

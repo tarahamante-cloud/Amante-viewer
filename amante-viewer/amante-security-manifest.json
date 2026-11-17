@@ -9,8 +9,8 @@
   },
   "files": {
     "Cargo.lock": {
-      "base": "c7fbb86fcf6474df8767237f48401ee047d6f736c9c7d70d2b4b883820732f1e",
-      "sha256": "507dfaa62190f8cd4166b28d758ea9970bf7d16eb869d1b84726c2bdbffc17a6"
+      "base": "182da9c570348db414e24fa6de152db23429bfa6c5a3fa4c377e740a46dee9d3",
+      "sha256": "0284050fab15e370a8a0053a93790d399c07e1016bd0dedbf0e4e15558efea85"
     },
     "crates/aurora-viewer/Cargo.toml": {
       "base": "456424cc270b6b95aedbe28b304eda2b06ade0d1b14559ec9dddc4adeddee62f",
@@ -45,5 +45,5 @@
       "sha256": "aa31ba15c2c7417b184186de33ef6833ca2e6a95bff8134a28db0c5d49d535c9"
     }
   },
-  "upstream": "b630e7391e4454f1d9aec1a2e5b6521f6828858e"
+  "upstream": "1c9c39c2c33645fdbcf4351245bc15ee72d8dde9"
 }
