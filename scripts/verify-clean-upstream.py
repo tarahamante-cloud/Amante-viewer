@@ -65,7 +65,7 @@ for name, hashes in manifest["files"].items():
             packages = tomllib.loads(data.decode())["package"]
             versions = {p["name"]: p["version"] for p in packages}
             assert not set(versions) & {"ttf-parser", "owned_ttf_parser", "ab_glyph", "zvariant", "zbus_names", "zvariant_derive", "secret-service"}, "Unmaintained dependency reintroduced"
-            for package, version in {"ctutils": "0.4.7", "rustls-webpki": "0.103.16", "pulldown-cmark": "0.13.6"}.items():
+            for package, version in {"ctutils": "0.4.7", "rustls-webpki": "0.103.17", "pulldown-cmark": "0.13.6"}.items():
                 found = [p["version"] for p in packages if p["name"] == package]
                 # ctutils' only remaining consumer disappeared with the old
                 # saved-login backend. Absence resolves its advisory too.

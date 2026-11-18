@@ -63,7 +63,7 @@ class SecurityInventoryTests(unittest.TestCase):
 
     def test_missing_security_patch_fails(self):
         data = (SOURCE / "Cargo.lock").read_bytes().replace(
-            b'name = "rustls-webpki"\nversion = "0.103.16"',
+            b'name = "rustls-webpki"\nversion = "0.103.17"',
             b'name = "rustls-webpki"\nversion = "0.103.15"',
         )
         result = self.run_checker(data, approve_data=True)

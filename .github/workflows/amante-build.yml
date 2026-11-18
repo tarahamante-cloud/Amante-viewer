@@ -71,8 +71,8 @@ jobs:
           grep -qi llvmpipe "$RUNNER_TEMP/lavapipe-vulkaninfo.txt"
           VK_DRIVER_FILES="$swiftshader/vk_swiftshader_icd.json" VK_ICD_FILENAMES="$swiftshader/vk_swiftshader_icd.json" LD_LIBRARY_PATH="$swiftshader${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" XDG_RUNTIME_DIR="$runtime" vulkaninfo --summary | tee "$RUNNER_TEMP/swiftshader-vulkaninfo.txt"
           grep -qi swiftshader "$RUNNER_TEMP/swiftshader-vulkaninfo.txt"
-          rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
-          rustup override set 1.99.1
+          rustup toolchain install 1.100.0 --profile minimal --component rustfmt --component clippy
+          rustup override set 1.100.0
       - name: Formatting and upstream offline regression tests
         env:
           CARGO_BUILD_JOBS: "2"
@@ -119,8 +119,8 @@ jobs:
         run: python ../scripts/verify-clean-upstream.py . --require-tracked
       - name: Build complete native Windows x64 viewer
         run: |
-          rustup toolchain install 1.99.1 --profile minimal
-          rustup override set 1.99.1
+          rustup toolchain install 1.100.0 --profile minimal
+          rustup override set 1.100.0
           cargo build --release --locked -p aurora-viewer
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows build failed.' }
       - name: Check local media authorization and Blender pairing on Windows
@@ -179,9 +179,9 @@ jobs:
         run: python ../scripts/verify-clean-upstream.py . --require-tracked
       - name: Full offline native unit and integration harness
         run: |
-          rustup toolchain install 1.99.1 --profile minimal
+          rustup toolchain install 1.100.0 --profile minimal
           if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed.' }
-          rustup override set 1.99.1
+          rustup override set 1.100.0
           if ($LASTEXITCODE -ne 0) { throw 'Rust selection failed.' }
           ../scripts/test-clean-windows-offline.ps1 -Out ../generated-artifacts/windows-tests
       - name: Preserve actual harness results, including failures

@@ -9,28 +9,28 @@
   },
   "files": {
     "Cargo.lock": {
-      "base": "182da9c570348db414e24fa6de152db23429bfa6c5a3fa4c377e740a46dee9d3",
-      "sha256": "0284050fab15e370a8a0053a93790d399c07e1016bd0dedbf0e4e15558efea85"
+      "base": "090aecdc49d68ea578e65111fe44582c292313f7d1bcde586b0ad8d275c72ef7",
+      "sha256": "e52c7b75fa0b245d137218f2280c3220d79a4bc19fc4d3f441bcf8d443952d5d"
     },
     "crates/aurora-viewer/Cargo.toml": {
-      "base": "456424cc270b6b95aedbe28b304eda2b06ade0d1b14559ec9dddc4adeddee62f",
-      "sha256": "f76f97759418c6919f8bec741d5c208f72e10fac8b5d369dcc5eeb9fd50f01b0"
+      "base": "a6840e40528fac245ee6d264e17556b5593d713b9b9f1fd78f6dd08811c8344c",
+      "sha256": "67afcac193a436d54d250b5d053bc1ffef0082367d11fb4e674eada4d05d868b"
     },
     "crates/aurora-viewer/src/slurl_handoff.rs": {
-      "base": "61632b12cc5b9abe22de0c93db54a623e51d47412b36d25dc2ef3071055ac8d7",
-      "sha256": "0eaa2659eeb9611f351d59e14f210b5f0a0ed848584f3f634f9437d9f2559544"
+      "base": "71c569f2f5e70488dd9dd353ade6bfe97f0407f6d3d8a40263ca9fb132c099a4",
+      "sha256": "2a6cdf8d183bb61aa30e0d7af18cecba4dc086bc0ad32338a547dea061f748ca"
     },
     "crates/aurora-viewer/src/system_notify.rs": {
       "base": "82a5a5a610ebe5b78aae933354d7a1b3ec42da7b15ea25911b79e7f58aef0d1e",
       "sha256": "854ef9bab9bcc9a7513f20428fa253436a2673944000f48254f14f73f5942215"
     },
     "crates/aurora-viewer/src/ui/emoji.rs": {
-      "base": "5bc14a25e58683c537d275790ea151aa5e39ed8451964369c7392c11000c996b",
-      "sha256": "b25c6e6d807c00c6383e231dfce9817203031ee21b0f30a6aebcc650865fe38e"
+      "base": "d523eaa227a1077eba7ab0abe96c9897dbef07c3c7d890d71143f9ff3845751b",
+      "sha256": "1f09cc46460c7914868ccfeeb1f34f23b47a2ec93be930dbbdbe27783273d0e8"
     },
     "crates/aurora-viewer/src/ui/fonts.rs": {
-      "base": "007551da3250a9f48f06e37d7d1cfe23f19bc2fca0d37046a35cf0c3bc073326",
-      "sha256": "7ed1998dc7c3fcfc04acdb38d9098523db2902e688a6cd6fe21ce3f4563e4686"
+      "base": "266edd535086e28914331dcfd96dd6b2cf11580dcd88d076dff1f37a07b6896d",
+      "sha256": "22155a779feaeabc9e5eef48eb5501c27242ce928b57c3ba4093e8ee24ce8645"
     },
     "crates/aurora-viewer/src/ui/fonts/fallback.rs": {
       "base": "338bd80ae21eb343e012b5e263636aea0f33646fa858b570b87f7f19e4b342b7",
@@ -45,5 +45,5 @@
       "sha256": "aa31ba15c2c7417b184186de33ef6833ca2e6a95bff8134a28db0c5d49d535c9"
     }
   },
-  "upstream": "1c9c39c2c33645fdbcf4351245bc15ee72d8dde9"
+  "upstream": "3d1420a932af25ff62be3d22a4c5718e428b8c41"
 }
