@@ -166,7 +166,7 @@ mod bus {
         // background: a call that arrived before it subscribed found no reader
         // and was dropped unanswered, and the launch waited its whole timeout
         // (seen on loaded CI runners, a few milliseconds after the name).
-        let bus = match block_on(async { zbus::connection::Builder::session()?.serve_at(PATH, Links(tx))?.build().await }) {
+        let bus = match block_on(zbus::connection::Builder::session().serve_at(PATH, Links(tx)).build()) {
             Ok(bus) => bus,
             Err(e) => {
                 log::warn!("startup links: no session bus ({e})");

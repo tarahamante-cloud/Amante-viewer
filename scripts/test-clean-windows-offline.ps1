@@ -19,8 +19,14 @@ $targets = @(
     Get-Content -LiteralPath $buildLog | ForEach-Object {
         $message = $_ | ConvertFrom-Json
         if ($message.reason -eq 'compiler-artifact' -and $message.profile.test -and $message.executable) {
+            # Cargo can emit mixed "/" and "\" separators. Windows Firewall
+            # rejects those program paths even though launching the file works.
+            $binary = [IO.Path]::GetFullPath($message.executable.Replace('/', '\'))
+            if (!(Test-Path -LiteralPath $binary -PathType Leaf)) {
+                throw "Test executable does not exist: $binary"
+            }
             [pscustomobject]@{
-                binary = $message.executable
+                binary = $binary
                 directory = Split-Path $message.manifest_path -Parent
             }
         }
