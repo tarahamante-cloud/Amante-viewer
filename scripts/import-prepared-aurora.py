@@ -35,6 +35,7 @@ releases = {
     "v0.9.9": "b630e7391e4454f1d9aec1a2e5b6521f6828858e",
     "v0.9.10": "1c9c39c2c33645fdbcf4351245bc15ee72d8dde9",
     "v0.9.11": "3d1420a932af25ff62be3d22a4c5718e428b8c41",
+    "v0.9.13": "e961b7df61c49552773f3bc209d7d80d92a0b16b",
 }
 assert releases.get(tag) == commit, "Unexpected release"
 metadata = {"amante-upstream-manifest.json", "amante-security-manifest.json"}
@@ -43,8 +44,7 @@ assert all(not Path(p).is_absolute() and ".." not in Path(p).parts for p in file
 
 # Keep localization keys and protocol identifiers intact. The release's new
 # product-owned copy follows the existing Amante identity; author credits do not.
-for locale in ("en", "fr", "ja"):
-    path = prepared / f"crates/aurora-i18n/locales/{locale}.ftl"
+for path in sorted((prepared / "crates/aurora-i18n/locales").glob("*.ftl")):
     lines = path.read_text().splitlines(keepends=True)
     key = ""
     for i, line in enumerate(lines):

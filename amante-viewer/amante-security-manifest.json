@@ -9,41 +9,41 @@
   },
   "files": {
     "Cargo.lock": {
-      "base": "090aecdc49d68ea578e65111fe44582c292313f7d1bcde586b0ad8d275c72ef7",
-      "sha256": "e52c7b75fa0b245d137218f2280c3220d79a4bc19fc4d3f441bcf8d443952d5d"
+      "base": "b66dd8ebf23c26325460b0504ccc6aa1933d116da5726395ca6f21eef44c27e7",
+      "sha256": "ca016af22e887db8affe4478e4325b2d39925c3299823952c8b2aa9394b10906"
     },
     "crates/aurora-viewer/Cargo.toml": {
-      "base": "a6840e40528fac245ee6d264e17556b5593d713b9b9f1fd78f6dd08811c8344c",
-      "sha256": "67afcac193a436d54d250b5d053bc1ffef0082367d11fb4e674eada4d05d868b"
+      "base": "23dc7f49b0d7b4f07a55e1908b4b568746ef790a0ddc1aa1f43bdfabbae018f5",
+      "sha256": "92b54f668cb2b0170e461394501ed53fc8a19fb003904114bda6eed2ac59d78c"
     },
     "crates/aurora-viewer/src/slurl_handoff.rs": {
       "base": "71c569f2f5e70488dd9dd353ade6bfe97f0407f6d3d8a40263ca9fb132c099a4",
       "sha256": "995fde1ca774d543da16040219c4c39a3f6f16973cf7517c716b9f63c0c185b9"
     },
     "crates/aurora-viewer/src/system_notify.rs": {
-      "base": "82a5a5a610ebe5b78aae933354d7a1b3ec42da7b15ea25911b79e7f58aef0d1e",
-      "sha256": "854ef9bab9bcc9a7513f20428fa253436a2673944000f48254f14f73f5942215"
+      "base": "8c92465f47063f912813a958cefbf432a6fd5d7fc68b8a8e93b212f064fb68c8",
+      "sha256": "d00295a85cd986a319055e0658e96e8de59598118d3ac87337eb870e5f7cc2a5"
     },
     "crates/aurora-viewer/src/ui/emoji.rs": {
-      "base": "d523eaa227a1077eba7ab0abe96c9897dbef07c3c7d890d71143f9ff3845751b",
-      "sha256": "1f09cc46460c7914868ccfeeb1f34f23b47a2ec93be930dbbdbe27783273d0e8"
+      "base": "29d4639abf1cc98218497dfeeb30d1dfc458bd2e3573bad2fff77c98ff7bacb9",
+      "sha256": "ef8988fbd6fdfb01ea70384e666825f6d741f0003a5e9193b81ea41b7e10fac2"
     },
     "crates/aurora-viewer/src/ui/fonts.rs": {
-      "base": "266edd535086e28914331dcfd96dd6b2cf11580dcd88d076dff1f37a07b6896d",
-      "sha256": "22155a779feaeabc9e5eef48eb5501c27242ce928b57c3ba4093e8ee24ce8645"
+      "base": "74ab430bb6e05efcc8b6f3ca611ad4143e8f76956876921ff8d8ed9e04d45909",
+      "sha256": "08aac796058f3bae8e080479af219ba1f8a66d5ac05a105eee8895562a5d81ca"
     },
     "crates/aurora-viewer/src/ui/fonts/fallback.rs": {
       "base": "338bd80ae21eb343e012b5e263636aea0f33646fa858b570b87f7f19e4b342b7",
       "sha256": "141650c252ffbab18ba9043a905a13185ef607bfa87cecab1f643efde0826d24"
     },
     "crates/aurora-viewer/src/ui/fonts/preview.rs": {
-      "base": "dd4bf8c8d4e115d5495b44c5fbe0a7a1ab8efd0b579707e9b84a841222c5042a",
-      "sha256": "e49368a289fefbd31c90e89cc1662f726783c2ff39de9fcaad762ebb91336f36"
+      "base": "18a82782c0c28fb5355a4aaa593f6e9203b45c903168a60640a4b6320f748063",
+      "sha256": "7d93ab286d9222e3a2929d621d12d9ba3fe9700e040f734237a2232195ec9594"
     },
     "scripts/package.ps1": {
       "base": "9f8f4b964d7d9603313e3831f101cd6236a004616a1c24b6bbfc3d82bb78654d",
       "sha256": "aa31ba15c2c7417b184186de33ef6833ca2e6a95bff8134a28db0c5d49d535c9"
     }
   },
-  "upstream": "3d1420a932af25ff62be3d22a4c5718e428b8c41"
+  "upstream": "e961b7df61c49552773f3bc209d7d80d92a0b16b"
 }
