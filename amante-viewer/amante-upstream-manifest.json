@@ -1,6 +1,6 @@
 {
   "added": {
-    "AMANTE.md": "8d2ca21cbcfebce1076c08f2657e0b7b9a0ea3dfc5d2017edcddc52b3995d788",
+    "AMANTE.md": "d5c92a98b569bffa18e27683385685b511f4ae821aa53c7ab05c06d8267d4598",
     "assets/branding/amante-crest-icon.png": "e37250488896e309661bc9e936e3f8526284fa37ac89d46c1646c0c8ff4f4132",
     "crates/amante-local-ipc/Cargo.toml": "e113537b74d9b5c8354cb5bae71fdde62df39d70f94a1e004797ac2d1d09f1ad",
     "crates/amante-local-ipc/src/lib.rs": "267922388f57cafb9b628c1913f9663939de5f1bd27fb0e99e42cc41c6d1dee0",

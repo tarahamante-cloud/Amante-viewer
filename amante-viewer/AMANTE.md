@@ -7,9 +7,9 @@ Based on official Aurora Viewer release `v0.9.13`, commit
 This update includes Aurora's new interface languages, Game Controls, world
 photo looks and LUTs, Phototools lighting and depth-of-field controls,
 ray-traced shadows and indirect lighting, optional planet curvature, and
-updates across chat, avatars, inventory and building tools. The full engine,
-rendering, texture, clothing, networking and performance source is
-byte-identical to official Aurora `v0.9.13`, not locally rewritten.
+updates across chat, avatars, inventory and building tools. The rendering,
+texture, clothing, networking and other protected runtime files are
+byte-identical to official Aurora `v0.9.13`.
 Amante retains its name, crest, palette, profile and credential namespaces,
 owner feeds, packaging, maintained dependencies and local-peer protections.
 Amante's mutual Blender session pairing remains in place; use the matching
