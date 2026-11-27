@@ -36430,7 +36430,7 @@
       "upstream": "d5d19926675649241fcac040459ffeb42b5429c895b18297ac240e8acaf0ac7f"
     },
     "crates/aurora-viewer/src/updater.rs": {
-      "amante": "5dcc17acba0ba065780f52f7c142328787b19fadb76336da42ce8cba203a84bf",
+      "amante": "44198f6df3f4d90f363927ea1273ac22719dac88f49809141f8cc10b93c3eb9a",
       "upstream": "44198f6df3f4d90f363927ea1273ac22719dac88f49809141f8cc10b93c3eb9a"
     },
     "crates/aurora-viewer/src/url_scheme.rs": {

@@ -28,6 +28,9 @@ allowed_security_files = {
     "crates/aurora-viewer/src/ui/fonts/preview.rs",
     "crates/aurora-viewer/src/system_notify.rs",
     "crates/aurora-viewer/src/slurl_handoff.rs",
+    "crates/aurora-viewer/src/ui/options/pages/game_controls.rs",
+    "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs",
+    "crates/aurora-viewer/src/updater.rs",
 }
 allowed_security_added = {
     "crates/amante-fonts/Cargo.toml", "crates/amante-fonts/src/lib.rs",

@@ -42,6 +42,52 @@ metadata = {"amante-upstream-manifest.json", "amante-security-manifest.json"}
 files = set(git("ls-files", "-z").decode().strip("\0").split("\0")) - metadata
 assert all(not Path(p).is_absolute() and ".." not in Path(p).parts for p in files)
 
+# Keep the Amante font migration and maintained Linux bus version compatible
+# with the upstream UI tests and portal implementation. These are narrowly
+# inventoried source adaptations, not renderer or runtime changes.
+if tag == "v0.9.13":
+    adaptations = [
+        (
+            "crates/aurora-viewer/src/ui/options/pages/game_controls.rs",
+            "ttf_parser::Face::parse(crate::ui::fonts::PROMPTFONT_TTF, 0)",
+            "amante_fonts::Face::parse(crate::ui::fonts::PROMPTFONT_TTF, 0)",
+        ),
+        (
+            "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs",
+            '''        .sender(DESTINATION)?
+        .interface(REQUEST)?
+        .member("Response")?
+        .build();
+    let mut responses = MessageStream::for_match_rule(rule, &bus, Some(64)).await?;''',
+            '''        .sender(DESTINATION)
+        .interface(REQUEST)
+        .member("Response")
+        .build()?;
+    let mut responses = MessageStream::for_match_rule(
+        rule,
+        &bus,
+        Some(std::num::NonZeroUsize::new(64).expect("non-zero queue size")),
+    )
+    .await?;''',
+        ),
+        (
+            "crates/aurora-viewer/src/updater.rs",
+            "                checksum: None,",
+            "                sha256: None,",
+        ),
+    ]
+    for name, old, new in adaptations:
+        path = prepared / name
+        text = path.read_text()
+        if text.count(old) == 1:
+            path.write_text(text.replace(old, new, 1))
+        elif name.endswith("/portal.rs"):
+            assert "std::num::NonZeroUsize::new(64)" in text and ".build()?" in text, (
+                f"Expected one upstream compatibility point in {name}"
+            )
+        else:
+            assert text.count(new) == 1, f"Expected one upstream compatibility point in {name}"
+
 # Keep localization keys and protocol identifiers intact. The release's new
 # product-owned copy follows the existing Amante identity; author credits do not.
 for path in sorted((prepared / "crates/aurora-i18n/locales").glob("*.ftl")):
@@ -67,6 +113,9 @@ security_files = {
     "crates/aurora-viewer/src/ui/fonts/preview.rs",
     "crates/aurora-viewer/src/system_notify.rs",
     "crates/aurora-viewer/src/slurl_handoff.rs",
+    "crates/aurora-viewer/src/ui/options/pages/game_controls.rs",
+    "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs",
+    "crates/aurora-viewer/src/updater.rs",
 }
 security_prefixes = ("crates/amante-fonts/", "crates/amante-credentials/")
 manifest = {"upstream": commit, "release": tag, "files": {}, "added": {}}

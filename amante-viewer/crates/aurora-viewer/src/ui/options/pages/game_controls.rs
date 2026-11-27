@@ -885,7 +885,7 @@ mod tests {
 
     #[test]
     fn every_named_input_has_a_pictogram_in_the_font() {
-        let face = ttf_parser::Face::parse(crate::ui::fonts::PROMPTFONT_TTF, 0).expect("embedded font");
+        let face = amante_fonts::Face::parse(crate::ui::fonts::PROMPTFONT_TTF, 0).expect("embedded font");
         let names = gc::BUTTON_NAMES.iter().chain(AXIS_NAMES.iter()).chain([&AXIS_TRIGGERS]);
         for name in names {
             let g = glyph(name).unwrap_or_else(|| panic!("{name} has no pictogram"));

@@ -647,7 +647,7 @@ mod tests {
                 notes: "Amante Viewer Alpha v0.9.6".into(),
                 url: "https://github.com/tarahamante-cloud/Amante-viewer/releases/tag/v0.9.6".into(),
                 archive: None,
-                checksum: None,
+                sha256: None,
                 required: false,
                 minimum: None,
                 grace: Duration::ZERO,

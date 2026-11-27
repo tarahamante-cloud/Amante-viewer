@@ -26,11 +26,12 @@ pub(super) async fn select(request: &Request, cancellation: &Cancellation) -> an
     // Match the returned handle below, including portals that ignore our token.
     let rule = MatchRule::builder()
         .msg_type(Type::Signal)
-        .sender(DESTINATION)?
-        .interface(REQUEST)?
-        .member("Response")?
-        .build();
-    let mut responses = MessageStream::for_match_rule(rule, &bus, Some(64)).await?;
+        .sender(DESTINATION)
+        .interface(REQUEST)
+        .member("Response")
+        .build()?;
+    let mut responses =
+        MessageStream::for_match_rule(rule, &bus, Some(std::num::NonZeroUsize::new(64).expect("non-zero queue size"))).await?;
     if cancellation.cancelled() {
         return Ok(Vec::new());
     }

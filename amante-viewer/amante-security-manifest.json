@@ -16,6 +16,10 @@
       "base": "23dc7f49b0d7b4f07a55e1908b4b568746ef790a0ddc1aa1f43bdfabbae018f5",
       "sha256": "92b54f668cb2b0170e461394501ed53fc8a19fb003904114bda6eed2ac59d78c"
     },
+    "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs": {
+      "base": "2694e24622baa1837e35a18dc969d3d29778701775422a2a685a385f2eea4c9e",
+      "sha256": "f50763fd11ae55b4be5a03ae8e96fb1cadbb0df7dbe0c5668287a910c48211b5"
+    },
     "crates/aurora-viewer/src/slurl_handoff.rs": {
       "base": "71c569f2f5e70488dd9dd353ade6bfe97f0407f6d3d8a40263ca9fb132c099a4",
       "sha256": "995fde1ca774d543da16040219c4c39a3f6f16973cf7517c716b9f63c0c185b9"
@@ -39,6 +43,14 @@
     "crates/aurora-viewer/src/ui/fonts/preview.rs": {
       "base": "18a82782c0c28fb5355a4aaa593f6e9203b45c903168a60640a4b6320f748063",
       "sha256": "7d93ab286d9222e3a2929d621d12d9ba3fe9700e040f734237a2232195ec9594"
+    },
+    "crates/aurora-viewer/src/ui/options/pages/game_controls.rs": {
+      "base": "1e205f9f1f1447a4008d19e255960758a65d87f0658d0bf2a3ed292d7bd78b1f",
+      "sha256": "036f9fa82c14eeda1c82aec07b7d80212d6df191f209407c9e682d48305421ba"
+    },
+    "crates/aurora-viewer/src/updater.rs": {
+      "base": "44198f6df3f4d90f363927ea1273ac22719dac88f49809141f8cc10b93c3eb9a",
+      "sha256": "ba0dac899ca4a90a1a0dd639f0de80ec4d7bd934e63e45caacf93d1e39e20454"
     },
     "scripts/package.ps1": {
       "base": "9f8f4b964d7d9603313e3831f101cd6236a004616a1c24b6bbfc3d82bb78654d",
