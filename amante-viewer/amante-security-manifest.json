@@ -18,7 +18,7 @@
     },
     "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs": {
       "base": "2694e24622baa1837e35a18dc969d3d29778701775422a2a685a385f2eea4c9e",
-      "sha256": "f50763fd11ae55b4be5a03ae8e96fb1cadbb0df7dbe0c5668287a910c48211b5"
+      "sha256": "f3b42db20bf324b8f0c4aabe3e0065347031fceff03195801c7a275b2e786da9"
     },
     "crates/aurora-viewer/src/slurl_handoff.rs": {
       "base": "71c569f2f5e70488dd9dd353ade6bfe97f0407f6d3d8a40263ca9fb132c099a4",

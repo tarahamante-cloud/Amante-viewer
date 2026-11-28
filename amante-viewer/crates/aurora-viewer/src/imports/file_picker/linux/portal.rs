@@ -2,11 +2,7 @@ use super::super::Kind;
 use super::{Cancellation, PathBuf, Request};
 use futures_lite::{StreamExt, future::race};
 use std::{collections::HashMap, time::Duration};
-use zbus::{
-    Connection, MatchRule, MessageStream, Proxy,
-    message::Type,
-    zvariant::{OwnedObjectPath, OwnedValue, Value},
-};
+use zbus::{Connection, MatchRule, MessageStream, OwnedObjectPath, OwnedVariant, Proxy, Variant, message::Type};
 
 const DESTINATION: &str = "org.freedesktop.portal.Desktop";
 const REQUEST: &str = "org.freedesktop.portal.Request";
@@ -46,7 +42,7 @@ pub(super) async fn select(request: &Request, cancellation: &Cancellation) -> an
             while let Some(message) = responses.next().await {
                 let message = message?;
                 if message.header().path() == Some(&*handle) {
-                    let (code, mut results): (u32, HashMap<String, OwnedValue>) = message.body().deserialize()?;
+                    let (code, mut results): (u32, HashMap<String, OwnedVariant>) = message.body().deserialize()?;
                     if code != 0 {
                         return Ok(Vec::new());
                     }
@@ -100,16 +96,16 @@ async fn wait_for_response<C: std::future::Future<Output = anyhow::Result<()>>>(
     if cancellation.cancelled() { Ok(Vec::new()) } else { response }
 }
 
-fn options<'a>(request: &'a Request, token: &'a str) -> HashMap<&'static str, Value<'a>> {
+fn options<'a>(request: &'a Request, token: &'a str) -> HashMap<&'static str, Variant<'a>> {
     let mut options = HashMap::from([
-        ("handle_token", Value::from(token)),
-        ("modal", Value::from(false)),
-        ("multiple", Value::from(request.kind == Kind::Files)),
-        ("directory", Value::from(request.kind == Kind::Folder)),
+        ("handle_token", Variant::from(token)),
+        ("modal", Variant::from(false)),
+        ("multiple", Variant::from(request.kind == Kind::Files)),
+        ("directory", Variant::from(request.kind == Kind::Folder)),
     ]);
     if !request.extensions.is_empty() {
         let patterns: Vec<_> = request.extensions.iter().map(|ext| (0u32, format!("*.{ext}"))).collect();
-        options.insert("filters", Value::from(vec![(&*request.label, patterns)]));
+        options.insert("filters", Variant::from(vec![(&*request.label, patterns)]));
     }
     options
 }
@@ -192,16 +188,16 @@ mod tests {
                 },
             };
             let options = options(&request, "aurora_import_fixture");
-            assert_eq!(options["handle_token"], Value::from("aurora_import_fixture"));
-            assert_eq!(options["modal"], Value::from(false));
-            assert_eq!(options["multiple"], Value::from(kind == Kind::Files));
-            assert_eq!(options["directory"], Value::from(kind == Kind::Folder));
+            assert_eq!(options["handle_token"], Variant::from("aurora_import_fixture"));
+            assert_eq!(options["modal"], Variant::from(false));
+            assert_eq!(options["multiple"], Variant::from(kind == Kind::Files));
+            assert_eq!(options["directory"], Variant::from(kind == Kind::Folder));
             if kind == Kind::Folder {
                 assert!(!options.contains_key("filters"));
             } else {
                 assert_eq!(
                     options["filters"],
-                    Value::from(vec![("Textures", vec![(0u32, "*.png"), (0u32, "*.j2c")])])
+                    Variant::from(vec![("Textures", vec![(0u32, "*.png"), (0u32, "*.j2c")])])
                 );
             }
         }

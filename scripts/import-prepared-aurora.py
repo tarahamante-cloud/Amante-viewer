@@ -7,6 +7,7 @@ This is source synchronization only: it does not publish a build or a download.
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tarfile
@@ -71,6 +72,11 @@ if tag == "v0.9.13":
     .await?;''',
         ),
         (
+            "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs",
+            "    zvariant::{OwnedObjectPath, OwnedValue, Value},",
+            "    OwnedObjectPath, OwnedValue, Value,",
+        ),
+        (
             "crates/aurora-viewer/src/updater.rs",
             "                checksum: None,",
             "                sha256: None,",
@@ -87,6 +93,13 @@ if tag == "v0.9.13":
             )
         else:
             assert text.count(new) == 1, f"Expected one upstream compatibility point in {name}"
+
+    portal = prepared / "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs"
+    text = portal.read_text()
+    for old, new in (("OwnedValue", "OwnedVariant"), ("Value", "Variant")):
+        text, count = re.subn(rf"\b{old}\b", new, text)
+        assert count or re.search(rf"\b{new}\b", text), f"Expected zbus type in portal.rs: {old}"
+    portal.write_text(text)
 
 # Keep localization keys and protocol identifiers intact. The release's new
 # product-owned copy follows the existing Amante identity; author credits do not.
