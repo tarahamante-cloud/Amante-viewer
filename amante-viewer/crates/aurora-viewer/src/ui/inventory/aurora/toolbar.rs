@@ -55,6 +55,53 @@ fn details_button(ui: &mut egui::Ui, p: &Palette, prefs: &mut InventoryPreferenc
     }
 }
 
+/// The explorer's views, the Legacy Viewer's "List view", "Gallery view"
+/// and "Combination view" of its single folder mode
+/// (menu_inventory_view_default.xml), and the tiles' sizes.
+fn view_button(ui: &mut egui::Ui, p: &Palette, prefs: &mut InventoryPreferences) {
+    use super::super::view::ExplorerView;
+    let views = [
+        (ExplorerView::List, "list-filled", aurora_i18n::tr!("inventory-view-list")),
+        (
+            ExplorerView::Gallery,
+            "layout-grid-filled",
+            aurora_i18n::tr!("inventory-view-gallery"),
+        ),
+        (
+            ExplorerView::Combination,
+            "layout-board-split-filled",
+            aurora_i18n::tr!("inventory-view-combination"),
+        ),
+    ];
+    let current = prefs.explorer.view;
+    let icon = views
+        .iter()
+        .find(|(view, ..)| *view == current)
+        .map_or("list-filled", |(_, icon, _)| icon);
+    let button = tool_button(ui, p, icon, aurora_i18n::tr!("inventory-view-menu"), current != ExplorerView::List);
+    menu::dropdown(&button, p, egui::PopupCloseBehavior::CloseOnClick, |ui| {
+        for (view, icon, label) in views {
+            if menu::check(ui, p, icon, label, current == view, true) {
+                prefs.explorer.view = view;
+            }
+        }
+        menu::separator(ui, p);
+        menu::section(ui, p, aurora_i18n::tr!("inventory-tile-size"));
+        let side = super::gallery::side(&prefs.explorer) as u16;
+        let tiles = current != ExplorerView::List;
+        for (size, label) in [
+            (96, aurora_i18n::tr!("inventory-tile-small")),
+            (128, aurora_i18n::tr!("inventory-tile-medium")),
+            (192, aurora_i18n::tr!("inventory-tile-large")),
+        ] {
+            if menu::check_keys(ui, p, "", label, tiles && side == size, tiles, "") {
+                // the Legacy Viewer's size is the default one
+                prefs.explorer.tile_size = if size == 128 { 0 } else { size };
+            }
+        }
+    });
+}
+
 /// The tabs of the narrow width: an icon over a short name each; the
 /// Received tab counts deliveries not looked at yet.
 pub(super) fn tabs(ui: &mut egui::Ui, p: &Palette, inv: &Inventory, st: &mut InventoryUi, prefs: &InventoryPreferences) {
@@ -104,7 +151,10 @@ pub(super) fn tabs(ui: &mut egui::Ui, p: &Palette, inv: &Inventory, st: &mut Inv
             );
         }
         response.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, true, selected, label));
-        if response.clicked() {
+        // inventory held over a tab opens it (panel_main_inventory.xml's
+        // open_tabs_on_drag_and_drop)
+        let held = crate::ui::inventory::drag::navigation::tab_held_over(ui, cell, response.id);
+        if response.clicked() || (held && !selected) {
             set_tab(st, prefs, tab);
         }
     }
@@ -369,6 +419,7 @@ fn search_line(ui: &mut egui::Ui, p: &Palette, inv: &Inventory, st: &mut Invento
         ui.spacing_mut().item_spacing.x = 6.0;
         search(ui, p, inv, st, prefs, ui.available_width(), layout);
     });
+    crate::ui::inventory::drag::navigation::search_top(ui.ctx(), st.ui_id, _row.response.rect.top());
     #[cfg(test)]
     ui.ctx()
         .data_mut(|data| data.insert_temp(egui::Id::unique("inventory_search_row"), _row.response.rect));
@@ -473,6 +524,7 @@ pub(super) fn explorer_row(
             }
             details_button(ui, p, prefs, layout);
             rights::button(ui, p, &mut prefs.rights, BAR);
+            view_button(ui, p, prefs);
             let columns = tool_button(ui, p, "layout-columns", aurora_i18n::tr!("inventory-columns"), false);
             menu::dropdown(&columns, p, egui::PopupCloseBehavior::CloseOnClickOutside, |ui| {
                 super::columns::options(ui, p, &mut prefs.explorer, &mut prefs.rights);
@@ -500,6 +552,7 @@ pub(super) fn explorer_row(
             }
             details_button(ui, p, prefs, layout);
             rights::button(ui, p, &mut prefs.rights, BAR);
+            view_button(ui, p, prefs);
             let columns = tool_button(ui, p, "layout-columns", aurora_i18n::tr!("inventory-columns"), false);
             menu::dropdown(&columns, p, egui::PopupCloseBehavior::CloseOnClickOutside, |ui| {
                 super::columns::options(ui, p, &mut prefs.explorer, &mut prefs.rights);

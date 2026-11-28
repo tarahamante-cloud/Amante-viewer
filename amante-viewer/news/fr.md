@@ -24,10 +24,34 @@ Une ligne vide commence un nouveau paragraphe.
 - Mode d'emploi complet : HUMANS.md, « Publier une actualité ».
 -->
 
-# Actualités d'Aurora Viewer
+# Actualités d'Amante Viewer
 
-## 2026-11-16 — Aurora 0.9.10 : le Director, la transparence dans le bon ordre et une météo qui porte plus loin
-Le Director permet de filmer dans le monde : gardez des vues de la caméra comme images clés sur une ligne de temps, rejouez-les en un seul plan fluide avec le monde seul, et enregistrez une vidéo avec votre propre ffmpeg. Le verre, les rideaux et les couches des cheveux mesh s'affichent dans leur vrai ordre à chaque pixel (Préférences › Graphismes, Ordre des surfaces transparentes) ; merci à Anne Skydancer pour le choix Stochastique. La Météo Aurora porte plus loin, avec une neige plus stable. Le cache est vidé une fois au premier lancement et se remplit tout seul ; vos réglages sont gardés.
+## 2026-11-27 — Amante 0.9.16 : les nouveautés Amante 0.9.12 et 0.9.13
+Amante ajoute 15 langues, les Contrôles de jeu, les looks photo et LUT sur le monde, l’éclairage et la profondeur de champ dans Outils photo, les ombres et l’éclairage indirect par lancer de rayons, ainsi qu’une courbure planétaire optionnelle. Chat, avatars et inventaire évoluent aussi. Vos réglages et comptes sont conservés ; le premier monde peut mettre plus de temps à se recharger.
+[Notes de version](https://github.com/tarahamante-cloud/Amante-viewer/releases/tag/v0.9.16)
+
+## 2026-11-21 — Amante 0.9.12 : quinze langues, les Contrôles de jeu et un look pour le monde
+Amante parle maintenant quinze langues : l'allemand, l'espagnol, l'italien, le polonais, le turc, le russe, l'ukrainien, le norvégien, le portugais et le chinois rejoignent l'anglais, le français et le japonais, grâce aux traductions de la communauté. Les Contrôles de jeu pilotent l'avatar, la caméra et les scripts avec une manette, comme le viewer LL 26.5. Les looks photo et les LUT peuvent rester sur le monde, avec 30 nouveaux looks de JuicyBomb. Les versions avant la 0.9.12 doivent se mettre à jour, sous 12 heures. Le cache est vidé une fois au premier lancement ; vos réglages sont gardés.
+[En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.12)
+
+## 2026-11-21 — Chat, avatars et inventaire
+Les messages privés envoyés depuis un autre appareil, l'application mobile comprise, apparaissent dans la conversation. Les avatars déjà vus s'affichent tout de suite depuis une copie locale, pendant que la région les envoie. L'inventaire a une Vue galerie, les notes ont Rechercher et remplacer, et la fenêtre Seconde caméra garde votre avatar en vue. La fenêtre Météo Amante est repensée et réunit tous les réglages de la météo. Un compte Second Life se crée depuis l'écran de connexion, et Linux installe ses mises à jour sur place.
+
+## 2026-11-21 — Encore plus comme le Legacy Viewer
+La fenêtre Outils photo, les médias et les sons entendus depuis l'avatar, le micro fermé en sourdine, les permissions des objets dans les objets, Désactiver le verre en accessibilité, et RLVa comme dans le Legacy Viewer. Merci à anne-skydancer, circuskid, ClifHofmann, dash-sl, Gaalrauch, Glychd, Izusl, KanikaBreed, Marakiinfinity, Memekiller, Nowalski, Odessa-Draekavik, PumpkinSpicePanda, et aux traducteurs 00JackWild00, 1615424277, DDynamic-Evolution, deontodi-ctrl, SmurfCat1234, wolfosbournesl.
+
+## 2026-11-18 — Amante 0.9.11 : un Director complet, le Mode jeu et les photos à 360°
+Le Director devient un vrai outil de machinima : plans prêts à l'emploi, rendus jusqu'en 4K, films avec leur son, montages, looks et LUT du mode photo, poignées sur les caméras, et ffmpeg téléchargé en un clic. Le Mode jeu met Amante en retrait pendant que vous jouez : le monde n'est plus dessiné, la mémoire vidéo et la RAM reviennent au jeu, le chat et les sons continuent. La fenêtre photo prend des photos à 360°. Les versions avant la 0.9.11 doivent se mettre à jour, sous 12 heures. Le cache est vidé une fois au premier lancement ; vos réglages sont gardés.
+[En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.11)
+
+## 2026-11-18 — Photos, inventaire et chat
+La fenêtre photo garde son inclinaison dans les préréglages, fait regarder la caméra à vous et aux autres, et règle les ombres et l'occlusion ambiante ; les photos à 360° s'ouvrent en panorama. L'inventaire peut afficher deux panneaux côte à côte, les Vêtements préférés ont des lignes avec image et un bouton Porter, et les sons se jouent en local ou dans le monde. L'Omnifiltre cache, remplace ou répond aux messages indésirables. La barre de chat peut rester affichée, n'apparaître qu'à la saisie ou laisser la place aux Conversations, et ses touches se changent.
+
+## 2026-11-18 — Encore plus comme le Legacy Viewer
+Le Support de pose, une fréquence cible (Autotune), le proxy, la synchronisation des scripts avec des éditeurs externes, les poses du Legacy Viewer et d'Alchemy, les sons d'interface manquants et de nombreux correctifs RLVa. Merci à anne-skydancer, Bruica, chrzang, circuskid, ClifHofmann, dash-sl, Diviniity, emmelinedevere, Gaalrauch, Glychd, iGao, Izusl, KanikaBreed, lambskin, Marakiinfinity, Memekiller, MilkIsPrettyGood, Nowalski, nybyl, Odessa-Draekavik, RheaMercury, tasia-ai, vexxbyte, wolfosbournesl, Xevian et zdub0is.
+
+## 2026-11-16 — Amante 0.9.10 : le Director, la transparence dans le bon ordre et une météo qui porte plus loin
+Le Director permet de filmer dans le monde : gardez des vues de la caméra comme images clés sur une ligne de temps, rejouez-les en un seul plan fluide avec le monde seul, et enregistrez une vidéo avec votre propre ffmpeg. Le verre, les rideaux et les couches des cheveux mesh s'affichent dans leur vrai ordre à chaque pixel (Préférences › Graphismes, Ordre des surfaces transparentes) ; merci à Anne Skydancer pour le choix Stochastique. La Météo Amante porte plus loin, avec une neige plus stable. Le cache est vidé une fois au premier lancement et se remplit tout seul ; vos réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.10)
 
 ## 2026-11-16 — Chat, personnes et monde
@@ -36,8 +60,8 @@ Le Journal des conversations et les options des conversations fonctionnent comme
 ## 2026-11-16 — Construction, avatars et encore plus comme le Legacy Viewer
 Enregistrez des objets en Collada ou en OBJ, Sélectionner les faces avec cette texture, un sous-menu Construire › Options, et des champs numériques qui suivent la molette. Le menu Vitesse des animations, l'effet Doppler sur les sons du monde en mouvement, les boutons de souris façon MMO (désactivés par défaut) et des aides au combat en vue subjective. Une mise à jour ne revient plus en arrière quand le cache est occupé. Merci à anne-skydancer, circuskid, emmelinedevere, Gaalrauch, iGao, KanikaBreed, Marakiinfinity, Memekiller, Nowalski, Odessa-Draekavik et RheaMercury.
 
-## 2026-11-13 — Aurora 0.9.9 : Météo Aurora, Studio avatar et scripts Lua
-Météo Aurora apporte la pluie, la neige, le vent, l'orage et les aurores boréales, avec flaques, neige au sol et traces de pas : choisissez la vôtre dans la fenêtre Environnement, ou laissez les régions la choisir (désactivé par défaut). Le Studio avatar est un espace calme pour habiller, poser et photographier votre avatar, avec son propre éditeur d'animations : images clés, ligne de temps, import ANIM et BVH. Les scripts SLua ont un vrai éditeur, avec couleurs Lua, complétion et aide. Le cache est vidé une fois au premier lancement et se remplit tout seul ; vos réglages sont gardés.
+## 2026-11-13 — Amante 0.9.9 : Météo Amante, Studio avatar et scripts Lua
+Météo Amante apporte la pluie, la neige, le vent, l'orage et les aurores boréales, avec flaques, neige au sol et traces de pas : choisissez la vôtre dans la fenêtre Environnement, ou laissez les régions la choisir (désactivé par défaut). Le Studio avatar est un espace calme pour habiller, poser et photographier votre avatar, avec son propre éditeur d'animations : images clés, ligne de temps, import ANIM et BVH. Les scripts SLua ont un vrai éditeur, avec couleurs Lua, complétion et aide. Le cache est vidé une fois au premier lancement et se remplit tout seul ; vos réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.9)
 
 ## 2026-11-13 — Manette, VR, construction et avatars
@@ -46,15 +70,15 @@ Avec une manette, sur l'écran ou en VR, passez du mode première personne au mo
 ## 2026-11-13 — Encore plus comme le Legacy Viewer
 Des curseurs d'opacité pour les fenêtres, les barres et les menus (Préférences › Apparence), la liste des médias proches sous le bouton des médias, toutes les réponses « ne plus demander » dans Préférences › Confirmations, Lumières proches maximum, les options de modérateur dans les chats de groupe, un bannissement de tous vos groupes, la musique des parcelles en fondu d'une station à l'autre, et le soleil et la lune dessinés comme dans le Legacy Viewer. Merci à AiAiCaptainn, circuskid, Gaalrauch, Izusl, KanikaBreed, lambskin, Memekiller, Nowalski, Odessa-Draekavik, RheaMercury et voidel.
 
-## 2026-11-12 — Aurora 0.9.8 : des correctifs pour la construction, le chat et les cartes AMD
+## 2026-11-12 — Amante 0.9.8 : des correctifs pour la construction, le chat et les cartes AMD
 Choisir une face sélectionne de nouveau les faces de ce que vous portez, et Faire disparaître avec Modifier les parties liées ne cache que la partie choisie. Le sélecteur de canal s'affiche près de chaque saisie du chat local et garde le canal choisi. Sur les cartes AMD, les feuilles des arbres ne sont plus des carrés et les cheveux mesh n'ont plus de traînées, et les cils en fondu restent visibles derrière les cheveux mesh. Le cache est vidé une fois au premier lancement et se remplit tout seul ; vos réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.8)
 
 ## 2026-11-12 — Démarrage, voix et poser
-Une petite fenêtre Aurora s'affiche pendant le démarrage et après le redémarrage d'une mise à jour. La voix locale se connecte sur les liaisons lentes, les boutons invisibles des HUD répondent de nouveau au clic gauche, et l'avis de complexité de l'avatar ne se répète plus (désactivé par défaut, Préférences › Graphismes › Avatars › Avis de complexité). Dans le poser, Ctrl enfoncé surligne la partie des meshes de l'avatar que Ctrl + clic choisira. Merci à Bruica, iGao, KanikaBreed, Nowalski et Odessa-Draekavik.
+Une petite fenêtre Amante s'affiche pendant le démarrage et après le redémarrage d'une mise à jour. La voix locale se connecte sur les liaisons lentes, les boutons invisibles des HUD répondent de nouveau au clic gauche, et l'avis de complexité de l'avatar ne se répète plus (désactivé par défaut, Préférences › Graphismes › Avatars › Avis de complexité). Dans le poser, Ctrl enfoncé surligne la partie des meshes de l'avatar que Ctrl + clic choisira. Merci à Bruica, iGao, KanikaBreed, Nowalski et Odessa-Draekavik.
 
-## 2026-11-12 — Aurora 0.9.7 : la fenêtre Construction revue, la récupération de scripts et Destinations
-La fenêtre Construction est réorganisée : la sélection tient dans un en-tête repliable, les options forment des colonnes au-dessus des onglets, à ranger avec Organiser les options…, position, taille et rotation gardent toute la largeur, et Contenu a son menu d'affichage. Après un plantage ou une connexion perdue, la Récupération de scripts rend vos modifications non enregistrées à la connexion suivante, dans Objets perdus et trouvés. Destinations ouvre la fenêtre d'Aurora sur le Guide des destinations : recherche, catégories, notes et téléport en un clic. Cache et réglages sont gardés.
+## 2026-11-12 — Amante 0.9.7 : la fenêtre Construction revue, la récupération de scripts et Destinations
+La fenêtre Construction est réorganisée : la sélection tient dans un en-tête repliable, les options forment des colonnes au-dessus des onglets, à ranger avec Organiser les options…, position, taille et rotation gardent toute la largeur, et Contenu a son menu d'affichage. Après un plantage ou une connexion perdue, la Récupération de scripts rend vos modifications non enregistrées à la connexion suivante, dans Objets perdus et trouvés. Destinations ouvre la fenêtre d'Amante sur le Guide des destinations : recherche, catégories, notes et téléport en un clic. Cache et réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.7)
 
 ## 2026-11-12 — Poser, apparence et avatars
@@ -63,8 +87,8 @@ Le poser gagne une fenêtre compacte qui laisse la scène libre, Maj + clic pour
 ## 2026-11-12 — Encore plus proche du Legacy Viewer, et des correctifs
 Dialogues de script par objet garde un seul menu par objet au lieu d'une pile. Avancé › Libérer les touches rend les contrôles qu'un véhicule ou un HUD cassé retient, et un téléport en cours peut s'annuler. Les notices de groupe s'affichent aussi dans le chat du groupe, Navigateur préféré choisit où s'ouvrent les liens, et la Voie lactée est plus discrète, avec son curseur. Sur OpenSim, Demander le statut d'administrateur donne les pouvoirs d'administrateur. Merci à anne-skydancer, Bruica, circuskid, Gaalrauch, iGao, KanikaBreed, Marakiinfinity, Nowalski et Odessa-Draekavik.
 
-## 2026-11-11 — Aurora 0.9.6 : la vitrine des tenues, les portraits auto et 65 looks photo
-La Galerie des tenues d'Apparence devient une vitrine : de grandes photos de vos tenues, un rail pour les favoris, les tenues sans photo et les dossiers, et on porte en un clic (les petites vignettes restent dans Préférences › Aurora). Portrait auto vous cadre en studio pour la photo gratuite de la tenue, Faire les portraits les fait toutes d'un coup, et une Photo HD en option coûte le prix d'envoi de la grille. L'onglet LUT du mode photo compte 20 looks de Czar Fenris et 45 de Nanner Pudding, merci à vous deux ! Cache et réglages sont gardés.
+## 2026-11-11 — Amante 0.9.6 : la vitrine des tenues, les portraits auto et 65 looks photo
+La Galerie des tenues d'Apparence devient une vitrine : de grandes photos de vos tenues, un rail pour les favoris, les tenues sans photo et les dossiers, et on porte en un clic (les petites vignettes restent dans Préférences › Amante). Portrait auto vous cadre en studio pour la photo gratuite de la tenue, Faire les portraits les fait toutes d'un coup, et une Photo HD en option coûte le prix d'envoi de la grille. L'onglet LUT du mode photo compte 20 looks de Czar Fenris et 45 de Nanner Pudding, merci à vous deux ! Cache et réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.6)
 
 ## 2026-11-11 — La Voie lactée des vraies étoiles, et les Types de rendu
@@ -73,7 +97,7 @@ La Voie lactée est faite des 2,5 millions d'étoiles du catalogue Tycho-2, avec
 ## 2026-11-11 — Poser, construction, inventaire et correctifs
 Maintenez Espace pour freiner votre avatar, comme le Legacy Viewer. Le poser gagne Enregistrer sous… et montre où va une pose. Les poignées de déplacement se saisissent mieux, les sélections de terrain s'alignent sur la grille des parcelles, et le glTF garde ses cartes 2K. Favoris liste les éléments étoilés sans leurs dossiers, et la confirmation de suppression peut se couper. Région / Domaine confirme tout changement qui renvoie des gens chez eux. Merci à anne-skydancer, circuskid, emmelinedevere, Gaalrauch, KanikaBreed, LisaScheers, Marakiinfinity, Memekiller, Nowalski et Odessa-Draekavik.
 
-## 2026-11-10 — Aurora 0.9.5 : le Suivi de région, les marqueurs des cercles et l'apparence en XML
+## 2026-11-10 — Amante 0.9.5 : le Suivi de région, les marqueurs des cercles et l'apparence en XML
 Monde › Suivi de région surveille une liste de régions, comme le Legacy Viewer : si chacune est en ligne et combien d'avatars s'y trouvent, sans ouvrir la carte ; Suivre la région, sur la Carte du monde, en ajoute une. Un cercle de contacts peut marquer ses membres dans le monde, à travers les murs et au bord de l'écran : réglez son Marqueur dans le monde dans Personnes › Cercles (désactivé par défaut). Importer XML, dans les éditeurs de silhouette, de physique et de vêtements, charge un fichier d'apparence d'un site de silhouettes ou d'un autre viewer. Cache et réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.5)
 
@@ -83,28 +107,28 @@ Vos emojis récents forment une rangée près du champ de chat, et le sélecteur
 ## 2026-11-10 — Votre vue, le monde et des correctifs
 Préférences › Graphismes peut masquer les lumières portées par les autres avatars en gardant les vôtres, et Monde › Masquer les étiquettes des avatars les cache toutes en un clic. Les infobulles des avatars peuvent rester sans celles du monde, et la question du filtre média devient un bandeau qui laisse voler. Le sol reste aux passages de région, une mémoire vidéo pleine ne fige plus le monde, et les radios de parcelle tiennent aux téléportations. Merci à circuskid, ClifHofmann, dash-sl, Gaalrauch, iGao, KanikaBreed, Nowalski, Odessa-Draekavik et RheaMercury.
 
-## 2026-11-08 — Aurora 0.9.4 : les Paramètres de débogage, et plus d'options du Legacy Viewer
+## 2026-11-08 — Amante 0.9.4 : les Paramètres de débogage, et plus d'options du Legacy Viewer
 Le bouton Paramètres de débogage, ou Ctrl+Alt+Maj+S, ouvre une fenêtre avec chaque réglage par son nom : une recherche, une étoile sur ceux que vous avez changés et Rétablir la valeur par défaut. Préférences › Construire règle ce que devient une nouvelle prim : couleur, transparence, lueur, lumineux, physique, temporaire ou fantôme. Préférences › Graphismes gagne une distance d'affichage progressive (désactivée par défaut), le détail des Arbres et les Particules des objets portés, et Préférences › Protections peut masquer les objets à la surface démesurée. Cache et réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.4)
 
 ## 2026-11-08 — Les régions voisines, des objets qui restent visibles, des appels qui tiennent
-Aurora demande désormais à la région votre propre distance d'affichage : les régions voisines apparaissent à 256 m et au-delà, comme dans le Legacy Viewer. Les objets bien en vue ne disparaissent plus sous certains angles de caméra, et le monde revient de lui-même quand la mémoire vidéo était pleine à la connexion. Les écrans média des régions chargées se remplissent et suivent leurs télécommandes, et les textures restées blanches reviennent sans vous reconnecter. Les appels privés tiennent pendant les téléportations, et la musique de la parcelle ne coupe plus quand vous bougez la caméra.
+Amante demande désormais à la région votre propre distance d'affichage : les régions voisines apparaissent à 256 m et au-delà, comme dans le Legacy Viewer. Les objets bien en vue ne disparaissent plus sous certains angles de caméra, et le monde revient de lui-même quand la mémoire vidéo était pleine à la connexion. Les écrans média des régions chargées se remplissent et suivent leurs télécommandes, et les textures restées blanches reviennent sans vous reconnecter. Les appels privés tiennent pendant les téléportations, et la musique de la parcelle ne coupe plus quand vous bougez la caméra.
 
 ## 2026-11-08 — Chat, caméra, avatars et correctifs
 Le lissage de caméra va jusqu'à 300 sans à-coups, et Préférences › Chat règle le nombre de lignes au-dessus du chat. Ctrl+Tab change de conversation, l'IME japonais montre le segment en conversion, et les zones de texte des scripts prennent plusieurs lignes. Les changements d'À propos du terrain tiennent, l'AO ne laisse plus de pose assise après une téléportation, et les outils RLVa ont un onglet Exceptions. Merci à AiAiCaptainn, anne-skydancer, circuskid, ClifHofmann, emmelinedevere, Gaalrauch, iGao, KanikaBreed, Marakiinfinity, MilkIsPrettyGood, Nowalski, Odessa-Draekavik et RheaMercury.
 
-## 2026-11-06 — Aurora 0.9.3 : AMD FSR 3.1, et plus stable sur toutes les cartes graphiques
-Choisissez FSR 3.1 sous Anticrénelage dans Préférences › Graphismes : des bords lissés à la taille de la fenêtre, ou un monde dessiné plus petit puis reconstruit net, pour plus d'images par seconde. Après une réinitialisation de la carte graphique, Aurora rouvre sa fenêtre sans vous déconnecter (désactivable dans les Préférences). Les GPU intégrés Intel de 6e à 9e génération démarrent de nouveau, comme les portables AMD + NVIDIA ; les GPU intégrés comptent leur mémoire partagée dans le budget des textures. Le cache est vidé une fois au premier lancement de la 0.9.3 ; vos réglages sont gardés.
+## 2026-11-06 — Amante 0.9.3 : AMD FSR 3.1, et plus stable sur toutes les cartes graphiques
+Choisissez FSR 3.1 sous Anticrénelage dans Préférences › Graphismes : des bords lissés à la taille de la fenêtre, ou un monde dessiné plus petit puis reconstruit net, pour plus d'images par seconde. Après une réinitialisation de la carte graphique, Amante rouvre sa fenêtre sans vous déconnecter (désactivable dans les Préférences). Les GPU intégrés Intel de 6e à 9e génération démarrent de nouveau, comme les portables AMD + NVIDIA ; les GPU intégrés comptent leur mémoire partagée dans le budget des textures. Le cache est vidé une fois au premier lancement de la 0.9.3 ; vos réglages sont gardés.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.3)
 
 ## 2026-11-06 — Mises à jour, votre ordinateur, et des clics qui tombent juste
-Aurora vous prévient désormais qu'une nouvelle version est sortie, pendant qu'il tourne. Préférences › Langue et mises à jour › Retirer Aurora de cet ordinateur enlève ce qu'Aurora a inscrit hors de ses propres dossiers, puis liste les dossiers restants. Le pack web et médias ne se télécharge qu'après votre accord. Les clics traversent les textures alpha et les prims invisibles comme dans le Legacy Viewer, et Maj ou Ctrl + clic droit étend la sélection de construction.
+Amante vous prévient désormais qu'une nouvelle version est sortie, pendant qu'il tourne. Préférences › Langue et mises à jour › Retirer Amante de cet ordinateur enlève ce qu'Amante a inscrit hors de ses propres dossiers, puis liste les dossiers restants. Le pack web et médias ne se télécharge qu'après votre accord. Les clics traversent les textures alpha et les prims invisibles comme dans le Legacy Viewer, et Maj ou Ctrl + clic droit étend la sélection de construction.
 
 ## 2026-11-06 — Caméra, inventaire et correctifs
 Les limites de la caméra sont de nouveau actives par défaut, comme dans le Legacy Viewer : une carte à la connexion indique où les désactiver. L'historique des téléportations survit à un plantage, et ni l'écriture du journal ni la coupure de la voix ne peuvent figer le viewer. Les bords du terrain rejoignent la région voisine, les photos de profil restent nettes, les Favoris listent les éléments étoilés et le survol de l'inventaire a un interrupteur. Merci à ClifHofmann, chrzang, circuskid, emmelinedevere, Gaalrauch, iGao, KanikaBreed, Marakiinfinity, Odessa-Draekavik et xWynt3r.
 
-## 2026-11-05 — Aurora 0.9.2 : votre historique de chat vous suit, et un mode plein écran
-Préférences › Chat › Historique importe vos conversations du Legacy Viewer et des autres viewers approuvés qui écrivent les mêmes fichiers. Les messages rejoignent votre historique Aurora dans l'ordre, chaque connexion n'ajoute que les nouveaux, et les fichiers de l'autre viewer sont seulement lus. Préférences › Graphismes gagne un plein écran sans bordure, et Alt+Entrée l'active ou le coupe aussitôt, sans redémarrer : une image nette pour les vidéos, et la fenêtre revient telle qu'elle était.
+## 2026-11-05 — Amante 0.9.2 : votre historique de chat vous suit, et un mode plein écran
+Préférences › Chat › Historique importe vos conversations du Legacy Viewer et des autres viewers approuvés qui écrivent les mêmes fichiers. Les messages rejoignent votre historique Amante dans l'ordre, chaque connexion n'ajoute que les nouveaux, et les fichiers de l'autre viewer sont seulement lus. Préférences › Graphismes gagne un plein écran sans bordure, et Alt+Entrée l'active ou le coupe aussitôt, sans redémarrer : une image nette pour les vidéos, et la fenêtre revient telle qu'elle était.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.2)
 
 ## 2026-11-05 — Mouvements plus nets, clics plus légers
@@ -113,7 +137,7 @@ Avec le TAA, les avatars, animesh et objets qui bougent ne bavent plus : l'antic
 ## 2026-11-05 — Construction, carte graphique et correctifs
 La pipette de texture et les textures locales reviennent dans les éditeurs de construction et d'apparence, les dépôts sur une face clignotent et atteignent les faces transparentes, et la fenêtre de construction Legacy montre le numéro de lien et de face. La capture de jeu d'OBS Studio reste à l'écart sauf overlays autorisés, une fenêtre derrière met sa 3D en pause quand un autre programme occupe la carte, et Qualité photo se coupe après un plantage. Plus de triangles étirés sur les cheveux et les plantes. Merci à circuskid, Gaalrauch, KanikaBreed, Marakiinfinity et Odessa-Draekavik.
 
-## 2026-11-04 — Aurora 0.9.1 : connexions, téléportations et tenues plus sûres
+## 2026-11-04 — Amante 0.9.1 : connexions, téléportations et tenues plus sûres
 Une région lente à confirmer votre arrivée ne termine plus la session, et un code de double authentification refusé ne bloque plus le champ du code à la connexion. Les changements de tenue envoient une demande d'apparence à la fois, pour la version la plus récente : les produits et RLVa qui changent vite la tenue ne noient plus votre apparence sous les mises à jour ratées. Une touche jamais vue enfoncée ne fait plus sauter ni voler l'avatar après un changement de fenêtre. Les ciels Windlight importés s'enregistrent dans l'inventaire.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.1)
 
@@ -123,12 +147,12 @@ Le mode photo garde les 10 dernières photos de la session dans une petite pile 
 ## 2026-11-04 — Construction, avatars et rapports de plantage
 Les lanternes en papier et les autres sphères tordues gardent leur forme, la construction Legacy retrouve Inclinaison, Rayon et Révolutions, et les objets posés depuis l'inventaire s'éditent et se cadrent tout de suite. Les objets portés suivent les animations qui déplacent leur point d'attache, un avatar caché par une animation quitte l'écran comme dans le Legacy Viewer, et le Poser marche sur toutes les formes. Les rapports après une carte graphique perdue disent ce qui tournait. Merci à anne-skydancer, Gaalrauch, Marakiinfinity et Odessa-Draekavik.
 
-## 2026-11-04 — Aurora 0.9.0 : OpenSim et l'Hypergrid, pour de bon
-Sur les grilles OpenSim, votre avatar est maintenant cuit et se voit tel que vous l'habillez, le terrain des grandes régions va au-delà de 256 m, et l'inventaire, les tenues et les profils s'enregistrent sur les grilles sans AIS. Les achats et les prix prennent la monnaie et le symbole de la grille. Après une téléportation Hypergrid, Aurora suit la grille où vous êtes, demande avant un voyage qui laisserait des objets portés, et propose d'ajouter une grille inconnue depuis un lien.
+## 2026-11-04 — Amante 0.9.0 : OpenSim et l'Hypergrid, pour de bon
+Sur les grilles OpenSim, votre avatar est maintenant cuit et se voit tel que vous l'habillez, le terrain des grandes régions va au-delà de 256 m, et l'inventaire, les tenues et les profils s'enregistrent sur les grilles sans AIS. Les achats et les prix prennent la monnaie et le symbole de la grille. Après une téléportation Hypergrid, Amante suit la grille où vous êtes, demande avant un voyage qui laisserait des objets portés, et propose d'ajouter une grille inconnue depuis un lien.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.9.0)
 
 ## 2026-11-04 — Accrocher aux objets, poser sur une surface, hologrammes
-La construction gagne trois aides au placement. Réglez Accrocher sur Objets et la sélection se plaque contre les objets voisins, des guides violets sur les faces qui se touchent, sans jamais les traverser. Appuyez sur P pour la poser sur une surface ou le sol, montrée en hologramme. Un hologramme peut aussi montrer l'objet déplacé, ou son point de départ (Préférences › Aurora › Comportement › Construction). Étirer les textures tient au redimensionnement, et les contrôles de caméra inclinent la vue.
+La construction gagne trois aides au placement. Réglez Accrocher sur Objets et la sélection se plaque contre les objets voisins, des guides violets sur les faces qui se touchent, sans jamais les traverser. Appuyez sur P pour la poser sur une surface ou le sol, montrée en hologramme. Un hologramme peut aussi montrer l'objet déplacé, ou son point de départ (Préférences › Amante › Comportement › Construction). Étirer les textures tient au redimensionnement, et les contrôles de caméra inclinent la vue.
 
 ## 2026-11-04 — La barre d'outils Legacy, au complet
 Les boutons Préférences rapides, Navigateur web et Voix de la barre d'outils ouvrent leurs fenêtres du Legacy Viewer : les réglages les plus changés, un navigateur intégré sur une page d'accueil, les contrôles de la voix. Statistiques, Favoris du profil, Balises, Photo sur disque et Ne montrer que les amis les rejoignent, un bouton s'allume quand sa fenêtre est ouverte, et les raccourcis de menu manquants du Legacy Viewer sont là. Moi › Ignorer l'interdiction de voler (Ctrl+Alt+V) fait voler là où c'est interdit, après une mise en garde.
@@ -137,14 +161,14 @@ Les boutons Préférences rapides, Navigateur web et Voix de la barre d'outils o
 Donnez une couleur à vous à un dossier de l'inventaire, visible de vous seul, et sauvegardez une tenue dans un fichier JSON pour la restaurer plus tard. Moi › Expériences liste vos expériences et ce que leurs scripts ont fait. Portez un titre de groupe choisi par région, et connectez-vous directement à un repère favori. Le chat a sa propre taille de texte, un long MI part en plusieurs messages au lieu d'être coupé, et l'heure du chat suit le format 12 ou 24 h de l'horloge.
 
 ## 2026-11-04 — Plus stable sur votre carte graphique
-Les Intel Iris Xe redémarrent, et Aurora partage la carte graphique avec les autres viewers et programmes. La qualité photo monte autant que la mémoire vidéo le permet, sans perdre la carte, et les textures du monde se limitent à 512, 1024 ou 2048 pixels. Liens, journaux et connexions aux simulateurs sont renforcés après un audit de sécurité de Butter Roux, merci ! Merci aussi à Aznlilly, anne-skydancer, circuskid, ddagetracker, emmelinedevere, Gaalrauch, iGao, jumpinmimi, KanikaBreed, Marakiinfinity, Memekiller, Odessa-Draekavik, vexxbyte, voidel, wolfosbournesl, xWynt3r et zdub0is.
+Les Intel Iris Xe redémarrent, et Amante partage la carte graphique avec les autres viewers et programmes. La qualité photo monte autant que la mémoire vidéo le permet, sans perdre la carte, et les textures du monde se limitent à 512, 1024 ou 2048 pixels. Liens, journaux et connexions aux simulateurs sont renforcés après un audit de sécurité de Butter Roux, merci ! Merci aussi à Aznlilly, anne-skydancer, circuskid, ddagetracker, emmelinedevere, Gaalrauch, iGao, jumpinmimi, KanikaBreed, Marakiinfinity, Memekiller, Odessa-Draekavik, vexxbyte, voidel, wolfosbournesl, xWynt3r et zdub0is.
 
-## 2026-11-02 — Aurora 0.8.5 : son immersif et VR, tous deux expérimentaux
+## 2026-11-02 — Amante 0.8.5 : son immersif et VR, tous deux expérimentaux
 Les sons du monde s'assourdissent derrière un mur ou dans une boîte fermée, passent derrière votre tête au casque (HRTF), et résonnent comme le lieu où vous êtes : secs en plein air, une longue traîne douce dans une grande salle. Trois interrupteurs dans Préférences › Son ; HRTF et réverbération sont désactivés par défaut. Avec un casque OpenXR, le bouton casque de la barre du bas montre le monde en relief, depuis les yeux de l'avatar ou la caméra. Visite seulement pour l'instant : Échap ramène le bureau.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.8.5)
 
 ## 2026-11-02 — Des démarrages rapides, des lieux bondés plus fluides
-Aurora garde son propre cache des pipelines graphiques compilés : un démarrage n'attend plus vingt secondes devant une fenêtre noire quand le pilote a vidé le sien. Sur un écran 4K, l'occlusion ambiante coûte environ un tiers de ce qu'elle coûtait, les textures restent nettes après une téléportation dans une région chargée, une fenêtre du viewer en arrière-plan rend sa mémoire vidéo à celle de devant, et les cartes rapides retrouvent les FPS de la 0.8.3 dans les lieux bondés.
+Amante garde son propre cache des pipelines graphiques compilés : un démarrage n'attend plus vingt secondes devant une fenêtre noire quand le pilote a vidé le sien. Sur un écran 4K, l'occlusion ambiante coûte environ un tiers de ce qu'elle coûtait, les textures restent nettes après une téléportation dans une région chargée, une fenêtre du viewer en arrière-plan rend sa mémoire vidéo à celle de devant, et les cartes rapides retrouvent les FPS de la 0.8.3 dans les lieux bondés.
 
 ## 2026-11-02 — Étoiles, portails et construction
 Choisissez d'où sur Terre le vrai ciel nocturne est vu, et l'éclat de ses étoiles. Glissez un lieu des Favoris, des Lieux, de l'historique des téléportations ou de la recherche dans le monde pour ouvrir un portail. Un rectangle de sélection ne prend que ce qu'il entoure, les objets se créent avec votre groupe actif, les textures BOM vont dans toutes les maps PBR, et les PNG en niveaux de gris s'importent. Une expérience autorisée peut maintenant changer votre ciel et votre eau.
@@ -155,7 +179,7 @@ Sélectionnez plusieurs articles d'une tenue ou de Porté pour les mettre ou les
 ## 2026-11-02 — Plus stable
 Vos logs et réglages survivent à un arrêt brutal du PC, À propos du terrain enregistre ses listes d'accès et de bannis, l'eau ne devient plus blanche sous certains ciels de région, et les photos attendent une carte graphique occupée au lieu d'échouer. Merci à anne-skydancer, circuskid, Gaalrauch, KanikaBreed, lambskin, Marakiinfinity, Odessa-Draekavik, vexxbyte, voidel, wolfosbournesl et zdub0is.
 
-## 2026-10-31 — Aurora 0.8.4 : tout copier, construire dans la foule
+## 2026-10-31 — Amante 0.8.4 : tout copier, construire dans la foule
 Cliquez sur un nom dans un profil pour le copier, et sélectionnez le texte d'un champ grisé pour le copier aussi : le nom d'un objet non modifiable, l'adresse média d'une parcelle. Les tenues copient les noms de leurs articles et les crédits des créateurs. Dans une sandbox bondée, les outils de construction peuvent ne sélectionner que vos objets, ou ceux que vous pouvez déplacer, et l'éditeur a une disposition Legacy. Ctrl+Maj+H vous ramène chez vous.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.8.4)
 
@@ -168,8 +192,8 @@ Les objets reçus peuvent être acceptés automatiquement, avec un accusé de r�
 ## 2026-10-31 — Plus stable
 Une réinitialisation de la carte graphique ferme le viewer proprement, les photos ne le figent plus quand la mémoire vidéo manque, et la mémoire des textures reste sous contrôle dans les lieux bondés. Plus de décollage dans une parcelle interdite au vol, et la parcelle quittée ne prête plus ses règles après une téléportation. Les animesh portés tiennent droit. Merci à Gaalrauch, Marakiinfinity, circuskid, Aznlilly, DarlCat, voidel et seilimited-ship-it.
 
-## 2026-10-29 — Aurora 0.8.3 tourne nativement sur Mac
-Aurora tourne désormais nativement sur les Mac Apple Silicon, avec un rendu Metal : chaque release contient une application macOS à glisser dans Applications. Les pages web et les vidéos du monde y fonctionnent aussi : la première fois qu'il en a besoin, le viewer télécharge lui-même ses plugins média. Le guide d'installation est dans docs/MACOS.md.
+## 2026-10-29 — Amante 0.8.3 tourne nativement sur Mac
+Amante tourne désormais nativement sur les Mac Apple Silicon, avec un rendu Metal : chaque release contient une application macOS à glisser dans Applications. Les pages web et les vidéos du monde y fonctionnent aussi : la première fois qu'il en a besoin, le viewer télécharge lui-même ses plugins média. Le guide d'installation est dans docs/MACOS.md.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.8.3)
 
 ## 2026-10-29 — Les messages importants, sous vos yeux
@@ -179,14 +203,14 @@ Un message qu'un gérant de domaine envoie à la région s'affiche maintenant en
 Dans le viseur photo, Maj + clic garde nets tous les avatars d'une photo de groupe, vos HUD répondent aux clics, et le bouton Poseur pose l'avatar par-dessus la prise de vue. Le poseur fonctionne maintenant avec toutes les formes, demande avant qu'une fermeture perde la pose, et annule avec Ctrl+Z. LiveMesh prévisualise une animation sur un modèle local enregistré, queues et ailes Bento comprises.
 
 ## 2026-10-29 — Inventaire, graphismes et Linux
-Survolez un objet de l'inventaire pour voir son image, et construisez une recherche avancée à partir de règles visuelles, enregistrée pour plus tard. Enregistrez vos réglages graphiques en profils nommés. Sous Linux, le son passe par PulseAudio ou PipeWire, les notifications viennent du bureau, et le dock montre le nouveau loup hurlant d'Aurora. Merci à circuskid pour Linux, à logue pour la relecture japonaise native, et à voidel, notre nouveau contributeur.
+Survolez un objet de l'inventaire pour voir son image, et construisez une recherche avancée à partir de règles visuelles, enregistrée pour plus tard. Enregistrez vos réglages graphiques en profils nommés. Sous Linux, le son passe par PulseAudio ou PipeWire, les notifications viennent du bureau, et le dock montre le nouveau loup hurlant d'Amante. Merci à circuskid pour Linux, à logue pour la relecture japonaise native, et à voidel, notre nouveau contributeur.
 
 ## 2026-10-29 — Vos idées, sur le tableau des suggestions
 Les demandes de fonctionnalités vivent désormais sur notre tableau des suggestions : proposez une idée, votez pour celles que vous voulez le plus et suivez leur avancement. Les demandes faites sur GitHub y ont été déplacées.
 [Ouvrir le tableau des suggestions](https://feedback.aurora-viewer.org)
 
-## 2026-10-29 — Aurora 0.8.2 parle japonais, 日本語
-Aurora existe désormais en japonais : choisissez 日本語 dans Préférences › Interface › Langue, ou laissez la langue du système le choisir sur un Windows japonais. Chaque message est traduit avec les termes japonais officiels de Second Life, l'interface s'affiche avec des polices japonaises et les dates se lisent à la japonaise.
+## 2026-10-29 — Amante 0.8.2 parle japonais, 日本語
+Amante existe désormais en japonais : choisissez 日本語 dans Préférences › Interface › Langue, ou laissez la langue du système le choisir sur un Windows japonais. Chaque message est traduit avec les termes japonais officiels de Second Life, l'interface s'affiche avec des polices japonaises et les dates se lisent à la japonaise.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.8.2)
 
 ## 2026-10-29 — Terrain PBR, et l'interrupteur HDR
@@ -199,9 +223,9 @@ Ctrl+Maj+Entrée commence une nouvelle ligne dans un message, et les paragraphes
 Les permissions par défaut, en bas du menu Nouveau de l'inventaire, s'appliquent à ce que vous créez et importez. Glissez vos calques de tatouage, d'alpha et universels dans l'ordre voulu, déposez des textures de l'inventaire sur les vignettes des éditeurs d'apparence et de matériaux, et agrandissez les poignées d'édition. Les envois de textures 2K refonctionnent, et Apparence › Portée liste ce qu'un script vous a attaché pour un temps.
 
 ## 2026-10-29 — Aussi dans la 0.8.2
-Le texte peut maintenant doubler de taille, dans Préférences › Apparence. Maintenez la flèche Retour de la barre du haut pour lister tous les lieux de la session. La disposition des fenêtres est enregistrée peu après chaque changement, même si le viewer plante ; les tenues enregistrées se suppriment de nouveau, les véhicules traversent les collisions en douceur, les clickers dans un corps mesh répondent à chaque clic, et le vent ne grésille plus. Merci à circuskid, notre nouveau contributeur : sous Linux, Aurora ne passe plus au premier plan à chaque message.
+Le texte peut maintenant doubler de taille, dans Préférences › Apparence. Maintenez la flèche Retour de la barre du haut pour lister tous les lieux de la session. La disposition des fenêtres est enregistrée peu après chaque changement, même si le viewer plante ; les tenues enregistrées se suppriment de nouveau, les véhicules traversent les collisions en douceur, les clickers dans un corps mesh répondent à chaque clic, et le vent ne grésille plus. Merci à circuskid, notre nouveau contributeur : sous Linux, Amante ne passe plus au premier plan à chaque message.
 
-## 2026-10-27 — Aurora 0.8.1 : les avatars sortent plus vite du nuage
+## 2026-10-27 — Amante 0.8.1 : les avatars sortent plus vite du nuage
 Les téléchargements suivent votre connexion : dans une région chargée, les avatars sortent du nuage environ trois fois plus vite, déjà texturés, et la région se charge deux fois plus vite avec un cache vide. Votre tenue arrive complète : chaque attachement est porté à la connexion et à chaque changement de tenue.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.8.1)
 
@@ -214,12 +238,12 @@ Construire › Modifier les particules façonne un effet de particules sur votre
 ## 2026-10-27 — Aussi dans la 0.8.1
 Maintenez Alt en vue subjective pour libérer le curseur, et choisissez votre réticule. L'arabe et l'hébreu se lisent désormais de droite à gauche, et un paiement en L$ s'affiche en carte dans la conversation de celui qui paie. Rangez vos tenues dans des dossiers depuis l'Apparence. Le mode immersif peut masquer vos HUD, et Alt+Maj+H les montre ou les masque partout. Avec RLVa activé, le nombre d'images par seconde ne chute plus, les souris gamer restent connectées, et Linux se ferme proprement sous Wayland.
 
-## 2026-10-26 — Aurora 0.8.0 : des filtres et des effets pour vos photos
-Le mode photo gagne 66 filtres et effets visibles en direct dans le viseur : les 30 filtres du Legacy Viewer et 36 effets propres à Aurora, du grain argentique à la VHS, plus vos propres LUT .cube. Empilez-en jusqu'à six, chacun avec ses réglages, et comparez avant et après. Isolez votre avatar, ou les avatars et objets que vous cliquez, sur fond transparent : un PNG prêt à l'emploi.
+## 2026-10-26 — Amante 0.8.0 : des filtres et des effets pour vos photos
+Le mode photo gagne 66 filtres et effets visibles en direct dans le viseur : les 30 filtres du Legacy Viewer et 36 effets propres à Amante, du grain argentique à la VHS, plus vos propres LUT .cube. Empilez-en jusqu'à six, chacun avec ses réglages, et comparez avant et après. Isolez votre avatar, ou les avatars et objets que vous cliquez, sur fond transparent : un PNG prêt à l'emploi.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/releases/tag/v0.8.0)
 
 ## 2026-10-26 — Des portails, et seulement votre parcelle
-Ouvrez un portail vers un lieu, ou déposez un repère dans le monde, et traversez-le pour vous téléporter. Les autres utilisateurs d'Aurora le voient aussi : vos amis par défaut. Vous pouvez aussi masquer ce qui se trouve hors de la parcelle actuelle, et le mode immersif cache toute l'interface sauf le chat, pour les photos et les événements.
+Ouvrez un portail vers un lieu, ou déposez un repère dans le monde, et traversez-le pour vous téléporter. Les autres utilisateurs d'Amante le voient aussi : vos amis par défaut. Vous pouvez aussi masquer ce qui se trouve hors de la parcelle actuelle, et le mode immersif cache toute l'interface sauf le chat, pour les photos et les événements.
 
 ## 2026-10-26 — Un chat qui écrit avec vous
 Un correcteur orthographique avec suggestions, le remplacement automatique au choix, @ pour mentionner quelqu'un, et / dans le chat local pour trouver un geste. Une vignette par conversation attend à côté de la barre de chat, et le chat local peut s'afficher en bulles au-dessus des têtes. Les posts Bluesky et X, les vidéos courtes et les WebP animés s'affichent désormais en aperçu dans la conversation.
@@ -228,9 +252,9 @@ Un correcteur orthographique avec suggestions, le remplacement automatique au ch
 Tout votre inventaire se charge en arrière-plan dès la connexion. Ouvrez une seconde fenêtre d'inventaire pour trier entre deux dossiers, redimensionnez ses colonnes, et donnez des objets en les déposant sur un profil ou un avatar. Copiez le contenu d'une boîte dans votre inventaire ou portez-le directement, et modifiez votre peau, vos cheveux, vos yeux, vos tatouages, vos alphas et vos vêtements.
 
 ## 2026-10-26 — Aussi dans la 0.8.0
-Le Sound Explorer trouve quel objet joue un son, Quickjump supprime le délai du saut et de l'atterrissage, et Aide › État de la grille montre les incidents de la grille. Les étiquettes de nom signalent l'équipe Aurora et le personnel de Linden Lab, et le viewer reste dans la mémoire vidéo que votre carte graphique lui accorde.
+Le Sound Explorer trouve quel objet joue un son, Quickjump supprime le délai du saut et de l'atterrissage, et Aide › État de la grille montre les incidents de la grille. Les étiquettes de nom signalent l'équipe Amante et le personnel de Linden Lab, et le viewer reste dans la mémoire vidéo que votre carte graphique lui accorde.
 
-## 2026-10-25 — Aurora 0.7.5 : des outils pour les créateurs
+## 2026-10-25 — Amante 0.7.5 : des outils pour les créateurs
 LiveMesh montre votre mesh Blender dans le viewer pendant que vous le modifiez, sans rien envoyer : les mesh riggés sur votre avatar, les mesh statiques et les linksets comme objets locaux à poser, déplacer ou porter. Le nouveau Poser pose votre avatar, vos animesh ou les avatars proches qui l'acceptent, os par os, pour vos photos, avec une bibliothèque de poses et l'export BVH.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/blob/main/docs/BLENDER_LIVE.md)
 
@@ -247,10 +271,10 @@ Une nouvelle page Accessibilité réunit les réglages qui aident, avec un bouto
 Les PC portables à deux cartes graphiques utilisent maintenant la carte dédiée, Overwolf n'empêche plus le viewer de démarrer, les cheveux en couches ne sont plus transparents et les gestes atteignent vos HUD sur les canaux négatifs. Votre avatar se lève quand vous vous téléportez depuis un siège, et la fenêtre Apparence reste fluide avec des milliers de tenues. Se reconnecter juste après une déconnexion ou un plantage affiche maintenant un court compte à rebours au lieu de bloquer.
 
 ## 2026-10-22 — RLVa, quand vous le voulez
-Depuis la version 0.7.4, Aurora comprend RLVa : les restrictions, exceptions et commandes dont se servent les tenues scriptées, les meubles et les expériences. Il reste éteint tant que vous ne l'activez pas dans Préférences › Protections, et l'éteindre libère tout d'un coup.
+Depuis la version 0.7.4, Amante comprend RLVa : les restrictions, exceptions et commandes dont se servent les tenues scriptées, les meubles et les expériences. Il reste éteint tant que vous ne l'activez pas dans Préférences › Protections, et l'éteindre libère tout d'un coup.
 [En savoir plus](https://github.com/Aurora-Viewer/Aurora-Viewer/blob/main/docs/RLVA.md)
 
-## 2026-10-22 — Aurora sur Linux
+## 2026-10-22 — Amante sur Linux
 Chaque version est désormais publiée aussi pour Linux, avec son guide d'installation.
 [Guide d'installation](https://github.com/Aurora-Viewer/Aurora-Viewer/blob/main/docs/LINUX.md)
 
@@ -267,16 +291,16 @@ Les préférences sont désormais rangées en sections et en onglets, avec une r
 Le mode photo s'ouvre en plein écran sous un viseur : un autofocus qui trouve les visages, des bagues pour la focale, l'ouverture et l'exposition, le focus peaking, un histogramme en direct, une manette de caméra et un retardateur. Les photos sont en 4K par défaut, jusqu'en 8K.
 
 ## 2026-10-19 — Lieux, inventaire et recherche redessinés
-Lieux réunit vos favoris, repères et historique dans une seule liste avec un aperçu. L'inventaire garde son arbre habituel et s'élargit en explorateur. La recherche trouve résidents, lieux, événements, groupes et petites annonces depuis un seul champ. Chaque fenêtre garde sa version Legacy dans Préférences › Aurora.
+Lieux réunit vos favoris, repères et historique dans une seule liste avec un aperçu. L'inventaire garde son arbre habituel et s'élargit en explorateur. La recherche trouve résidents, lieux, événements, groupes et petites annonces depuis un seul champ. Chaque fenêtre garde sa version Legacy dans Préférences › Amante.
 
 ## 2026-10-19 — Des avatars plus vivants
 La physique du corps, les expressions du visage, les poses des mains et la respiration venues des animations, et le placement des pieds sur le terrain au choix. Aussi au programme : un moniteur de ressources pour les utilisateurs avancés, et des effets d'eau expérimentaux avec vagues, écume et caustiques.
 
 ## 2026-10-17 — Une lumière qui ancre chaque scène
-L'occlusion ambiante GTAO, les ombres de contact du soleil et l'anticrénelage spéculaire arrivent, avec des niveaux graphiques qui les adaptent à votre machine. Les propriétaires de région ont la fenêtre Région / Domaine complète, en version Aurora ou avec les huit onglets classiques.
+L'occlusion ambiante GTAO, les ombres de contact du soleil et l'anticrénelage spéculaire arrivent, avec des niveaux graphiques qui les adaptent à votre machine. Les propriétaires de région ont la fenêtre Région / Domaine complète, en version Amante ou avec les huit onglets classiques.
 
-## 2026-10-08 — Bienvenue dans Aurora Viewer
-Un client Second Life moderne en Rust et Vulkan : rendu PBR, ombres, eau et reflets, interface Aurora entièrement personnalisable.
+## 2026-10-08 — Bienvenue dans Amante Viewer
+Un client Second Life moderne en Rust et Vulkan : rendu PBR, ombres, eau et reflets, interface Amante entièrement personnalisable.
 
 ## 2026-10-08 — Voix WebRTC et audio
 Chat vocal des régions, push-to-talk, point de voix animé dans les étiquettes, musique de parcelle et réglage fin des volumes.

@@ -7,6 +7,7 @@ This is source synchronization only: it does not publish a build or a download.
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tarfile
@@ -35,16 +36,74 @@ releases = {
     "v0.9.9": "b630e7391e4454f1d9aec1a2e5b6521f6828858e",
     "v0.9.10": "1c9c39c2c33645fdbcf4351245bc15ee72d8dde9",
     "v0.9.11": "3d1420a932af25ff62be3d22a4c5718e428b8c41",
+    "v0.9.13": "e961b7df61c49552773f3bc209d7d80d92a0b16b",
 }
 assert releases.get(tag) == commit, "Unexpected release"
 metadata = {"amante-upstream-manifest.json", "amante-security-manifest.json"}
 files = set(git("ls-files", "-z").decode().strip("\0").split("\0")) - metadata
 assert all(not Path(p).is_absolute() and ".." not in Path(p).parts for p in files)
 
+# Keep the Amante font migration and maintained Linux bus version compatible
+# with the upstream UI tests and portal implementation. These are narrowly
+# inventoried source adaptations, not renderer or runtime changes.
+if tag == "v0.9.13":
+    adaptations = [
+        (
+            "crates/aurora-viewer/src/ui/options/pages/game_controls.rs",
+            "ttf_parser::Face::parse(crate::ui::fonts::PROMPTFONT_TTF, 0)",
+            "amante_fonts::Face::parse(crate::ui::fonts::PROMPTFONT_TTF, 0)",
+        ),
+        (
+            "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs",
+            '''        .sender(DESTINATION)?
+        .interface(REQUEST)?
+        .member("Response")?
+        .build();
+    let mut responses = MessageStream::for_match_rule(rule, &bus, Some(64)).await?;''',
+            '''        .sender(DESTINATION)
+        .interface(REQUEST)
+        .member("Response")
+        .build()?;
+    let mut responses = MessageStream::for_match_rule(
+        rule,
+        &bus,
+        Some(std::num::NonZeroUsize::new(64).expect("non-zero queue size")),
+    )
+    .await?;''',
+        ),
+        (
+            "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs",
+            "    zvariant::{OwnedObjectPath, OwnedValue, Value},",
+            "    OwnedObjectPath, OwnedValue, Value,",
+        ),
+        (
+            "crates/aurora-viewer/src/updater.rs",
+            "                checksum: None,",
+            "                sha256: None,",
+        ),
+    ]
+    for name, old, new in adaptations:
+        path = prepared / name
+        text = path.read_text()
+        if text.count(old) == 1:
+            path.write_text(text.replace(old, new, 1))
+        elif name.endswith("/portal.rs"):
+            assert "std::num::NonZeroUsize::new(64)" in text and ".build()?" in text, (
+                f"Expected one upstream compatibility point in {name}"
+            )
+        else:
+            assert text.count(new) == 1, f"Expected one upstream compatibility point in {name}"
+
+    portal = prepared / "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs"
+    text = portal.read_text()
+    for old, new in (("OwnedValue", "OwnedVariant"), ("Value", "Variant")):
+        text, count = re.subn(rf"\b{old}\b", new, text)
+        assert count or re.search(rf"\b{new}\b", text), f"Expected zbus type in portal.rs: {old}"
+    portal.write_text(text)
+
 # Keep localization keys and protocol identifiers intact. The release's new
 # product-owned copy follows the existing Amante identity; author credits do not.
-for locale in ("en", "fr", "ja"):
-    path = prepared / f"crates/aurora-i18n/locales/{locale}.ftl"
+for path in sorted((prepared / "crates/aurora-i18n/locales").glob("*.ftl")):
     lines = path.read_text().splitlines(keepends=True)
     key = ""
     for i, line in enumerate(lines):
@@ -67,6 +126,9 @@ security_files = {
     "crates/aurora-viewer/src/ui/fonts/preview.rs",
     "crates/aurora-viewer/src/system_notify.rs",
     "crates/aurora-viewer/src/slurl_handoff.rs",
+    "crates/aurora-viewer/src/ui/options/pages/game_controls.rs",
+    "crates/aurora-viewer/src/imports/file_picker/linux/portal.rs",
+    "crates/aurora-viewer/src/updater.rs",
 }
 security_prefixes = ("crates/amante-fonts/", "crates/amante-credentials/")
 manifest = {"upstream": commit, "release": tag, "files": {}, "added": {}}

@@ -13,6 +13,8 @@ permissions: {}
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Only this environment can read UPDATE_SIGNING_KEY (main branch only).
+    environment: release
     permissions:
       actions: read
       contents: write
@@ -76,6 +78,29 @@ jobs:
             echo "PUBLIC_NAME=$public_name"
           } >> "$GITHUB_ENV"
 
+      - name: Sign the update checksum for the in-viewer updater
+        shell: bash
+        env:
+          UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$UPDATE_SIGNING_KEY"
+          key="$RUNNER_TEMP/update-signing.pem"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$UPDATE_SIGNING_KEY" > "$key"
+          public="$(openssl pkey -in "$key" -pubout -outform DER | tail -c 32 | od -An -tx1 | tr -d ' \n')"
+          # The key must be one the released viewer trusts (RELEASE_KEYS).
+          gh api "repos/$GITHUB_REPOSITORY/contents/amante-viewer/crates/aurora-updater/src/signature.rs?ref=$COMMIT" \
+            -H 'Accept: application/vnd.github.raw' > "$RUNNER_TEMP/signature.rs"
+          sed -n '/release-keys-begin/,/release-keys-end/p' "$RUNNER_TEMP/signature.rs" | grep -qi "\"$public\""
+          sidecar="package/$COMPATIBILITY_NAME.sha256"
+          openssl pkeyutl -sign -rawin -inkey "$key" -in "$sidecar" -out "$sidecar.sig"
+          test "$(stat -c %s "$sidecar.sig")" -eq 64
+          # Verify the written signature with the public key before publishing.
+          openssl pkey -in "$key" -pubout -out "$RUNNER_TEMP/update-signing.pub"
+          openssl pkeyutl -verify -rawin -pubin -inkey "$RUNNER_TEMP/update-signing.pub" -in "$sidecar" -sigfile "$sidecar.sig"
+
       - name: Publish the verified Windows preview
         shell: bash
         run: |
@@ -84,12 +109,13 @@ jobs:
           gh release create "$RELEASE_TAG" \
             "package/$COMPATIBILITY_NAME" \
             "package/$COMPATIBILITY_NAME.sha256" \
+            "package/$COMPATIBILITY_NAME.sha256.sig" \
             "package/$PUBLIC_NAME" \
             "package/$PUBLIC_NAME.sha256" \
             --repo "$repo" \
             --target "$COMMIT" \
             --title "Amante Viewer Alpha v$VERSION" \
-            --notes "Amante Viewer Alpha v$VERSION, built from commit $COMMIT. Integrates official Aurora v0.9.11 (3d1420a932af25ff62be3d22a4c5718e428b8c41), retaining earlier updates: expanded Director and photo tools, 360-degree snapshots, gaming mode, clouds and frame-rate controls, rendering fixes, pose and animation improvements, chat filters, favorite wearables, dual-panel inventory, building tools, proxy settings, external script editing, RLVa and world/network fixes. Director recording requires ffmpeg. Settings are kept; the first region may load more slowly if the cache rebuilds. Optional upstream services remain subject to their own availability. Protected engine source is byte-identical to the official release. Amante retains its branding, crest, palette, settings, saved accounts, credential namespaces, owner update feed, maintained dependencies and local-peer protections. Blender retains Amante's mutual session pairing: use the Amante addon. A Windows desktop shortcut is created on the first normal launch from the extracted folder; keep that folder in place. Published releases are detected at login unless update notices are disabled or this version was skipped. This is unsigned Alpha preview software, not a final release. The public Windows x64 download does not require a GitHub sign-in. Passing builds and offline tests do not prove rendering in a logged-in Second Life session. Verify the accompanying SHA-256 checksum before installing."
+            --notes "Amante Viewer Alpha v$VERSION, built from commit $COMMIT. Integrates official Aurora Viewer v0.9.13, including the cumulative 0.9.12 update: 15 interface languages, Game Controls, world photo looks and LUTs, and updates to chat, avatars and inventory. Newer features include Phototools lighting and depth-of-field controls, ray-traced shadows and indirect lighting, optional planet curvature, improved outfits, Contacts, materials, camera controls, and many fixes across chat, inventory, avatars and RLVa. Protected rendering, texture, clothing, networking and other runtime files are byte-identical to official Aurora v0.9.13. Amante retains its branding, crest, palette, settings, saved accounts, credential namespaces, owner update feed, maintained dependencies and local-peer protections. Blender retains Amante's mutual session pairing: use the Amante addon. Director recording requires ffmpeg. Settings are kept; the first region may load more slowly while the cache rebuilds. A Windows desktop shortcut is created on the first normal launch from the extracted folder; keep that folder in place. Published releases are detected at login unless update notices are disabled or this version was skipped. This is unsigned Alpha preview software, not a final release. The public Windows x64 download does not require a GitHub sign-in. Passing builds and offline tests do not prove rendering in a logged-in Second Life session. Verify the accompanying SHA-256 checksum before installing."
 
           release_url="https://github.com/$repo/releases/tag/$RELEASE_TAG"
           echo "Published $release_url" >> "$GITHUB_STEP_SUMMARY"

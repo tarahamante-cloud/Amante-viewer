@@ -1,28 +1,32 @@
-# Amante Viewer Alpha v0.9.15
+# Amante Viewer Alpha v0.9.16
 
-Based on official Aurora Viewer release `v0.9.11`, commit
-`3d1420a932af25ff62be3d22a4c5718e428b8c41`, including all previous updates.
+Based on official Aurora Viewer release `v0.9.13`, commit
+`e961b7df61c49552773f3bc209d7d80d92a0b16b`, including the cumulative
+`v0.9.12` update.
 
-This update includes the full official release, including its rendering,
-texture, clothing, networking and performance changes. Those engine files
-are byte-identical to the official release, not locally rewritten.
+This update includes Aurora's new interface languages, Game Controls, world
+photo looks and LUTs, Phototools lighting and depth-of-field controls,
+ray-traced shadows and indirect lighting, optional planet curvature, and
+updates across chat, avatars, inventory and building tools. The rendering,
+texture, clothing, networking and other protected runtime files are
+byte-identical to official Aurora `v0.9.13`.
 Amante retains its name, crest, palette, profile and credential namespaces,
 owner feeds, packaging, maintained dependencies and local-peer protections.
-Aurora's complete Quick Preferences, toolbar, browser and Friends Only
-implementations supersede the earlier unfinished local UI substitutes.
+Amante's mutual Blender session pairing remains in place; use the matching
+Amante Blender add-on.
 
-This Alpha adds reviewed dependency security fixes to that clean baseline:
-maintained font metadata parsing and Linux credential/D-Bus libraries, patched
-certificate validation, Markdown parsing and constant-time utilities.
-See the included `amante-security-manifest.json`
-for the exact security-maintenance exceptions. Rendering, world textures,
-networking and wearable engine code remain unchanged.
+This Alpha also keeps Amante's reviewed dependency security fixes:
+maintained font metadata parsing and Linux credential/D-Bus libraries,
+patched certificate validation, Markdown parsing and constant-time utilities.
+See `amante-security-manifest.json` for the exact security-maintenance
+exceptions. Those dependency changes do not locally rewrite Aurora's
+rendering, world-texture, networking or wearable engine code.
 
 LICENSE and NOTICE.md retain Aurora and third-party attribution. The source manifest records every original and branded file hash.
 
-This incremental update keeps the existing Amante Alpha settings and accounts.
-The official cache format upgrade clears the cache once; the first region can
-load more slowly. A Windows desktop shortcut is created on the first normal
+This incremental update keeps existing Amante settings and saved accounts.
+The cache may take longer to rebuild the first region after updating. A
+Windows desktop shortcut is created on the first normal
 launch from the extracted folder, without administrator access. Keep that
 folder in place. Removing the viewer's registrations also removes its own
 shortcut, never another program's shortcut.
